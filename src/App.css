@@ -40,3 +40,11 @@
 .read-the-docs {
   color: #888;
 }
+
+.viewport {
+  width: 150px;
+  overflow-y: auto;
+}
+.item {
+  height: 20px;
+}
