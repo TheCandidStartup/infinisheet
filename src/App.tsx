@@ -11,7 +11,7 @@ const SETTINGS = {
   startIndex: 1
 }
 
-const getData = (offset: number, limit: number) => {
+const getData = (offset: number, limit: number):any[] => {
   const data = []
   const start = Math.max(SETTINGS.minIndex, offset)
   const end = Math.min(offset + limit - 1, SETTINGS.maxIndex)
