@@ -1,6 +1,7 @@
 import './App.css'
 // @ts-ignore
 import VirtualScroller from './VirtualScroller'
+import { FixedSizeList as List } from 'react-window'
 
 const SETTINGS = {
   itemHeight: 20,
@@ -36,11 +37,24 @@ const rowTemplate = (item: any) => (
   </div>
 )
 
+const Row = ({ index, style } : { index: number, style: any }) => (
+  <div style={style}>Row {index}</div>
+);
+
 function App() {
   return (
     <>
       <div>
         <VirtualScroller className="viewport" get={getData} settings={SETTINGS} row={rowTemplate}/>
+      </div>
+      <p></p>
+      <div>
+      <List
+        height={SETTINGS.itemHeight*SETTINGS.amount}
+        itemCount={SETTINGS.maxIndex - SETTINGS.minIndex}
+        itemSize={SETTINGS.itemHeight}>
+          {Row}
+      </List>
       </div>
     </>
   )

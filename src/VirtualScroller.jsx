@@ -1,4 +1,5 @@
 import React, { Component, PureComponent } from 'react'
+import { flushSync } from 'react-dom'
 
 const setInitialState = (settings) => {
   const { itemHeight, amount, tolerance, minIndex, maxIndex, startIndex } = settings
@@ -50,19 +51,21 @@ class Scroller extends PureComponent {
     const topPaddingHeight = Math.max((index - minIndex) * itemHeight, 0)
     console.log(`runScroller ${scrollTop} ${minIndex + Math.floor(scrollTop/itemHeight)}`);
     const bottomPaddingHeight = Math.max(totalHeight - topPaddingHeight - bufferedItems * itemHeight, 0)
-    window.requestAnimationFrame(() => { 
-      console.log(`requestAnimationFrame ${scrollTop}`);
-      const messageChannel = new MessageChannel();
-      messageChannel.port1.onmessage = () => { console.log(`PostPaint ${scrollTop}`) };
-      messageChannel.port2.postMessage(undefined);
-    })
-    window.requestIdleCallback(() => { console.log(`requestIdleCallback  ${scrollTop}`) });
+    // window.requestAnimationFrame(() => { 
+    //   console.log(`requestAnimationFrame ${scrollTop}`);
+    //   const messageChannel = new MessageChannel();
+    //   messageChannel.port1.onmessage = () => { console.log(`PostPaint ${scrollTop}`) };
+    //   messageChannel.port2.postMessage(undefined);
+    // })
+    // window.requestIdleCallback(() => { console.log(`requestIdleCallback  ${scrollTop}`) });
 
+    //flushSync(() => {
     this.setState({
       topPaddingHeight,
       bottomPaddingHeight,
       index
     })
+    //})
   }
 
   render() {
