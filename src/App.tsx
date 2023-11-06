@@ -6,8 +6,8 @@ const SETTINGS = {
   itemHeight: 20,
   amount: 10,
   tolerance: 5,
-  minIndex: -9999,
-  maxIndex: 100000,
+  minIndex: -999,
+  maxIndex: 1000,
   startIndex: 1
 }
 
@@ -24,9 +24,15 @@ const getData = (offset: number, limit: number):any[] => {
   return data
 }
 
+function MyText({ text } : { text: string }) {
+  return (
+    <>{text}</>
+  )
+}
+
 const rowTemplate = (item: any) => (
   <div className="item" key={item.index}>
-    {item.text}
+    <MyText text={item.text as string} key={item.index} />
   </div>
 )
 

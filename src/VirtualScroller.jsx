@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, PureComponent } from 'react'
 
 const setInitialState = (settings) => {
   const { itemHeight, amount, tolerance, minIndex, maxIndex, startIndex } = settings
@@ -21,11 +21,11 @@ const setInitialState = (settings) => {
     topPaddingHeight,
     bottomPaddingHeight,
     initialPosition,
-    data: []
+    index: startIndex - tolerance
   }
 }
 
-class Scroller extends Component {
+class Scroller extends PureComponent {
   constructor(props) {
     super(props)
     this.state = setInitialState(props.settings)
@@ -33,28 +33,42 @@ class Scroller extends Component {
   }
   
   componentDidMount() {
+    console.log(`componentDidMount ${this.state.initialPosition}`);
     this.viewportElement.current.scrollTop = this.state.initialPosition
     if (!this.state.initialPosition) {
       this.runScroller({ target: { scrollTop: 0 } })
     }
   }
 
+  componentDidUpdate() {
+    console.log(`componentDidUpdate ${this.state.topPaddingHeight}`);
+  }
+
   runScroller = ({ target: { scrollTop } }) => {
     const { totalHeight, toleranceHeight, bufferedItems, settings: { itemHeight, minIndex }} = this.state
     const index = minIndex + Math.floor((scrollTop - toleranceHeight) / itemHeight)
-    const data = this.props.get(index, bufferedItems)
     const topPaddingHeight = Math.max((index - minIndex) * itemHeight, 0)
-    const bottomPaddingHeight = Math.max(totalHeight - topPaddingHeight - data.length * itemHeight, 0)
+    console.log(`runScroller ${scrollTop} ${minIndex + Math.floor(scrollTop/itemHeight)}`);
+    const bottomPaddingHeight = Math.max(totalHeight - topPaddingHeight - bufferedItems * itemHeight, 0)
+    window.requestAnimationFrame(() => { 
+      console.log(`requestAnimationFrame ${scrollTop}`);
+      const messageChannel = new MessageChannel();
+      messageChannel.port1.onmessage = () => { console.log(`PostPaint ${scrollTop}`) };
+      messageChannel.port2.postMessage(undefined);
+    })
+    window.requestIdleCallback(() => { console.log(`requestIdleCallback  ${scrollTop}`) });
 
     this.setState({
       topPaddingHeight,
       bottomPaddingHeight,
-      data
+      index
     })
   }
 
   render() {
-    const { viewportHeight, topPaddingHeight, bottomPaddingHeight, data } = this.state
+    const { viewportHeight, bufferedItems, topPaddingHeight, bottomPaddingHeight, index } = this.state
+    const data = this.props.get(index, bufferedItems)
+    console.log(`render ${topPaddingHeight} ${data.length}`);
     return (
       <div
         className="viewport"
@@ -62,11 +76,13 @@ class Scroller extends Component {
         onScroll={this.runScroller}
         style={{ height: viewportHeight }}
       >
-        <div style={{ height: topPaddingHeight }}></div>
+        <div className="innerContainer">
+        <div className="topPadding" key="topPadding" style={{ height: topPaddingHeight }}></div>
         {
           data.map(this.props.row)
         }
-        <div style={{ height: bottomPaddingHeight }}></div>
+        <div className="bottomPadding" key="bottomPadding" style={{ height: bottomPaddingHeight }}></div>
+        </div>
       </div>
     )
   }
