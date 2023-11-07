@@ -41,6 +41,11 @@
   color: #888;
 }
 
+.app-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+}
 .viewport {
   width: 150px;
   overflow-y: auto;

@@ -38,25 +38,25 @@ const rowTemplate = (item: any) => (
 )
 
 const Row = ({ index, style } : { index: number, style: any }) => (
-  <div style={style}>Row {index}</div>
+  <div style={style}>Row {index+1}</div>
 );
 
 function App() {
   return (
-    <>
+    <div className="app-container">
       <div>
         <VirtualScroller className="viewport" get={getData} settings={SETTINGS} row={rowTemplate}/>
       </div>
-      <p></p>
       <div>
       <List
         height={SETTINGS.itemHeight*SETTINGS.amount}
+        width='150px'
         itemCount={SETTINGS.maxIndex - SETTINGS.minIndex}
         itemSize={SETTINGS.itemHeight}>
           {Row}
       </List>
       </div>
-    </>
+    </div>
   )
 }
 
