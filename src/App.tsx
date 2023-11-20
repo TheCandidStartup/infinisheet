@@ -1,61 +1,24 @@
 import './App.css'
-// @ts-ignore
-import VirtualScroller from './VirtualScroller'
-import { FixedSizeList as List } from 'react-window'
-
-const SETTINGS = {
-  itemHeight: 20,
-  amount: 10,
-  tolerance: 5,
-  minIndex: -999,
-  maxIndex: 1000,
-  startIndex: 1
-}
-
-const getData = (offset: number, limit: number):any[] => {
-  const data = []
-  const start = Math.max(SETTINGS.minIndex, offset)
-  const end = Math.min(offset + limit - 1, SETTINGS.maxIndex)
-  console.log(`request [${offset}..${offset + limit - 1}] -> [${start}..${end}] items`)
-  if (start <= end) {
-    for (let i = start; i <= end; i++) {
-      data.push({ index: i, text: `item ${i}` })
-    }
-  }
-  return data
-}
-
-function MyText({ text } : { text: string }) {
-  return (
-    <>{text}</>
-  )
-}
-
-const rowTemplate = (item: any) => (
-  <div className="item" key={item.index}>
-    <MyText text={item.text as string} key={item.index} />
+import { FixedSizeGrid as Grid } from 'react-window';
+ 
+const Cell = ({ columnIndex, rowIndex, style } : { columnIndex: number, rowIndex: number, style: any }) => (
+  <div className="cell" style={style}>
+    Item {rowIndex},{columnIndex}
   </div>
-)
-
-const Row = ({ index, style } : { index: number, style: any }) => (
-  <div style={style}>Row {index+1}</div>
 );
 
 function App() {
   return (
     <div className="app-container">
-      <div>
-        <VirtualScroller className="viewport" get={getData} settings={SETTINGS} row={rowTemplate}/>
-      </div>
-      <div>
-      <List
-        height={SETTINGS.itemHeight*SETTINGS.amount}
-        width='150px'
-        itemCount={SETTINGS.maxIndex - SETTINGS.minIndex}
-        itemSize={SETTINGS.itemHeight}>
-          {Row}
-      </List>
-      </div>
+      <Grid
+        columnCount={10000}
+        columnWidth={200}
+        height={240}
+        rowCount={10000}
+        rowHeight={30}
+        width={800}>
+          {Cell}
+      </Grid>
     </div>
   )
 }

@@ -75,3 +75,8 @@
 .bottomPadding {
   background-color: blue;
 }
+
+.cell {
+  border-style: solid;
+  border-color: black;
+}
