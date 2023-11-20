@@ -16,7 +16,7 @@ function App() {
         height={240}
         rowCount={10000}
         rowHeight={30}
-        width={800}>
+        width={600}>
           {Cell}
       </Grid>
     </div>
