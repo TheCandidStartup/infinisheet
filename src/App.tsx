@@ -11,10 +11,10 @@ function App() {
   return (
     <div className="app-container">
       <Grid
-        columnCount={10000}
+        columnCount={1000000}
         columnWidth={200}
         height={240}
-        rowCount={10000}
+        rowCount={1000000}
         rowHeight={30}
         width={600}>
           {Cell}
