@@ -1,24 +1,21 @@
 import './App.css'
-import { FixedSizeGrid as Grid } from 'react-window';
+import { VirtualList } from './VirtualList';
  
-const Cell = ({ columnIndex, rowIndex, style } : { columnIndex: number, rowIndex: number, style: any }) => (
+const Cell = ({ index, style } : { index: number, style: any}) => (
   <div className="cell" style={style}>
-    Item {rowIndex},{columnIndex}
+    Item {index}
   </div>
 );
 
 function App() {
   return (
     <div className="app-container">
-      <Grid
-        columnCount={1000000}
-        columnWidth={200}
+      <VirtualList
         height={240}
-        rowCount={1000000}
-        rowHeight={30}
+        itemSize={30}
         width={600}>
           {Cell}
-      </Grid>
+      </VirtualList>
     </div>
   )
 }
