@@ -12,6 +12,7 @@ function App() {
     <div className="app-container">
       <VirtualList
         height={240}
+        itemCount={100}
         itemSize={30}
         width={600}>
           {Cell}

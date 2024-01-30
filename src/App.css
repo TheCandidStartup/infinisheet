@@ -74,4 +74,5 @@
 .cell {
   border-style: solid;
   border-color: black;
+  box-sizing: border-box;
 }
