@@ -86,7 +86,7 @@ type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 export function VirtualList(props: VirtualListProps): React.JSX.Element {
     const { width, height, itemCount, itemSize } = props;
 
-    const [{ scrollOffset, scrollDirection}, onScrollExtent] = useVirtualScroll();
+    const [{ scrollOffset }, onScrollExtent] = useVirtualScroll();
 
     const totalSize = itemCount * itemSize;
 
