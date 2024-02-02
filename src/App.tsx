@@ -1,7 +1,7 @@
 import './App.css'
 import { VirtualList } from './VirtualList';
- 
-const Cell = ({ index, style } : { index: number, style: any}) => (
+
+const Cell = ({ index, style }: { index: number, style: any }) => (
   <div className="cell" style={style}>
     Item {index}
   </div>
@@ -15,7 +15,7 @@ function App() {
         itemCount={100}
         itemSize={30}
         width={600}>
-          {Cell}
+        {Cell}
       </VirtualList>
     </div>
   )
