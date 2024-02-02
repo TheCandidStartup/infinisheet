@@ -10,73 +10,87 @@ export type RenderComponentProps = {
 
 export type RenderComponent = React.ComponentType<RenderComponentProps>;
 
+export interface ItemOffsetMapping {
+  itemSize(itemIndex: number): number;
+  itemOffset(itemIndex: number): number;
+  offsetToItem(offset: number): [itemIndex: number, startOffset: number];
+};
+
 export type VirtualListProps = {
   children: RenderComponent,
   height: number,
   width: number,
   itemCount: number,
-  itemSize: number,
+  itemOffsetMapping: ItemOffsetMapping,
   itemData?: any,
   itemKey?: (index: number, data: any) => any,
 };
 
-type RangeToRender = [overscanStartIndex: number, overscanStopIndex: number, visibleStartIndex: number, visibleStopIndex: number];
+type RangeToRender = [
+  startIndex: number,
+  startOffset: number,
+  sizes: number[]
+];
 
-const defaultItemKey = (index: number, _data: any) => index;
-
-function getStartIndexForOffset({ itemCount, itemSize }: VirtualListProps, offset: number): number {
-  return Math.max(0, Math.min(itemCount - 1, Math.floor(offset / itemSize)));
-}
-
-function getStopIndexForStartIndex({ height, itemCount, itemSize }: VirtualListProps, startIndex: number, offset: number): number {
-  const startOffset = startIndex * itemSize;
-  const size = height;
-  const numVisibleItems = Math.ceil((size + offset - startOffset) / itemSize);
-  return Math.max(
-    0,
-    Math.min(itemCount, startIndex + numVisibleItems) // stop index is exclusive
-  );
-}
-
-function getRangeToRender(props: VirtualListProps, scrollOffset: number): RangeToRender {
-  const { itemCount } = props;
-
+function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffsetMapping, clientExtent: number, scrollOffset: number): RangeToRender {
   if (itemCount == 0) {
-    return [0, 0, 0, 0];
+    return [0, 0, []];
   }
 
-  const startIndex = getStartIndexForOffset(props, scrollOffset);
-  const stopIndex = getStopIndexForStartIndex(props, startIndex, scrollOffset);
+  var [itemIndex, startOffset] = itemOffsetMapping.offsetToItem(scrollOffset);
+  itemIndex = Math.max(0, Math.min(itemCount - 1, itemIndex));
+  var endOffset = scrollOffset + clientExtent;
 
   const overscanBackward = 1;
   const overscanForward = 1;
 
-  return [
-    Math.max(0, startIndex - overscanBackward),
-    Math.max(0, Math.min(itemCount, stopIndex + overscanForward)),
-    startIndex,
-    stopIndex
-  ]
+  for (let step = 0; step < overscanBackward && itemIndex > 0; step ++) {
+    itemIndex --;
+    startOffset -= itemOffsetMapping.itemSize(itemIndex);
+  }
+
+  const startIndex = itemIndex;
+  var offset = startOffset;
+  const sizes: number[] = [];
+
+  while (offset < endOffset && itemIndex < itemCount) {
+    const size = itemOffsetMapping.itemSize(itemIndex);
+    sizes.push(size);
+    offset += size;
+    itemIndex ++;
+  }
+
+  for (let step = 0; step < overscanForward && itemIndex < itemCount; step ++) {
+    const size = itemOffsetMapping.itemSize(itemIndex);
+    sizes.push(size);
+    itemIndex ++;
+  }
+
+  return [startIndex, startOffset, sizes];
 }
 
+const defaultItemKey = (index: number, _data: any) => index;
+
 function renderItems(props: VirtualListProps, scrollOffset: number) {
-  const { children, itemData = undefined, itemSize, itemKey = defaultItemKey } = props;
+  const { children, itemData = undefined, itemCount, itemOffsetMapping, height, itemKey = defaultItemKey } = props;
 
-  const [startIndex, stopIndex] = getRangeToRender(props, scrollOffset);
+  const [startIndex, startOffset, sizes] = getRangeToRender(itemCount, itemOffsetMapping, height, scrollOffset);
 
-  const items = [];
-  for (let index = startIndex; index < stopIndex; index++) {
-    const offset = index * itemSize;
+  const items: JSX.Element[] = [];
+  var offset = startOffset;
+  sizes.forEach((size, arrayIndex) => {
+    const index = startIndex + arrayIndex;
     items.push(
       React.createElement(children, {
         data: itemData,
         key: itemKey(index, itemData),
-        index,
+        index: index,
         // isScrolling: useIsScrolling ? isScrolling : undefined,
-        style: { position: "absolute", top: offset, height: itemSize, width: "100%" }
+        style: { position: "absolute", top: offset, height: size, width: "100%" }
       })
     );
-  }
+    offset += size;
+  });
 
   return items;
 }
@@ -84,11 +98,12 @@ function renderItems(props: VirtualListProps, scrollOffset: number) {
 type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 
 export function VirtualList(props: VirtualListProps): React.JSX.Element {
-  const { width, height, itemCount, itemSize } = props;
+  const { width, height, itemCount, itemOffsetMapping } = props;
 
   const [{ scrollOffset }, onScrollExtent] = useVirtualScroll();
 
-  const totalSize = itemCount * itemSize;
+  // Total size is same as offset to item one off the end
+  const totalSize = itemOffsetMapping.itemOffset(itemCount);
 
   function onScroll(event: ScrollEvent) {
     const { clientHeight, scrollHeight, scrollTop } = event.currentTarget;
