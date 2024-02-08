@@ -76,3 +76,12 @@
   border-color: black;
   box-sizing: border-box;
 }
+
+.header {
+  background-color: lightgrey;
+  font-size: larger;
+  font-weight: bold;
+  border-style: solid;
+  border-color: black;
+  box-sizing: border-box;
+}

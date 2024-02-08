@@ -1,15 +1,15 @@
 import './App.css'
 import { VirtualList } from './VirtualList';
-import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
+import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
 const Cell = ({ index, style }: { index: number, style: any }) => (
-  <div className="cell" style={style}>
-    Item {index}
+  <div className={ index == 0 ? "header" : "cell" } style={style}>
+    { (index == 0) ? "Header" : "Item " + index }
   </div>
 );
 
 function App() {
-  var mapping = useFixedSizeItemOffsetMapping(30);
+  var mapping = useVariableSizeItemOffsetMapping(30, [50]);
 
   return (
     <div className="app-container">
