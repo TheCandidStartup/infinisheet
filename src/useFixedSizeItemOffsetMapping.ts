@@ -1,6 +1,6 @@
 import { ItemOffsetMapping } from './VirtualList.tsx';
 
-class FixedSizeItemOffsetMapping implements  ItemOffsetMapping {
+class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
   constructor (itemSize: number) {
     this.fixedItemSize = itemSize;
   }
