@@ -105,8 +105,7 @@ export function VirtualList(props: VirtualListProps): React.JSX.Element {
           nextOffset += size,
           index = startIndex + arrayIndex,
           <ChildType data={itemData} key={itemKey(index, itemData)} index={index}
-                     style={{ position: "absolute", top: offset, height: size, width: "100%" }}
-          />
+                     style={{ position: "absolute", top: offset, height: size, width: "100%" }}/>
         ))}
       </div>
     </div>
