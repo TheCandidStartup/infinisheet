@@ -70,35 +70,10 @@ function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffsetMappin
 }
 
 const defaultItemKey = (index: number, _data: any) => index;
-
-function renderItems(props: VirtualListProps, scrollOffset: number) {
-  const { children, itemData = undefined, itemCount, itemOffsetMapping, height, itemKey = defaultItemKey } = props;
-
-  const [startIndex, startOffset, sizes] = getRangeToRender(itemCount, itemOffsetMapping, height, scrollOffset);
-
-  const items: JSX.Element[] = [];
-  var offset = startOffset;
-  sizes.forEach((size, arrayIndex) => {
-    const index = startIndex + arrayIndex;
-    items.push(
-      React.createElement(children, {
-        data: itemData,
-        key: itemKey(index, itemData),
-        index: index,
-        // isScrolling: useIsScrolling ? isScrolling : undefined,
-        style: { position: "absolute", top: offset, height: size, width: "100%" }
-      })
-    );
-    offset += size;
-  });
-
-  return items;
-}
-
 type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 
 export function VirtualList(props: VirtualListProps): React.JSX.Element {
-  const { width, height, itemCount, itemOffsetMapping } = props;
+  const { width, height, itemCount, itemOffsetMapping, children, itemData = undefined, itemKey = defaultItemKey } = props;
 
   const [{ scrollOffset }, onScrollExtent] = useVirtualScroll();
 
@@ -110,10 +85,29 @@ export function VirtualList(props: VirtualListProps): React.JSX.Element {
     onScrollExtent(clientHeight, scrollHeight, scrollTop);
   }
 
+  const [startIndex, startOffset, sizes] = getRangeToRender(itemCount, itemOffsetMapping, height, scrollOffset);
+
+  // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
+  // naming convention as components do. 
+  const ChildType = children;
+
+  // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
+  // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
+  // returns the result of the final statement which makes the iteration a little clumsier.
+  let nextOffset = startOffset;
+  let index, offset;
+
   return (
     <div onScroll={onScroll} style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
       <div style={{ height: totalSize, width: "100%" }}>
-        {renderItems(props, scrollOffset)}
+        {sizes.map((size, arrayIndex) => (
+          offset = nextOffset,
+          nextOffset += size,
+          index = startIndex + arrayIndex,
+          <ChildType data={itemData} key={itemKey(index, itemData)} index={index}
+                     style={{ position: "absolute", top: offset, height: size, width: "100%" }}
+          />
+        ))}
       </div>
     </div>
   );
