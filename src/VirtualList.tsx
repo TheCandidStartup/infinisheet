@@ -89,7 +89,7 @@ export function VirtualList(props: VirtualListProps): React.JSX.Element {
 
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
   // naming convention as components do. 
-  const ChildType = children;
+  const ChildVar = children;
 
   // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
   // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
@@ -104,8 +104,8 @@ export function VirtualList(props: VirtualListProps): React.JSX.Element {
           offset = nextOffset,
           nextOffset += size,
           index = startIndex + arrayIndex,
-          <ChildType data={itemData} key={itemKey(index, itemData)} index={index}
-                     style={{ position: "absolute", top: offset, height: size, width: "100%" }}/>
+          <ChildVar data={itemData} key={itemKey(index, itemData)} index={index}
+                    style={{ position: "absolute", top: offset, height: size, width: "100%" }}/>
         ))}
       </div>
     </div>
