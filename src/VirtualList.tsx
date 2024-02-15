@@ -1,5 +1,6 @@
 import React from "react";
 import { useVirtualScroll } from './useVirtualScroll';
+import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
 export type RenderComponentProps = {
   data: any,
@@ -24,6 +25,7 @@ export type VirtualListProps = {
   itemOffsetMapping: ItemOffsetMapping,
   itemData?: any,
   itemKey?: (index: number, data: any) => any,
+  useIsScrolling?: boolean,
 };
 
 type RangeToRender = [
@@ -73,9 +75,12 @@ const defaultItemKey = (index: number, _data: any) => index;
 type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 
 export function VirtualList(props: VirtualListProps): React.JSX.Element {
-  const { width, height, itemCount, itemOffsetMapping, children, itemData = undefined, itemKey = defaultItemKey } = props;
+  const { width, height, itemCount, itemOffsetMapping, children, 
+    itemData = undefined, itemKey = defaultItemKey, useIsScrolling = false } = props;
 
+  const outerRef = React.useRef<HTMLDivElement>(null);
   const [{ scrollOffset }, onScrollExtent] = useVirtualScroll();
+  const isScrolling = useIsScrollingHook(outerRef.current); 
 
   // Total size is same as offset to item one off the end
   const totalSize = itemOffsetMapping.itemOffset(itemCount);
@@ -98,13 +103,14 @@ export function VirtualList(props: VirtualListProps): React.JSX.Element {
   let index, offset;
 
   return (
-    <div onScroll={onScroll} style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
+    <div onScroll={onScroll} ref={outerRef} style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
       <div style={{ height: totalSize, width: "100%" }}>
         {sizes.map((size, arrayIndex) => (
           offset = nextOffset,
           nextOffset += size,
           index = startIndex + arrayIndex,
           <ChildVar data={itemData} key={itemKey(index, itemData)} index={index}
+                    isScrolling={useIsScrolling ? isScrolling : undefined}
                     style={{ position: "absolute", top: offset, height: size, width: "100%" }}/>
         ))}
       </div>

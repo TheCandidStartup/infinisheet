@@ -2,9 +2,9 @@ import './App.css'
 import { VirtualList } from './VirtualList';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
-const Cell = ({ index, style }: { index: number, style: any }) => (
+const Cell = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: any }) => (
   <div className={ index == 0 ? "header" : "cell" } style={style}>
-    { (index == 0) ? "Header" : "Item " + index }
+    { (index == 0) ? "Header" : (isScrolling ? "Scroll " : "Item ") + index }
   </div>
 );
 
@@ -17,6 +17,7 @@ function App() {
         height={240}
         itemCount={100}
         itemOffsetMapping={mapping}
+        useIsScrolling={true}
         width={600}>
         {Cell}
       </VirtualList>

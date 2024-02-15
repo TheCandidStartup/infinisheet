@@ -15,10 +15,10 @@ const now = hasNativePerformanceNow
   ? () => performance.now()
   : () => Date.now();
 
-export function useAnimationTimeout(callback: Callback, delay: number | null) {
+export function useAnimationTimeout(callback: Callback, delay: number | null, key?: unknown) {
   const requestRef = useRef<number>();
   const savedCallback = useRef<Callback>(callback);
- 
+
   // Remember the latest callback
   useEffect(() => {
     savedCallback.current = callback;
@@ -27,21 +27,27 @@ export function useAnimationTimeout(callback: Callback, delay: number | null) {
   const start = now();
   
   useEffect(() => {
-    if (delay === null)
-      return;
-
     function tick() {
-      if (now() - start >= (delay as number)) {
+      requestRef.current = undefined;
+      if (delay === null)
+        return;
+
+      if (now() - start >= delay) {
         savedCallback.current();
-        requestRef.current = undefined;
       } else {
         requestRef.current = requestAnimationFrame(tick);
       }
     }
 
     tick();
-    return () => {if (typeof requestRef.current === 'number') cancelAnimationFrame(requestRef.current);}
-  }, [delay]);
+
+    return () => {
+      if (typeof requestRef.current === 'number') {
+        cancelAnimationFrame(requestRef.current);
+        requestRef.current = undefined;
+      }
+    }
+  }, [delay, key]);
 }
 
 export default useAnimationTimeout;

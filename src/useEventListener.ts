@@ -11,7 +11,7 @@ type Options = {
 
 export function useEventListener (eventName: string, 
                                   handler: (event: Event) => void, 
-                                  element: Window | Document | HTMLElement = window, 
+                                  element: Window | Document | HTMLElement | null = window, 
                                   options: Options = {}) {
   const savedHandler = useRef<any>();
   const { capture, passive, once } = options;
