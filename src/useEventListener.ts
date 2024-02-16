@@ -1,7 +1,7 @@
 // Based on https://github.com/realwugang/use-event-listener
 // and https://github.com/donavon/use-event-listener/blob/develop/src/index.js
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, RefObject } from 'react';
 
 type Options = {
   capture?: boolean
@@ -9,9 +9,15 @@ type Options = {
   passive?: boolean
 };
 
+type Listener = Window | Document | HTMLElement;
+
+function isListener(element: Listener | RefObject<HTMLElement>): element is Listener {
+  return (element as Listener).addEventListener !== undefined;
+}
+
 export function useEventListener (eventName: string, 
                                   handler: (event: Event) => void, 
-                                  element: Window | Document | HTMLElement | null = window, 
+                                  element: Listener | RefObject<HTMLElement> | null = window, 
                                   options: Options = {}) {
   const savedHandler = useRef<any>();
   const { capture, passive, once } = options;
@@ -21,16 +27,18 @@ export function useEventListener (eventName: string,
   }, [handler])
 
   useEffect(() => {
-    const isSupported = element && element.addEventListener;
-    if (!isSupported) {
+    if (!element)
       return;
-    }
+
+    const el =  isListener(element) ? element : element.current;
+    if (!el)
+      return;
 
     const eventListener = (event: Event) => savedHandler.current(event);
     const opts = { capture, passive, once };
-    element.addEventListener(eventName, eventListener, opts);
+    el.addEventListener(eventName, eventListener, opts);
     return () => {
-      element.removeEventListener(eventName, eventListener, opts);
+      el.removeEventListener(eventName, eventListener, opts);
     };
   }, [eventName, element, capture, passive, once]);
 }

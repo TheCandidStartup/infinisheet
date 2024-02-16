@@ -77,6 +77,13 @@
   box-sizing: border-box;
 }
 
+.cellScroll {
+  border-style: solid;
+  border-color: lightgrey;
+  box-sizing: border-box;
+  color: grey;
+}
+
 .header {
   background-color: lightgrey;
   font-size: larger;

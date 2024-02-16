@@ -80,7 +80,7 @@ export function VirtualList(props: VirtualListProps): React.JSX.Element {
 
   const outerRef = React.useRef<HTMLDivElement>(null);
   const [{ scrollOffset }, onScrollExtent] = useVirtualScroll();
-  const isScrolling = useIsScrollingHook(outerRef.current); 
+  const isScrolling = useIsScrollingHook(outerRef); 
 
   // Total size is same as offset to item one off the end
   const totalSize = itemOffsetMapping.itemOffset(itemCount);

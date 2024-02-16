@@ -3,8 +3,8 @@ import { VirtualList } from './VirtualList';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
 const Cell = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: any }) => (
-  <div className={ index == 0 ? "header" : "cell" } style={style}>
-    { (index == 0) ? "Header" : (isScrolling ? "Scroll " : "Item ") + index }
+  <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
+    { (index == 0) ? "Header" : "Item " + index }
   </div>
 );
 
