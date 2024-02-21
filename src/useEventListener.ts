@@ -44,3 +44,11 @@ export function useEventListener (eventName: string,
 }
 
 export default useEventListener;
+
+// In-source testing for private helper functions
+if (import.meta.vitest) {
+  const { it, expect } = import.meta.vitest
+  it('isListener', () => {
+    expect(isListener(window)).toBe(true)
+  })
+}
