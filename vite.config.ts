@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     includeSource: ['src/**/*.{js,ts}'], 
+    environment: 'jsdom'
   },
   define: { 
     'import.meta.vitest': 'undefined', 

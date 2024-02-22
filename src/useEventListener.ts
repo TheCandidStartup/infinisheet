@@ -1,7 +1,7 @@
 // Based on https://github.com/realwugang/use-event-listener
 // and https://github.com/donavon/use-event-listener/blob/develop/src/index.js
 
-import { useRef, useEffect, RefObject } from 'react';
+import { useRef, useEffect, RefObject, createRef } from 'react';
 
 type Options = {
   capture?: boolean
@@ -50,5 +50,8 @@ if (import.meta.vitest) {
   const { it, expect } = import.meta.vitest
   it('isListener', () => {
     expect(isListener(window)).toBe(true)
+    expect(isListener(document)).toBe(true)
+    expect(isListener(document.createElement("div"))).toBe(true)
+    expect(isListener(createRef())).toBe(false)
   })
 }
