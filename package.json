@@ -16,6 +16,7 @@
     "react-window": "*"
   },
   "devDependencies": {
+    "@testing-library/react": "^14.2.1",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-window": "^1.8.7",

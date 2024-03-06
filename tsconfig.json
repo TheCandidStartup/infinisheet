@@ -22,7 +22,8 @@
 
     /* vitest */
     "types": [
-      "vitest/importMeta"
+      "vitest/importMeta",
+      "vitest/globals"
     ]
   },
   "include": ["src"],
