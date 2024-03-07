@@ -16,10 +16,9 @@ describe('useVirtualScroll', () => {
     act(() => {
       onScrollExtent(100, 1000, 50);
     })
-    {
-      const [{ scrollOffset, scrollDirection }] = result.current;
-      expect(scrollOffset).toBe(50);
-      expect(scrollDirection).toBe("forward");
-    }
+    
+    const [{ scrollOffset, scrollDirection }] = result.current;
+    expect(scrollOffset).toBe(50);
+    expect(scrollDirection).toBe("forward");
   })
 })
