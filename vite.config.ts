@@ -8,7 +8,8 @@ export default defineConfig({
   test: {
     globals: true,
     includeSource: ['src/**/*.{js,ts}'], 
-    environment: 'jsdom'
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts'
   },
   define: { 
     'import.meta.vitest': 'undefined', 

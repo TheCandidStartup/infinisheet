@@ -16,7 +16,9 @@
     "react-window": "*"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-window": "^1.8.7",
