@@ -9,7 +9,12 @@ export default defineConfig({
     globals: true,
     includeSource: ['src/**/*.{js,ts}'], 
     environment: 'jsdom',
-    setupFiles: './src/test/setup.ts'
+    setupFiles: './src/test/setup.ts',
+    coverage: {
+      provider: 'istanbul',
+      include: ['src/**'],
+      exclude: ['src/test/**'],
+    },
   },
   define: { 
     'import.meta.vitest': 'undefined', 
