@@ -23,6 +23,7 @@ describe('Fixed Size VirtualList', () => {
     )
     expect(screen.getByText('Header')).toBeInTheDocument()
     expect(screen.getByText('Item 1')).toBeInTheDocument()
+    expect(screen.getByText('Item 8')).toBeInTheDocument()
     expect(screen.queryByText('Item 9')).toBeNull()
   })
 })
