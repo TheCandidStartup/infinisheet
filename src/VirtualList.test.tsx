@@ -21,9 +21,21 @@ describe('Fixed Size VirtualList', () => {
         {Cell}
       </VirtualList>
     )
-    expect(screen.getByText('Header')).toBeInTheDocument()
-    expect(screen.getByText('Item 1')).toBeInTheDocument()
-    expect(screen.getByText('Item 8')).toBeInTheDocument()
+    const header = screen.getByText('Header');
+    expect(header).toBeInTheDocument()
+    expect(header).toHaveProperty("style.top", '0px')
+    expect(header).toHaveProperty("style.height", '30px')
+
+    const item1 = screen.getByText('Item 1');
+    expect(item1).toBeInTheDocument()
+    expect(item1).toHaveProperty("style.top", '30px')
+    expect(item1).toHaveProperty("style.height", '30px')
+
+    const item8 = screen.getByText('Item 8');
+    expect(item8).toBeInTheDocument()
+    expect(item8).toHaveProperty("style.top", '240px')
+    expect(item8).toHaveProperty("style.height", '30px')
+
     expect(screen.queryByText('Item 9')).toBeNull()
   })
 })
