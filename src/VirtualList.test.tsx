@@ -1,4 +1,4 @@
-import { render, screen } from './test/wrapper'
+import { render, screen, fireEvent, act } from './test/wrapper'
 import { VirtualList } from './VirtualList'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 
@@ -37,5 +37,14 @@ describe('Fixed Size VirtualList', () => {
     expect(item8).toHaveProperty("style.height", '30px')
 
     expect(screen.queryByText('Item 9')).toBeNull()
+
+    const outerDiv = document.querySelector("div div");
+    if (!outerDiv)
+      throw "No outer div";
+
+    {act(() => {
+      fireEvent.scroll(outerDiv, { target: { scrollTop: 100 }});
+    })}
+    expect(screen.queryByText('Item 1')).toBeNull()
   })
 })
