@@ -2,6 +2,12 @@ import { render, screen, fireEvent, act } from './test/wrapper'
 import { VirtualList } from './VirtualList'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 
+// Function wrapper around throw so that it can be used in an expression like
+//    const value = somethingThatIsValueOrNull || throwErr("Shouldn't be null")
+function throwErr(msg: string): never {
+  throw msg;
+}
+
 describe('Fixed Size VirtualList', () => {
   const Cell = ({ index, style }: { index: number, style: any }) => (
     <div className={ index == 0 ? "header" : "cell" } style={style}>
@@ -38,9 +44,8 @@ describe('Fixed Size VirtualList', () => {
 
     expect(screen.queryByText('Item 9')).toBeNull()
 
-    const outerDiv = document.querySelector("div div");
-    if (!outerDiv)
-      throw "No outer div";
+    const innerDiv = header.parentElement || throwErr("No inner div");
+    const outerDiv = innerDiv.parentElement || throwErr("No outer div");
 
     {act(() => {
       fireEvent.scroll(outerDiv, { target: { scrollTop: 100 }});
