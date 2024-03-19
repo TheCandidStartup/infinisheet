@@ -22,6 +22,14 @@ function overrideProp(element: HTMLElement, prop: string, val: any) {
   });
 }
 
+// Like the regular scroll event, scrollend doesn't bubble and can't be cancelled
+function fireEventScrollEnd(element: HTMLElement) {
+  fireEvent(element, new UIEvent('scrollend', {
+    bubbles: false,
+    cancelable: false,
+  }));
+}
+
 function updateLayout(innerDiv: HTMLElement, outerDiv: HTMLElement) {
   const scrollHeight = parseInt(innerDiv.style.height);
   overrideProp(outerDiv, "scrollHeight", scrollHeight);
@@ -74,7 +82,7 @@ describe('Fixed Size VirtualList', () => {
     // Scroll down 4 items.
     {act(() => {
       fireEvent.scroll(outerDiv, { target: { scrollTop: 120 }});
-      fireEvent(outerDiv, new UIEvent('scrollend'));
+      fireEventScrollEnd(outerDiv);
     })}
     expect(screen.queryByText('header')).toBeNull()
     expect(screen.queryByText('Item 1')).toBeNull()
@@ -169,7 +177,7 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     expect(screen.queryByText('Item 100')).toBeNull()
 
     {act(() => {
-      fireEvent(outerDiv, new UIEvent('scrollend'));
+      fireEventScrollEnd(outerDiv);
     })}
 
     item91 = screen.getByText('Item 91');
