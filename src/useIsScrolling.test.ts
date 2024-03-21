@@ -32,7 +32,8 @@ describe('useIsScrolling with default argument', () => {
     expect(result.current).toBe(false);
   })
 
-  it('should fallback to timer if scrollend unimplemented', async () => {
+  it('should fallback to timer if scrollend unimplemented', () => {
+    vi.useFakeTimers();
     stubProperty(window, 'onscrollend', undefined);
 
     const { result } = renderHook(() => useIsScrolling())
@@ -43,9 +44,9 @@ describe('useIsScrolling with default argument', () => {
     })}
     expect(result.current).toBe(true);
 
-    // Wait one second to be sure timeout has fired
-    await act(async () => { await sleep(1000); });
-
+    {act(() => {
+      vi.advanceTimersByTime(1000);
+    })}
     expect(result.current).toBe(false);
   })
 })
