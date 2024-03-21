@@ -8,7 +8,7 @@ function sleep(delay: number) {
 
 describe('useIsScrolling with default argument', () => {
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.useRealTimers();
     unstubAllProperties();
   })
 
@@ -35,6 +35,23 @@ describe('useIsScrolling with default argument', () => {
   it('should fallback to timer if scrollend unimplemented', () => {
     vi.useFakeTimers();
     stubProperty(window, 'onscrollend', undefined);
+
+    const { result } = renderHook(() => useIsScrolling())
+    expect(result.current).toBe(false);
+
+    {act(() => {
+      fireEvent.scroll(window, { target: { scrollTop: 100 }});
+    })}
+    expect(result.current).toBe(true);
+
+    {act(() => {
+      vi.advanceTimersByTime(1000);
+    })}
+    expect(result.current).toBe(false);
+  })
+
+  it('should fallback to timer if scrollend implemented but undelivered', () => {
+    vi.useFakeTimers();
 
     const { result } = renderHook(() => useIsScrolling())
     expect(result.current).toBe(false);
