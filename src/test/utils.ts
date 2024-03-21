@@ -26,3 +26,32 @@ export function fireEventScrollEnd(element: HTMLElement | Window) {
     cancelable: false,
   }));
 }
+
+const _stubsProperty = new Map();
+
+export function stubProperty(object: object, name: string, value: any) {
+  if (!_stubsProperty.has(name))
+    _stubsProperty.set(name, [object, Object.getOwnPropertyDescriptor(object, name)]);
+  if (value === undefined && object.hasOwnProperty(name))
+  {
+    Reflect.deleteProperty(object, name);
+  } else {
+    Object.defineProperty(object, name, {
+      value,
+      writable: true,
+      configurable: true,
+      enumerable: true
+    });
+  }
+}
+
+export function unstubAllProperties() {
+  _stubsProperty.forEach((value, name) => {
+    const [object, original] = value;
+    if (!original)
+      Reflect.deleteProperty(object, name);
+    else
+      Object.defineProperty(object, name, original);
+  });
+  _stubsProperty.clear();
+}
