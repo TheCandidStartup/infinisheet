@@ -2,10 +2,6 @@ import { act, renderHook, fireEvent } from '@testing-library/react'
 import { fireEventScrollEnd, stubProperty, unstubAllProperties } from './test/utils'
 import { useIsScrolling } from './useIsScrolling'
 
-function sleep(delay: number) {
-  return new Promise(resolve => setTimeout(resolve, delay));
-}
-
 describe('useIsScrolling with default argument', () => {
   afterEach(() => {
     vi.useRealTimers();
