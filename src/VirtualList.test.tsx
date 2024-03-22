@@ -81,6 +81,19 @@ describe('Fixed Size VirtualList', () => {
 
     expect(screen.queryByText('Item 13')).toBeNull()
   })
+
+  it('empty list', () => {
+    render(
+      <VirtualList
+        height={240}
+        itemCount={0}
+        itemOffsetMapping={mapping}
+        width={600}>
+        {Cell}
+      </VirtualList>
+    )
+    expect(screen.queryByText('Header')).toBeNull()
+  })
 })
 
 describe('Variable Size VirtualList with useIsScrolling', () => {
@@ -165,5 +178,51 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     expect(item99).toHaveProperty("style.top", '3000px')
     expect(item99).toHaveProperty("style.height", '30px')
     expect(item99).toHaveProperty("className", 'cell')
+  })
+
+  it('should render list with no variable sizes', () => {
+    const fixedMapping = useVariableSizeItemOffsetMapping(30);
+    render(
+      <VirtualList
+        height={240}
+        itemCount={100}
+        itemOffsetMapping={fixedMapping}
+        useIsScrolling={true}
+        width={600}>
+        {Cell}
+      </VirtualList>
+    )
+    const header = screen.getByText('Header');
+    expect(header).toBeInTheDocument()
+    expect(header).toHaveProperty("style.top", '0px')
+    expect(header).toHaveProperty("style.height", '30px')
+
+    const item7 = screen.getByText('Item 8');
+    expect(item7).toBeInTheDocument()
+    expect(item7).toHaveProperty("style.top", '240px')
+    expect(item7).toHaveProperty("style.height", '30px')
+
+    expect(screen.queryByText('Item 9')).toBeNull()
+  })
+
+  it('should render list with less items than sizes', () => {
+    const longMapping = useVariableSizeItemOffsetMapping(30, [50, 100, 150]);
+
+    render(
+      <VirtualList
+        height={240}
+        itemCount={1}
+        itemOffsetMapping={longMapping}
+        useIsScrolling={true}
+        width={600}>
+        {Cell}
+      </VirtualList>
+    )
+    const header = screen.getByText('Header');
+    expect(header).toBeInTheDocument()
+    expect(header).toHaveProperty("style.top", '0px')
+    expect(header).toHaveProperty("style.height", '50px')
+
+    expect(screen.queryByText('Item 1')).toBeNull()
   })
 })
