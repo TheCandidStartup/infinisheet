@@ -8,13 +8,6 @@ import { useEffect, useRef } from 'react';
 
 type Callback = () => void;
 
-const hasNativePerformanceNow =
-  typeof performance === 'object' && typeof performance.now === 'function';
-
-const now = hasNativePerformanceNow
-  ? () => performance.now()
-  : () => Date.now();
-
 export function useAnimationTimeout(callback: Callback, delay: number | null, key?: unknown) {
   const requestRef = useRef<number>();
   const savedCallback = useRef<Callback>(callback);
@@ -24,7 +17,7 @@ export function useAnimationTimeout(callback: Callback, delay: number | null, ke
     savedCallback.current = callback;
   }, [callback]);
  
-  const start = now();
+  const start = performance.now();
   
   useEffect(() => {
     function tick() {
@@ -32,7 +25,7 @@ export function useAnimationTimeout(callback: Callback, delay: number | null, ke
       if (delay === null)
         return;
 
-      if (now() - start >= delay) {
+      if (performance.now() - start >= delay) {
         savedCallback.current();
       } else {
         requestRef.current = requestAnimationFrame(tick);
