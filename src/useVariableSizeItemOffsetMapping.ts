@@ -12,10 +12,12 @@ class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
 
   itemOffset(itemIndex: number): number {
     var offset = 0;
-    const length = this.sizes.length;
+    let length = this.sizes.length;
     if (itemIndex > length) {
       const numDefaultSize = itemIndex - length;
       offset = numDefaultSize * this.defaultItemSize;
+    } else {
+      length = itemIndex;
     }
     
     for (let i = 0; i < length; i ++)

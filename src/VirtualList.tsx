@@ -28,6 +28,11 @@ export type VirtualListProps = {
   useIsScrolling?: boolean,
 };
 
+export interface VirtualListProxy {
+  scrollTo(offset: number): void;
+  scrollToItem(index: number): void;
+};
+
 type RangeToRender = [
   startIndex: number,
   startOffset: number,
@@ -74,13 +79,25 @@ function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffsetMappin
 const defaultItemKey = (index: number, _data: any) => index;
 type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 
-export function VirtualList(props: VirtualListProps): React.JSX.Element {
+export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>((props, ref) => {
   const { width, height, itemCount, itemOffsetMapping, children, 
     itemData = undefined, itemKey = defaultItemKey, useIsScrolling = false } = props;
 
   const outerRef = React.useRef<HTMLDivElement>(null);
   const [{ scrollOffset }, onScrollExtent] = useVirtualScroll();
   const isScrolling = useIsScrollingHook(outerRef); 
+
+  React.useImperativeHandle(ref, () => {
+    return {
+      scrollTo(offset: number): void {
+        outerRef.current?.scrollTo(0, offset);
+      },
+
+      scrollToItem(index: number): void {
+        this.scrollTo(itemOffsetMapping.itemOffset(index));
+      }
+    }
+  }, [ itemOffsetMapping ]);
 
   // Total size is same as offset to item one off the end
   const totalSize = itemOffsetMapping.itemOffset(itemCount);
@@ -116,6 +133,6 @@ export function VirtualList(props: VirtualListProps): React.JSX.Element {
       </div>
     </div>
   );
-};
+});
 
 export default VirtualList;

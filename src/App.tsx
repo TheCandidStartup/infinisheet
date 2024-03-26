@@ -1,5 +1,6 @@
 import './App.css'
-import { VirtualList } from './VirtualList';
+import React from "react";
+import { VirtualList, VirtualListProxy } from './VirtualList';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
 const Cell = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: any }) => (
@@ -10,10 +11,24 @@ const Cell = ({ index, isScrolling, style }: { index: number, isScrolling?: bool
 
 function App() {
   var mapping = useVariableSizeItemOffsetMapping(30, [50]);
+  const ref = React.createRef<VirtualListProxy>();
 
   return (
     <div className="app-container">
+      <label>
+        ScrollToItem: 
+        <input
+          type={"number"}
+          height={200}
+          onChange={(event) => {
+            const value = parseInt(event.target?.value);
+            ref.current?.scrollToItem(value)
+          }}
+        />
+      </label>
+
       <VirtualList
+        ref={ref}
         height={240}
         itemCount={100}
         itemOffsetMapping={mapping}

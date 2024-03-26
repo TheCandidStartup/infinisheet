@@ -1,6 +1,7 @@
+import React from "react";
 import { render, screen, fireEvent, act } from './test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd } from './test/utils'
-import { VirtualList } from './VirtualList'
+import { VirtualList, VirtualListProxy } from './VirtualList'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
@@ -93,6 +94,37 @@ describe('Fixed Size VirtualList', () => {
       </VirtualList>
     )
     expect(screen.queryByText('Header')).toBeNull()
+  })
+
+  it('should support ref to a VirtualListProxy', () => {
+    const mock = vi.fn();
+    Element.prototype["scrollTo"] = mock;
+
+    try {
+      const ref = React.createRef<VirtualListProxy>();
+      render(
+        <VirtualList
+          ref={ref}
+          height={240}
+          itemCount={100}
+          itemOffsetMapping={mapping}
+          width={600}>
+          {Cell}
+        </VirtualList>
+      )
+
+      const proxy = ref.current || throwErr("null ref");
+      proxy.scrollTo(100);
+      expect(mock).toBeCalledWith(0, 100);
+
+      proxy.scrollToItem(42);
+      expect(mock).toBeCalledWith(0, 42*30);
+
+      proxy.scrollToItem(0);
+      expect(mock).toBeCalledWith(0, 0);
+    } finally {
+      Reflect.deleteProperty(Element.prototype, "scrollTo");
+    }
   })
 })
 
@@ -224,5 +256,42 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     expect(header).toHaveProperty("style.height", '50px')
 
     expect(screen.queryByText('Item 1')).toBeNull()
+  })
+
+  it('should support scrollToItem with index=-1,0,1,2', () => {
+    const mock = vi.fn();
+    Element.prototype["scrollTo"] = mock;
+
+    try {
+      const ref = React.createRef<VirtualListProxy>();
+      render(
+        <VirtualList
+          ref={ref}
+          height={240}
+          itemCount={100}
+          itemOffsetMapping={mapping}
+          width={600}>
+          {Cell}
+        </VirtualList>
+      )
+
+      const proxy = ref.current || throwErr("null ref");
+      proxy.scrollTo(100);
+      expect(mock).toBeCalledWith(0, 100);
+
+      proxy.scrollToItem(-1);
+      expect(mock).toBeCalledWith(0, 0);
+
+      proxy.scrollToItem(0);
+      expect(mock).toBeCalledWith(0, 0);
+
+      proxy.scrollToItem(1);
+      expect(mock).toBeCalledWith(0, 60);
+
+      proxy.scrollToItem(2);
+      expect(mock).toBeCalledWith(0, 90);
+    } finally {
+      Reflect.deleteProperty(Element.prototype, "scrollTo");
+    }
   })
 })

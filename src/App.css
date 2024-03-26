@@ -92,3 +92,9 @@
   border-color: black;
   box-sizing: border-box;
 }
+
+input[type="number"] {
+  width: 100px;
+  margin-left: 10px;
+  margin-bottom: 20px;
+}
