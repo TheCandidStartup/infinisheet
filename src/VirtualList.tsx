@@ -1,31 +1,19 @@
 import React from "react";
+import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, ScrollEvent } from './VirtualBase.ts';
 import { useVirtualScroll } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
-export interface RenderComponentProps {
-  data: any,
+export interface VirtualListItemProps extends VirtualBaseItemProps {
   index: number,
-  isScrolling?: boolean,
-  style: Object,
 };
 
-export type RenderComponent = React.ComponentType<RenderComponentProps>;
+type VirtualListItem = React.ComponentType<VirtualListItemProps>;
 
-export interface ItemOffsetMapping {
-  itemSize(itemIndex: number): number;
-  itemOffset(itemIndex: number): number;
-  offsetToItem(offset: number): [itemIndex: number, startOffset: number];
-};
-
-export interface VirtualListProps {
-  children: RenderComponent,
-  height: number,
-  width: number,
+export interface VirtualListProps extends VirtualBaseProps {
+  children: VirtualListItem,
   itemCount: number,
   itemOffsetMapping: ItemOffsetMapping,
-  itemData?: any,
   itemKey?: (index: number, data: any) => any,
-  useIsScrolling?: boolean,
 };
 
 export interface VirtualListProxy {
@@ -33,51 +21,7 @@ export interface VirtualListProxy {
   scrollToItem(index: number): void;
 };
 
-type RangeToRender = [
-  startIndex: number,
-  startOffset: number,
-  sizes: number[]
-];
-
-function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffsetMapping, clientExtent: number, scrollOffset: number): RangeToRender {
-  if (itemCount == 0) {
-    return [0, 0, []];
-  }
-
-  var [itemIndex, startOffset] = itemOffsetMapping.offsetToItem(scrollOffset);
-  itemIndex = Math.max(0, Math.min(itemCount - 1, itemIndex));
-  var endOffset = scrollOffset + clientExtent;
-
-  const overscanBackward = 1;
-  const overscanForward = 1;
-
-  for (let step = 0; step < overscanBackward && itemIndex > 0; step ++) {
-    itemIndex --;
-    startOffset -= itemOffsetMapping.itemSize(itemIndex);
-  }
-
-  const startIndex = itemIndex;
-  var offset = startOffset;
-  const sizes: number[] = [];
-
-  while (offset < endOffset && itemIndex < itemCount) {
-    const size = itemOffsetMapping.itemSize(itemIndex);
-    sizes.push(size);
-    offset += size;
-    itemIndex ++;
-  }
-
-  for (let step = 0; step < overscanForward && itemIndex < itemCount; step ++) {
-    const size = itemOffsetMapping.itemSize(itemIndex);
-    sizes.push(size);
-    itemIndex ++;
-  }
-
-  return [startIndex, startOffset, sizes];
-}
-
 const defaultItemKey = (index: number, _data: any) => index;
-type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 
 export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>((props, ref) => {
   const { width, height, itemCount, itemOffsetMapping, children, 
