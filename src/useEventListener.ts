@@ -3,7 +3,7 @@
 
 import { useRef, useEffect, RefObject, createRef } from 'react';
 
-type Options = {
+interface Options {
   capture?: boolean
   once?: boolean
   passive?: boolean

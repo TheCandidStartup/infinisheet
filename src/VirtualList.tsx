@@ -2,7 +2,7 @@ import React from "react";
 import { useVirtualScroll } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
-export type RenderComponentProps = {
+export interface RenderComponentProps {
   data: any,
   index: number,
   isScrolling?: boolean,
@@ -17,7 +17,7 @@ export interface ItemOffsetMapping {
   offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 };
 
-export type VirtualListProps = {
+export interface VirtualListProps {
   children: RenderComponent,
   height: number,
   width: number,
