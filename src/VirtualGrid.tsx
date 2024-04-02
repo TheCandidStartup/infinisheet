@@ -1,4 +1,5 @@
 import React from "react";
+import { Fragment } from "react";
 import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, ScrollEvent } from './VirtualBase.ts';
 import { useVirtualScroll } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
@@ -79,7 +80,7 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
           nextRowOffset += rowSize,
           rowIndex = startRowIndex + rowArrayIndex,
           nextColumnOffset = startColumnOffset,
-          <>
+          <Fragment key={itemKey(rowIndex, 0, itemData)}>
           {columnSizes.map((columnSize, columnArrayIndex) => (
             columnOffset = nextColumnOffset,
             nextColumnOffset += columnSize,
@@ -89,7 +90,7 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
                       isScrolling={useIsScrolling ? isScrolling : undefined}
                       style={{ position: "absolute", top: rowOffset, height: rowSize, left: columnOffset, width: columnSize }}/>
           ))}
-          </>
+          </Fragment>
         ))}
       </div>
     </div>
