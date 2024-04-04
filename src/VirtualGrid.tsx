@@ -27,7 +27,8 @@ export interface VirtualGridProxy {
 
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: any) => `${rowIndex}:${columnIndex}`;
 
-export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>((props, ref) => {
+// Using a named function rather than => so that the name shows up in React Developer Tools
+export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(function VirtualGrid(props, ref) {
   const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, 
     itemData = undefined, itemKey = defaultItemKey, useIsScrolling = false } = props;
 

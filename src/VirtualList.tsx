@@ -23,7 +23,8 @@ export interface VirtualListProxy {
 
 const defaultItemKey = (index: number, _data: any) => index;
 
-export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>((props, ref) => {
+// Using a named function rather than => so that the name shows up in React Developer Tools
+export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(function VirtualList(props, ref) {
   const { width, height, itemCount, itemOffsetMapping, children, 
     itemData = undefined, itemKey = defaultItemKey, useIsScrolling = false } = props;
 
