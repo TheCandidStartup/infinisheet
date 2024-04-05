@@ -32,15 +32,21 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, 
     itemData = undefined, itemKey = defaultItemKey, useIsScrolling = false } = props;
 
+  // Total size is same as offset to item one off the end
+  const totalRowSize = rowOffsetMapping.itemOffset(rowCount);
+  const totalColumnSize = columnOffsetMapping.itemOffset(columnCount);
+
   const outerRef = React.useRef<HTMLDivElement>(null);
-  const [{ scrollOffset: scrollRowOffset }, onScrollRow] = useVirtualScroll();
-  const [{ scrollOffset: scrollColumnOffset }, onScrollColumn] = useVirtualScroll();
+  const { scrollOffset: scrollRowOffset, renderOffset: renderRowOffset, renderSize: renderRowSize,
+    onScroll: onScrollRow, doScrollTo: doScrollToRow } = useVirtualScroll(totalRowSize);
+  const { scrollOffset: scrollColumnOffset, renderOffset: renderColumnOffset, renderSize: renderColumnSize,
+    onScroll: onScrollColumn, doScrollTo: doScrollToColumn} = useVirtualScroll(totalColumnSize);
   const isScrolling = useIsScrollingHook(outerRef); 
 
   React.useImperativeHandle(ref, () => {
     return {
       scrollTo(rowOffset: number, columnOffset: number): void {
-        outerRef.current?.scrollTo(columnOffset, rowOffset);
+        outerRef.current?.scrollTo(doScrollToColumn(columnOffset), doScrollToRow(rowOffset));
       },
 
       scrollToItem(rowIndex: number, columnIndex: number): void {
@@ -49,18 +55,19 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
     }
   }, [ rowOffsetMapping, columnOffsetMapping ]);
 
-  // Total size is same as offset to item one off the end
-  const totalRowSize = rowOffsetMapping.itemOffset(rowCount);
-  const totalColumnSize = columnOffsetMapping.itemOffset(columnCount);
 
   function onScroll(event: ScrollEvent) {
     const { clientWidth, clientHeight, scrollWidth, scrollHeight, scrollLeft, scrollTop } = event.currentTarget;
-    onScrollRow(clientHeight, scrollHeight, scrollTop);
-    onScrollColumn(clientWidth, scrollWidth, scrollLeft);
+    const newScrollTop = onScrollRow(clientHeight, scrollHeight, scrollTop);
+    const newScrollLeft = onScrollColumn(clientWidth, scrollWidth, scrollLeft);
+    if (outerRef.current && (newScrollTop != scrollTop || newScrollLeft != scrollLeft ))
+      outerRef.current.scrollTo(newScrollLeft, newScrollTop);
   }
 
-  const [startRowIndex, startRowOffset, rowSizes] = getRangeToRender(rowCount, rowOffsetMapping, height, scrollRowOffset);
-  const [startColumnIndex, startColumnOffset, columnSizes] = getRangeToRender(columnCount, columnOffsetMapping, width, scrollColumnOffset);
+  const [startRowIndex, startRowOffset, rowSizes] = 
+    getRangeToRender(rowCount, rowOffsetMapping, height, scrollRowOffset + renderRowOffset);
+  const [startColumnIndex, startColumnOffset, columnSizes] = 
+    getRangeToRender(columnCount, columnOffsetMapping, width, scrollColumnOffset + renderColumnOffset);
 
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
   // naming convention as components do. 
@@ -69,18 +76,18 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
   // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
   // returns the result of the final statement which makes the iteration a little clumsier.
-  let nextRowOffset = startRowOffset;
+  let nextRowOffset = startRowOffset - renderRowOffset;
   let rowIndex=0, rowOffset=0;
   let nextColumnOffset=0, columnIndex=0, columnOffset=0;
 
   return (
     <div onScroll={onScroll} ref={outerRef} style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <div style={{ height: totalRowSize, width: totalColumnSize }}>
+      <div style={{ height: renderRowSize, width: renderColumnSize }}>
         {rowSizes.map((rowSize, rowArrayIndex) => (
           rowOffset = nextRowOffset,
           nextRowOffset += rowSize,
           rowIndex = startRowIndex + rowArrayIndex,
-          nextColumnOffset = startColumnOffset,
+          nextColumnOffset = startColumnOffset - renderColumnOffset,
           <Fragment key={itemKey(rowIndex, 0, itemData)}>
           {columnSizes.map((columnSize, columnArrayIndex) => (
             columnOffset = nextColumnOffset,

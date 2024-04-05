@@ -114,13 +114,13 @@ describe('Fixed Size VirtualList', () => {
       )
 
       const proxy = ref.current || throwErr("null ref");
-      proxy.scrollTo(100);
+      {act(() => { proxy.scrollTo(100); })}
       expect(mock).toBeCalledWith(0, 100);
 
-      proxy.scrollToItem(42);
+      {act(() => { proxy.scrollToItem(42); })}
       expect(mock).toBeCalledWith(0, 42*30);
 
-      proxy.scrollToItem(0);
+      {act(() => { proxy.scrollToItem(0); })}
       expect(mock).toBeCalledWith(0, 0);
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
@@ -276,19 +276,19 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
       )
 
       const proxy = ref.current || throwErr("null ref");
-      proxy.scrollTo(100);
+      {act(() => { proxy.scrollTo(100); })}
       expect(mock).toBeCalledWith(0, 100);
 
-      proxy.scrollToItem(-1);
+      {act(() => { proxy.scrollToItem(-1); })}
       expect(mock).toBeCalledWith(0, 0);
 
-      proxy.scrollToItem(0);
+      {act(() => { proxy.scrollToItem(0); })}
       expect(mock).toBeCalledWith(0, 0);
 
-      proxy.scrollToItem(1);
+      {act(() => { proxy.scrollToItem(1); })}
       expect(mock).toBeCalledWith(0, 60);
 
-      proxy.scrollToItem(2);
+      {act(() => { proxy.scrollToItem(2); })}
       expect(mock).toBeCalledWith(0, 90);
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");

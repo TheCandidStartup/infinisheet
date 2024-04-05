@@ -157,13 +157,13 @@ describe('VirtualGrid', () => {
       )
 
       const proxy = ref.current || throwErr("null ref");
-      proxy.scrollTo(100, 200);
+      {act(() => { proxy.scrollTo(100, 200); })}
       expect(mock).toBeCalledWith(200, 100);
 
-      proxy.scrollToItem(42, 7);
+      {act(() => { proxy.scrollToItem(42, 7); })}
       expect(mock).toBeCalledWith(700, 41*30+50);
 
-      proxy.scrollToItem(0, 0);
+      {act(() => { proxy.scrollToItem(0, 0); })}
       expect(mock).toBeCalledWith(0, 0);
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");

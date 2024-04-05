@@ -28,14 +28,17 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   const { width, height, itemCount, itemOffsetMapping, children, 
     itemData = undefined, itemKey = defaultItemKey, useIsScrolling = false } = props;
 
+  // Total size is same as offset to item one off the end
+  const totalSize = itemOffsetMapping.itemOffset(itemCount);
+
   const outerRef = React.useRef<HTMLDivElement>(null);
-  const [{ scrollOffset }, onScrollExtent] = useVirtualScroll();
+  const { scrollOffset, renderOffset, renderSize, onScroll: onScrollExtent, doScrollTo } = useVirtualScroll(totalSize);
   const isScrolling = useIsScrollingHook(outerRef); 
 
   React.useImperativeHandle(ref, () => {
     return {
       scrollTo(offset: number): void {
-        outerRef.current?.scrollTo(0, offset);
+        outerRef.current?.scrollTo(0, doScrollTo(offset));
       },
 
       scrollToItem(index: number): void {
@@ -44,15 +47,14 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
     }
   }, [ itemOffsetMapping ]);
 
-  // Total size is same as offset to item one off the end
-  const totalSize = itemOffsetMapping.itemOffset(itemCount);
-
   function onScroll(event: ScrollEvent) {
-    const { clientHeight, scrollHeight, scrollTop } = event.currentTarget;
-    onScrollExtent(clientHeight, scrollHeight, scrollTop);
+    const { clientHeight, scrollHeight, scrollTop, scrollLeft } = event.currentTarget;
+    const newScrollTop = onScrollExtent(clientHeight, scrollHeight, scrollTop);
+    if (newScrollTop != scrollTop && outerRef.current)
+      outerRef.current.scrollTo(scrollLeft, newScrollTop);
   }
 
-  const [startIndex, startOffset, sizes] = getRangeToRender(itemCount, itemOffsetMapping, height, scrollOffset);
+  const [startIndex, startOffset, sizes] = getRangeToRender(itemCount, itemOffsetMapping, height, scrollOffset+renderOffset);
 
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
   // naming convention as components do. 
@@ -61,12 +63,12 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
   // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
   // returns the result of the final statement which makes the iteration a little clumsier.
-  let nextOffset = startOffset;
+  let nextOffset = startOffset - renderOffset;
   let index, offset;
 
   return (
     <div onScroll={onScroll} ref={outerRef} style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <div style={{ height: totalSize, width: "100%" }}>
+      <div style={{ height: renderSize, width: "100%" }}>
         {sizes.map((size, arrayIndex) => (
           offset = nextOffset,
           nextOffset += size,
