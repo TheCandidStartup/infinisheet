@@ -88,10 +88,10 @@ export function useVirtualScroll(totalSize: number): VirtualScroll {
 
   function doScrollTo(offset: number) {
     const safeOffset = Math.min(totalSize, Math.max(offset, 0));
+    const scrollDirection = (scrollState.scrollOffset + scrollState.renderOffset) <= safeOffset ? 'forward' : 'backward';
     const page = Math.min(numPages - 1, Math.floor(safeOffset / pageSize));
     const renderOffset = Math.round(page * scaleFactor);
     const scrollOffset = safeOffset - renderOffset;
-    const scrollDirection = scrollState.scrollOffset <= scrollOffset ? 'forward' : 'backward';
 
     setScrollState({ scrollOffset, renderOffset, page, scrollDirection });
     return scrollOffset;
