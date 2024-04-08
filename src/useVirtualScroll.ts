@@ -2,11 +2,21 @@ import { useState } from "react";
 
 export type ScrollLayout = "horizontal" | "vertical";
 export type ScrollDirection = "forward" | "backward";
-export type ScrollState = { 
+export interface ScrollState { 
   scrollOffset: number, 
   renderOffset: number,
   page: number, 
   scrollDirection: ScrollDirection, 
+};
+
+export interface VirtualScroll extends ScrollState {
+  renderSize: number;
+
+  // Returns updated scrollOffset. Caller should update scroll bar position if different from value passed in. 
+  onScroll(clientExtent: number, scrollExtent: number, scrollOffset: number): number;
+
+  // Scroll to offset in logical space returning offset to update scroll bar position to
+  doScrollTo(offset: number): number;
 };
 
 // Max size that is safe across all browsers (Firefox is the limiting factor)
@@ -15,7 +25,7 @@ export type ScrollState = {
 const MAX_SUPPORTED_CSS_SIZE = 6000000;
 const MIN_NUMBER_PAGES = 100;
 
-export function useVirtualScroll(totalSize: number) {
+export function useVirtualScroll(totalSize: number): VirtualScroll {
   let renderSize=0, pageSize=0, numPages=0, scaleFactor=0;
   if (totalSize < MAX_SUPPORTED_CSS_SIZE) {
     // No paging needed
