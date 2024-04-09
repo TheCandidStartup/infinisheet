@@ -46,7 +46,9 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   React.useImperativeHandle(ref, () => {
     return {
       scrollTo(rowOffset: number, columnOffset: number): void {
-        outerRef.current?.scrollTo(doScrollToColumn(columnOffset), doScrollToRow(rowOffset));
+        const outer = outerRef.current;
+        if (outer)
+          outer.scrollTo(doScrollToColumn(columnOffset, outer.clientWidth), doScrollToRow(rowOffset, outer.clientHeight));
       },
 
       scrollToItem(rowIndex: number, columnIndex: number): void {

@@ -16,7 +16,7 @@ export interface VirtualScroll extends ScrollState {
   onScroll(clientExtent: number, scrollExtent: number, scrollOffset: number): number;
 
   // Scroll to offset in logical space returning offset to update scroll bar position to
-  doScrollTo(offset: number): number;
+  doScrollTo(offset: number, clientExtent: number): number;
 };
 
 // Max size that is safe across all browsers (Firefox is the limiting factor)
@@ -55,7 +55,7 @@ export function useVirtualScroll(totalSize: number): VirtualScroll {
     }
 
     // Prevent Safari's elastic scrolling from causing visual shaking when scrolling past bounds.
-    const newOffset = Math.max(0, Math.min(scrollOffset, scrollExtent - clientExtent));
+    let newOffset = Math.max(0, Math.min(scrollOffset, scrollExtent - clientExtent));
     const newScrollDirection = scrollState.scrollOffset <= newOffset ? 'forward' : 'backward';
 
     // Switch pages if needed
@@ -70,7 +70,8 @@ export function useVirtualScroll(totalSize: number): VirtualScroll {
       if (newPage != scrollState.page) {
         // Be very intentional about when we ask caller to reset scroll bar
         // Don't want to trigger event loops
-        retScrollOffset = scrollOffset + scrollState.renderOffset - newRenderOffset;
+        newOffset = scrollOffset + scrollState.renderOffset - newRenderOffset;
+        retScrollOffset = newOffset;
       }
     } else {
       // Large scale scrolling, choosing page from a rolodex
@@ -86,8 +87,8 @@ export function useVirtualScroll(totalSize: number): VirtualScroll {
     return retScrollOffset;
   }
 
-  function doScrollTo(offset: number) {
-    const safeOffset = Math.min(totalSize, Math.max(offset, 0));
+  function doScrollTo(offset: number, clientExtent: number) {
+    const safeOffset = Math.min(totalSize - clientExtent, Math.max(offset, 0));
     const scrollDirection = (scrollState.scrollOffset + scrollState.renderOffset) <= safeOffset ? 'forward' : 'backward';
     const page = Math.min(numPages - 1, Math.floor(safeOffset / pageSize));
     const renderOffset = Math.round(page * scaleFactor);

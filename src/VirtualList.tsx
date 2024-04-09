@@ -38,7 +38,9 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   React.useImperativeHandle(ref, () => {
     return {
       scrollTo(offset: number): void {
-        outerRef.current?.scrollTo(0, doScrollTo(offset));
+        const outer = outerRef.current;
+        if (outer)
+          outer.scrollTo(0, doScrollTo(offset, outer.clientHeight));
       },
 
       scrollToItem(index: number): void {
