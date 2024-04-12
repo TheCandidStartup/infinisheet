@@ -26,18 +26,26 @@ const MAX_SUPPORTED_CSS_SIZE = 6000000;
 const MIN_NUMBER_PAGES = 100;
 
 export function useVirtualScroll(totalSize: number): VirtualScroll {
-  let renderSize=0, pageSize=0, numPages=0, scaleFactor=0;
+  let renderSize=0, pageSize=0, numPages=0;
   if (totalSize < MAX_SUPPORTED_CSS_SIZE) {
     // No paging needed
     renderSize = pageSize = totalSize;
     numPages = 1;
-    scaleFactor = 0;
   } else {
     // Break into pages
     renderSize = MAX_SUPPORTED_CSS_SIZE;
     pageSize = renderSize / MIN_NUMBER_PAGES;
     numPages = Math.floor(totalSize / pageSize);
-    scaleFactor = (totalSize - renderSize) / (numPages - 1);
+  }
+
+  function pageToRenderOffset(page: number): number {
+    if (page <= 0)
+      return 0;
+
+    if (page >= numPages-1)
+      return totalSize - renderSize;
+
+    return Math.round((page-1) * (totalSize - renderSize) / (numPages - 3));
   }
 
   const initValue: ScrollState = { 
@@ -66,7 +74,7 @@ export function useVirtualScroll(totalSize: number): VirtualScroll {
       // Scrolling part of visible window, don't want to skip items, so can't scale up movement
       // If we cross page boundary we need to reset scroll bar position back to where it should be at start of page
       newPage = Math.min(numPages - 1, Math.floor((scrollOffset + scrollState.renderOffset) / pageSize));
-      newRenderOffset = Math.round(newPage * scaleFactor);
+      newRenderOffset = pageToRenderOffset(newPage);
       if (newPage != scrollState.page) {
         // Be very intentional about when we ask caller to reset scroll bar
         // Don't want to trigger event loops
@@ -75,12 +83,16 @@ export function useVirtualScroll(totalSize: number): VirtualScroll {
       }
     } else {
       // Large scale scrolling, choosing page from a rolodex
-      if (renderSize === clientExtent) {
+      // First and last page are mapped 1:1 between grid and container
+      if (newOffset < pageSize) {
         newPage = 0;
+      } else if (newOffset >= renderSize - pageSize) {
+        newPage = numPages - 1;
       } else {
-        newPage = Math.min(numPages - 1, Math.floor(newOffset * ((totalSize - clientExtent) / (renderSize - clientExtent)) * (1 / pageSize)));
+        const scaleFactor = (totalSize - pageSize*2) / (renderSize - pageSize*2);
+        newPage = Math.min(numPages - 3, Math.floor((newOffset - pageSize) * scaleFactor / pageSize)) + 1;
       }
-      newRenderOffset = Math.round(newPage * scaleFactor);
+      newRenderOffset = pageToRenderOffset(newPage);
     }
 
     setScrollState({ scrollOffset: newOffset, renderOffset: newRenderOffset, page: newPage, scrollDirection: newScrollDirection });
@@ -91,7 +103,7 @@ export function useVirtualScroll(totalSize: number): VirtualScroll {
     const safeOffset = Math.min(totalSize - clientExtent, Math.max(offset, 0));
     const scrollDirection = (scrollState.scrollOffset + scrollState.renderOffset) <= safeOffset ? 'forward' : 'backward';
     const page = Math.min(numPages - 1, Math.floor(safeOffset / pageSize));
-    const renderOffset = Math.round(page * scaleFactor);
+    const renderOffset = pageToRenderOffset(page);
     const scrollOffset = safeOffset - renderOffset;
 
     setScrollState({ scrollOffset, renderOffset, page, scrollDirection });
