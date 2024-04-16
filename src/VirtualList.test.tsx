@@ -295,3 +295,94 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     }
   })
 })
+
+describe('Paged VirtualList', () => {
+  const Cell = ({ index, style }: { index: number, style: any }) => (
+    <div className={ index == 0 ? "header" : "cell" } style={style}>
+      { (index == 0) ? "Header" : "Item " + index }
+    </div>
+  );
+    
+  const mapping = useFixedSizeItemOffsetMapping(30);
+  
+  it('should manipulate the scroll bar position', () => {
+    try {
+      const ref = React.createRef<VirtualListProxy>();
+      render(
+        <VirtualList
+          ref={ref}
+          height={240}
+          itemCount={1000000000000}
+          itemOffsetMapping={mapping}
+          width={600}>
+          {Cell}
+        </VirtualList>
+      )
+
+      const header = screen.getByText('Header');
+      expect(header).toBeInTheDocument()
+      expect(header).toHaveProperty("style.top", '0px')
+
+      const innerDiv = header.parentElement || throwErr("No inner div");
+      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
+      updateLayout(innerDiv, outerDiv);
+
+      const mock = vi.fn()
+      Element.prototype["scrollTo"] = mock;
+
+      // Scroll to last item on first page
+      var proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(1999); })}
+      expect(mock).toBeCalledWith(0, 59970);
+      const item1999 = screen.getByText('Item 1999');
+      expect(item1999).toBeInTheDocument()
+      expect(item1999).toHaveProperty("style.top", '59970px')
+
+      // If there was an actual implementation of scrollTo it
+      // would have updated scrollTop and sent events as a side effect
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 59970 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+
+      // Scroll down 2 items to cross page boundary
+      // Scroll bar should not be adjusted on first boundary
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollTop: 60030 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+      expect(outerDiv).toHaveProperty("scrollTop", 60030);
+      const item2001 = screen.getByText('Item 2001');
+      expect(item2001).toBeInTheDocument()
+      expect(item2001).toHaveProperty("style.top", '60030px')
+
+      // Scroll to last item on second page
+      proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(3999); })}
+      expect(mock).toBeCalledWith(0, 119970);
+      const item3999 = screen.getByText('Item 3999');
+      expect(item3999).toBeInTheDocument()
+      expect(item3999).toHaveProperty("style.top", '119970px')
+
+      // Resulting update of ScrollTop
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 119970 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+
+      // Scroll down 2 items to cross page boundary
+      // Scroll bar should be adjusted backwards by size of page
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollTop: 120030 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+      expect(mock).toBeCalledWith(0, 60030);
+      const item4001 = screen.getByText('Item 4001');
+      expect(item4001).toBeInTheDocument()
+      expect(item4001).toHaveProperty("style.top", '60030px')
+
+    } finally {
+      Reflect.deleteProperty(Element.prototype, "scrollTo");
+    }
+  })
+})

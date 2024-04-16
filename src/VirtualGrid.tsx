@@ -47,6 +47,7 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
     return {
       scrollTo(rowOffset: number, columnOffset: number): void {
         const outer = outerRef.current;
+        /* istanbul ignore else */
         if (outer)
           outer.scrollTo(doScrollToColumn(columnOffset, outer.clientWidth), doScrollToRow(rowOffset, outer.clientHeight));
       },

@@ -39,6 +39,7 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
     return {
       scrollTo(offset: number): void {
         const outer = outerRef.current;
+        /* istanbul ignore else */
         if (outer)
           outer.scrollTo(0, doScrollTo(offset, outer.clientHeight));
       },

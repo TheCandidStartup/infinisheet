@@ -257,3 +257,71 @@ describe('VirtualGrid with useIsScrolling', () => {
     expect(item99).toHaveProperty("className", 'cell')
   })
 })
+
+describe('Paged VirtualList', () => {
+  const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: any }) => (
+    <div className={ rowIndex == 0 ? "header" : "cell" } style={style}>
+      { (rowIndex == 0) ? `Header ${columnIndex}` : `Cell ${rowIndex}:${columnIndex}` }
+    </div>
+  );
+    
+  const rowMapping = useFixedSizeItemOffsetMapping(30);
+  const columnMapping = useFixedSizeItemOffsetMapping(100);
+  
+  it('should manipulate the scroll bar position', () => {
+    try {
+      const ref = React.createRef<VirtualGridProxy>();
+      render(
+        <VirtualGrid
+        ref={ref}
+        height={240}
+        rowCount={1000000000000}
+        rowOffsetMapping={rowMapping}
+        columnCount={1000000000000}
+        columnOffsetMapping={columnMapping}
+        width={600}>
+        {Cell}
+      </VirtualGrid>
+      )
+
+      const header = screen.getByText('Header 0');
+      expect(header).toBeInTheDocument()
+      expect(header).toHaveProperty("style.top", '0px')
+
+      const innerDiv = header.parentElement || throwErr("No inner div");
+      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
+      updateLayout(innerDiv, outerDiv);
+
+      const mock = vi.fn()
+      Element.prototype["scrollTo"] = mock;
+
+      // Scroll to last item on second page
+      var proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(3999, 0); })}
+      expect(mock).toBeCalledWith(0, 119970);
+      const item3999 = screen.getByText('Cell 3999:0');
+      expect(item3999).toBeInTheDocument()
+      expect(item3999).toHaveProperty("style.top", '119970px')
+
+      // Resulting update of ScrollTop
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 119970 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+
+      // Scroll down 2 items to cross page boundary
+      // Scroll bar should be adjusted backwards by size of page
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollTop: 120030 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+      expect(mock).toBeCalledWith(0, 60030);
+      const item4001 = screen.getByText('Cell 4001:0');
+      expect(item4001).toBeInTheDocument()
+      expect(item4001).toHaveProperty("style.top", '60030px')
+
+    } finally {
+      Reflect.deleteProperty(Element.prototype, "scrollTo");
+    }
+  })
+})
