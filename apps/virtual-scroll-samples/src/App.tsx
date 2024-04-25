@@ -1,9 +1,7 @@
 import './App.css'
 import React from "react";
-import { VirtualList, VirtualListProxy } from './VirtualList';
-import { VirtualGrid } from './VirtualGrid';
-import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
-import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
+import { VirtualGrid, VirtualList, VirtualListProxy, 
+  useVariableSizeItemOffsetMapping, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: any }) => (
   <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
