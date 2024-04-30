@@ -1,4 +1,4 @@
-import { ItemOffsetMapping } from './VirtualBase.tsx';
+import { ItemOffsetMapping } from './VirtualBase';
 
 class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
   constructor (defaultItemSize: number, sizes: number[]) {
