@@ -14,7 +14,9 @@
     "dev": "vite",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-    "build": "rollup -c",
+    "build-tsc": "tsc -p tsconfig.build.json",
+    "build-rollup": "rollup -c ../rollup.config.mjs",
+    "build": "npm run build-rollup",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest"
   },

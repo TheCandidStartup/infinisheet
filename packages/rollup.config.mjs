@@ -15,7 +15,7 @@ export default [
     ],
     plugins: [
       external(),
-      typescript({ sourceMap: true, inlineSources: true, tsconfig: "./tsconfig.build.json" })
+      typescript({ "declarationDir": "./types", tsconfig: "./tsconfig.build.json" })
     ],
   },
   {
