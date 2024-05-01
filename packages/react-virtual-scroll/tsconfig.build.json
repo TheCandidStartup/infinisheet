@@ -1,5 +1,18 @@
 {
   "extends": "../../tsconfig.build.json",
+
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": false,
+    "outDir": "dist",
+    "declaration": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "declarationDir": "./types"
+  },
+
   "include": ["src"],
   "exclude": ["src/*.test.*", "src/test"],
 }

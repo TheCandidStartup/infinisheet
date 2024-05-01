@@ -4,20 +4,21 @@
   "version": "0.0.0",
   "type": "module",
   "files": ["dist"],
-  "module": "./dist/react-virtual-scroll.js",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/react-virtual-scroll.js"
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.build.json && vite build",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "build": "rollup -c",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.2.0"
   }
 }
