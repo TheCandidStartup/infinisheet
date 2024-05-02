@@ -4,5 +4,10 @@
   "ignoreChanges": [
     "**/src/test/**",
     "**/src/*.test.*"
-  ]
+  ],
+  "command": {
+    "version": {
+      "message": "chore(release): version %s"
+    }
+  }
 }
