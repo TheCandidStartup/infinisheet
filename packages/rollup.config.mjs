@@ -1,11 +1,14 @@
 import typescript from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";
 import del from "rollup-plugin-delete";
-import external from "rollup-plugin-peer-deps-external";
+import path from "path";
+
+const isExternal = (id) => !id.startsWith(".") && !path.isAbsolute(id);
 
 export default [
   {
     input: "src/index.ts",
+    external: isExternal,
     output: [
       {
         sourcemap: true,
@@ -14,7 +17,6 @@ export default [
       },
     ],
     plugins: [
-      external(),
       typescript({ "declarationDir": "./types", tsconfig: "./tsconfig.build.json" })
     ],
   },
