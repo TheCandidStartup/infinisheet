@@ -5,6 +5,11 @@
     "packages/*",
     "apps/*"
   ],
+  "scripts": {
+    "build": "npx lerna run build ",
+    "version": "npx lerna version --conventional-commits",
+    "publish": "npx lerna publish from-git"
+  },
   "devDependencies": {
     "@gordonmleigh/rollup-plugin-sourcemaps": "^0.1.2",
     "@rollup/plugin-typescript": "^11.1.6",
