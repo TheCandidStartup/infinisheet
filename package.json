@@ -6,9 +6,9 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npx lerna run build ",
-    "version": "npx lerna version --conventional-commits",
-    "publish": "npx lerna publish from-git"
+    "lerna-build": "npx lerna run build ",
+    "lerna-version": "npx lerna version --conventional-commits",
+    "lerna-publish": "npx lerna publish from-git"
   },
   "devDependencies": {
     "@gordonmleigh/rollup-plugin-sourcemaps": "^0.1.2",
