@@ -1,7 +1,7 @@
 {
   "name": "@candidstartup/react-virtual-scroll",
   "private": false,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Modern React components for lists and grids that scale to trillions of rows and columns",
   "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
   "license": "BSD-3-Clause",

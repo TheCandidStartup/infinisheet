@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.2](https://github.com/TheCandidStartup/infinisheet/compare/v0.1.1...v0.1.2) (2024-05-07)
+
+
+### Bug Fixes
+
+* **react-virtual-scroll:** Adding explicit types metadata to try and get npm to show the TS badge for types included ([6de0f80](https://github.com/TheCandidStartup/infinisheet/commit/6de0f80b26ee6ed7f3b9b4fc43184c4e931dcc71))
+
+
+
+
+
 ## [0.1.1](https://github.com/TheCandidStartup/infinisheet/compare/v0.1.0...v0.1.1) (2024-05-07)
 
 
