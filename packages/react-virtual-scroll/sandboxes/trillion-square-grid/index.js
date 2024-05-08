@@ -24,7 +24,7 @@ function App() {
   }
 
   return (
-    <div className="app-container">
+    <div>
       <label>
         Row: 
         <input
