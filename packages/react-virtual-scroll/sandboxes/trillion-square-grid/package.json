@@ -1,0 +1,9 @@
+{
+  "description": "Demo of @candidstartup/react-virtual-scroll VirtualGrid with a trillion rows and columns",
+  "main": "index.js",
+  "dependencies": {
+    "react": "^18",
+    "react-dom": "^18",
+    "@candidstartup/react-virtual-scroll": "^0.1"
+  }
+}
