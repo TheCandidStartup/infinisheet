@@ -33,7 +33,7 @@ const list = React.createRef();
 </VirtualList>
 ```
 
-Check out the [full sample](https://github.com/TheCandidStartup/infinisheet/tree/main/packages/react-virtual-scroll/sandboxes/trillion-row=list) or [try it out on CodeSandbox](https://codesandbox.io/p/sandbox/github/TheCandidStartup/infinisheet/main/packages/react-virtual-scroll/sandboxes/trillion-row-list?file=%2Findex.js)
+Check out the [full sample](https://github.com/TheCandidStartup/infinisheet/tree/main/packages/react-virtual-scroll/sandboxes/trillion-row-list) or [try it out on CodeSandbox](https://codesandbox.io/p/sandbox/github/TheCandidStartup/infinisheet/main/packages/react-virtual-scroll/sandboxes/trillion-row-list?file=%2Findex.js)
 
 ## VirtualGrid Example
 
