@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "lerna-build": "npx lerna run build ",
+    "lerna-test": "npx lerna run test -- --run --coverage",
     "lerna-version": "npx lerna version --conventional-commits",
     "lerna-publish": "npx lerna publish from-git"
   },
