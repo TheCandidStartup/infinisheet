@@ -1,3 +1,10 @@
+![Lerna Monorepo](https://img.shields.io/badge/Monorepo-Lerna-darkorchid)
+![Lerna Monorepo](https://img.shields.io/badge/Language-TypeScript-blue)
+![Lerna Monorepo](https://img.shields.io/badge/Dev-Vite-blueviolet)
+![Lerna Monorepo](https://img.shields.io/badge/Build-Rollup-red)
+![Lerna Monorepo](https://img.shields.io/badge/Unit_Tests-Vitest-green)
+![Lerna Monorepo](https://img.shields.io/badge/Code_Coverage-Istanbul-green)
+
 # Building a Better Spreadsheet
 
 Infinisheet is a cloud based, open source, serverless, customer deployed, scalable spreadsheet. Or at least it will be when I've finished.
