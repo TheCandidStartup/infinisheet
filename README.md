@@ -1,9 +1,9 @@
-![Lerna Monorepo](https://img.shields.io/badge/Monorepo-Lerna-darkorchid)
-![Lerna Monorepo](https://img.shields.io/badge/Language-TypeScript-blue)
-![Lerna Monorepo](https://img.shields.io/badge/Dev-Vite-blueviolet)
-![Lerna Monorepo](https://img.shields.io/badge/Build-Rollup-red)
-![Lerna Monorepo](https://img.shields.io/badge/Unit_Tests-Vitest-green)
-![Lerna Monorepo](https://img.shields.io/badge/Code_Coverage-Istanbul-green)
+[![Lerna Monorepo](https://img.shields.io/badge/Monorepo-Lerna-darkorchid)](https://lerna.js.org/)
+[![Lerna Monorepo](https://img.shields.io/badge/Language-TypeScript-blue)](https://www.typescriptlang.org/)
+[![Lerna Monorepo](https://img.shields.io/badge/Dev-Vite-blueviolet)](https://vitejs.dev/)
+[![Lerna Monorepo](https://img.shields.io/badge/Build-Rollup-red)](https://rollupjs.org/)
+[![Lerna Monorepo](https://img.shields.io/badge/Unit_Tests-Vitest-green)](https://vitest.dev/)
+[![Lerna Monorepo](https://img.shields.io/badge/Code_Coverage-Istanbul-yellow)](https://istanbul.js.org/)
 
 # Building a Better Spreadsheet
 
