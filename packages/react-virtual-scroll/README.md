@@ -1,3 +1,7 @@
+![NPM Type Definitions](https://img.shields.io/npm/types/@candidstartup/react-virtual-scroll)
+![NPM Version](https://img.shields.io/npm/v/@candidstartup/react-virtual-scroll)
+![NPM bundle size](https://img.shields.io/bundlephobia/minzip/@candidstartup/react-virtual-scroll)
+
 # @candidstartup/react-virtual-scroll
 
 React virtual scrolling components for lists and grids following the same philosophy as [react-window](https://github.com/bvaughn/react-window). Written in TypeScript using modern React. Scalable to trillions of rows and columns. 
