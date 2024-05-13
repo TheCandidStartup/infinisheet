@@ -66,4 +66,4 @@ Check out the [full sample](https://github.com/TheCandidStartup/infinisheet/tree
 
 # More
 
-Want to know more? Check out my [blog](https://www.thecandidstartup.org/topics/frontend.html)
+Want to know more? Check out my [blog](https://www.thecandidstartup.org/topics/react-virtual-scroll.html)
