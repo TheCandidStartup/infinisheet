@@ -19,6 +19,7 @@ export default defineConfig({
         "list-and-grid": resolve(__dirname, 'samples/list-and-grid/index.html'),
         "trillion-row-list": resolve(__dirname, 'samples/trillion-row-list/index.html'),
         "trillion-square-grid": resolve(__dirname, 'samples/trillion-square-grid/index.html'),
+        "horizontal-list": resolve(__dirname, 'samples/horizontal-list/index.html'),
       },
       output: {
         manualChunks: (id) => {

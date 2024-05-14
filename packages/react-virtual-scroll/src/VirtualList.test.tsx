@@ -8,9 +8,13 @@ import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMap
 function updateLayout(innerDiv: HTMLElement, outerDiv: HTMLElement) {
   const scrollHeight = parseInt(innerDiv.style.height);
   overrideProp(outerDiv, "scrollHeight", scrollHeight);
+  const scrollWidth = parseInt(innerDiv.style.width);
+  overrideProp(outerDiv, "scrollWidth", scrollWidth);
 
   const clientHeight = parseInt(outerDiv.style.height);
   overrideProp(outerDiv, "clientHeight", clientHeight);
+  const clientWidth = parseInt(outerDiv.style.width);
+  overrideProp(outerDiv, "clientWidth", clientWidth);
 }
 
 describe('Fixed Size VirtualList', () => {
@@ -119,6 +123,66 @@ describe('Fixed Size VirtualList', () => {
 
       {act(() => { proxy.scrollToItem(42); })}
       expect(mock).toBeCalledWith(0, 42*30);
+
+      {act(() => { proxy.scrollToItem(0); })}
+      expect(mock).toBeCalledWith(0, 0);
+    } finally {
+      Reflect.deleteProperty(Element.prototype, "scrollTo");
+    }
+  })
+
+  it('should support horizontal layout', () => {
+    const mock = vi.fn();
+    Element.prototype["scrollTo"] = mock;
+
+    try {
+      const ref = React.createRef<VirtualListProxy>();
+      render(
+        <VirtualList
+          ref={ref}
+          height={50}
+          itemCount={100}
+          itemOffsetMapping={mapping}
+          width={600}
+          layout={'horizontal'}>
+          {Cell}
+        </VirtualList>
+      )
+
+      const header = screen.getByText('Header');
+      expect(header).toBeInTheDocument()
+      expect(header).toHaveProperty("style.left", '0px')
+      expect(header).toHaveProperty("style.width", '30px')
+  
+      const item1 = screen.getByText('Item 1');
+      expect(item1).toBeInTheDocument()
+      expect(item1).toHaveProperty("style.left", '30px')
+      expect(item1).toHaveProperty("style.width", '30px')
+
+      const innerDiv = header.parentElement || throwErr("No inner div");
+      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
+      updateLayout(innerDiv, outerDiv);
+
+      // Scroll across 4 items.
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 120 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+      expect(screen.queryByText('header')).toBeNull()
+      expect(screen.queryByText('Item 1')).toBeNull()
+      expect(screen.queryByText('Item 2')).toBeNull()
+
+      const item3 = screen.getByText('Item 3');
+      expect(item3).toBeInTheDocument()
+      expect(item3).toHaveProperty("style.left", '90px')
+      expect(item3).toHaveProperty("style.width", '30px')
+
+      const proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollTo(100); })}
+      expect(mock).toBeCalledWith(100, 0);
+
+      {act(() => { proxy.scrollToItem(42); })}
+      expect(mock).toBeCalledWith(42*30, 0);
 
       {act(() => { proxy.scrollToItem(0); })}
       expect(mock).toBeCalledWith(0, 0);
@@ -305,7 +369,7 @@ describe('Paged VirtualList', () => {
     
   const mapping = useFixedSizeItemOffsetMapping(30);
   
-  it('should manipulate the scroll bar position', () => {
+  it('should manipulate the scroll bar position for vertical layout', () => {
     try {
       const ref = React.createRef<VirtualListProxy>();
       render(
@@ -314,6 +378,7 @@ describe('Paged VirtualList', () => {
           height={240}
           itemCount={1000000000000}
           itemOffsetMapping={mapping}
+          layout={'vertical'}
           width={600}>
           {Cell}
         </VirtualList>
@@ -385,4 +450,87 @@ describe('Paged VirtualList', () => {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
   })
+
+  it('should manipulate the scroll bar position for horizontal layout', () => {
+    try {
+      const ref = React.createRef<VirtualListProxy>();
+      render(
+        <VirtualList
+          ref={ref}
+          height={50}
+          itemCount={1000000000000}
+          itemOffsetMapping={mapping}
+          layout={'horizontal'}
+          width={600}>
+          {Cell}
+        </VirtualList>
+      )
+
+      const header = screen.getByText('Header');
+      expect(header).toBeInTheDocument()
+      expect(header).toHaveProperty("style.left", '0px')
+
+      const innerDiv = header.parentElement || throwErr("No inner div");
+      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
+      updateLayout(innerDiv, outerDiv);
+
+      const mock = vi.fn()
+      Element.prototype["scrollTo"] = mock;
+
+      // Scroll to last item on first page
+      var proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(1999); })}
+      expect(mock).toBeCalledWith(59970, 0);
+      const item1999 = screen.getByText('Item 1999');
+      expect(item1999).toBeInTheDocument()
+      expect(item1999).toHaveProperty("style.left", '59970px')
+
+      // If there was an actual implementation of scrollTo it
+      // would have updated scrollLeft and sent events as a side effect
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 59970, scrollTop: 0 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+
+      // Scroll down 2 items to cross page boundary
+      // Scroll bar should not be adjusted on first boundary
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 60030 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+      expect(outerDiv).toHaveProperty("scrollLeft", 60030);
+      const item2001 = screen.getByText('Item 2001');
+      expect(item2001).toBeInTheDocument()
+      expect(item2001).toHaveProperty("style.left", '60030px')
+
+      // Scroll to last item on second page
+      proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(3999); })}
+      expect(mock).toBeCalledWith(119970, 0);
+      const item3999 = screen.getByText('Item 3999');
+      expect(item3999).toBeInTheDocument()
+      expect(item3999).toHaveProperty("style.left", '119970px')
+
+      // Resulting update of ScrollTop
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 119970, scrollTop: 0 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+
+      // Scroll down 2 items to cross page boundary
+      // Scroll bar should be adjusted backwards by size of page
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 120030 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+      expect(mock).toBeCalledWith(60030, 0);
+      const item4001 = screen.getByText('Item 4001');
+      expect(item4001).toBeInTheDocument()
+      expect(item4001).toHaveProperty("style.left", '60030px')
+
+    } finally {
+      Reflect.deleteProperty(Element.prototype, "scrollTo");
+    }
+  })
+
 })

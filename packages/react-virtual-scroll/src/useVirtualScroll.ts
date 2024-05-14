@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-export type ScrollLayout = "horizontal" | "vertical";
 export type ScrollDirection = "forward" | "backward";
 export interface ScrollState { 
   scrollOffset: number, 
