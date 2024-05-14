@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { VirtualList, useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
-import './styles.css';
+import '../styles.css';
 
 const Row = ({ index, style }) => (
   <div className={ index == 0 ? "header" : "cell" } style={style}>

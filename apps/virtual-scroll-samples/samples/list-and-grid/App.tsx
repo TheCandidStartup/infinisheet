@@ -1,4 +1,3 @@
-import './App.css'
 import React from "react";
 import { VirtualGrid, VirtualList, VirtualListProxy, 
   useVariableSizeItemOffsetMapping, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';

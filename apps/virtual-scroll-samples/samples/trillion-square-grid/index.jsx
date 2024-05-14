@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { VirtualGrid, useVariableSizeItemOffsetMapping, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
-import './styles.css';
+import '../styles.css';
 
 const Cell = ({ rowIndex, columnIndex, style }) => (
   <div className={ rowIndex == 0 ? "header" : "cell" } style={style}>

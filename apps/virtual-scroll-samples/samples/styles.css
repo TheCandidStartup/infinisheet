@@ -1,3 +1,10 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -66,4 +73,71 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.viewport {
+  width: 150px;
+  overflow-y: auto;
+}
+.innerContainer {
+  will-change: transform;
+  background-color: yellow;
+}
+.item {
+  height: 20px;
+}
+.item:nth-child(2) {
+  background-color: orange;
+}
+.item:nth-child(7) {
+  background-color: green;
+}
+.item:nth-child(16) {
+  background-color: lightgreen;
+}
+.item:nth-child(21) {
+  background-color: purple;
+}
+.topPadding {
+  background-color: red;
+}
+.bottomPadding {
+  background-color: blue;
+}
+
+.cell {
+  border-style: solid;
+  border-color: black;
+  box-sizing: border-box;
+}
+
+.cellScroll {
+  border-style: solid;
+  border-color: lightgrey;
+  box-sizing: border-box;
+  color: grey;
+}
+
+.header {
+  background-color: lightgrey;
+  font-size: larger;
+  font-weight: bold;
+  border-style: solid;
+  border-color: black;
+  box-sizing: border-box;
+}
+
+input[type="number"] {
+  width: 120px;
+  margin-left: 10px;
+  margin-right: 20px;
+  margin-bottom: 20px;
 }
