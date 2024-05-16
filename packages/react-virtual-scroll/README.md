@@ -31,7 +31,6 @@ const list = React.createRef();
   height={240}
   itemCount={1000000000000}
   itemOffsetMapping={mapping}
-  useIsScrolling={true}
   width={600}>
   {Row}
 </VirtualList>
