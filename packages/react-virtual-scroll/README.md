@@ -1,6 +1,7 @@
 [![NPM Type Definitions](https://img.shields.io/npm/types/@candidstartup/react-virtual-scroll)](https://www.npmjs.com/package/@candidstartup/react-virtual-scroll)
 [![NPM Version](https://img.shields.io/npm/v/@candidstartup/react-virtual-scroll)](https://www.npmjs.com/package/@candidstartup/react-virtual-scroll)
 [![NPM bundle size](https://img.shields.io/bundlephobia/minzip/@candidstartup/react-virtual-scroll)](https://www.npmjs.com/package/@candidstartup/react-virtual-scroll)
+[![Build Status](https://github.com/TheCandidStartup/infinisheet/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/TheCandidStartup/infinisheet/actions/workflows/build.yml)
 
 # @candidstartup/react-virtual-scroll
 
