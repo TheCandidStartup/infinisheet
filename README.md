@@ -4,6 +4,7 @@
 [![Rollup Build](https://img.shields.io/badge/Build-Rollup-red)](https://rollupjs.org/)
 [![Vitest Unit Tests](https://img.shields.io/badge/Unit_Tests-Vitest-green)](https://vitest.dev/)
 [![Istanbul Code Coverage](https://img.shields.io/badge/Code_Coverage-Istanbul-yellow)](https://istanbul.js.org/)
+[![Build Status](https://github.com/TheCandidStartup/infinisheet/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/TheCandidStartup/infinisheet/actions/workflows/build.yml)
 
 # Building a Better Spreadsheet
 
