@@ -20,6 +20,7 @@ export default defineConfig({
         "trillion-row-list": resolve(__dirname, 'samples/trillion-row-list/index.html'),
         "trillion-square-grid": resolve(__dirname, 'samples/trillion-square-grid/index.html'),
         "horizontal-list": resolve(__dirname, 'samples/horizontal-list/index.html'),
+        "paging-functional-test": resolve(__dirname, 'samples/paging-functional-test/index.html'),
       },
       output: {
         manualChunks: (id) => {
