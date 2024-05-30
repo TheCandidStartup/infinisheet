@@ -10,6 +10,8 @@ export interface VirtualBaseProps {
   width: number,
   itemData?: any,
   useIsScrolling?: boolean,
+  maxCssSize?: number,
+  minNumPages?: number
 };
 
 export interface ItemOffsetMapping {

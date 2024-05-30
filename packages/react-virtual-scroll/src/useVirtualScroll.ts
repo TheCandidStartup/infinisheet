@@ -24,16 +24,16 @@ export interface VirtualScroll extends ScrollState {
 const MAX_SUPPORTED_CSS_SIZE = 6000000;
 const MIN_NUMBER_PAGES = 100;
 
-export function useVirtualScroll(totalSize: number): VirtualScroll {
+export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_CSS_SIZE, minNumberPages = MIN_NUMBER_PAGES): VirtualScroll {
   let renderSize=0, pageSize=0, numPages=0;
-  if (totalSize < MAX_SUPPORTED_CSS_SIZE) {
+  if (totalSize < maxCssSize) {
     // No paging needed
     renderSize = pageSize = totalSize;
     numPages = 1;
   } else {
     // Break into pages
-    renderSize = MAX_SUPPORTED_CSS_SIZE;
-    pageSize = renderSize / MIN_NUMBER_PAGES;
+    renderSize = maxCssSize;
+    pageSize = renderSize / minNumberPages;
     numPages = Math.floor(totalSize / pageSize);
   }
 

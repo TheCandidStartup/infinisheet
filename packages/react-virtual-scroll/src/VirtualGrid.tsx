@@ -38,9 +38,9 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
 
   const outerRef = React.useRef<HTMLDivElement>(null);
   const { scrollOffset: scrollRowOffset, renderOffset: renderRowOffset, renderSize: renderRowSize,
-    onScroll: onScrollRow, doScrollTo: doScrollToRow } = useVirtualScroll(totalRowSize);
+    onScroll: onScrollRow, doScrollTo: doScrollToRow } = useVirtualScroll(totalRowSize, props.maxCssSize, props.minNumPages);
   const { scrollOffset: scrollColumnOffset, renderOffset: renderColumnOffset, renderSize: renderColumnSize,
-    onScroll: onScrollColumn, doScrollTo: doScrollToColumn} = useVirtualScroll(totalColumnSize);
+    onScroll: onScrollColumn, doScrollTo: doScrollToColumn} = useVirtualScroll(totalColumnSize, props.maxCssSize, props.minNumPages);
   const isScrolling = useIsScrollingHook(outerRef); 
 
   React.useImperativeHandle(ref, () => {

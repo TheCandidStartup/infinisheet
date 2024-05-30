@@ -35,7 +35,8 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   const totalSize = itemOffsetMapping.itemOffset(itemCount);
 
   const outerRef = React.useRef<HTMLDivElement>(null);
-  const { scrollOffset, renderOffset, renderSize, onScroll: onScrollExtent, doScrollTo } = useVirtualScroll(totalSize);
+  const { scrollOffset, renderOffset, renderSize, onScroll: onScrollExtent, doScrollTo } = 
+    useVirtualScroll(totalSize, props.maxCssSize, props.minNumPages);
   const isScrolling = useIsScrollingHook(outerRef); 
   const isVertical = layout === 'vertical';
 
