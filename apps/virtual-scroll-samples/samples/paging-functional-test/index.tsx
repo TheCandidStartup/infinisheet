@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, ScrollState } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -10,9 +10,50 @@ const Row = ({ index, style } : {index: number, style: any}) => (
   </div>
 );
 
+interface OutputFieldProps {
+  label: string,
+  type: 'text' | 'number'
+}
+
+const OutputField = React.forwardRef<HTMLInputElement, OutputFieldProps >((props, ref)=> {
+  const { label, ...otherProps } = props;
+  const prompt = label + ": ";
+  return (
+    <div>
+    <label>
+      {prompt}
+      <input {...otherProps} ref={ref} readOnly={true} disabled={true} />
+    </label>
+    </div>
+  );
+});
+
 function App() {
   var mapping = useFixedSizeItemOffsetMapping(30);
   const list = React.createRef<VirtualListProxy>();
+  const offset = React.createRef<HTMLInputElement>();
+  const item = React.createRef<HTMLInputElement>();
+  const scrollOffset = React.createRef<HTMLInputElement>();
+  const renderOffset = React.createRef<HTMLInputElement>();
+  const page = React.createRef<HTMLInputElement>();
+  const scrollDirection = React.createRef<HTMLInputElement>();
+
+  function onScroll(offsetValue: number, newScrollState: ScrollState) {
+    if (offset.current)
+      offset.current.value = offsetValue.toString();
+    if (item.current) {
+      const [itemValue] = mapping.offsetToItem(offsetValue);
+      item.current.value = itemValue.toString();
+    }
+    if (scrollOffset.current)
+      scrollOffset.current.value = newScrollState.scrollOffset.toString();
+    if (renderOffset.current)
+      renderOffset.current.value = newScrollState.renderOffset.toString();
+    if (page.current)
+      page.current.value = newScrollState.page.toString();
+    if (scrollDirection.current)
+      scrollDirection.current.value = newScrollState.scrollDirection;
+  }
 
   return (
     <div>
@@ -34,10 +75,18 @@ function App() {
         itemCount={100}
         itemOffsetMapping={mapping}
         maxCssSize={1500}
-        minNumPages={10}
+        minNumPages={5}
+        onScroll={onScroll}
         width={600}>
         {Row}
       </VirtualList>
+
+      <OutputField ref={offset} label={"offset"} type={"number"}></OutputField>
+      <OutputField ref={item} label={"Item"} type={"number"}></OutputField>
+      <OutputField ref={scrollOffset} label={"ScrollOffset"} type={"number"}></OutputField>
+      <OutputField ref={renderOffset} label={"RenderOffset"} type={"number"}></OutputField>
+      <OutputField ref={page} label={"Page"} type={"number"}></OutputField>
+      <OutputField ref={scrollDirection} label={"ScrollDirection"} type={"text"}></OutputField>
     </div>
   )
 }

@@ -135,9 +135,9 @@ button:focus-visible {
   box-sizing: border-box;
 }
 
-input[type="number"] {
+input {
   width: 120px;
   margin-left: 10px;
   margin-right: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }

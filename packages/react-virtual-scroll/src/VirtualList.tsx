@@ -1,6 +1,6 @@
 import React from "react";
 import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, ScrollEvent } from './VirtualBase';
-import { useVirtualScroll } from './useVirtualScroll';
+import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
 export type ScrollLayout = "horizontal" | "vertical";
@@ -17,6 +17,7 @@ export interface VirtualListProps extends VirtualBaseProps {
   itemOffsetMapping: ItemOffsetMapping,
   itemKey?: (index: number, data: any) => any,
   layout?: ScrollLayout,
+  onScroll?: (offset: number, newScrollState: ScrollState) => void;
 };
 
 export interface VirtualListProxy {
@@ -29,7 +30,7 @@ const defaultItemKey = (index: number, _data: any) => index;
 // Using a named function rather than => so that the name shows up in React Developer Tools
 export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(function VirtualList(props, ref) {
   const { width, height, itemCount, itemOffsetMapping, children, 
-    itemData = undefined, itemKey = defaultItemKey, layout = 'vertical', useIsScrolling = false } = props;
+    itemData = undefined, itemKey = defaultItemKey, layout = 'vertical', onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   // Total size is same as offset to item one off the end
   const totalSize = itemOffsetMapping.itemOffset(itemCount);
@@ -62,14 +63,16 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   function onScroll(event: ScrollEvent) {
     if (isVertical) {
       const { clientHeight, scrollHeight, scrollTop, scrollLeft } = event.currentTarget;
-      const newScrollTop = onScrollExtent(clientHeight, scrollHeight, scrollTop);
+      const [newScrollTop, newScrollState] = onScrollExtent(clientHeight, scrollHeight, scrollTop);
       if (newScrollTop != scrollTop && outerRef.current)
         outerRef.current.scrollTo(scrollLeft, newScrollTop);
+      onScrollCallback?.(newScrollState.scrollOffset+newScrollState.renderOffset, newScrollState);
     } else {
       const { clientWidth, scrollWidth, scrollTop, scrollLeft } = event.currentTarget;
-      const newScrollLeft = onScrollExtent(clientWidth, scrollWidth, scrollLeft);
+      const [newScrollLeft, newScrollState] = onScrollExtent(clientWidth, scrollWidth, scrollLeft);
       if (newScrollLeft != scrollLeft && outerRef.current)
         outerRef.current.scrollTo(newScrollLeft, scrollTop);
+      onScrollCallback?.(newScrollState.scrollOffset+newScrollState.renderOffset, newScrollState);
     }
   }
 

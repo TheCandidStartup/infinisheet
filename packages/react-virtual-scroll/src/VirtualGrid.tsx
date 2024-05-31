@@ -61,8 +61,8 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
 
   function onScroll(event: ScrollEvent) {
     const { clientWidth, clientHeight, scrollWidth, scrollHeight, scrollLeft, scrollTop } = event.currentTarget;
-    const newScrollTop = onScrollRow(clientHeight, scrollHeight, scrollTop);
-    const newScrollLeft = onScrollColumn(clientWidth, scrollWidth, scrollLeft);
+    const [newScrollTop] = onScrollRow(clientHeight, scrollHeight, scrollTop);
+    const [newScrollLeft] = onScrollColumn(clientWidth, scrollWidth, scrollLeft);
     if (outerRef.current && (newScrollTop != scrollTop || newScrollLeft != scrollLeft ))
       outerRef.current.scrollTo(newScrollLeft, newScrollTop);
   }

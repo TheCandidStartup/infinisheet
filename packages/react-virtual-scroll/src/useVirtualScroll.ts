@@ -12,7 +12,7 @@ export interface VirtualScroll extends ScrollState {
   renderSize: number;
 
   // Returns updated scrollOffset. Caller should update scroll bar position if different from value passed in. 
-  onScroll(clientExtent: number, scrollExtent: number, scrollOffset: number): number;
+  onScroll(clientExtent: number, scrollExtent: number, scrollOffset: number): [number, ScrollState];
 
   // Scroll to offset in logical space returning offset to update scroll bar position to
   doScrollTo(offset: number, clientExtent: number): number;
@@ -55,10 +55,10 @@ export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_C
   };
   const [scrollState, setScrollState] = useState(initValue);
 
-  function onScroll(clientExtent: number, scrollExtent: number, scrollOffset: number) {
+  function onScroll(clientExtent: number, scrollExtent: number, scrollOffset: number): [number, ScrollState] {
     if (scrollState.scrollOffset == scrollOffset) {
       // No need to change state if scroll position unchanged
-      return scrollOffset;
+      return [scrollOffset, scrollState];
     }
 
     // Prevent Safari's elastic scrolling from causing visual shaking when scrolling past bounds.
@@ -94,8 +94,10 @@ export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_C
       newRenderOffset = pageToRenderOffset(newPage);
     }
 
-    setScrollState({ scrollOffset: newOffset, renderOffset: newRenderOffset, page: newPage, scrollDirection: newScrollDirection });
-    return retScrollOffset;
+    const newScrollState: ScrollState = 
+      { scrollOffset: newOffset, renderOffset: newRenderOffset, page: newPage, scrollDirection: newScrollDirection };
+    setScrollState(newScrollState);
+    return [retScrollOffset, newScrollState];
   }
 
   function doScrollTo(offset: number, clientExtent: number) {
