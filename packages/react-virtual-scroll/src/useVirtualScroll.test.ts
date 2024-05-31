@@ -61,7 +61,7 @@ describe('useVirtualScroll', () => {
     // Small scroll within page 0
     var ret = 0;
     {act(() => {
-      ret = vs.onScroll(clientExtent, vs.renderSize, 50);
+      ([ret] = vs.onScroll(clientExtent, vs.renderSize, 50));
     })}
     vs = result.current;
     expect(ret).toBe(50);
@@ -83,7 +83,7 @@ describe('useVirtualScroll', () => {
 
     // Small scroll across the boundary to page 2
     {act(() => {
-      ret = vs.onScroll(clientExtent, vs.renderSize, 120030);
+      ([ret] = vs.onScroll(clientExtent, vs.renderSize, 120030));
     })}
     vs = result.current;
     expect(ret).toBe(60030);
@@ -94,7 +94,7 @@ describe('useVirtualScroll', () => {
 
     // Small scroll back to page 1
     {act(() => {
-      ret = vs.onScroll(240, vs.renderSize, 59970);
+      ([ret] = vs.onScroll(240, vs.renderSize, 59970));
     })}
     vs = result.current;
     expect(ret).toBe(119970);
@@ -105,7 +105,7 @@ describe('useVirtualScroll', () => {
 
     // Large scroll to halfway through range
     {act(() => {
-      ret = vs.onScroll(clientExtent, vs.renderSize, vs.renderSize / 2);
+      ([ret] = vs.onScroll(clientExtent, vs.renderSize, vs.renderSize / 2));
     })}
     vs = result.current;
     expect(ret).toBe(vs.scrollOffset);
@@ -122,7 +122,7 @@ describe('useVirtualScroll', () => {
 
     // Large scroll to end of range
     {act(() => {
-      ret = vs.onScroll(clientExtent, vs.renderSize, vs.renderSize - clientExtent);
+      ([ret] = vs.onScroll(clientExtent, vs.renderSize, vs.renderSize - clientExtent));
     })}
     vs = result.current;
     expect(ret).toBe(vs.scrollOffset);
@@ -153,7 +153,7 @@ describe('useVirtualScroll', () => {
 
     // Large scroll sto start of range
     {act(() => {
-      ret = vs.onScroll(clientExtent, vs.renderSize, 0);
+      ([ret] = vs.onScroll(clientExtent, vs.renderSize, 0));
     })}
     vs = result.current;
     expect(ret).toBe(0);
