@@ -1,7 +1,8 @@
 import React from "react";
 import { Fragment } from "react";
 import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, ScrollEvent } from './VirtualBase';
-import { useVirtualScroll } from './useVirtualScroll';
+import { useVirtualScroll, ScrollState } from './useVirtualScroll';
+export type { ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
 export interface VirtualGridItemProps extends VirtualBaseItemProps {
@@ -18,6 +19,7 @@ export interface VirtualGridProps extends VirtualBaseProps {
   columnCount: number,
   columnOffsetMapping: ItemOffsetMapping,
   itemKey?: (rowIndex: number, columnIndex: number, data: any) => any,
+  onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
 };
 
 export interface VirtualGridProxy {
@@ -30,7 +32,7 @@ const defaultItemKey = (rowIndex: number, columnIndex: number, _data: any) => `$
 // Using a named function rather than => so that the name shows up in React Developer Tools
 export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(function VirtualGrid(props, ref) {
   const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, 
-    itemData = undefined, itemKey = defaultItemKey, useIsScrolling = false } = props;
+    itemData = undefined, itemKey = defaultItemKey, onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   // Total size is same as offset to item one off the end
   const totalRowSize = rowOffsetMapping.itemOffset(rowCount);
@@ -56,15 +58,17 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
         this.scrollTo(rowOffsetMapping.itemOffset(rowIndex), columnOffsetMapping.itemOffset(columnIndex));
       }
     }
-  }, [ rowOffsetMapping, columnOffsetMapping ]);
+  }, [ rowOffsetMapping, columnOffsetMapping, doScrollToRow, doScrollToColumn ]);
 
 
   function onScroll(event: ScrollEvent) {
     const { clientWidth, clientHeight, scrollWidth, scrollHeight, scrollLeft, scrollTop } = event.currentTarget;
-    const [newScrollTop] = onScrollRow(clientHeight, scrollHeight, scrollTop);
-    const [newScrollLeft] = onScrollColumn(clientWidth, scrollWidth, scrollLeft);
+    const [newScrollTop, newRowScrollState] = onScrollRow(clientHeight, scrollHeight, scrollTop);
+    const [newScrollLeft, newColumnScrollState] = onScrollColumn(clientWidth, scrollWidth, scrollLeft);
     if (outerRef.current && (newScrollTop != scrollTop || newScrollLeft != scrollLeft ))
       outerRef.current.scrollTo(newScrollLeft, newScrollTop);
+    onScrollCallback?.(newRowScrollState.scrollOffset+newRowScrollState.renderOffset, 
+      newColumnScrollState.scrollOffset+newColumnScrollState.renderOffset, newRowScrollState, newColumnScrollState);
   }
 
   const [startRowIndex, startRowOffset, rowSizes] = 

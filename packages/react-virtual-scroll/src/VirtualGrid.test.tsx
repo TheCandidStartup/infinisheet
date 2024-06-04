@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, act } from './test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd } from './test/utils'
-import { VirtualGrid, VirtualGridProxy } from './VirtualGrid'
+import { VirtualGrid, VirtualGridProxy, ScrollState } from './VirtualGrid'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
@@ -270,6 +270,7 @@ describe('Paged VirtualList', () => {
   
   it('should manipulate the scroll bar position', () => {
     try {
+      const onScroll = vi.fn<[number,number,ScrollState,ScrollState],void>();
       const ref = React.createRef<VirtualGridProxy>();
       render(
         <VirtualGrid
@@ -279,6 +280,7 @@ describe('Paged VirtualList', () => {
         rowOffsetMapping={rowMapping}
         columnCount={1000000000000}
         columnOffsetMapping={columnMapping}
+        onScroll={onScroll}
         width={600}>
         {Cell}
       </VirtualGrid>
@@ -297,28 +299,51 @@ describe('Paged VirtualList', () => {
 
       // Scroll to last item on second page
       var proxy = ref.current || throwErr("null ref");
-      {act(() => { proxy.scrollToItem(3999, 0); })}
-      expect(mock).toBeCalledWith(0, 119970);
-      const item3999 = screen.getByText('Cell 3999:0');
+      {act(() => { proxy.scrollToItem(3999, 1199); })}
+      expect(mock).toBeCalledWith(119900, 119970);
+      const item3999 = screen.getByText('Cell 3999:1199');
       expect(item3999).toBeInTheDocument()
       expect(item3999).toHaveProperty("style.top", '119970px')
+      expect(item3999).toHaveProperty("style.left", '119900px')
 
       // Resulting update of ScrollTop
       {act(() => {
-        fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 119970 }});
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 119900, scrollTop: 119970 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).toBeCalledWith(119970, 119900, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'},
+        { scrollOffset: 119900, renderOffset: 0, page: 1, scrollDirection: 'forward'});
 
       // Scroll down 2 items to cross page boundary
       // Scroll bar should be adjusted backwards by size of page
       {act(() => {
-        fireEvent.scroll(outerDiv, { target: { scrollTop: 120030 }});
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 120100, scrollTop: 120030 }});
         fireEventScrollEnd(outerDiv);
       })}
-      expect(mock).toBeCalledWith(0, 60030);
-      const item4001 = screen.getByText('Cell 4001:0');
+      expect(mock).toBeCalledWith(60100, 60030);
+      expect(onScroll).toBeCalledWith(120030, 120100, { scrollOffset: 60030, renderOffset: 60000, page: 2, scrollDirection: 'forward'},
+        { scrollOffset: 60100, renderOffset: 60000, page: 2, scrollDirection: 'forward'});
+      const item4001 = screen.getByText('Cell 4001:1201');
       expect(item4001).toBeInTheDocument()
       expect(item4001).toHaveProperty("style.top", '60030px')
+      expect(item4001).toHaveProperty("style.left", '60100px')
+
+      // Scroll back to first cell
+      var proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(0, 0); })}
+      expect(mock).toBeCalledWith(0, 0);
+      const item1 = screen.getByText('Cell 1:1');
+      expect(item1).toBeInTheDocument()
+      expect(item1).toHaveProperty("style.top", '30px')
+      expect(item1).toHaveProperty("style.left", '100px')
+
+      // Resulting update of ScrollTop
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 0 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+      expect(onScroll).toBeCalledWith(0, 0, { scrollOffset: 0, renderOffset: 0, page: 0, scrollDirection: 'backward'},
+        { scrollOffset: 0, renderOffset: 0, page: 0, scrollDirection: 'backward'});
 
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
