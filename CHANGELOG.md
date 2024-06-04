@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.2.0...v0.3.0) (2024-06-04)
+
+
+### Bug Fixes
+
+* **react-virtual-scroll:** Added OnScroll unit test for VirtualList and fixed bug caused by missing dependencies in imperative handle declaration. ([08b4b1a](https://github.com/TheCandidStartup/infinisheet/commit/08b4b1a48301214f1c8978721042745f7d09434c))
+
+
+### Features
+
+* **react-virtual-scroll:** Added onScroll support to VirtualGrid ([6287d28](https://github.com/TheCandidStartup/infinisheet/commit/6287d28281bcdfa9c04891c15602c505bf59a69a))
+* **react-virtual-scroll:** Exposed optional maxCssSize and minNumPages props ([70d3112](https://github.com/TheCandidStartup/infinisheet/commit/70d3112f179ae8362816a86306e5c2acd7459f3d))
+* **virtual-scroll-samples:** Added Paging Functional Test sample ([c4f2fb4](https://github.com/TheCandidStartup/infinisheet/commit/c4f2fb4a14dc710c7a36cd37e7dbbf1c06a43db6))
+* **virtual-scroll-samples:** List and Grid ScrollToItem updates both components ([7149a8e](https://github.com/TheCandidStartup/infinisheet/commit/7149a8e1ab95e608faa5a1ec8b9b96c44e1934e1))
+
+
+
+
+
 # [0.2.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.1.2...v0.2.0) (2024-05-15)
 
 
