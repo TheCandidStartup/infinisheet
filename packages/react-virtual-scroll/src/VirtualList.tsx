@@ -1,6 +1,7 @@
 import React from "react";
 import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, ScrollEvent } from './VirtualBase';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
+export type { ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
 export type ScrollLayout = "horizontal" | "vertical";
@@ -58,7 +59,7 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
         this.scrollTo(itemOffsetMapping.itemOffset(index));
       }
     }
-  }, [ itemOffsetMapping ]);
+  }, [ itemOffsetMapping, isVertical, doScrollTo ]);
 
   function onScroll(event: ScrollEvent) {
     if (isVertical) {

@@ -151,7 +151,7 @@ describe('useVirtualScroll', () => {
     }
     expect(vs.scrollDirection).toBe("backward");
 
-    // Large scroll sto start of range
+    // Large scroll to start of range
     {act(() => {
       ([ret] = vs.onScroll(clientExtent, vs.renderSize, 0));
     })}

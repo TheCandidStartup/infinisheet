@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, act } from './test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd } from './test/utils'
-import { VirtualList, VirtualListProxy } from './VirtualList'
+import { VirtualList, VirtualListProxy, ScrollState } from './VirtualList'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
@@ -371,6 +371,7 @@ describe('Paged VirtualList', () => {
   
   it('should manipulate the scroll bar position for vertical layout', () => {
     try {
+      const onScroll = vi.fn<[number,ScrollState],void>();
       const ref = React.createRef<VirtualListProxy>();
       render(
         <VirtualList
@@ -379,6 +380,7 @@ describe('Paged VirtualList', () => {
           itemCount={1000000000000}
           itemOffsetMapping={mapping}
           layout={'vertical'}
+          onScroll={onScroll}
           width={600}>
           {Cell}
         </VirtualList>
@@ -409,6 +411,7 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 59970 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).toBeCalledWith(59970, { scrollOffset: 59970, renderOffset: 0, page: 0, scrollDirection: 'forward'})
 
       // Scroll down 2 items to cross page boundary
       // Scroll bar should not be adjusted on first boundary
@@ -416,6 +419,7 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollTop: 60030 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).toBeCalledWith(60030, { scrollOffset: 60030, renderOffset: 0, page: 1, scrollDirection: 'forward'})
       expect(outerDiv).toHaveProperty("scrollTop", 60030);
       const item2001 = screen.getByText('Item 2001');
       expect(item2001).toBeInTheDocument()
@@ -434,6 +438,7 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 119970 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).toBeCalledWith(119970, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'})
 
       // Scroll down 2 items to cross page boundary
       // Scroll bar should be adjusted backwards by size of page
@@ -441,10 +446,26 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollTop: 120030 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).toBeCalledWith(120030, { scrollOffset: 60030, renderOffset: 60000, page: 2, scrollDirection: 'forward'})
       expect(mock).toBeCalledWith(0, 60030);
       const item4001 = screen.getByText('Item 4001');
       expect(item4001).toBeInTheDocument()
       expect(item4001).toHaveProperty("style.top", '60030px')
+
+      // Scroll back to first item
+      proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(0); })}
+      expect(mock).toBeCalledWith(0, 0);
+      const item1 = screen.getByText('Item 1');
+      expect(item1).toBeInTheDocument()
+      expect(item1).toHaveProperty("style.top", '30px')
+
+      // Resulting update of ScrollTop
+      {act(() => {
+        fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 0 }});
+        fireEventScrollEnd(outerDiv);
+      })}
+      expect(onScroll).toBeCalledWith(0, { scrollOffset: 0, renderOffset: 0, page: 0, scrollDirection: 'backward'})
 
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
