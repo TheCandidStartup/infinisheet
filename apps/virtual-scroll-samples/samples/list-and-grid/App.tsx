@@ -1,5 +1,5 @@
 import React from "react";
-import { VirtualGrid, VirtualList, VirtualListProxy, 
+import { VirtualGrid, VirtualList, VirtualListProxy, VirtualGridProxy,
   useVariableSizeItemOffsetMapping, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: any }) => (
@@ -17,7 +17,8 @@ const Cell = ({ rowIndex, columnIndex, isScrolling, style }: { rowIndex: number,
 function App() {
   var mapping = useVariableSizeItemOffsetMapping(30, [50]);
   var columnMapping = useFixedSizeItemOffsetMapping(100);
-  const ref = React.createRef<VirtualListProxy>();
+  const listProxy = React.createRef<VirtualListProxy>();
+  const gridProxy = React.createRef<VirtualGridProxy>();
 
   return (
     <div className="app-container">
@@ -28,13 +29,14 @@ function App() {
           height={200}
           onChange={(event) => {
             const value = parseInt(event.target?.value);
-            ref.current?.scrollToItem(value)
+            listProxy.current?.scrollToItem(value);
+            gridProxy.current?.scrollToItem(value, 0);
           }}
         />
       </label>
 
       <VirtualList
-        ref={ref}
+        ref={listProxy}
         height={240}
         itemCount={100}
         itemOffsetMapping={mapping}
@@ -44,7 +46,7 @@ function App() {
       </VirtualList>
 
       <VirtualGrid
-        ref={ref}
+        ref={gridProxy}
         height={240}
         rowCount={100}
         rowOffsetMapping={mapping}
