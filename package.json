@@ -9,7 +9,7 @@
     "lerna-build": "npx lerna run build ",
     "lerna-test": "npx lerna run test -- --run --coverage",
     "lerna-version": "npx lerna version --conventional-commits",
-    "lerna-publish": "npx lerna publish from-package"
+    "lerna-publish": "npx lerna publish from-package --yes"
   },
   "devDependencies": {
     "@gordonmleigh/rollup-plugin-sourcemaps": "^0.1.2",
