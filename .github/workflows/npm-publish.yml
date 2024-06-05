@@ -1,13 +1,22 @@
-# Workflow to build and publish package to NPM. Triggered manually or from Build CI workflow when a release commit is detected.
+# Workflow to build and publish package to NPM. Triggered manually or on completion of Build CI workflow on release commit
 # For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
 # To use npm direct replace lerna publish with "npm publish --workspaces --provenance --access public"
 
 name: NPM Publish
 
-on: [workflow_dispatch, workflow_call]
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [Build CI]
+    types: [completed]
 
 jobs:
   build:
+    if: |
+        github.event_name == 'workflow_dispatch' ||
+        ( github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event.ref == 'refs/heads/main' &&
+          contains(github.event.workflow_run.event.head_commit.message, 'chore(release)'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
