@@ -32,6 +32,5 @@ jobs:
     needs: build
     if: |
         github.ref == 'refs/heads/main' &&
-        matrix.node-version == '20.X' &&
         contains(github.event.head_commit.message, 'chore(release)')
     uses: ./.github/workflows/npm-publish.yml
