@@ -21,7 +21,7 @@ jobs:
       - run: npm ci
       - run: npm run lerna-build
       - run: npm run lerna-test
-      - run: npx lerna publish from-git --yes
+      - run: npx lerna publish from-git --yes --force-publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
