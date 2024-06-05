@@ -7,7 +7,7 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TheCandidStartup/infinisheet.git",
+    "url": "git+https://github.com/TheCandidStartup/infinisheet.git",
     "directory": "packages/react-virtual-scroll"
   },
   "bugs": "https://github.com/TheCandidStartup/infinisheet/issues",
