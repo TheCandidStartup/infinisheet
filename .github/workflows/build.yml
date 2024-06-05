@@ -11,12 +11,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-
     strategy:
       matrix:
         node-version: [18.x, 20.x]
@@ -32,13 +27,11 @@ jobs:
     - run: npm ci
     - run: npm run lerna-build
     - run: npm run lerna-test
-
-    - name: Publish to NPM on release
-      if: |
-          github.ref == 'refs/heads/main' &&
-          matrix.node-version == '20.X' &&
-          contains(github.event.head_commit.message, 'chore(release)')
-      env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
-      run: npm run lerna-publish
+    
+  publish-if-neeeded:
+    needs: build
+    if: |
+        github.ref == 'refs/heads/main' &&
+        matrix.node-version == '20.X' &&
+        contains(github.event.head_commit.message, 'chore(release)')
+    uses: ./.github/workflows/npm-publish.yml
