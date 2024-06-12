@@ -113,6 +113,10 @@ button:focus-visible {
   background-color: blue;
 }
 
+.outerContainer {
+  margin-bottom: 10px;
+}
+
 .cell {
   border-style: solid;
   border-color: black;

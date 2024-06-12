@@ -30,7 +30,7 @@ const defaultItemKey = (index: number, _data: any) => index;
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(function VirtualList(props, ref) {
-  const { width, height, itemCount, itemOffsetMapping, children, 
+  const { width, height, itemCount, itemOffsetMapping, children, className,
     itemData = undefined, itemKey = defaultItemKey, layout = 'vertical', onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   // Total size is same as offset to item one off the end
@@ -91,7 +91,8 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   let index, offset;
 
   return (
-    <div onScroll={onScroll} ref={outerRef} style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
+    <div className={className} onScroll={onScroll} ref={outerRef} 
+        style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
       <div style={{ height: isVertical ? renderSize : "100%", width: isVertical ? "100%" : renderSize }}>
         {sizes.map((size, arrayIndex) => (
           offset = nextOffset,

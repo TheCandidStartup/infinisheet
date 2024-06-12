@@ -70,6 +70,7 @@ function App() {
       </label>
 
       <VirtualList
+        className={"outerContainer"}
         ref={list}
         height={240}
         itemCount={100}

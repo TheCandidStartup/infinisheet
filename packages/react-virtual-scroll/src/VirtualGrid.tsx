@@ -31,7 +31,7 @@ const defaultItemKey = (rowIndex: number, columnIndex: number, _data: any) => `$
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(function VirtualGrid(props, ref) {
-  const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, 
+  const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, className,
     itemData = undefined, itemKey = defaultItemKey, onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   // Total size is same as offset to item one off the end
@@ -88,7 +88,8 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   let nextColumnOffset=0, columnIndex=0, columnOffset=0;
 
   return (
-    <div onScroll={onScroll} ref={outerRef} style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
+    <div className={className} onScroll={onScroll} ref={outerRef} 
+        style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
       <div style={{ height: renderRowSize, width: renderColumnSize }}>
         {rowSizes.map((rowSize, rowArrayIndex) => (
           rowOffset = nextRowOffset,

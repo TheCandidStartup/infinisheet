@@ -36,6 +36,7 @@ function App() {
       </label>
 
       <VirtualList
+        className={"outerContainer"}
         ref={listProxy}
         height={240}
         itemCount={100}
@@ -46,6 +47,7 @@ function App() {
       </VirtualList>
 
       <VirtualGrid
+        className={"outerContainer"}
         ref={gridProxy}
         height={240}
         rowCount={100}

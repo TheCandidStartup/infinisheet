@@ -7,6 +7,7 @@ export interface VirtualBaseItemProps {
 };
 
 export interface VirtualBaseProps {
+  className?: string,
   height: number,
   width: number,
   itemData?: any,
