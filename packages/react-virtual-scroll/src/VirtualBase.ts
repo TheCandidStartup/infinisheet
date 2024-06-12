@@ -1,8 +1,9 @@
+import React from "react";
 
 export interface VirtualBaseItemProps {
   data: any,
   isScrolling?: boolean,
-  style: Object,
+  style: React.CSSProperties,
 };
 
 export interface VirtualBaseProps {

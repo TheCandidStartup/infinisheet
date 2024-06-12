@@ -4,7 +4,7 @@ import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping } from '@c
 
 import '../styles.css';
 
-const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: any }) => (
+const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
   <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
     { (index == 0) ? "Header" : "Item " + index }
   </div>

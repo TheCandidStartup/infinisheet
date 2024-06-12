@@ -4,7 +4,7 @@ import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, ScrollSta
 
 import '../styles.css';
 
-const Row = ({ index, style } : {index: number, style: any}) => (
+const Row = ({ index, style } : {index: number, style: React.CSSProperties }) => (
   <div className={ index == 0 ? "header" : "cell" } style={style}>
     { (index == 0) ? "Header" : "Item " + index }
   </div>
