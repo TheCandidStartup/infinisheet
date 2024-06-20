@@ -1,9 +1,10 @@
 import React from "react";
 import { render, screen, fireEvent, act } from './test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd } from './test/utils'
-import { VirtualList, VirtualListProxy, ScrollState } from './VirtualList'
+import { VirtualList, VirtualListProxy } from './VirtualList'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
+import { ScrollState } from './useVirtualScroll';
 
 function updateLayout(innerDiv: HTMLElement, outerDiv: HTMLElement) {
   const scrollHeight = parseInt(innerDiv.style.height);

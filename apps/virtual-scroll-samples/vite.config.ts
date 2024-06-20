@@ -21,6 +21,8 @@ export default defineConfig({
         "trillion-square-grid": resolve(__dirname, 'samples/trillion-square-grid/index.html'),
         "horizontal-list": resolve(__dirname, 'samples/horizontal-list/index.html'),
         "paging-functional-test": resolve(__dirname, 'samples/paging-functional-test/index.html'),
+        "spreadsheet": resolve(__dirname, 'samples/spreadsheet/index.html'),
+        "padding": resolve(__dirname, 'samples/padding/index.html'),
       },
       output: {
         manualChunks: (id) => {

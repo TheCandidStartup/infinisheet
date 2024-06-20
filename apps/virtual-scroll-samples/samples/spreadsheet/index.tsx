@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping,
+   VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -9,6 +10,12 @@ const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boole
     { (index == 0) ? "Header" : "Item " + index }
   </div>
 );
+
+const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({className, style, onScroll, children}, ref) => (
+  <div className={className} ref={ref} style={{ ...style, overflow: "hidden"}} onScroll={onScroll}>
+    {children}
+  </div>
+))
 
 function App() {
   var mapping = useFixedSizeItemOffsetMapping(100);
@@ -31,6 +38,7 @@ function App() {
       <VirtualList
         ref={ref}
         className={'outerContainer'}
+        outerComponent={Outer}
         height={50}
         itemCount={100}
         itemOffsetMapping={mapping}
@@ -38,7 +46,6 @@ function App() {
         width={600}>
         {Row}
       </VirtualList>
-
     </div>
   )
 }

@@ -87,10 +87,6 @@ button:focus-visible {
   width: 150px;
   overflow-y: auto;
 }
-.innerContainer {
-  will-change: transform;
-  background-color: yellow;
-}
 .item {
   height: 20px;
 }
@@ -114,18 +110,17 @@ button:focus-visible {
 }
 
 .outerContainer {
+  border: 1px solid #d9dddd;
   margin-bottom: 10px;
 }
 
 .cell {
-  border-style: solid;
-  border-color: black;
+  border: 1px solid black;
   box-sizing: border-box;
 }
 
 .cellScroll {
-  border-style: solid;
-  border-color: lightgrey;
+  border: 1px solid lightgrey;
   box-sizing: border-box;
   color: grey;
 }
@@ -134,8 +129,7 @@ button:focus-visible {
   background-color: lightgrey;
   font-size: larger;
   font-weight: bold;
-  border-style: solid;
-  border-color: black;
+  border: 1px solid black;
   box-sizing: border-box;
 }
 

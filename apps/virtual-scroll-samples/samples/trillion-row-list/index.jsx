@@ -30,6 +30,7 @@ function App() {
 
       <VirtualList
         ref={list}
+        className={'outerContainer'}
         height={240}
         itemCount={1000000000000}
         itemOffsetMapping={mapping}

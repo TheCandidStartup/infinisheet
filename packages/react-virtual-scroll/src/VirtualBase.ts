@@ -8,6 +8,7 @@ export interface VirtualBaseItemProps {
 
 export interface VirtualBaseProps {
   className?: string,
+  innerClassName?: string,
   height: number,
   width: number,
   itemData?: any,
@@ -15,6 +16,21 @@ export interface VirtualBaseProps {
   maxCssSize?: number,
   minNumPages?: number
 };
+
+export interface VirtualInnerProps {
+  className: string | undefined;
+  children: React.ReactNode;
+  style: React.CSSProperties;
+}
+export type VirtualInnerComponent = React.ComponentType<VirtualInnerProps>;
+
+export interface VirtualOuterProps {
+  className: string | undefined;
+  children: React.ReactNode;
+  style: React.CSSProperties;
+  onScroll: (event: ScrollEvent) => void;
+}
+export type VirtualOuterComponent = React.ComponentType<VirtualOuterProps>;
 
 export interface ItemOffsetMapping {
   itemSize(itemIndex: number): number;

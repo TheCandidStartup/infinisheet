@@ -1,7 +1,7 @@
 import React from "react";
-import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, ScrollEvent } from './VirtualBase';
+import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, 
+  VirtualBaseProps, VirtualInnerComponent, VirtualOuterComponent, ScrollEvent } from './VirtualBase';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
-export type { ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
 export type ScrollLayout = "horizontal" | "vertical";
@@ -9,7 +9,6 @@ export type ScrollLayout = "horizontal" | "vertical";
 export interface VirtualListItemProps extends VirtualBaseItemProps {
   index: number,
 };
-
 type VirtualListItem = React.ComponentType<VirtualListItemProps>;
 
 export interface VirtualListProps extends VirtualBaseProps {
@@ -19,6 +18,8 @@ export interface VirtualListProps extends VirtualBaseProps {
   itemKey?: (index: number, data: any) => any,
   layout?: ScrollLayout,
   onScroll?: (offset: number, newScrollState: ScrollState) => void;
+  outerComponent?: VirtualOuterComponent;
+  innerComponent?: VirtualInnerComponent;
 };
 
 export interface VirtualListProxy {
@@ -30,7 +31,7 @@ const defaultItemKey = (index: number, _data: any) => index;
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(function VirtualList(props, ref) {
-  const { width, height, itemCount, itemOffsetMapping, children, className,
+  const { width, height, itemCount, itemOffsetMapping, children, className, innerClassName,
     itemData = undefined, itemKey = defaultItemKey, layout = 'vertical', onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   // Total size is same as offset to item one off the end
@@ -81,8 +82,10 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
     isVertical ? height : width, scrollOffset+renderOffset);
 
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
-  // naming convention as components do. 
+  // naming convention as components do.
   const ChildVar = children;
+  const Outer = props.outerComponent || 'div';
+  const Inner = props.innerComponent || 'div';
 
   // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
   // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
@@ -91,9 +94,9 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   let index, offset;
 
   return (
-    <div className={className} onScroll={onScroll} ref={outerRef} 
+    <Outer className={className} onScroll={onScroll} ref={outerRef} 
         style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <div style={{ height: isVertical ? renderSize : "100%", width: isVertical ? "100%" : renderSize }}>
+      <Inner className={innerClassName} style={{ height: isVertical ? renderSize : "100%", width: isVertical ? "100%" : renderSize }}>
         {sizes.map((size, arrayIndex) => (
           offset = nextOffset,
           nextOffset += size,
@@ -108,8 +111,8 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
               width: isVertical ? "100%" : size, 
             }}/>
         ))}
-      </div>
-    </div>
+      </Inner>
+    </Outer>
   );
 });
 

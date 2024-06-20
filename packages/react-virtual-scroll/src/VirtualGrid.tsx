@@ -1,8 +1,8 @@
 import React from "react";
 import { Fragment } from "react";
-import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, ScrollEvent } from './VirtualBase';
+import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, 
+  VirtualInnerComponent, VirtualOuterComponent, ScrollEvent } from './VirtualBase';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
-export type { ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
 export interface VirtualGridItemProps extends VirtualBaseItemProps {
@@ -20,6 +20,8 @@ export interface VirtualGridProps extends VirtualBaseProps {
   columnOffsetMapping: ItemOffsetMapping,
   itemKey?: (rowIndex: number, columnIndex: number, data: any) => any,
   onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
+  outerComponent?: VirtualOuterComponent;
+  innerComponent?: VirtualInnerComponent;
 };
 
 export interface VirtualGridProxy {
@@ -31,7 +33,7 @@ const defaultItemKey = (rowIndex: number, columnIndex: number, _data: any) => `$
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(function VirtualGrid(props, ref) {
-  const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, className,
+  const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, className, innerClassName, 
     itemData = undefined, itemKey = defaultItemKey, onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   // Total size is same as offset to item one off the end
@@ -79,6 +81,8 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
   // naming convention as components do. 
   const ChildVar = children;
+  const Outer = props.outerComponent || 'div';
+  const Inner = props.innerComponent || 'div';
 
   // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
   // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
@@ -88,9 +92,9 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   let nextColumnOffset=0, columnIndex=0, columnOffset=0;
 
   return (
-    <div className={className} onScroll={onScroll} ref={outerRef} 
+    <Outer className={className} onScroll={onScroll} ref={outerRef} 
         style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <div style={{ height: renderRowSize, width: renderColumnSize }}>
+      <Inner className={innerClassName} style={{ height: renderRowSize, width: renderColumnSize }}>
         {rowSizes.map((rowSize, rowArrayIndex) => (
           rowOffset = nextRowOffset,
           nextRowOffset += rowSize,
@@ -108,8 +112,8 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
           ))}
           </Fragment>
         ))}
-      </div>
-    </div>
+      </Inner>
+    </Outer>
   );
 });
 

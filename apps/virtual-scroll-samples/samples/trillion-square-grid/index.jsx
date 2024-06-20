@@ -46,6 +46,7 @@ function App() {
 
       <VirtualGrid
         ref={grid}
+        className={'outerContainer'}
         height={240}
         rowCount={1000000000000}
         rowOffsetMapping={mapping}
