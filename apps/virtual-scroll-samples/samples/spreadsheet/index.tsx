@@ -1,13 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping,
-   VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
+import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
+  useFixedSizeItemOffsetMapping, VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
-const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
-  <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
-    { (index == 0) ? "Header" : "Item " + index }
+const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+  <div className="spreadsheetColumn" style={style}>
+    { index }
+  </div>
+);
+
+const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+  <div className="spreadsheetRow" style={style}>
+    { index }
+  </div>
+);
+
+const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
+  <div className="spreadsheetCell" style={style}>
+    { `${rowIndex}:${columnIndex}` }
   </div>
 );
 
@@ -18,11 +30,20 @@ const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({className, 
 ))
 
 function App() {
-  var mapping = useFixedSizeItemOffsetMapping(100);
-  const ref = React.createRef<VirtualListProxy>();
+  var columnMapping = useFixedSizeItemOffsetMapping(100);
+  var rowMapping = useFixedSizeItemOffsetMapping(30);
+  const columnRef = React.createRef<VirtualListProxy>();
+  const rowRef = React.createRef<VirtualListProxy>();
+  const gridRef = React.createRef<VirtualGridProxy>();
+
+  function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
+    columnRef.current?.scrollTo(columnOffsetValue);
+    rowRef.current?.scrollTo(rowOffsetValue);
+  }
 
   return (
-    <div className="app-container">
+    <div className="spreadsheet">
+      <div className="spreadsheetScrollTo">
       <label>
         ScrollToItem: 
         <input
@@ -30,22 +51,49 @@ function App() {
           height={200}
           onChange={(event) => {
             const value = parseInt(event.target?.value);
-            ref.current?.scrollToItem(value)
+            gridRef.current?.scrollToItem(value, value);
           }}
         />
       </label>
+      </div>
+
+      <div>CS</div>
 
       <VirtualList
-        ref={ref}
-        className={'outerContainer'}
+        ref={columnRef}
+        className={'spreadsheetColumnHeader'}
         outerComponent={Outer}
         height={50}
         itemCount={100}
-        itemOffsetMapping={mapping}
+        itemOffsetMapping={columnMapping}
         layout={'horizontal'}
         width={600}>
+        {Col}
+      </VirtualList>
+
+      <VirtualList
+        ref={rowRef}
+        className={'spreadsheetRowHeader'}
+        outerComponent={Outer}
+        height={240}
+        itemCount={100}
+        itemOffsetMapping={rowMapping}
+        width={100}>
         {Row}
       </VirtualList>
+
+      <VirtualGrid
+        className={"spreadsheetGrid"}
+        ref={gridRef}
+        onScroll={onScroll}
+        height={240}
+        rowCount={100}
+        rowOffsetMapping={rowMapping}
+        columnCount={100}
+        columnOffsetMapping={columnMapping}
+        width={600}>
+        {Cell}
+      </VirtualGrid>
     </div>
   )
 }

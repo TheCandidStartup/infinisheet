@@ -139,3 +139,26 @@ input {
   margin-right: 20px;
   margin-bottom: 10px;
 }
+
+.spreadsheet {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  grid-template-rows: 50px 50px 1fr;
+}
+
+.spreadsheetScrollTo {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+.spreadsheetColumnHeader {
+  border: 1px solid lightgrey;
+}
+
+.spreadsheetRowHeader {
+  border: 1px solid lightgrey;
+}
+
+.spreadsheetGrid {
+  border: 1px solid lightgrey;
+}
