@@ -23,10 +23,8 @@ const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex:
   </div>
 );
 
-const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({className, style, onScroll, children}, ref) => (
-  <div className={className} ref={ref} style={{ ...style, overflow: "hidden"}} onScroll={onScroll}>
-    {children}
-  </div>
+const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...rest}, ref) => (
+  <div ref={ref} style={{ ...style, overflow: "hidden"}} {...rest}/>
 ))
 
 function App() {
@@ -45,19 +43,19 @@ function App() {
     <div className="spreadsheet">
       <div className="spreadsheetScrollTo">
       <label>
-        ScrollToItem: 
+        Scroll To Row: 
         <input
           type={"number"}
           height={200}
           onChange={(event) => {
             const value = parseInt(event.target?.value);
-            gridRef.current?.scrollToItem(value, value);
+            gridRef.current?.scrollToItem(value, 0);
           }}
         />
       </label>
       </div>
 
-      <div>CS</div>
+      <div></div>
 
       <VirtualList
         ref={columnRef}
