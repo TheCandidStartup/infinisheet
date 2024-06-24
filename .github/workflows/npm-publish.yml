@@ -11,6 +11,14 @@ on:
     types: [completed]
 
 jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ${{ github.event.workflow_run.conclusion }}
+      - run: echo ${{ github.event.workflow_run.event.ref }}
+      - run: echo ${{ github.event.workflow_run.event.head_commit.message }}
+      - run: echo ${{ github.event.workflow_run.event.head_commit }}
+      - run: echo ${{ github.event.workflow_run.event }}
   build:
     if: |
         github.event_name == 'workflow_dispatch' ||
