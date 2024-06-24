@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, act } from './test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd } from './test/utils'
+import { VirtualOuterProps, VirtualInnerProps } from './VirtualBase'
 import { VirtualGrid, VirtualGridProxy } from './VirtualGrid'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
@@ -169,6 +170,41 @@ describe('VirtualGrid', () => {
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
+  })
+
+  it('should support customization', () => {
+    const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...rest}, ref) => (
+      <div ref={ref} style={{ ...style, height: "500px"}} {...rest}/>
+    ))
+
+    const Inner = React.forwardRef<HTMLDivElement, VirtualInnerProps >(({style, ...rest}, ref) => (
+      <div ref={ref} style={{ ...style, height: "400px"}} {...rest}/>
+    ))
+
+    render(
+      <VirtualGrid
+        className={"outerClass"}
+        outerComponent={Outer}
+        innerClassName={"innerClass"}
+        innerComponent={Inner}
+        height={50}
+        rowCount={240}
+        rowOffsetMapping={rowMapping}
+        columnCount={100}
+        columnOffsetMapping={columnMapping}
+        width={600}>
+        {Cell}
+      </VirtualGrid>
+    )
+
+    const header = screen.getByText('Header 0');
+    const innerDiv = header.parentElement || throwErr("No inner div");
+    const outerDiv = innerDiv.parentElement || throwErr("No outer div");
+
+    expect(outerDiv).toHaveProperty("className", "outerClass")
+    expect(outerDiv).toHaveProperty("style.height", '500px')
+    expect(innerDiv).toHaveProperty("className", "innerClass")
+    expect(innerDiv).toHaveProperty("style.height", '400px')
   })
 })
 
