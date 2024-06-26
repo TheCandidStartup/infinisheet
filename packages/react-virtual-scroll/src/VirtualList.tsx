@@ -6,30 +6,104 @@ import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
 export type ScrollLayout = "horizontal" | "vertical";
 
+/**
+ * Props accepted by {@link VirtualListItem}
+ */
 export interface VirtualListItemProps extends VirtualBaseItemProps {
   index: number,
 };
+
+/**
+ * Type of item in a {@link VirtualList}
+ *
+ * Must be passed as a child to {@link VirtualList}. 
+ * Accepts props defined by {@link VirtualListItemProps}.
+ * Component must pass {@link VirtualBaseItemProps.style} to whatever it renders. 
+ * 
+ * @example Basic implementation
+ * ```
+ * const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+ *   <div className="row" style={style}>
+ *     { index }
+ *   </div>
+ * );
+ * ```
+ */
 type VirtualListItem = React.ComponentType<VirtualListItemProps>;
 
+/**
+ * Props accepted by {@link VirtualList}
+ */
 export interface VirtualListProps extends VirtualBaseProps {
+  /** Component used as a template to render items in the list. Must implement {@link VirtualListItem} interface. */
   children: VirtualListItem,
+
+  /** Number of items in the list */
   itemCount: number,
+
+  /** 
+   * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each item in the list
+   * 
+   * Use {@link useFixedSizeItemOffsetMapping} or {@link useVariableSizeItemOffsetMapping} to create implementations
+   * for common cases.
+   */
   itemOffsetMapping: ItemOffsetMapping,
+
+  /**
+   * Function that defines the key to use for each item given item index and value of {@link VirtualBaseProps.data}.
+   * @defaultValue `(index, _data) => index`
+   */
   itemKey?: (index: number, data: any) => any,
+
+  /**
+   * Choice of 'vertical' or 'horizontal' layouts
+   * @defaultValue 'vertical'
+   */
   layout?: ScrollLayout,
+
+  /**
+   * Callback after a scroll event has been processed and state updated but before rendering
+   * @param offset Resulting scroll offset. Can be passed to {@link ItemOffsetMapping} to determine top item.
+   * @param newScrollState New {@link ScrollState} that will be used for rendering.
+   */
   onScroll?: (offset: number, newScrollState: ScrollState) => void;
+
+  /** Component implementing {@link VirtualOuterComponent}. Used to customize {@link VirtualList}. */
   outerComponent?: VirtualOuterComponent;
+
+  /** Component implementing {@link VirtualInnerComponent}. Used to customize {@link VirtualList}. */
   innerComponent?: VirtualInnerComponent;
 };
 
+/**
+ * Custom ref handle returned by {@link VirtualList} that exposes imperative methods
+ * 
+ * Use `React.useRef<VirtualListProxy>(null)` to create a ref.
+ */
 export interface VirtualListProxy {
+  /**
+   * Scrolls the list to the specified offset in pixels
+   * @param offset Offset to scroll to
+   */
   scrollTo(offset: number): void;
+
+  /**
+   * Scrolls the list so that the specified item is visible
+   * @param index Index of item to scroll to
+   */
   scrollToItem(index: number): void;
 };
 
 const defaultItemKey = (index: number, _data: any) => index;
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
+/**
+ * Virtual Scrolling List
+ * 
+ * Accepts props defined by {@link VirtualListProps}. 
+ * Refs are forwarded to {@link VirtualListProxy}. 
+ * You must pass a single instance of {@link VirtualListItem} as a child.
+ */
 export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(function VirtualList(props, ref) {
   const { width, height, itemCount, itemOffsetMapping, children, className, innerClassName,
     itemData = undefined, itemKey = defaultItemKey, layout = 'vertical', onScroll: onScrollCallback, useIsScrolling = false } = props;
