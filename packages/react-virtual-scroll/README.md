@@ -23,7 +23,7 @@ Most of the logic is implemented by custom hooks that are used by both `VirtualL
 import { VirtualList, useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 const mapping = useVariableSizeItemOffsetMapping(30, [50]);
-const list = React.createRef();
+const list = React.useRef(null);
 
 ...
 
@@ -46,7 +46,7 @@ import { VirtualList, useVariableSizeItemOffsetMapping, useFixedSizeItemOffsetMa
 
 const rowMapping = useVariableSizeItemOffsetMapping(30, [50]);
 const columnMapping = useFixedSizeItemOffsetMapping(280);
-const grid = React.createRef();
+const grid = React.useRef(null);
 
 ...
 
