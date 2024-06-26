@@ -30,9 +30,9 @@ const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...r
 function App() {
   var columnMapping = useFixedSizeItemOffsetMapping(100);
   var rowMapping = useFixedSizeItemOffsetMapping(30);
-  const columnRef = React.createRef<VirtualListProxy>();
-  const rowRef = React.createRef<VirtualListProxy>();
-  const gridRef = React.createRef<VirtualGridProxy>();
+  const columnRef = React.useRef<VirtualListProxy>(null);
+  const rowRef = React.useRef<VirtualListProxy>(null);
+  const gridRef = React.useRef<VirtualGridProxy>(null);
 
   function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
     columnRef.current?.scrollTo(columnOffsetValue);

@@ -30,13 +30,13 @@ const OutputField = React.forwardRef<HTMLInputElement, OutputFieldProps >((props
 
 function App() {
   var mapping = useFixedSizeItemOffsetMapping(30);
-  const list = React.createRef<VirtualListProxy>();
-  const offset = React.createRef<HTMLInputElement>();
-  const item = React.createRef<HTMLInputElement>();
-  const scrollOffset = React.createRef<HTMLInputElement>();
-  const renderOffset = React.createRef<HTMLInputElement>();
-  const page = React.createRef<HTMLInputElement>();
-  const scrollDirection = React.createRef<HTMLInputElement>();
+  const list = React.useRef<VirtualListProxy>(null);
+  const offset = React.useRef<HTMLInputElement>(null);
+  const item = React.useRef<HTMLInputElement>(null);
+  const scrollOffset = React.useRef<HTMLInputElement>(null);
+  const renderOffset = React.useRef<HTMLInputElement>(null);
+  const page = React.useRef<HTMLInputElement>(null);
+  const scrollDirection = React.useRef<HTMLInputElement>(null);
 
   function onScroll(offsetValue: number, newScrollState: ScrollState) {
     if (offset.current)

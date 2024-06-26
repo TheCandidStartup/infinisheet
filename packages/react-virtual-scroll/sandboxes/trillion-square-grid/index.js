@@ -13,9 +13,9 @@ const Cell = ({ rowIndex, columnIndex, style }) => (
 function App() {
   var mapping = useVariableSizeItemOffsetMapping(30, [50]);
   var columnMapping = useFixedSizeItemOffsetMapping(280);
-  const grid = React.createRef();
-  const rowInput = React.createRef();
-  const columnInput = React.createRef();
+  const grid = React.useRef(null);
+  const rowInput = React.useRef(null);
+  const columnInput = React.useRef(null);
 
   function onChange() {
     const row = rowInput.current?.valueAsNumber || 0;

@@ -12,7 +12,7 @@ const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boole
 
 function App() {
   var mapping = useFixedSizeItemOffsetMapping(100);
-  const ref = React.createRef<VirtualListProxy>();
+  const ref = React.useRef<VirtualListProxy>(null);
 
   return (
     <div className="app-container">

@@ -12,7 +12,7 @@ const Row = ({ index, style }) => (
 
 function App() {
   var mapping = useVariableSizeItemOffsetMapping(30, [50]);
-  const list = React.createRef();
+  const list = React.useRef(null);
 
   return (
     <div>
