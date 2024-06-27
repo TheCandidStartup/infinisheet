@@ -15,8 +15,8 @@ const Cell = ({ rowIndex, columnIndex, isScrolling, style }: { rowIndex: number,
 );
 
 function App() {
-  var mapping = useVariableSizeItemOffsetMapping(30, [50]);
-  var columnMapping = useFixedSizeItemOffsetMapping(100);
+  const mapping = useVariableSizeItemOffsetMapping(30, [50]);
+  const columnMapping = useFixedSizeItemOffsetMapping(100);
   const listProxy = React.useRef<VirtualListProxy>(null);
   const gridProxy = React.useRef<VirtualGridProxy>(null);
 

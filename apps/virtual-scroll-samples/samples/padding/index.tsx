@@ -30,7 +30,7 @@ const Inner = React.forwardRef<HTMLDivElement, VirtualInnerProps >(({style, ...r
 ))
 
 function App() {
-  var mapping = useFixedSizeItemOffsetMapping(30);
+  const mapping = useFixedSizeItemOffsetMapping(30);
   const ref = React.useRef<VirtualListProxy>(null);
 
   return (

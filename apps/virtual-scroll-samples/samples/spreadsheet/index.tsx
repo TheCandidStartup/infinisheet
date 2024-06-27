@@ -28,8 +28,8 @@ const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...r
 ))
 
 function App() {
-  var columnMapping = useFixedSizeItemOffsetMapping(100);
-  var rowMapping = useFixedSizeItemOffsetMapping(30);
+  const columnMapping = useFixedSizeItemOffsetMapping(100);
+  const rowMapping = useFixedSizeItemOffsetMapping(30);
   const columnRef = React.useRef<VirtualListProxy>(null);
   const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);

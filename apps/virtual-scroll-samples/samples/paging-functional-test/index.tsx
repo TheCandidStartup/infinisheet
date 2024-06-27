@@ -29,7 +29,7 @@ const OutputField = React.forwardRef<HTMLInputElement, OutputFieldProps >((props
 });
 
 function App() {
-  var mapping = useFixedSizeItemOffsetMapping(30);
+  const mapping = useFixedSizeItemOffsetMapping(30);
   const list = React.useRef<VirtualListProxy>(null);
   const offset = React.useRef<HTMLInputElement>(null);
   const item = React.useRef<HTMLInputElement>(null);
