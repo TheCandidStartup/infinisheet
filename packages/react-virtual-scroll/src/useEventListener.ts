@@ -15,11 +15,13 @@ function isListener(element: Listener | RefObject<HTMLElement>): element is List
   return (element as Listener).addEventListener !== undefined;
 }
 
+type EventHandler = (event: Event) => void;
+
 export function useEventListener (eventName: string, 
-                                  handler: (event: Event) => void, 
+                                  handler: EventHandler, 
                                   element: Listener | RefObject<HTMLElement> | null = window, 
                                   options: Options = {}) {
-  const savedHandler = useRef<any>();
+  const savedHandler = useRef<EventHandler>();
   const { capture, passive, once } = options;
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export function useEventListener (eventName: string,
     if (!el)
       return;
 
-    const eventListener = (event: Event) => savedHandler.current(event);
+    const eventListener = (event: Event) => savedHandler.current?.(event);
     const opts = { capture, passive, once };
     el.addEventListener(eventName, eventListener, opts);
     return () => {

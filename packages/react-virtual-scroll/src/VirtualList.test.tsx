@@ -20,7 +20,7 @@ function updateLayout(innerDiv: HTMLElement, outerDiv: HTMLElement) {
 }
 
 describe('Fixed Size VirtualList', () => {
-  const Cell = ({ index, style }: { index: number, style: any }) => (
+  const Cell = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div className={ index == 0 ? "header" : "cell" } style={style}>
       { (index == 0) ? "Header" : "Item " + index }
     </div>
@@ -228,7 +228,7 @@ describe('Fixed Size VirtualList', () => {
 })
 
 describe('Variable Size VirtualList with useIsScrolling', () => {
-  const Cell = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: any }) => (
+  const Cell = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
     <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
       { (index == 0) ? "Header" : "Item " + index }
     </div>
@@ -396,7 +396,7 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
 })
 
 describe('Paged VirtualList', () => {
-  const Cell = ({ index, style }: { index: number, style: any }) => (
+  const Cell = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div className={ index == 0 ? "header" : "cell" } style={style}>
       { (index == 0) ? "Header" : "Item " + index }
     </div>

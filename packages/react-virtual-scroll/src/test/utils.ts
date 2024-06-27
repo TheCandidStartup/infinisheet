@@ -9,7 +9,7 @@ export function throwErr(msg: string): never {
 // jsdom does not implement any layout. All layout related properties are defined but return 0. As they
 // are layout driven properties they're read only. Mock up just enough layout logic for the tests to work.
 // Need to use Object.defineProperty to override read only properties.
-export function overrideProp(element: HTMLElement, prop: string, val: any) {
+export function overrideProp(element: HTMLElement, prop: string, val: unknown) {
   if (!(prop in element))
     throw `Property ${prop} doesn't exist when trying to override`;
 
@@ -29,7 +29,7 @@ export function fireEventScrollEnd(element: HTMLElement | Window) {
 
 const _stubsProperty = new Map();
 
-export function stubProperty(object: object, name: string, value: any) {
+export function stubProperty(object: object, name: string, value: unknown) {
   if (!_stubsProperty.has(name))
     _stubsProperty.set(name, [object, Object.getOwnPropertyDescriptor(object, name)]);
   if (value === undefined && Object.prototype.hasOwnProperty.call(object, name))

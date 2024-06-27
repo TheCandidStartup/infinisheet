@@ -53,7 +53,7 @@ export interface VirtualListProps extends VirtualBaseProps {
    * Function that defines the key to use for each item given item index and value of {@link VirtualBaseProps.data}.
    * @defaultValue `(index, _data) => index`
    */
-  itemKey?: (index: number, data: any) => any,
+  itemKey?: (index: number, data: unknown) => React.Key,
 
   /**
    * Choice of 'vertical' or 'horizontal' layouts
@@ -94,7 +94,7 @@ export interface VirtualListProxy {
   scrollToItem(index: number): void;
 }
 
-const defaultItemKey = (index: number, _data: any) => index;
+const defaultItemKey = (index: number, _data: unknown) => index;
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 /**

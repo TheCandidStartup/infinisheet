@@ -18,7 +18,7 @@ export interface VirtualGridProps extends VirtualBaseProps {
   rowOffsetMapping: ItemOffsetMapping,
   columnCount: number,
   columnOffsetMapping: ItemOffsetMapping,
-  itemKey?: (rowIndex: number, columnIndex: number, data: any) => any,
+  itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React.Key,
   onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
   outerComponent?: VirtualOuterComponent;
   innerComponent?: VirtualInnerComponent;
@@ -29,7 +29,7 @@ export interface VirtualGridProxy {
   scrollToItem(rowIndex: number, columnIndex: number): void;
 }
 
-const defaultItemKey = (rowIndex: number, columnIndex: number, _data: any) => `${rowIndex}:${columnIndex}`;
+const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(function VirtualGrid(props, ref) {

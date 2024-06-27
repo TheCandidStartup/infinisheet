@@ -5,7 +5,7 @@ import React from "react";
  */
 export interface VirtualBaseItemProps {
   /** Value of {@link VirtualBaseProps.itemData} from owning component */
-  data: any,
+  data: unknown,
 
   /** 
    * Is the owning component being actively scrolled? Used to change how the item is rendered depending on scroll state.
@@ -32,7 +32,7 @@ export interface VirtualBaseProps {
   width: number,
 
     /** Passed as {@link VirtualBaseItemProps.data} to each child item */
-  itemData?: any,
+  itemData?: unknown,
 
   /** 
    * Determines whether the component should track whether it's being actively scrolled

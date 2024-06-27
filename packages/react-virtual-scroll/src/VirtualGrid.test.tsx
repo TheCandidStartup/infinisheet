@@ -20,7 +20,7 @@ function updateLayout(innerDiv: HTMLElement, outerDiv: HTMLElement) {
 }
 
 describe('VirtualGrid', () => {
-  const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: any }) => (
+  const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
     <div className={ rowIndex == 0 ? "header" : "cell" } style={style}>
       { (rowIndex == 0) ? `Header ${columnIndex}` : `Cell ${rowIndex}:${columnIndex}` }
     </div>
@@ -209,7 +209,8 @@ describe('VirtualGrid', () => {
 })
 
 describe('VirtualGrid with useIsScrolling', () => {
-  const Cell = ({ rowIndex, columnIndex, isScrolling, style }: { rowIndex: number, columnIndex: number, isScrolling?: boolean, style: any }) => (
+  const Cell = ({ rowIndex, columnIndex, isScrolling, style }: 
+                { rowIndex: number, columnIndex: number, isScrolling?: boolean, style: React.CSSProperties }) => (
     <div className={ rowIndex == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
       { (rowIndex == 0) ? `Header ${columnIndex}` : `Cell ${rowIndex}:${columnIndex}` }
     </div>
@@ -296,7 +297,7 @@ describe('VirtualGrid with useIsScrolling', () => {
 })
 
 describe('Paged VirtualList', () => {
-  const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: any }) => (
+  const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
     <div className={ rowIndex == 0 ? "header" : "cell" } style={style}>
       { (rowIndex == 0) ? `Header ${columnIndex}` : `Cell ${rowIndex}:${columnIndex}` }
     </div>
