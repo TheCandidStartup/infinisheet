@@ -6,7 +6,8 @@
     "apps/*"
   ],
   "scripts": {
-    "lerna-build": "npx lerna run build ",
+    "lerna-build": "npx lerna run build",
+    "lerna-lint": "npx lerna run lint",
     "lerna-test": "npx lerna run test -- --run --coverage",
     "lerna-version": "npx lerna version --conventional-commits",
     "lerna-publish": "npx lerna publish from-package --yes"
