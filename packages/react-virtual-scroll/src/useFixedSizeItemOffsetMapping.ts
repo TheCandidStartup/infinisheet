@@ -21,10 +21,10 @@ class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
   }
 
   fixedItemSize: number;
-};
+}
 
 export function useFixedSizeItemOffsetMapping(itemSize: number) {
   return new FixedSizeItemOffsetMapping(itemSize);
-};
+}
 
 export default useFixedSizeItemOffsetMapping;

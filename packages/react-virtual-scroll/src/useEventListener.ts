@@ -7,7 +7,7 @@ interface Options {
   capture?: boolean
   once?: boolean
   passive?: boolean
-};
+}
 
 type Listener = Window | Document | HTMLElement;
 

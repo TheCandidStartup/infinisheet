@@ -11,7 +11,7 @@ describe('useVirtualScroll', () => {
 
   it('should update offset and direction OnScroll', () => {
     const { result } = renderHook(() => useVirtualScroll(100));
-    var {scrollOffset, scrollDirection, onScroll: onScrollExtent} = result.current;
+    let {scrollOffset, scrollDirection, onScroll: onScrollExtent} = result.current;
     expect(scrollOffset).toBe(0);
     expect(scrollDirection).toBe("forward");
 
@@ -50,7 +50,7 @@ describe('useVirtualScroll', () => {
     const totalSize = 1000000000000 * 30;
     const clientExtent = 240;
     const { result } = renderHook(() => useVirtualScroll(totalSize));
-    var vs = result.current;
+    let vs = result.current;
 
     expect(vs.scrollOffset).toBe(0);
     expect(vs.page).toBe(0);
@@ -59,7 +59,7 @@ describe('useVirtualScroll', () => {
     expect(vs.scrollDirection).toBe("forward");
 
     // Small scroll within page 0
-    var ret = 0;
+    let ret = 0;
     {act(() => {
       ([ret] = vs.onScroll(clientExtent, vs.renderSize, 50));
     })}

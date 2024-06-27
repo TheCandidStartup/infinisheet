@@ -6,7 +6,7 @@ export interface ScrollState {
   renderOffset: number,
   page: number, 
   scrollDirection: ScrollDirection, 
-};
+}
 
 export interface VirtualScroll extends ScrollState {
   renderSize: number;
@@ -16,7 +16,7 @@ export interface VirtualScroll extends ScrollState {
 
   // Scroll to offset in logical space returning offset to update scroll bar position to
   doScrollTo(offset: number, clientExtent: number): number;
-};
+}
 
 // Max size that is safe across all browsers (Firefox is the limiting factor)
 // SlickGrid tries to dynamically determine limit on other browsers (Chrome will do 30M) but

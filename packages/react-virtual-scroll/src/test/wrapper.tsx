@@ -16,6 +16,7 @@ function customRender(ui: React.ReactElement, options = {}) {
   })
 }
 
+/* eslint-disable react-refresh/only-export-components -- Fast reload not required for unit tests */
 export * from '@testing-library/react'
 export { default as userEvent } from '@testing-library/user-event'
 // override render export

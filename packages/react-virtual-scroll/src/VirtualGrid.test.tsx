@@ -335,7 +335,7 @@ describe('Paged VirtualList', () => {
       Element.prototype["scrollTo"] = mock;
 
       // Scroll to last item on second page
-      var proxy = ref.current || throwErr("null ref");
+      let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(3999, 1199); })}
       expect(mock).toBeCalledWith(119900, 119970);
       const item3999 = screen.getByText('Cell 3999:1199');
@@ -366,7 +366,7 @@ describe('Paged VirtualList', () => {
       expect(item4001).toHaveProperty("style.left", '60100px')
 
       // Scroll back to first cell
-      var proxy = ref.current || throwErr("null ref");
+      proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(0, 0); })}
       expect(mock).toBeCalledWith(0, 0);
       const item1 = screen.getByText('Cell 1:1');

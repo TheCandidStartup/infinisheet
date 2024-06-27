@@ -40,7 +40,7 @@ export function useAnimationTimeout(callback: Callback, delay: number | null, ke
         requestRef.current = undefined;
       }
     }
-  }, [delay, key]);
+  }, [start, delay, key]);
 }
 
 export default useAnimationTimeout;

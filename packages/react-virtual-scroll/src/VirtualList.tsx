@@ -11,7 +11,7 @@ export type ScrollLayout = "horizontal" | "vertical";
  */
 export interface VirtualListItemProps extends VirtualBaseItemProps {
   index: number,
-};
+}
 
 /**
  * Type of item in a {@link VirtualList}
@@ -63,8 +63,8 @@ export interface VirtualListProps extends VirtualBaseProps {
 
   /**
    * Callback after a scroll event has been processed and state updated but before rendering
-   * @param offset Resulting scroll offset. Can be passed to {@link ItemOffsetMapping} to determine top item.
-   * @param newScrollState New {@link ScrollState} that will be used for rendering.
+   * @param offset - Resulting scroll offset. Can be passed to {@link ItemOffsetMapping} to determine top item.
+   * @param newScrollState - New {@link ScrollState} that will be used for rendering.
    */
   onScroll?: (offset: number, newScrollState: ScrollState) => void;
 
@@ -73,7 +73,7 @@ export interface VirtualListProps extends VirtualBaseProps {
 
   /** Component implementing {@link VirtualInnerComponent}. Used to customize {@link VirtualList}. */
   innerComponent?: VirtualInnerComponent;
-};
+}
 
 /**
  * Custom ref handle returned by {@link VirtualList} that exposes imperative methods
@@ -83,16 +83,16 @@ export interface VirtualListProps extends VirtualBaseProps {
 export interface VirtualListProxy {
   /**
    * Scrolls the list to the specified offset in pixels
-   * @param offset Offset to scroll to
+   * @param offset - Offset to scroll to
    */
   scrollTo(offset: number): void;
 
   /**
    * Scrolls the list so that the specified item is visible
-   * @param index Index of item to scroll to
+   * @param index - Index of item to scroll to
    */
   scrollToItem(index: number): void;
-};
+}
 
 const defaultItemKey = (index: number, _data: any) => index;
 

@@ -32,7 +32,7 @@ const _stubsProperty = new Map();
 export function stubProperty(object: object, name: string, value: any) {
   if (!_stubsProperty.has(name))
     _stubsProperty.set(name, [object, Object.getOwnPropertyDescriptor(object, name)]);
-  if (value === undefined && object.hasOwnProperty(name))
+  if (value === undefined && Object.prototype.hasOwnProperty.call(object, name))
   {
     Reflect.deleteProperty(object, name);
   } else {

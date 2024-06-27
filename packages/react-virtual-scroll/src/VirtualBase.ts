@@ -16,7 +16,7 @@ export interface VirtualBaseItemProps {
 
   /** Style that should be applied to each item rendered. Positions the item within the inner container. */
   style: React.CSSProperties,
-};
+}
 
 /**
  * Common props for {@link VirtualList} and {@link VirtualGrid}
@@ -57,7 +57,7 @@ export interface VirtualBaseProps {
    * @defaultValue 100
    */
   minNumPages?: number
-};
+}
 
 /**
  * Props that an implementation of {@link VirtualInnerComponent} must accept.
@@ -114,7 +114,7 @@ export interface ItemOffsetMapping {
   itemSize(itemIndex: number): number;
   itemOffset(itemIndex: number): number;
   offsetToItem(offset: number): [itemIndex: number, startOffset: number];
-};
+}
 
 export type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 
@@ -129,9 +129,9 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
     return [0, 0, []];
   }
 
-  var [itemIndex, startOffset] = itemOffsetMapping.offsetToItem(scrollOffset);
+  let [itemIndex, startOffset] = itemOffsetMapping.offsetToItem(scrollOffset);
   itemIndex = Math.max(0, Math.min(itemCount - 1, itemIndex));
-  var endOffset = scrollOffset + clientExtent;
+  const endOffset = scrollOffset + clientExtent;
 
   const overscanBackward = 1;
   const overscanForward = 1;
@@ -142,7 +142,7 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
   }
 
   const startIndex = itemIndex;
-  var offset = startOffset;
+  let offset = startOffset;
   const sizes: number[] = [];
 
   while (offset < endOffset && itemIndex < itemCount) {

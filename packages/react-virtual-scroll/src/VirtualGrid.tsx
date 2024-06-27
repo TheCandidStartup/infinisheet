@@ -8,7 +8,7 @@ import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 export interface VirtualGridItemProps extends VirtualBaseItemProps {
   rowIndex: number,
   columnIndex: number,
-};
+}
 
 type VirtualGridItem = React.ComponentType<VirtualGridItemProps>;
 
@@ -22,12 +22,12 @@ export interface VirtualGridProps extends VirtualBaseProps {
   onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
   outerComponent?: VirtualOuterComponent;
   innerComponent?: VirtualInnerComponent;
-};
+}
 
 export interface VirtualGridProxy {
   scrollTo(rowOffset: number, columnOffset: number): void;
   scrollToItem(rowIndex: number, columnIndex: number): void;
-};
+}
 
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: any) => `${rowIndex}:${columnIndex}`;
 

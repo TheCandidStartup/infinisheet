@@ -3,7 +3,7 @@ import { createRef } from 'react';
 import { useEventListener } from './useEventListener'
 
 describe('useEventListener edge cases', () => {
-  function handler(_: Event) {};
+  function handler(_: Event) {}
 
   it('should listen to window by default', () => {
     const mock = vi.fn().mockImplementation(handler);

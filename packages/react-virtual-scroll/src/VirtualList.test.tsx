@@ -433,7 +433,7 @@ describe('Paged VirtualList', () => {
       Element.prototype["scrollTo"] = mock;
 
       // Scroll to last item on first page
-      var proxy = ref.current || throwErr("null ref");
+      let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(1999); })}
       expect(mock).toBeCalledWith(0, 59970);
       const item1999 = screen.getByText('Item 1999');
@@ -534,7 +534,7 @@ describe('Paged VirtualList', () => {
       Element.prototype["scrollTo"] = mock;
 
       // Scroll to last item on first page
-      var proxy = ref.current || throwErr("null ref");
+      let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(1999); })}
       expect(mock).toBeCalledWith(59970, 0);
       const item1999 = screen.getByText('Item 1999');

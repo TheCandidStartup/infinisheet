@@ -8,11 +8,17 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh'],
+  plugins: ['react-refresh', 'eslint-plugin-tsdoc'],
   rules: {
     'react-refresh/only-export-components': [
       'warn',
       { allowConstantExport: true },
     ],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+    ],
+    'tsdoc/syntax': "error",
+    'react-hooks/exhaustive-deps': "error"
   },
 }
