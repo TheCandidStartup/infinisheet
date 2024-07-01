@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@candidstartup/react-virtual-scroll": "^0.4.0",

@@ -7,6 +7,8 @@ import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 import { ScrollState } from './useVirtualScroll';
 
+/* eslint-disable react/display-name */
+
 function updateLayout(innerDiv: HTMLElement, outerDiv: HTMLElement) {
   const scrollHeight = parseInt(innerDiv.style.height);
   overrideProp(outerDiv, "scrollHeight", scrollHeight);
