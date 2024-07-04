@@ -49,7 +49,7 @@ class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
   sizes: number[];
 }
 
-export function useVariableSizeItemOffsetMapping(defaultItemSize: number, sizes?: number[]) {
+export function useVariableSizeItemOffsetMapping(defaultItemSize: number, sizes?: number[]): ItemOffsetMapping {
   return new VariableSizeItemOffsetMapping(defaultItemSize, sizes || []);
 }
 

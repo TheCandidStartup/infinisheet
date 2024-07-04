@@ -1,6 +1,7 @@
 import React from "react";
-import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, 
+import { ItemOffsetMapping, VirtualBaseItemProps, 
   VirtualBaseProps, VirtualInnerComponent, VirtualOuterComponent, ScrollEvent } from './VirtualBase';
+import { getRangeToRender } from './VirtualCommon';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
@@ -29,7 +30,7 @@ export interface VirtualListItemProps extends VirtualBaseItemProps {
  * );
  * ```
  */
-type VirtualListItem = React.ComponentType<VirtualListItemProps>;
+export type VirtualListItem = React.ComponentType<VirtualListItemProps>;
 
 /**
  * Props accepted by {@link VirtualList}
@@ -50,7 +51,7 @@ export interface VirtualListProps extends VirtualBaseProps {
   itemOffsetMapping: ItemOffsetMapping,
 
   /**
-   * Function that defines the key to use for each item given item index and value of {@link VirtualBaseProps.data}.
+   * Function that defines the key to use for each item given item index and value of {@link VirtualBaseProps.itemData}.
    * @defaultValue `(index, _data) => index`
    */
   itemKey?: (index: number, data: unknown) => React.Key,

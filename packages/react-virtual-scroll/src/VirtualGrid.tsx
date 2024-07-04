@@ -1,7 +1,8 @@
 import React from "react";
 import { Fragment } from "react";
-import { ItemOffsetMapping, getRangeToRender, VirtualBaseItemProps, VirtualBaseProps, 
+import { ItemOffsetMapping,  VirtualBaseItemProps, VirtualBaseProps, 
   VirtualInnerComponent, VirtualOuterComponent, ScrollEvent } from './VirtualBase';
+import { getRangeToRender } from './VirtualCommon';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
@@ -10,7 +11,7 @@ export interface VirtualGridItemProps extends VirtualBaseItemProps {
   columnIndex: number,
 }
 
-type VirtualGridItem = React.ComponentType<VirtualGridItemProps>;
+export type VirtualGridItem = React.ComponentType<VirtualGridItemProps>;
 
 export interface VirtualGridProps extends VirtualBaseProps {
   children: VirtualGridItem,

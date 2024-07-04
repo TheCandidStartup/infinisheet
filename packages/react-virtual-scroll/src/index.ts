@@ -1,6 +1,17 @@
+/**
+ * React virtual scrolling components for lists and grids
+ *
+ * @remarks
+ * Written in TypeScript using modern React. Scalable to trillions of rows and columns.
+ * 
+ * Defines the {@link VirtualList} and {@link VirtualGrid} components.
+ *
+ * @packageDocumentation
+ */
+
+export * from './VirtualBase'
 export * from './VirtualGrid'
 export * from './VirtualList'
 export * from './useFixedSizeItemOffsetMapping'
 export * from './useVariableSizeItemOffsetMapping'
-export type { ScrollState } from './useVirtualScroll';
-export type { VirtualOuterProps, VirtualInnerProps } from './VirtualBase'
+export type { ScrollState, ScrollDirection } from './useVirtualScroll';
