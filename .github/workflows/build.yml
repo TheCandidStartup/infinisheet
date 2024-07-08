@@ -27,4 +27,5 @@ jobs:
     - run: npm ci
     - run: npm run lerna-build
     - run: npm run lerna-lint
+    - run: npx api-extractor run
     - run: npm run lerna-test

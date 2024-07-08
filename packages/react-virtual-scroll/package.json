@@ -45,12 +45,14 @@
   },
   "scripts": {
     "dev": "vite",
-    "clean": "rimraf dist",
+    "clean": "rimraf {dist,temp}",
     "prebuild": "npm run clean",
     "build-tsc": "tsc -p tsconfig.build.json",
     "build-rollup": "rollup -c ../rollup.config.mjs",
     "build": "npm run build-rollup",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "devapi": "api-extractor run --local",
+    "devbuild": "npm run build && npm run lint && npm run devapi",
     "test": "vitest"
   },
   "peerDependencies": {
