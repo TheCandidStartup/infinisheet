@@ -8,6 +8,7 @@
   "scripts": {
     "lerna-build": "npx lerna run build",
     "lerna-lint": "npx lerna run lint",
+    "lerna-prodapi": "npx lerna run prodapi",
     "lerna-test": "npx lerna run test -- --run --coverage",
     "lerna-version": "npx lerna version --conventional-commits",
     "lerna-publish": "npx lerna publish from-package --yes"

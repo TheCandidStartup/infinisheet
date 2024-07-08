@@ -52,6 +52,7 @@
     "build": "npm run build-rollup",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "devapi": "api-extractor run --local",
+    "prodapi": "api-extractor run",
     "devbuild": "npm run build && npm run lint && npm run devapi",
     "test": "vitest"
   },
