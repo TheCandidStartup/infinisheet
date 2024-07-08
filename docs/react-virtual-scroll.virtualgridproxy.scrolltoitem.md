@@ -12,51 +12,11 @@ scrollToItem(rowIndex: number, columnIndex: number): void;
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  rowIndex | number |  |
+|  columnIndex | number |  |
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-rowIndex
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-columnIndex
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
 **Returns:**
 
 void

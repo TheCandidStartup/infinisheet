@@ -12,37 +12,10 @@ itemOffset(itemIndex: number): number;
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  itemIndex | number |  |
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-itemIndex
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
 **Returns:**
 
 number

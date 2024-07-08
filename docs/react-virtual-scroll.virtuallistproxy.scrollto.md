@@ -14,39 +14,10 @@ scrollTo(offset: number): void;
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  offset | number | Offset to scroll to |
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-offset
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-Offset to scroll to
-
-
-</td></tr>
-</tbody></table>
 **Returns:**
 
 void

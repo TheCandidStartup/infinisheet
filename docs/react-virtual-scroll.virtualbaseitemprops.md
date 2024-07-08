@@ -14,84 +14,9 @@ export interface VirtualBaseItemProps
 
 ## Properties
 
-<table><thead><tr><th>
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [data](./react-virtual-scroll.virtualbaseitemprops.data.md) |  | unknown | Value of [VirtualBaseProps.itemData](./react-virtual-scroll.virtualbaseprops.itemdata.md) from owning component |
+|  [isScrolling?](./react-virtual-scroll.virtualbaseitemprops.isscrolling.md) |  | boolean | <p>_(Optional)_ Is the owning component being actively scrolled? Used to change how the item is rendered depending on scroll state.</p><p>Only defined if [VirtualBaseProps.useIsScrolling](./react-virtual-scroll.virtualbaseprops.useisscrolling.md) is true.</p> |
+|  [style](./react-virtual-scroll.virtualbaseitemprops.style.md) |  | React.CSSProperties | Style that should be applied to each item rendered. Positions the item within the inner container. |
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[data](./react-virtual-scroll.virtualbaseitemprops.data.md)
-
-
-</td><td>
-
-
-</td><td>
-
-unknown
-
-
-</td><td>
-
-Value of [VirtualBaseProps.itemData](./react-virtual-scroll.virtualbaseprops.itemdata.md) from owning component
-
-
-</td></tr>
-<tr><td>
-
-[isScrolling?](./react-virtual-scroll.virtualbaseitemprops.isscrolling.md)
-
-
-</td><td>
-
-
-</td><td>
-
-boolean
-
-
-</td><td>
-
-_(Optional)_ Is the owning component being actively scrolled? Used to change how the item is rendered depending on scroll state.
-
-Only defined if [VirtualBaseProps.useIsScrolling](./react-virtual-scroll.virtualbaseprops.useisscrolling.md) is true.
-
-
-</td></tr>
-<tr><td>
-
-[style](./react-virtual-scroll.virtualbaseitemprops.style.md)
-
-
-</td><td>
-
-
-</td><td>
-
-React.CSSProperties
-
-
-</td><td>
-
-Style that should be applied to each item rendered. Positions the item within the inner container.
-
-
-</td></tr>
-</tbody></table>

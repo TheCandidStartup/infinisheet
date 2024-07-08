@@ -12,33 +12,8 @@ export interface VirtualGridProxy
 
 ## Methods
 
-<table><thead><tr><th>
+|  Method | Description |
+|  --- | --- |
+|  [scrollTo(rowOffset, columnOffset)](./react-virtual-scroll.virtualgridproxy.scrollto.md) |  |
+|  [scrollToItem(rowIndex, columnIndex)](./react-virtual-scroll.virtualgridproxy.scrolltoitem.md) |  |
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[scrollTo(rowOffset, columnOffset)](./react-virtual-scroll.virtualgridproxy.scrollto.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[scrollToItem(rowIndex, columnIndex)](./react-virtual-scroll.virtualgridproxy.scrolltoitem.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>

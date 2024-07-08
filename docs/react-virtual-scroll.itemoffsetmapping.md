@@ -12,42 +12,9 @@ export interface ItemOffsetMapping
 
 ## Methods
 
-<table><thead><tr><th>
+|  Method | Description |
+|  --- | --- |
+|  [itemOffset(itemIndex)](./react-virtual-scroll.itemoffsetmapping.itemoffset.md) |  |
+|  [itemSize(itemIndex)](./react-virtual-scroll.itemoffsetmapping.itemsize.md) |  |
+|  [offsetToItem(offset)](./react-virtual-scroll.itemoffsetmapping.offsettoitem.md) |  |
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[itemOffset(itemIndex)](./react-virtual-scroll.itemoffsetmapping.itemoffset.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[itemSize(itemIndex)](./react-virtual-scroll.itemoffsetmapping.itemsize.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[offsetToItem(offset)](./react-virtual-scroll.itemoffsetmapping.offsettoitem.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>

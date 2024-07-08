@@ -14,299 +14,44 @@ Defines the [VirtualList](./react-virtual-scroll.virtuallist.md) and [VirtualGri
 
 ## Functions
 
-<table><thead><tr><th>
-
-Function
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[useFixedSizeItemOffsetMapping(itemSize)](./react-virtual-scroll.usefixedsizeitemoffsetmapping.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[useVariableSizeItemOffsetMapping(defaultItemSize, sizes)](./react-virtual-scroll.usevariablesizeitemoffsetmapping.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Function | Description |
+|  --- | --- |
+|  [useFixedSizeItemOffsetMapping(itemSize)](./react-virtual-scroll.usefixedsizeitemoffsetmapping.md) |  |
+|  [useVariableSizeItemOffsetMapping(defaultItemSize, sizes)](./react-virtual-scroll.usevariablesizeitemoffsetmapping.md) |  |
 
 ## Interfaces
 
-<table><thead><tr><th>
-
-Interface
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[ItemOffsetMapping](./react-virtual-scroll.itemoffsetmapping.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[ScrollState](./react-virtual-scroll.scrollstate.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[VirtualBaseItemProps](./react-virtual-scroll.virtualbaseitemprops.md)
-
-
-</td><td>
-
-Common props for [VirtualListItem](./react-virtual-scroll.virtuallistitem.md) and [VirtualGridItem](./react-virtual-scroll.virtualgriditem.md)
-
-
-</td></tr>
-<tr><td>
-
-[VirtualBaseProps](./react-virtual-scroll.virtualbaseprops.md)
-
-
-</td><td>
-
-Common props for [VirtualList](./react-virtual-scroll.virtuallist.md) and [VirtualGrid](./react-virtual-scroll.virtualgrid.md)
-
-
-</td></tr>
-<tr><td>
-
-[VirtualGridItemProps](./react-virtual-scroll.virtualgriditemprops.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[VirtualGridProps](./react-virtual-scroll.virtualgridprops.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[VirtualGridProxy](./react-virtual-scroll.virtualgridproxy.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[VirtualInnerProps](./react-virtual-scroll.virtualinnerprops.md)
-
-
-</td><td>
-
-Props that an implementation of [VirtualInnerComponent](./react-virtual-scroll.virtualinnercomponent.md) must accept.
-
-
-</td></tr>
-<tr><td>
-
-[VirtualListItemProps](./react-virtual-scroll.virtuallistitemprops.md)
-
-
-</td><td>
-
-Props accepted by [VirtualListItem](./react-virtual-scroll.virtuallistitem.md)
-
-
-</td></tr>
-<tr><td>
-
-[VirtualListProps](./react-virtual-scroll.virtuallistprops.md)
-
-
-</td><td>
-
-Props accepted by [VirtualList](./react-virtual-scroll.virtuallist.md)
-
-
-</td></tr>
-<tr><td>
-
-[VirtualListProxy](./react-virtual-scroll.virtuallistproxy.md)
-
-
-</td><td>
-
-Custom ref handle returned by [VirtualList](./react-virtual-scroll.virtuallist.md) that exposes imperative methods
-
-Use `React.useRef<VirtualListProxy>(null)` to create a ref.
-
-
-</td></tr>
-<tr><td>
-
-[VirtualOuterProps](./react-virtual-scroll.virtualouterprops.md)
-
-
-</td><td>
-
-Props that an implementation of [VirtualOuterComponent](./react-virtual-scroll.virtualoutercomponent.md) must accept.
-
-
-</td></tr>
-</tbody></table>
+|  Interface | Description |
+|  --- | --- |
+|  [ItemOffsetMapping](./react-virtual-scroll.itemoffsetmapping.md) |  |
+|  [ScrollState](./react-virtual-scroll.scrollstate.md) |  |
+|  [VirtualBaseItemProps](./react-virtual-scroll.virtualbaseitemprops.md) | Common props for [VirtualListItem](./react-virtual-scroll.virtuallistitem.md) and [VirtualGridItem](./react-virtual-scroll.virtualgriditem.md) |
+|  [VirtualBaseProps](./react-virtual-scroll.virtualbaseprops.md) | Common props for [VirtualList](./react-virtual-scroll.virtuallist.md) and [VirtualGrid](./react-virtual-scroll.virtualgrid.md) |
+|  [VirtualGridItemProps](./react-virtual-scroll.virtualgriditemprops.md) |  |
+|  [VirtualGridProps](./react-virtual-scroll.virtualgridprops.md) |  |
+|  [VirtualGridProxy](./react-virtual-scroll.virtualgridproxy.md) |  |
+|  [VirtualInnerProps](./react-virtual-scroll.virtualinnerprops.md) | Props that an implementation of [VirtualInnerComponent](./react-virtual-scroll.virtualinnercomponent.md) must accept. |
+|  [VirtualListItemProps](./react-virtual-scroll.virtuallistitemprops.md) | Props accepted by [VirtualListItem](./react-virtual-scroll.virtuallistitem.md) |
+|  [VirtualListProps](./react-virtual-scroll.virtuallistprops.md) | Props accepted by [VirtualList](./react-virtual-scroll.virtuallist.md) |
+|  [VirtualListProxy](./react-virtual-scroll.virtuallistproxy.md) | <p>Custom ref handle returned by [VirtualList](./react-virtual-scroll.virtuallist.md) that exposes imperative methods</p><p>Use <code>React.useRef&lt;VirtualListProxy&gt;(null)</code> to create a ref.</p> |
+|  [VirtualOuterProps](./react-virtual-scroll.virtualouterprops.md) | Props that an implementation of [VirtualOuterComponent](./react-virtual-scroll.virtualoutercomponent.md) must accept. |
 
 ## Variables
 
-<table><thead><tr><th>
-
-Variable
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[VirtualGrid](./react-virtual-scroll.virtualgrid.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[VirtualList](./react-virtual-scroll.virtuallist.md)
-
-
-</td><td>
-
-Virtual Scrolling List
-
-Accepts props defined by [VirtualListProps](./react-virtual-scroll.virtuallistprops.md)<!-- -->. Refs are forwarded to [VirtualListProxy](./react-virtual-scroll.virtuallistproxy.md)<!-- -->. You must pass a single instance of [VirtualListItem](./react-virtual-scroll.virtuallistitem.md) as a child.
-
-
-</td></tr>
-</tbody></table>
+|  Variable | Description |
+|  --- | --- |
+|  [VirtualGrid](./react-virtual-scroll.virtualgrid.md) |  |
+|  [VirtualList](./react-virtual-scroll.virtuallist.md) | <p>Virtual Scrolling List</p><p>Accepts props defined by [VirtualListProps](./react-virtual-scroll.virtuallistprops.md)<!-- -->. Refs are forwarded to [VirtualListProxy](./react-virtual-scroll.virtuallistproxy.md)<!-- -->. You must pass a single instance of [VirtualListItem](./react-virtual-scroll.virtuallistitem.md) as a child.</p> |
 
 ## Type Aliases
 
-<table><thead><tr><th>
+|  Type Alias | Description |
+|  --- | --- |
+|  [ScrollDirection](./react-virtual-scroll.scrolldirection.md) |  |
+|  [ScrollEvent](./react-virtual-scroll.scrollevent.md) |  |
+|  [ScrollLayout](./react-virtual-scroll.scrolllayout.md) |  |
+|  [VirtualGridItem](./react-virtual-scroll.virtualgriditem.md) |  |
+|  [VirtualInnerComponent](./react-virtual-scroll.virtualinnercomponent.md) | <p>Type of inner container in a virtual scrolling component</p><p>Can be passed to [VirtualList](./react-virtual-scroll.virtuallist.md) or [VirtualGrid](./react-virtual-scroll.virtualgrid.md) to replace default implementation. Component must render a div and forward [VirtualInnerProps](./react-virtual-scroll.virtualinnerprops.md) and any <code>ref</code> to it.</p> |
+|  [VirtualListItem](./react-virtual-scroll.virtuallistitem.md) | <p>Type of item in a [VirtualList](./react-virtual-scroll.virtuallist.md)</p><p>Must be passed as a child to [VirtualList](./react-virtual-scroll.virtuallist.md)<!-- -->. Accepts props defined by [VirtualListItemProps](./react-virtual-scroll.virtuallistitemprops.md)<!-- -->. Component must pass [VirtualBaseItemProps.style](./react-virtual-scroll.virtualbaseitemprops.style.md) to whatever it renders.</p> |
+|  [VirtualOuterComponent](./react-virtual-scroll.virtualoutercomponent.md) | <p>Type of outer container in a virtual scrolling component</p><p>Can be passed to [VirtualList](./react-virtual-scroll.virtuallist.md) or [VirtualGrid](./react-virtual-scroll.virtualgrid.md) to replace default implementation. Component must render a div and forward [VirtualOuterProps](./react-virtual-scroll.virtualouterprops.md) and any <code>ref</code> to it.</p> |
 
-Type Alias
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[ScrollDirection](./react-virtual-scroll.scrolldirection.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[ScrollEvent](./react-virtual-scroll.scrollevent.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[ScrollLayout](./react-virtual-scroll.scrolllayout.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[VirtualGridItem](./react-virtual-scroll.virtualgriditem.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[VirtualInnerComponent](./react-virtual-scroll.virtualinnercomponent.md)
-
-
-</td><td>
-
-Type of inner container in a virtual scrolling component
-
-Can be passed to [VirtualList](./react-virtual-scroll.virtuallist.md) or [VirtualGrid](./react-virtual-scroll.virtualgrid.md) to replace default implementation. Component must render a div and forward [VirtualInnerProps](./react-virtual-scroll.virtualinnerprops.md) and any `ref` to it.
-
-
-</td></tr>
-<tr><td>
-
-[VirtualListItem](./react-virtual-scroll.virtuallistitem.md)
-
-
-</td><td>
-
-Type of item in a [VirtualList](./react-virtual-scroll.virtuallist.md)
-
-Must be passed as a child to [VirtualList](./react-virtual-scroll.virtuallist.md)<!-- -->. Accepts props defined by [VirtualListItemProps](./react-virtual-scroll.virtuallistitemprops.md)<!-- -->. Component must pass [VirtualBaseItemProps.style](./react-virtual-scroll.virtualbaseitemprops.style.md) to whatever it renders.
-
-
-</td></tr>
-<tr><td>
-
-[VirtualOuterComponent](./react-virtual-scroll.virtualoutercomponent.md)
-
-
-</td><td>
-
-Type of outer container in a virtual scrolling component
-
-Can be passed to [VirtualList](./react-virtual-scroll.virtuallist.md) or [VirtualGrid](./react-virtual-scroll.virtualgrid.md) to replace default implementation. Component must render a div and forward [VirtualOuterProps](./react-virtual-scroll.virtualouterprops.md) and any `ref` to it.
-
-
-</td></tr>
-</tbody></table>

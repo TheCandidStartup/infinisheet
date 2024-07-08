@@ -14,39 +14,10 @@ scrollToItem(index: number): void;
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  index | number | Index of item to scroll to |
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-index
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-Index of item to scroll to
-
-
-</td></tr>
-</tbody></table>
 **Returns:**
 
 void

@@ -12,37 +12,10 @@ offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  offset | number |  |
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-offset
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
 **Returns:**
 
 \[itemIndex: number, startOffset: number\]

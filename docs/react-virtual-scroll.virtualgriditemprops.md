@@ -13,59 +13,8 @@ export interface VirtualGridItemProps extends VirtualBaseItemProps
 
 ## Properties
 
-<table><thead><tr><th>
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [columnIndex](./react-virtual-scroll.virtualgriditemprops.columnindex.md) |  | number |  |
+|  [rowIndex](./react-virtual-scroll.virtualgriditemprops.rowindex.md) |  | number |  |
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[columnIndex](./react-virtual-scroll.virtualgriditemprops.columnindex.md)
-
-
-</td><td>
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[rowIndex](./react-virtual-scroll.virtualgriditemprops.rowindex.md)
-
-
-</td><td>
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>

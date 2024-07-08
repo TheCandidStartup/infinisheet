@@ -12,37 +12,10 @@ export declare function useFixedSizeItemOffsetMapping(itemSize: number): ItemOff
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  itemSize | number |  |
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-itemSize
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
 **Returns:**
 
 [ItemOffsetMapping](./react-virtual-scroll.itemoffsetmapping.md)

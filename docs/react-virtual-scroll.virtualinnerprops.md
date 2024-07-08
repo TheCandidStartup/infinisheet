@@ -14,76 +14,9 @@ export interface VirtualInnerProps
 
 ## Properties
 
-<table><thead><tr><th>
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [children](./react-virtual-scroll.virtualinnerprops.children.md) |  | React.ReactNode |  |
+|  [className](./react-virtual-scroll.virtualinnerprops.classname.md) |  | string \| undefined |  |
+|  [style](./react-virtual-scroll.virtualinnerprops.style.md) |  | React.CSSProperties |  |
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[children](./react-virtual-scroll.virtualinnerprops.children.md)
-
-
-</td><td>
-
-
-</td><td>
-
-React.ReactNode
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[className](./react-virtual-scroll.virtualinnerprops.classname.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string \| undefined
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[style](./react-virtual-scroll.virtualinnerprops.style.md)
-
-
-</td><td>
-
-
-</td><td>
-
-React.CSSProperties
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>

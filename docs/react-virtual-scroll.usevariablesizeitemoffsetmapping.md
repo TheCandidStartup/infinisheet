@@ -12,53 +12,11 @@ export declare function useVariableSizeItemOffsetMapping(defaultItemSize: number
 
 ## Parameters
 
-<table><thead><tr><th>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  defaultItemSize | number |  |
+|  sizes | number\[\] | _(Optional)_ |
 
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-defaultItemSize
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-sizes
-
-
-</td><td>
-
-number\[\]
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-</tbody></table>
 **Returns:**
 
 [ItemOffsetMapping](./react-virtual-scroll.itemoffsetmapping.md)

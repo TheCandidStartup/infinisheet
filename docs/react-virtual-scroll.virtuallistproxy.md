@@ -16,37 +16,8 @@ export interface VirtualListProxy
 
 ## Methods
 
-<table><thead><tr><th>
+|  Method | Description |
+|  --- | --- |
+|  [scrollTo(offset)](./react-virtual-scroll.virtuallistproxy.scrollto.md) | Scrolls the list to the specified offset in pixels |
+|  [scrollToItem(index)](./react-virtual-scroll.virtuallistproxy.scrolltoitem.md) | Scrolls the list so that the specified item is visible |
 
-Method
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[scrollTo(offset)](./react-virtual-scroll.virtuallistproxy.scrollto.md)
-
-
-</td><td>
-
-Scrolls the list to the specified offset in pixels
-
-
-</td></tr>
-<tr><td>
-
-[scrollToItem(index)](./react-virtual-scroll.virtuallistproxy.scrolltoitem.md)
-
-
-</td><td>
-
-Scrolls the list so that the specified item is visible
-
-
-</td></tr>
-</tbody></table>

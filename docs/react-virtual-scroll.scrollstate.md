@@ -12,93 +12,10 @@ export interface ScrollState
 
 ## Properties
 
-<table><thead><tr><th>
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [page](./react-virtual-scroll.scrollstate.page.md) |  | number |  |
+|  [renderOffset](./react-virtual-scroll.scrollstate.renderoffset.md) |  | number |  |
+|  [scrollDirection](./react-virtual-scroll.scrollstate.scrolldirection.md) |  | [ScrollDirection](./react-virtual-scroll.scrolldirection.md) |  |
+|  [scrollOffset](./react-virtual-scroll.scrollstate.scrolloffset.md) |  | number |  |
 
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[page](./react-virtual-scroll.scrollstate.page.md)
-
-
-</td><td>
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[renderOffset](./react-virtual-scroll.scrollstate.renderoffset.md)
-
-
-</td><td>
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[scrollDirection](./react-virtual-scroll.scrollstate.scrolldirection.md)
-
-
-</td><td>
-
-
-</td><td>
-
-[ScrollDirection](./react-virtual-scroll.scrolldirection.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-[scrollOffset](./react-virtual-scroll.scrollstate.scrolloffset.md)
-
-
-</td><td>
-
-
-</td><td>
-
-number
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
