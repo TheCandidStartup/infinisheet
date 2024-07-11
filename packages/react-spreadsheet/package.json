@@ -1,0 +1,54 @@
+{
+  "name": "@candidstartup/react-spreadsheet",
+  "private": true,
+  "version": "0.4.0",
+  "description": "Modern React Spreadsheet Frontend",
+  "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheCandidStartup/infinisheet.git",
+    "directory": "packages/react-spreadsheet"
+  },
+  "bugs": "https://github.com/TheCandidStartup/infinisheet/issues",
+  "homepage": "https://github.com/TheCandidStartup/infinisheet/blob/main/packages/react-spreadsheet/README.md",
+  "keywords": [
+    "react",
+    "reactjs",
+    "spreadsheet",
+    "virtualized",
+    "modern",
+    "scalable"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "clean": "rimraf {dist,temp}",
+    "prebuild": "npm run clean",
+    "build-tsc": "tsc -p tsconfig.build.json",
+    "build-rollup": "rollup -c ../rollup.config.mjs",
+    "build": "npm run build-rollup",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "devapi": "api-extractor run --local",
+    "prodapi": "api-extractor run",
+    "devbuild": "npm run build && npm run lint && npm run devapi",
+    "test": "vitest"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  }
+}
