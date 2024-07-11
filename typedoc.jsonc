@@ -1,0 +1,64 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "InfiniSheet",
+  "entryPoints": ["packages/*"],
+  "entryPointStrategy": "packages",
+  "packageOptions": {
+    "entryPoints": ["src/index.ts"],
+    "groupOrder": [ "Components", "Hooks" ],
+    "kindSortOrder": [
+      "Reference",
+      "Project",
+      "Module",
+      "Namespace",
+      "Function",
+      "Enum",
+      "EnumMember",
+      "Class",
+      "Interface",
+      "TypeAlias",
+      "Constructor",
+      "Property",
+      "Variable",
+      "Accessor",
+      "Method",
+      "Parameter",
+      "TypeParameter",
+      "TypeLiteral",
+      "CallSignature",
+      "ConstructorSignature",
+      "IndexSignature",
+      "GetSignature",
+      "SetSignature"
+    ],
+    "readme": "none"
+  },
+  "navigation": {
+    "includeGroups": true
+  },
+  "includeVersion": true,
+  "out": "temp",
+  "navigationLinks": {
+    "Posts": "https://thecandidstartup.org/blog/",
+    "Topics": "https://thecandidstartup.org/topic-index.html",
+    "About": "https://thecandidstartup.org/about.html",
+    "Contact": "https://thecandidstartup.org/contact.html",
+    "Now": "https://thecandidstartup.org/now.html",
+  },
+  "sidebarLinks": {
+    "The Candid Startup": "https://thecandidstartup.org"
+  },
+  "highlightLanguages": [
+    "bash",
+    "console",
+    "css",
+    "html",
+    "javascript",
+    "json",
+    "jsonc",
+    "json5",
+    "jsx",
+    "tsx",
+    "typescript"
+  ]
+}

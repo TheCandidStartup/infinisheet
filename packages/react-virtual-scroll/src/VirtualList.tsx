@@ -104,6 +104,7 @@ const defaultItemKey = (index: number, _data: unknown) => index;
  * Accepts props defined by {@link VirtualListProps}. 
  * Refs are forwarded to {@link VirtualListProxy}. 
  * You must pass a single instance of {@link VirtualListItem} as a child.
+ * @group Components
  */
 export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(function VirtualList(props, ref) {
   const { width, height, itemCount, itemOffsetMapping, children, className, innerClassName,

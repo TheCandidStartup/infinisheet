@@ -33,6 +33,14 @@ export interface VirtualGridProxy {
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
+/**
+ * Virtual Scrolling Grid
+ * 
+ * Accepts props defined by {@link VirtualGridProps}. 
+ * Refs are forwarded to {@link VirtualGridProxy}. 
+ * You must pass a single instance of {@link VirtualGridItem} as a child.
+ * @group Components
+ */
 export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(function VirtualGrid(props, ref) {
   const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, className, innerClassName, 
     itemData = undefined, itemKey = defaultItemKey, onScroll: onScrollCallback, useIsScrolling = false } = props;

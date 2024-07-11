@@ -64,7 +64,7 @@ export interface VirtualBaseProps {
     width: number;
 }
 
-// @public (undocumented)
+// @public
 export const VirtualGrid: React_2.ForwardRefExoticComponent<VirtualGridProps & React_2.RefAttributes<VirtualGridProxy>>;
 
 // @public (undocumented)
