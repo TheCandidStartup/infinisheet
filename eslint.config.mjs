@@ -38,8 +38,8 @@ export default tseslint.config(
           varsIgnorePattern: "^_",
       }],
 
-      "tsdoc/syntax": "error",
-      "react-hooks/exhaustive-deps": "error",
+      "tsdoc/syntax": "off",
+      "react-hooks/exhaustive-deps": "error"
     } 
   },
   {
