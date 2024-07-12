@@ -27,7 +27,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - run: npx typedoc
-      - uses: actions/upload-pages-artifact
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: "temp/"
 
