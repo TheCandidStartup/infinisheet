@@ -4,7 +4,6 @@ import tseslint from "typescript-eslint";
 import reactRecommended from "eslint-plugin-react/configs/recommended.js";
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from "eslint-plugin-react-refresh";
-import tsdoc from "eslint-plugin-tsdoc";
 
 import { fixupPluginRules } from '@eslint/compat';
 
@@ -20,8 +19,7 @@ export default tseslint.config(
     },
     plugins: {
       "react-hooks": fixupPluginRules(eslintPluginReactHooks),
-      "react-refresh": reactRefresh,
-      tsdoc,
+      "react-refresh": reactRefresh
     },
     settings: {
       "react": {
@@ -38,7 +36,6 @@ export default tseslint.config(
           varsIgnorePattern: "^_",
       }],
 
-      "tsdoc/syntax": "off",
       "react-hooks/exhaustive-deps": "error"
     } 
   },
