@@ -1,0 +1,46 @@
+# Workflow to build and publish TypeDoc docs to GitHub Pages. Triggered manually or on completion of Build CI workflow on release commit
+
+name: Docs
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [Build CI]
+    types: [completed]
+
+jobs:
+  build:
+    if: |
+        github.event_name == 'workflow_dispatch' ||
+        ( github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          contains(github.event.workflow_run.head_commit.message, 'chore(release)'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.X
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npx typedoc
+      - uses: actions/upload-pages-artifact
+        with:
+          path: "temp/"
+
+  publish:
+    needs: build
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
