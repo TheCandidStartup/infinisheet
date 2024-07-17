@@ -36,6 +36,8 @@
   "navigation": {
     "includeGroups": true
   },
+  "readme": "./typedoc-assets/root.md",
+  "customCss": "./typedoc-assets/style.css",
   "includeVersion": true,
   "out": "temp",
   "navigationLinks": {

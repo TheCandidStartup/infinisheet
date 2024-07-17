@@ -1,0 +1,32 @@
+/* 
+ * Adjust style to align with Candid Startup blog theme
+ */
+body { 
+  /* From jekyll-theme-cayman-blog.scss */
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; 
+  font-size: 16px; 
+}
+
+:root {
+  /* From blog.scss - $background-color */
+  --light-color-background-secondary: #fdfdfd;
+}
+
+.tsd-page-toolbar a {
+    /* From blog.scss - $section-headings-color */
+  color: #159957;
+}
+
+.tsd-page-toolbar {
+  /* From blog/_layout.scss - .site-header{  min-height: $spacing-unit * 1.865; } 
+   *      blog.scss - $spacing-unit: 30px
+   */
+  height: 55.95px;
+}
+
+.tsd-page-toolbar .tsd-toolbar-contents {
+  /* Only way I could find to center links in enlarged title bar. The toolbar
+   * content is given a height of 2.5rem in the TypeDoc stylesheet.
+   */
+  padding-top: calc((55.95px - 2.5rem)/2);
+}
