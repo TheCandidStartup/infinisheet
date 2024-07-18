@@ -6,41 +6,34 @@
 
 import { default as React_2 } from 'react';
 
-// @public (undocumented)
+// @public
 export interface ItemOffsetMapping {
-    // (undocumented)
     itemOffset(itemIndex: number): number;
-    // (undocumented)
     itemSize(itemIndex: number): number;
-    // (undocumented)
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 }
 
-// @public (undocumented)
+// @public
 export type ScrollDirection = "forward" | "backward";
 
-// @public (undocumented)
+// @public
 export type ScrollEvent = React_2.SyntheticEvent<HTMLDivElement>;
 
-// @public (undocumented)
+// @public
 export type ScrollLayout = "horizontal" | "vertical";
 
-// @public (undocumented)
+// @public
 export interface ScrollState {
-    // (undocumented)
     page: number;
-    // (undocumented)
     renderOffset: number;
-    // (undocumented)
     scrollDirection: ScrollDirection;
-    // (undocumented)
     scrollOffset: number;
 }
 
-// @public (undocumented)
+// @public
 export function useFixedSizeItemOffsetMapping(itemSize: number): ItemOffsetMapping;
 
-// @public (undocumented)
+// @public
 export function useVariableSizeItemOffsetMapping(defaultItemSize: number, sizes?: number[]): ItemOffsetMapping;
 
 // @public
@@ -53,58 +46,43 @@ export interface VirtualBaseItemProps {
 // @public
 export interface VirtualBaseProps {
     className?: string;
-    // (undocumented)
     height: number;
     innerClassName?: string;
     itemData?: unknown;
     maxCssSize?: number;
     minNumPages?: number;
     useIsScrolling?: boolean;
-    // (undocumented)
     width: number;
 }
 
 // @public
 export const VirtualGrid: React_2.ForwardRefExoticComponent<VirtualGridProps & React_2.RefAttributes<VirtualGridProxy>>;
 
-// @public (undocumented)
+// @public
 export type VirtualGridItem = React_2.ComponentType<VirtualGridItemProps>;
 
-// @public (undocumented)
+// @public
 export interface VirtualGridItemProps extends VirtualBaseItemProps {
-    // (undocumented)
     columnIndex: number;
-    // (undocumented)
     rowIndex: number;
 }
 
-// @public (undocumented)
+// @public
 export interface VirtualGridProps extends VirtualBaseProps {
-    // (undocumented)
     children: VirtualGridItem;
-    // (undocumented)
     columnCount: number;
-    // (undocumented)
     columnOffsetMapping: ItemOffsetMapping;
-    // (undocumented)
     innerComponent?: VirtualInnerComponent;
-    // (undocumented)
     itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React_2.Key;
-    // (undocumented)
     onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
-    // (undocumented)
     outerComponent?: VirtualOuterComponent;
-    // (undocumented)
     rowCount: number;
-    // (undocumented)
     rowOffsetMapping: ItemOffsetMapping;
 }
 
-// @public (undocumented)
+// @public
 export interface VirtualGridProxy {
-    // (undocumented)
     scrollTo(rowOffset: number, columnOffset: number): void;
-    // (undocumented)
     scrollToItem(rowIndex: number, columnIndex: number): void;
 }
 
@@ -113,11 +91,8 @@ export type VirtualInnerComponent = React_2.ComponentType<VirtualInnerProps>;
 
 // @public
 export interface VirtualInnerProps {
-    // (undocumented)
     children: React_2.ReactNode;
-    // (undocumented)
     className: string | undefined;
-    // (undocumented)
     style: React_2.CSSProperties;
 }
 
@@ -129,7 +104,6 @@ export type VirtualListItem = React_2.ComponentType<VirtualListItemProps>;
 
 // @public
 export interface VirtualListItemProps extends VirtualBaseItemProps {
-    // (undocumented)
     index: number;
 }
 
@@ -156,13 +130,9 @@ export type VirtualOuterComponent = React_2.ComponentType<VirtualOuterProps>;
 
 // @public
 export interface VirtualOuterProps {
-    // (undocumented)
     children: React_2.ReactNode;
-    // (undocumented)
     className: string | undefined;
-    // (undocumented)
     onScroll: (event: ScrollEvent) => void;
-    // (undocumented)
     style: React_2.CSSProperties;
 }
 

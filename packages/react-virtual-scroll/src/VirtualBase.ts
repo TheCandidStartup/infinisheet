@@ -28,7 +28,10 @@ export interface VirtualBaseProps {
   /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
   innerClassName?: string,
 
+  /** Component height */
   height: number,
+
+   /** Component width */
   width: number,
 
     /** Passed as {@link VirtualBaseItemProps.data} to each child item */
@@ -63,8 +66,13 @@ export interface VirtualBaseProps {
  * Props that an implementation of {@link VirtualInnerComponent} must accept.
  */
 export interface VirtualInnerProps {
+  /** The `className` to apply to the inner container div. Passed through from {@link VirtualBaseProps.innerClassName} */
   className: string | undefined;
+
+  /** The visible child items rendered into the inner container div */
   children: React.ReactNode;
+
+  /** Style to apply to the inner container div */
   style: React.CSSProperties;
 }
 
@@ -88,9 +96,16 @@ export type VirtualInnerComponent = React.ComponentType<VirtualInnerProps>;
  * Props that an implementation of {@link VirtualOuterComponent} must accept.
  */
 export interface VirtualOuterProps {
+    /** The `className` to apply to the outer container div. Passed through from {@link VirtualBaseProps.className} */
   className: string | undefined;
+
+  /** An instance of {@link VirtualInnerComponent} that should be rendered into the outer container div*/
   children: React.ReactNode;
+
+    /** Style to apply to the outer container div */
   style: React.CSSProperties;
+
+  /** Scroll callback that should be applied to the outer container div */
   onScroll: (event: ScrollEvent) => void;
 }
 
@@ -110,11 +125,26 @@ export interface VirtualOuterProps {
  */
 export type VirtualOuterComponent = React.ComponentType<VirtualOuterProps>;
 
+/**
+ * Interface that {@link VirtualList} and {@link VirtualGrid} use to determine size and 
+ * positioning offset for items in a single dimension. 
+ */
 export interface ItemOffsetMapping {
+  /** Size of item with given index */
   itemSize(itemIndex: number): number;
+
+  /** Offset from start of container to specified item
+   * 
+   * `itemOffset(n)` should be equal to `Sum{i:0->n-1}(itemSize(i))`
+   * 
+   * To efficiently support large containers, cost should be `O(logn)` or better.
+   */
   itemOffset(itemIndex: number): number;
+
+  /** Given an offset, return the index of the item that intersects that offset, together with the start offset of that item */
   offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 }
 
+/**  Alias for type of event that React passes to a `div` element's `OnScroll` handler. */
 export type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 

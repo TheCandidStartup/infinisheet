@@ -1,3 +1,4 @@
+[![Documentation Coverage](./coverage.svg)](https://www.npmjs.com/package/typedoc-plugin-coverage)
 [![Lerna Monorepo](https://img.shields.io/badge/Monorepo-Lerna-darkorchid)](https://lerna.js.org/)
 [![TypeScript Language](https://img.shields.io/badge/Language-TypeScript-blue)](https://www.typescriptlang.org/)
 [![Vite Dev](https://img.shields.io/badge/Dev-Vite-blueviolet)](https://vitejs.dev/)

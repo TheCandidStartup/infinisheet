@@ -63,9 +63,10 @@
     "tsx",
     "typescript"
   ],
-  "plugin": [ "typedoc-plugin-extras" ],
+  "plugin": [ "typedoc-plugin-extras", "typedoc-plugin-coverage" ],
   "customTitle": "The Candid Startup",
   "favicon": "./typedoc-assets/favicon.ico",
   "titleLink": "https://thecandidstartup.org",
-  "footerTypedocVersion": true
+  "footerTypedocVersion": true,
+  "coverageLabel": "Document"
 }

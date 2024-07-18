@@ -5,12 +5,14 @@ import { getRangeToRender } from './VirtualCommon';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
+/** Specifies the direction over which the list should implement virtual scrolling */
 export type ScrollLayout = "horizontal" | "vertical";
 
 /**
  * Props accepted by {@link VirtualListItem}
  */
 export interface VirtualListItemProps extends VirtualBaseItemProps {
+  /** Index of item in the list being rendered */
   index: number,
 }
 
@@ -64,7 +66,7 @@ export interface VirtualListProps extends VirtualBaseProps {
 
   /**
    * Callback after a scroll event has been processed and state updated but before rendering
-   * @param offset - Resulting scroll offset. Can be passed to {@link ItemOffsetMapping} to determine top item.
+   * @param offset - Resulting overall offset. Can be passed to {@link ItemOffsetMapping} to determine top item.
    * @param newScrollState - New {@link ScrollState} that will be used for rendering.
    */
   onScroll?: (offset: number, newScrollState: ScrollState) => void;

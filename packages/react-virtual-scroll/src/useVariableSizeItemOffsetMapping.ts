@@ -49,6 +49,12 @@ class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
   sizes: number[];
 }
 
+/**
+ * Returns an instance of {@link ItemOffsetMapping} suitable for use when initial items have variable sizes.
+ * 
+ * @param defaultItemSize - Size to use for all other items
+ * @param sizes - Array of sizes to use for the initial items, one size per item
+ */
 export function useVariableSizeItemOffsetMapping(defaultItemSize: number, sizes?: number[]): ItemOffsetMapping {
   return new VariableSizeItemOffsetMapping(defaultItemSize, sizes || []);
 }

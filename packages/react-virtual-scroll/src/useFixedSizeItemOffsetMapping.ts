@@ -23,6 +23,11 @@ class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
   fixedItemSize: number;
 }
 
+/**
+ * Returns an instance of {@link ItemOffsetMapping} suitable for use when all items have a fixed size.
+ * 
+ * @param itemSize - Size to use for all items
+ */
 export function useFixedSizeItemOffsetMapping(itemSize: number): ItemOffsetMapping {
   return new FixedSizeItemOffsetMapping(itemSize);
 }

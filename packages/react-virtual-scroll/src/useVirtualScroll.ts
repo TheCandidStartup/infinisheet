@@ -1,10 +1,22 @@
 import { useState } from "react";
 
+/** Direction of scrolling */
 export type ScrollDirection = "forward" | "backward";
+
+/**
+ * Overall scroll state for a single dimension.
+ */
 export interface ScrollState { 
+  /** Scroll bar offset. Equal to outer container's `scrollTop` or `scrollLeft` depending on dimension.  */
   scrollOffset: number, 
+
+  /** Offset used to position current page of items in virtual space. Overall offset is `scrollOffset+renderOffset`. */
   renderOffset: number,
+
+  /** Index of current page. */
   page: number, 
+
+  /** Current scrolling direction. Calculated by comparing current overall offset to that when last rendered. */
   scrollDirection: ScrollDirection, 
 }
 
