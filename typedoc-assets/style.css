@@ -30,3 +30,11 @@ body {
    */
   padding-top: calc((55.95px - 2.5rem)/2);
 }
+
+.container-main {
+  /* Copied from TypeDoc style.css and adjusted to account for larger header
+   * min-height = viewportHeight - HeaderHeight - FooterHeight - Margin
+   * Changed HeaderHeight from 41px to 57px (base height + 1 for the border)
+   */
+  min-height: calc(100vh - 57px - 56px - 4rem);
+}

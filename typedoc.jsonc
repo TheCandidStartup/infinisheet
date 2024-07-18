@@ -48,7 +48,7 @@
     "Now": "https://thecandidstartup.org/now.html",
   },
   "sidebarLinks": {
-    "The Candid Startup": "https://thecandidstartup.org"
+    "Project Home": "https://thecandidstartup.org/topics/spreadsheets.html"
   },
   "highlightLanguages": [
     "bash",
@@ -62,5 +62,10 @@
     "jsx",
     "tsx",
     "typescript"
-  ]
+  ],
+  "plugin": [ "typedoc-plugin-extras" ],
+  "customTitle": "The Candid Startup",
+  "favicon": "./typedoc-assets/favicon.ico",
+  "titleLink": "https://thecandidstartup.org",
+  "footerTypedocVersion": true
 }
