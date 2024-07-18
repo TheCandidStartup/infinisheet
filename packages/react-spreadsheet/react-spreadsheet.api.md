@@ -4,7 +4,6 @@
 
 ```ts
 
-// @public
-export const Dummy = 43;
+// (No @packageDocumentation comment for this package)
 
 ```
