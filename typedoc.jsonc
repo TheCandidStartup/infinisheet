@@ -43,12 +43,12 @@
   "navigationLinks": {
     "Posts": "https://thecandidstartup.org/blog/",
     "Topics": "https://thecandidstartup.org/topic-index.html",
+    "Projects": "https://thecandidstartup.org/projects.html",
     "About": "https://thecandidstartup.org/about.html",
     "Contact": "https://thecandidstartup.org/contact.html",
-    "Now": "https://thecandidstartup.org/now.html",
   },
   "sidebarLinks": {
-    "Project Home": "https://thecandidstartup.org/topics/spreadsheets.html"
+    "Project Home": "https://thecandidstartup.org/topics/infinisheet.html"
   },
   "highlightLanguages": [
     "bash",
