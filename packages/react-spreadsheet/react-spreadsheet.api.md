@@ -4,6 +4,25 @@
 
 ```ts
 
+import * as react_jsx_runtime from 'react/jsx-runtime';
+
+// @public (undocumented)
+export function VirtualSpreadsheet(props: VirtualSpreadsheetProps): react_jsx_runtime.JSX.Element;
+
+// @public
+export interface VirtualSpreadsheetProps {
+    className?: string;
+    columnHeaderClassName?: string;
+    gridClassName?: string;
+    height: number;
+    maxCssSize?: number;
+    minColumnCount: number;
+    minNumPages?: number;
+    minRowCount: number;
+    rowHeaderClassName?: string;
+    width: number;
+}
+
 // (No @packageDocumentation comment for this package)
 
 ```

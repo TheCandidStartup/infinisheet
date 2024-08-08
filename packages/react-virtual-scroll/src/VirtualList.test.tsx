@@ -1,6 +1,6 @@
 import React from "react";
-import { render, screen, fireEvent, act } from './test/wrapper'
-import { throwErr, overrideProp, fireEventScrollEnd } from './test/utils'
+import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
+import { throwErr, overrideProp, fireEventScrollEnd } from '../../../shared/test/utils'
 import { VirtualOuterProps, VirtualInnerProps } from './VirtualBase'
 import { VirtualList, VirtualListProxy } from './VirtualList'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';

@@ -46,7 +46,7 @@
     "devapi": "api-extractor run --local",
     "prodapi": "api-extractor run",
     "devbuild": "npm run build && npm run lint && npm run devapi",
-    "test-not-implemented": "vitest"
+    "test": "vitest"
   },
   "peerDependencies": {
     "react": "^18.2.0"

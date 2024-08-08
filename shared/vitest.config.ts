@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 
@@ -7,7 +8,7 @@ export default defineConfig({
     globals: true,
     includeSource: ['src/**/*.{js,ts}'], 
     environment: 'jsdom',
-    setupFiles: '../../shared/vitest-setup.jsdom.ts',
+    setupFiles: '../../shared/test/setup-jsdom.ts',
     coverage: {
       provider: 'istanbul',
       include: ['src/**'],

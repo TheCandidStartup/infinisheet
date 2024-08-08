@@ -1,5 +1,5 @@
 import { act, renderHook, fireEvent } from '@testing-library/react'
-import { fireEventScrollEnd, stubProperty, unstubAllProperties } from './test/utils'
+import { fireEventScrollEnd, stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 import { useIsScrolling } from './useIsScrolling'
 
 describe('useIsScrolling with default argument', () => {
