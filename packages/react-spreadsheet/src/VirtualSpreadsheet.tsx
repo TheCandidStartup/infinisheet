@@ -68,6 +68,7 @@ const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex:
 const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...rest}, ref) => (
   <div ref={ref} style={{ ...style, overflow: "hidden"}} {...rest}/>
 ))
+Outer.displayName = "HideScrollBar";
 
 export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
   const columnMapping = useFixedSizeItemOffsetMapping(100);

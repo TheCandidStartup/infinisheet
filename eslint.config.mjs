@@ -2,6 +2,7 @@ import globals from "globals";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import reactRecommended from "eslint-plugin-react/configs/recommended.js";
+import jsxRuntime from "eslint-plugin-react/configs/jsx-runtime.js";
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from "eslint-plugin-react-refresh";
 
@@ -11,6 +12,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   reactRecommended,
+  jsxRuntime,
   { files: ["**/*.ts", "**/*.tsx"] },
   { ignores: ["**/dist", "**/*.js", "**/*.mjs", "**/*.cjs"] },
   {
