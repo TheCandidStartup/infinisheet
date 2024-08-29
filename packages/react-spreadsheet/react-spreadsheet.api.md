@@ -9,6 +9,9 @@ import * as react_jsx_runtime from 'react/jsx-runtime';
 // @public (undocumented)
 export function VirtualSpreadsheet(props: VirtualSpreadsheetProps): react_jsx_runtime.JSX.Element;
 
+// @public (undocumented)
+export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
+
 // @public
 export interface VirtualSpreadsheetProps {
     className?: string;
@@ -20,7 +23,31 @@ export interface VirtualSpreadsheetProps {
     minNumPages?: number;
     minRowCount: number;
     rowHeaderClassName?: string;
+    // (undocumented)
+    theme?: VirtualSpreadsheetTheme | Record<string, string>;
     width: number;
+}
+
+// @public
+export interface VirtualSpreadsheetTheme {
+    // (undocumented)
+    cell: string;
+    // (undocumented)
+    className: string;
+    // (undocumented)
+    column: string;
+    // (undocumented)
+    columnHeader: string;
+    // (undocumented)
+    formula: string;
+    // (undocumented)
+    grid: string;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    row: string;
+    // (undocumented)
+    rowHeader: string;
 }
 
 // (No @packageDocumentation comment for this package)

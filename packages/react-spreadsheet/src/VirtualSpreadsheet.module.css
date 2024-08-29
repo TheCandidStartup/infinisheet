@@ -1,0 +1,13 @@
+/* Example CSS Module that works with default theme */
+
+.columnHeader {
+  border: 1px solid lightgrey;
+}
+
+.rowHeader {
+  border: 1px solid lightgrey;
+}
+
+.grid {
+  border: 1px solid lightgrey;
+}

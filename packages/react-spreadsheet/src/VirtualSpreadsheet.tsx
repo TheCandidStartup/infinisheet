@@ -1,6 +1,7 @@
 import React from 'react';
 import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
   useFixedSizeItemOffsetMapping, VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
+import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 
 /**
  * Props for {@link VirtualSpreadsheet}
@@ -8,6 +9,8 @@ import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
 export interface VirtualSpreadsheetProps {
   /** The `className` applied to the spreadsheet as a whole */
   className?: string,
+
+  theme?: VirtualSpreadsheetTheme | Record<string, string>,
 
   /** The `className` applied to the grid outer container */
   gridClassName?: string,
@@ -47,30 +50,19 @@ export interface VirtualSpreadsheetProps {
   minNumPages?: number
 }
 
-const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
-  <div className="spreadsheetColumn" style={style}>
-    { index }
-  </div>
-);
-
-const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
-  <div className="spreadsheetRow" style={style}>
-    { index }
-  </div>
-);
-
-const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
-  <div className="spreadsheetCell" style={style}>
-    { `${rowIndex}:${columnIndex}` }
-  </div>
-);
-
 const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...rest}, ref) => (
   <div ref={ref} style={{ ...style, overflow: "hidden"}} {...rest}/>
 ))
 Outer.displayName = "HideScrollBar";
 
+function join(a?: string, b?: string) {
+  if (a && b)
+    return a + ' ' + b;
+  return a ? a : b;
+}
+
 export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
+  const { theme } = props;
   const columnMapping = useFixedSizeItemOffsetMapping(100);
   const rowMapping = useFixedSizeItemOffsetMapping(30);
   const columnRef = React.useRef<VirtualListProxy>(null);
@@ -82,9 +74,27 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
     rowRef.current?.scrollTo(rowOffsetValue);
   }
 
+  const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+    <div className={theme?.column} style={style}>
+      { index }
+    </div>
+  );
+  
+  const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+    <div className={theme?.row} style={style}>
+      { index }
+    </div>
+  );
+  
+  const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
+    <div className={theme?.cell} style={style}>
+      { `${rowIndex}:${columnIndex}` }
+    </div>
+  );
+
   return (
-    <div className={props.className} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>
-      <div className="spreadsheetScrollTo" style={{gridColumnStart: 1, gridColumnEnd: 3}}>
+    <div className={join(props.className, theme?.className)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>
+      <div className={theme?.name} style={{gridColumnStart: 1, gridColumnEnd: 3}}>
       <label>
         Scroll To Row: 
         <input
@@ -102,7 +112,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
 
       <VirtualList
         ref={columnRef}
-        className={props.columnHeaderClassName}
+        className={theme?.columnHeader}
         outerComponent={Outer}
         height={50}
         itemCount={props.minColumnCount}
@@ -114,7 +124,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
 
       <VirtualList
         ref={rowRef}
-        className={props.rowHeaderClassName}
+        className={theme?.rowHeader}
         outerComponent={Outer}
         height={props.height}
         itemCount={props.minRowCount}
@@ -124,7 +134,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
       </VirtualList>
 
       <VirtualGrid
-        className={props.gridClassName}
+        className={theme?.grid}
         ref={gridRef}
         onScroll={onScroll}
         height={props.height}

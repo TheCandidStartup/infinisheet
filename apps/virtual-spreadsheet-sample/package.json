@@ -1,0 +1,20 @@
+{
+  "name": "virtual-spreadsheet-sample",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.build.json && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "@candidstartup/react-spreadsheet": "^0.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
