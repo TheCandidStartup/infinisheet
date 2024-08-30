@@ -15,14 +15,11 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
 // @public
 export interface VirtualSpreadsheetProps {
     className?: string;
-    columnHeaderClassName?: string;
-    gridClassName?: string;
     height: number;
     maxCssSize?: number;
     minColumnCount: number;
     minNumPages?: number;
     minRowCount: number;
-    rowHeaderClassName?: string;
     // (undocumented)
     theme?: VirtualSpreadsheetTheme | Record<string, string>;
     width: number;
@@ -31,23 +28,23 @@ export interface VirtualSpreadsheetProps {
 // @public
 export interface VirtualSpreadsheetTheme {
     // (undocumented)
-    cell: string;
+    VirtualSpreadsheet: string;
     // (undocumented)
-    className: string;
+    VirtualSpreadsheet_Cell: string;
     // (undocumented)
-    column: string;
+    VirtualSpreadsheet_Column: string;
     // (undocumented)
-    columnHeader: string;
+    VirtualSpreadsheet_ColumnHeader: string;
     // (undocumented)
-    formula: string;
+    VirtualSpreadsheet_Formula: string;
     // (undocumented)
-    grid: string;
+    VirtualSpreadsheet_Grid: string;
     // (undocumented)
-    name: string;
+    VirtualSpreadsheet_Name: string;
     // (undocumented)
-    row: string;
+    VirtualSpreadsheet_Row: string;
     // (undocumented)
-    rowHeader: string;
+    VirtualSpreadsheet_RowHeader: string;
 }
 
 // (No @packageDocumentation comment for this package)

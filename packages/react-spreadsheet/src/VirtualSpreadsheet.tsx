@@ -12,15 +12,6 @@ export interface VirtualSpreadsheetProps {
 
   theme?: VirtualSpreadsheetTheme | Record<string, string>,
 
-  /** The `className` applied to the grid outer container */
-  gridClassName?: string,
-
-    /** The `className` applied to the column header outer container */
-  columnHeaderClassName?: string,
-
-  /** The `className` applied to the row header outer container */
-  rowHeaderClassName?: string,
-
   /** Component height */
   height: number,
 
@@ -75,26 +66,26 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
   }
 
   const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
-    <div className={theme?.column} style={style}>
+    <div className={theme?.VirtualSpreadsheet_Column} style={style}>
       { index }
     </div>
   );
   
   const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
-    <div className={theme?.row} style={style}>
+    <div className={theme?.VirtualSpreadsheet_Row} style={style}>
       { index }
     </div>
   );
   
   const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
-    <div className={theme?.cell} style={style}>
+    <div className={theme?.VirtualSpreadsheet_Cell} style={style}>
       { `${rowIndex}:${columnIndex}` }
     </div>
   );
 
   return (
-    <div className={join(props.className, theme?.className)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>
-      <div className={theme?.name} style={{gridColumnStart: 1, gridColumnEnd: 3}}>
+    <div className={join(props.className, theme?.VirtualSpreadsheet)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>
+      <div className={theme?.VirtualSpreadsheet_Name} style={{gridColumnStart: 1, gridColumnEnd: 3}}>
       <label>
         Scroll To Row: 
         <input
@@ -112,7 +103,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
 
       <VirtualList
         ref={columnRef}
-        className={theme?.columnHeader}
+        className={theme?.VirtualSpreadsheet_ColumnHeader}
         outerComponent={Outer}
         height={50}
         itemCount={props.minColumnCount}
@@ -124,7 +115,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
 
       <VirtualList
         ref={rowRef}
-        className={theme?.rowHeader}
+        className={theme?.VirtualSpreadsheet_RowHeader}
         outerComponent={Outer}
         height={props.height}
         itemCount={props.minRowCount}
@@ -134,7 +125,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
       </VirtualList>
 
       <VirtualGrid
-        className={theme?.grid}
+        className={theme?.VirtualSpreadsheet_Grid}
         ref={gridRef}
         onScroll={onScroll}
         height={props.height}

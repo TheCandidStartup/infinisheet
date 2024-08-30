@@ -1,7 +1,7 @@
-import { VirtualSpreadsheet, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
+import { VirtualSpreadsheet/*, VirtualSpreadsheetDefaultTheme as theme*/ } from '@candidstartup/react-spreadsheet';
 
-import '@candidstartup/react-spreadsheet/VirtualSpreadsheet.css';
-// import theme from '@candidstartup/react-spreadsheet/VirtualSpreadsheet.module.css';
+//import '@candidstartup/react-spreadsheet/VirtualSpreadsheet.css';
+import theme from '@candidstartup/react-spreadsheet/VirtualSpreadsheet.module.css';
 
 export function App() {
   return (

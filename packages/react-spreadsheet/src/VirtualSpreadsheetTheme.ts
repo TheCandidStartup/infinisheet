@@ -3,25 +3,25 @@
  * theme to use VirtualSpreadsheet with whatever CSS management system you prefer.
  */
 export interface VirtualSpreadsheetTheme {
-  className: string,
-  name: string,
-  formula: string,
-  grid: string,
-  columnHeader: string,
-  column: string,
-  rowHeader: string,
-  row: string,
-  cell: string
+  VirtualSpreadsheet: string,
+  VirtualSpreadsheet_Name: string,
+  VirtualSpreadsheet_Formula: string,
+  VirtualSpreadsheet_Grid: string,
+  VirtualSpreadsheet_ColumnHeader: string,
+  VirtualSpreadsheet_Column: string,
+  VirtualSpreadsheet_RowHeader: string,
+  VirtualSpreadsheet_Row: string,
+  VirtualSpreadsheet_Cell: string
 }
 
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
-  className: "VirtualSpreadsheet",
-  name: "VirtualSpreadsheet-Name",
-  formula: "VirtualSpreadsheet-Formula",
-  grid: "VirtualSpreadsheet-Grid",
-  rowHeader: "VirtualSpreadsheet-RowHeader",
-  row: "VirtualSpreadsheet-Row",
-  columnHeader: "VirtualSpreadsheet-ColumnHeader",
-  column: "VirtualSpreadsheet-Column",
-  cell: "VirtualSpreadsheet-Cell",
+  VirtualSpreadsheet: "VirtualSpreadsheet",
+  VirtualSpreadsheet_Name: "VirtualSpreadsheet_Name",
+  VirtualSpreadsheet_Formula: "VirtualSpreadsheet_Formula",
+  VirtualSpreadsheet_Grid: "VirtualSpreadsheet_Grid",
+  VirtualSpreadsheet_ColumnHeader: "VirtualSpreadsheet_ColumnHeader",
+  VirtualSpreadsheet_Column: "VirtualSpreadsheet_Column",
+  VirtualSpreadsheet_RowHeader: "VirtualSpreadsheet_RowHeader",
+  VirtualSpreadsheet_Row: "VirtualSpreadsheet_Row",
+  VirtualSpreadsheet_Cell: "VirtualSpreadsheet_Cell",
 }

@@ -1,13 +1,13 @@
 /* Example global style sheet that works with default theme */
 
-.VirtualSpreadsheet-ColumnHeader {
+.VirtualSpreadsheet_ColumnHeader {
   border: 1px solid lightgrey;
 }
 
-.VirtualSpreadsheet-RowHeader {
+.VirtualSpreadsheet_RowHeader {
   border: 1px solid lightgrey;
 }
 
-.VirtualSpreadsheet-Grid {
+.VirtualSpreadsheet_Grid {
   border: 1px solid lightgrey;
 }
