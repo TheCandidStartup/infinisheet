@@ -109,6 +109,8 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
         itemCount={props.minColumnCount}
         itemOffsetMapping={columnMapping}
         layout={'horizontal'}
+        maxCssSize={props.maxCssSize}
+        minNumPages={props.minNumPages}
         width={props.width}>
         {Col}
       </VirtualList>
@@ -120,6 +122,8 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
         height={props.height}
         itemCount={props.minRowCount}
         itemOffsetMapping={rowMapping}
+        maxCssSize={props.maxCssSize}
+        minNumPages={props.minNumPages}
         width={100}>
         {Row}
       </VirtualList>
@@ -133,6 +137,8 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
         rowOffsetMapping={rowMapping}
         columnCount={props.minColumnCount}
         columnOffsetMapping={columnMapping}
+        maxCssSize={props.maxCssSize}
+        minNumPages={props.minNumPages}
         width={props.width}>
         {Cell}
       </VirtualGrid>
