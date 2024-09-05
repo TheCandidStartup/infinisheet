@@ -2,6 +2,7 @@ import React from 'react';
 import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
   useFixedSizeItemOffsetMapping, VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
+import { indexToColRef, rowColCoordsToRef, rowColRefToCoords } from './RowColRef'
 
 /**
  * Props for {@link VirtualSpreadsheet}
@@ -60,6 +61,8 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
   const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
 
+  const [name, setName] = React.useState("");
+
   function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
     columnRef.current?.scrollTo(columnOffsetValue);
     rowRef.current?.scrollTo(rowOffsetValue);
@@ -67,19 +70,19 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
 
   const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div className={theme?.VirtualSpreadsheet_Column} style={style}>
-      { index }
+      { indexToColRef(index) }
     </div>
   );
   
   const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div className={theme?.VirtualSpreadsheet_Row} style={style}>
-      { index }
+      { index+1 }
     </div>
   );
   
   const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
     <div className={theme?.VirtualSpreadsheet_Cell} style={style}>
-      { `${rowIndex}:${columnIndex}` }
+      { rowColCoordsToRef(rowIndex, columnIndex) }
     </div>
   );
 
@@ -87,13 +90,19 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
     <div className={join(props.className, theme?.VirtualSpreadsheet)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>
       <div className={theme?.VirtualSpreadsheet_Name} style={{gridColumnStart: 1, gridColumnEnd: 3}}>
       <label>
-        Scroll To Row: 
+        Scroll To Row, Column or Cell: 
         <input
-          type={"number"}
+          type={"text"}
+          value={name}
           height={200}
           onChange={(event) => {
-            const value = parseInt(event.target?.value);
-            gridRef.current?.scrollToItem(value, 0);
+            setName(event.target?.value);
+          }}
+          onKeyUp={(event) => {
+            if (event.key === "Enter") {
+              const [row, col] = rowColRefToCoords(name);
+              gridRef.current?.scrollToItem(row as number, col as number);
+            }
           }}
         />
       </label>

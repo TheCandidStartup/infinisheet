@@ -6,6 +6,30 @@
 
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
+// @public
+export type ColRef = string;
+
+// @public
+export function colRefToIndex(col: ColRef): number;
+
+// @public
+export function indexToColRef(index: number): ColRef;
+
+// @public
+export type RowColCoords = [row: number | undefined, col: number | undefined];
+
+// @public
+export function rowColCoordsToRef(row: number | undefined, col: number | undefined): RowColRef;
+
+// @public
+export type RowColRef = string | ColRef;
+
+// @public
+export function rowColRefToCoords(ref: RowColRef): RowColCoords;
+
+// @public
+export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: ColRef | undefined];
+
 // @public (undocumented)
 export function VirtualSpreadsheet(props: VirtualSpreadsheetProps): react_jsx_runtime.JSX.Element;
 

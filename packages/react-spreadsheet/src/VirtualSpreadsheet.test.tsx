@@ -14,7 +14,7 @@ describe('VirtualSpreadsheet', () => {
         width={600}>
       </VirtualSpreadsheet>
     )
-    const cell = screen.getByText('0:0')
+    const cell = screen.getByText('A1')
     expect(cell).toBeInTheDocument()
     const spreadsheet = document.querySelector("div div");
     expect(spreadsheet).not.toHaveProperty("class");
@@ -30,7 +30,7 @@ describe('VirtualSpreadsheet', () => {
         width={600}>
       </VirtualSpreadsheet>
     )
-    const cell = screen.getByText('0:0')
+    const cell = screen.getByText('A1')
     expect(cell).toBeInTheDocument()
     const spreadsheet = document.querySelector("div div");
     expect(spreadsheet).toHaveProperty("className", "Testy");
@@ -46,7 +46,7 @@ describe('VirtualSpreadsheet', () => {
         width={600}>
       </VirtualSpreadsheet>
     )
-    const cell = screen.getByText('0:0')
+    const cell = screen.getByText('A1')
     expect(cell).toBeInTheDocument()
     const spreadsheet = document.querySelector("div div");
     expect(spreadsheet).toHaveProperty("className", "VirtualSpreadsheet");
@@ -63,7 +63,7 @@ describe('VirtualSpreadsheet', () => {
         width={600}>
       </VirtualSpreadsheet>
     )
-    const cell = screen.getByText('0:0')
+    const cell = screen.getByText('A1')
     expect(cell).toBeInTheDocument()
     const spreadsheet = document.querySelector("div div");
     expect(spreadsheet).toHaveProperty("className", "Testy VirtualSpreadsheet");
