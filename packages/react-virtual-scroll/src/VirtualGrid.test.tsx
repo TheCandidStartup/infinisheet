@@ -160,13 +160,19 @@ describe('VirtualGrid', () => {
 
       const proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollTo(100, 200); })}
-      expect(mock).toBeCalledWith(200, 100);
+      expect(mock).toBeCalledWith({ left: 200, top: 100 });
 
       {act(() => { proxy.scrollToItem(42, 7); })}
-      expect(mock).toBeCalledWith(700, 41*30+50);
+      expect(mock).toBeCalledWith({ left: 700, top: 41*30+50 });
 
       {act(() => { proxy.scrollToItem(0, 0); })}
-      expect(mock).toBeCalledWith(0, 0);
+      expect(mock).toBeCalledWith({ left: 0, top: 0 });
+
+      {act(() => { proxy.scrollToItem(42); })}
+      expect(mock).toBeCalledWith({ top: 41*30+50 });
+
+      {act(() => { proxy.scrollToItem(undefined, 7); })}
+      expect(mock).toBeCalledWith({ left: 700 });
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
@@ -338,7 +344,7 @@ describe('Paged VirtualList', () => {
       // Scroll to last item on second page
       let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(3999, 1199); })}
-      expect(mock).toBeCalledWith(119900, 119970);
+      expect(mock).toBeCalledWith({ left: 119900, top: 119970 });
       const item3999 = screen.getByText('Cell 3999:1199');
       expect(item3999).toBeInTheDocument()
       expect(item3999).toHaveProperty("style.top", '119970px')
@@ -369,7 +375,7 @@ describe('Paged VirtualList', () => {
       // Scroll back to first cell
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(0, 0); })}
-      expect(mock).toBeCalledWith(0, 0);
+      expect(mock).toBeCalledWith({ left: 0, top: 0});
       const item1 = screen.getByText('Cell 1:1');
       expect(item1).toBeInTheDocument()
       expect(item1).toHaveProperty("style.top", '30px')

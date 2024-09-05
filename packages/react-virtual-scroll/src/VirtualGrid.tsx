@@ -98,14 +98,14 @@ export interface VirtualGridProxy {
   /**
    * Scrolls the list to the specified row and column in pixels
    */
-  scrollTo(rowOffset: number, columnOffset: number): void;
+  scrollTo(rowOffset?: number, columnOffset?: number): void;
 
   /**
    * Scrolls the list so that the specified item is visible
    * @param rowIndex - Row of item to scroll to
    * @param columnIndex - Column of item to scroll to
    */
-  scrollToItem(rowIndex: number, columnIndex: number): void;
+  scrollToItem(rowIndex?: number, columnIndex?: number): void;
 }
 
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;
@@ -136,15 +136,23 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
 
   React.useImperativeHandle(ref, () => {
     return {
-      scrollTo(rowOffset: number, columnOffset: number): void {
+      scrollTo(rowOffset?: number, columnOffset?: number): void {
         const outer = outerRef.current;
         /* istanbul ignore else */
-        if (outer)
-          outer.scrollTo(doScrollToColumn(columnOffset, outer.clientWidth), doScrollToRow(rowOffset, outer.clientHeight));
+        if (outer) {
+          const options: ScrollToOptions = {};
+          if (rowOffset != undefined)
+            options.top = doScrollToRow(rowOffset, outer.clientHeight);
+          if (columnOffset != undefined)
+            options.left = doScrollToColumn(columnOffset, outer.clientWidth);
+          outer.scrollTo(options);
+        }
       },
 
-      scrollToItem(rowIndex: number, columnIndex: number): void {
-        this.scrollTo(rowOffsetMapping.itemOffset(rowIndex), columnOffsetMapping.itemOffset(columnIndex));
+      scrollToItem(rowIndex?: number, columnIndex?: number): void {
+        const rowOffset = (rowIndex != undefined) ? rowOffsetMapping.itemOffset(rowIndex) : undefined;
+        const columnOffset = (columnIndex != undefined) ? columnOffsetMapping.itemOffset(columnIndex) : undefined;
+        this.scrollTo(rowOffset, columnOffset);
       }
     }
   }, [ rowOffsetMapping, columnOffsetMapping, doScrollToRow, doScrollToColumn ]);
