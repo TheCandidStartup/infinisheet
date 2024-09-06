@@ -101,7 +101,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
           onKeyUp={(event) => {
             if (event.key === "Enter") {
               const [row, col] = rowColRefToCoords(name);
-              gridRef.current?.scrollToItem(row as number, col as number);
+              gridRef.current?.scrollToItem(row, col);
             }
           }}
         />
