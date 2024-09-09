@@ -3,6 +3,8 @@ import { VirtualSpreadsheet/*, VirtualSpreadsheetDefaultTheme as theme*/ } from 
 //import '@candidstartup/react-spreadsheet/VirtualSpreadsheet.css';
 import theme from '@candidstartup/react-spreadsheet/VirtualSpreadsheet.module.css';
 
+import './App.css';
+
 export function App() {
   return (
     <VirtualSpreadsheet
