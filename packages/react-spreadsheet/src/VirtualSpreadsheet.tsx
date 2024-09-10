@@ -2,7 +2,7 @@ import React from 'react';
 import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
   useFixedSizeItemOffsetMapping, VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
-import { indexToColRef, rowColCoordsToRef, rowColRefToCoords } from './RowColRef'
+import { indexToColRef, RowColCoords, rowColCoordsToRef, rowColRefToCoords } from './RowColRef'
 
 /**
  * Props for {@link VirtualSpreadsheet}
@@ -19,11 +19,25 @@ export interface VirtualSpreadsheetProps {
    /** Component width */
   width: number,
 
-  /** Minimum number of rows in the spreadsheet */
-  minRowCount: number,
+  /** Minimum number of rows in the spreadsheet 
+   * @defaultValue 100
+  */
+  minRowCount?: number,
 
-  /** Minimum umber of columns in the grid */
-  minColumnCount: number,
+  /** Maximum number of rows in the spreadsheet 
+   * @defaultValue 1000000000000
+  */
+  maxRowCount?: number,
+
+  /** Minimum number of columns in the grid 
+   * @defaultValue 26
+  */
+  minColumnCount?: number,
+
+  /** Maximum umber of columns in the grid 
+   * @defaultValue 1000000000000
+  */
+  maxColumnCount?: number,
 
   /** 
    * Maximum size for CSS element beyond which layout breaks. You should never normally need to change this. 
@@ -54,18 +68,68 @@ function join(a?: string, b?: string) {
 }
 
 export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
-  const { theme } = props;
+  const { theme, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const columnMapping = useFixedSizeItemOffsetMapping(100);
   const rowMapping = useFixedSizeItemOffsetMapping(30);
   const columnRef = React.useRef<VirtualListProxy>(null);
   const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
+  const pendingScrollToSelectionRef = React.useRef<boolean>(false);
 
   const [name, setName] = React.useState("");
+  const [hwmRowIndex, setHwmRowIndex] = React.useState(0);
+  const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
+  const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
+
+  React.useLayoutEffect(() => {
+    if (pendingScrollToSelectionRef.current) {
+      pendingScrollToSelectionRef.current = false;
+
+      gridRef.current?.scrollToItem(selection[0], selection[1]);
+    }
+  }, [selection])
 
   function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
     columnRef.current?.scrollTo(columnOffsetValue);
     rowRef.current?.scrollTo(rowOffsetValue);
+    if (rowOffsetValue == 0)
+      setHwmRowIndex(0);
+    if (columnOffsetValue == 0)
+      setHwmColumnIndex(0);
+  }
+
+  function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "Enter")
+      return;
+
+    let sizeChanged = false;
+    let [row, col] = rowColRefToCoords(name);
+    if (row !== undefined) {
+      if (row >= maxRowCount)
+        row = maxRowCount - 1;
+      if (row > hwmRowIndex) {
+        setHwmRowIndex(row);
+        sizeChanged = true;
+      } else if (row == 0)
+        setHwmRowIndex(0);
+    }
+    if (col !== undefined) {
+      if (col >= maxColumnCount)
+        col = maxColumnCount - 1;
+      if (col > hwmColumnIndex) {
+        setHwmColumnIndex(col);
+        sizeChanged = true;
+      } else if (col == 0)
+        setHwmColumnIndex(0);
+    }
+
+    setSelection([row,col]);
+    if (sizeChanged)
+    {
+      // Need to defer scroll to selection until after larger grid has been rendered
+      pendingScrollToSelectionRef.current = true;
+    } else 
+      gridRef.current?.scrollToItem(row, col);
   }
 
   const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
@@ -86,6 +150,9 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
     </div>
   );
 
+  const rowCount = Math.max(minRowCount, hwmRowIndex+1);
+  const columnCount = Math.max(minColumnCount, hwmColumnIndex+1);
+
   return (
     <div className={join(props.className, theme?.VirtualSpreadsheet)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>
       <div className={theme?.VirtualSpreadsheet_Name} style={{gridColumnStart: 1, gridColumnEnd: 3}}>
@@ -98,12 +165,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
           onChange={(event) => {
             setName(event.target?.value);
           }}
-          onKeyUp={(event) => {
-            if (event.key === "Enter") {
-              const [row, col] = rowColRefToCoords(name);
-              gridRef.current?.scrollToItem(row, col);
-            }
-          }}
+          onKeyUp={onNameKeyUp}
         />
       </label>
       </div>
@@ -115,7 +177,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
         className={theme?.VirtualSpreadsheet_ColumnHeader}
         outerComponent={Outer}
         height={50}
-        itemCount={props.minColumnCount}
+        itemCount={columnCount}
         itemOffsetMapping={columnMapping}
         layout={'horizontal'}
         maxCssSize={props.maxCssSize}
@@ -129,7 +191,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
         className={theme?.VirtualSpreadsheet_RowHeader}
         outerComponent={Outer}
         height={props.height}
-        itemCount={props.minRowCount}
+        itemCount={rowCount}
         itemOffsetMapping={rowMapping}
         maxCssSize={props.maxCssSize}
         minNumPages={props.minNumPages}
@@ -142,9 +204,9 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
         ref={gridRef}
         onScroll={onScroll}
         height={props.height}
-        rowCount={props.minRowCount}
+        rowCount={rowCount}
         rowOffsetMapping={rowMapping}
-        columnCount={props.minColumnCount}
+        columnCount={columnCount}
         columnOffsetMapping={columnMapping}
         maxCssSize={props.maxCssSize}
         minNumPages={props.minNumPages}
