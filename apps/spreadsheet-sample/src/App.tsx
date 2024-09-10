@@ -10,8 +10,8 @@ export function App() {
     <VirtualSpreadsheet
     theme={theme}
     height={240}
-    minRowCount={100}
-    minColumnCount={26}
+    maxRowCount={1000}
+    maxColumnCount={1000}
     width={600}>
   </VirtualSpreadsheet>
   )

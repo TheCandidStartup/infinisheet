@@ -81,6 +81,11 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
 
+  const rowCount = Math.max(minRowCount, hwmRowIndex+1);
+  const rowOffset = rowMapping.itemOffset(rowCount);
+  const columnCount = Math.max(minColumnCount, hwmColumnIndex+1);
+  const columnOffset = columnMapping.itemOffset(columnCount);
+
   React.useLayoutEffect(() => {
     if (pendingScrollToSelectionRef.current) {
       pendingScrollToSelectionRef.current = false;
@@ -92,10 +97,22 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
   function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
     columnRef.current?.scrollTo(columnOffsetValue);
     rowRef.current?.scrollTo(rowOffsetValue);
+
     if (rowOffsetValue == 0)
       setHwmRowIndex(0);
+    else if (gridRef.current && (rowOffsetValue + gridRef.current.clientHeight == rowOffset)) {
+      // Infinite scrolling if we've reached the end
+      if (hwmRowIndex < rowCount && rowCount < maxRowCount)
+        setHwmRowIndex(rowCount);
+    }
+
     if (columnOffsetValue == 0)
       setHwmColumnIndex(0);
+    else if (gridRef.current && (columnOffsetValue + gridRef.current.clientWidth == columnOffset)) {
+      // Infinite scrolling if we've reached the end
+      if (hwmColumnIndex < columnCount && columnCount < maxColumnCount)
+        setHwmColumnIndex(columnCount);
+    }
   }
 
   function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -149,9 +166,6 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
       { rowColCoordsToRef(rowIndex, columnIndex) }
     </div>
   );
-
-  const rowCount = Math.max(minRowCount, hwmRowIndex+1);
-  const columnCount = Math.max(minColumnCount, hwmColumnIndex+1);
 
   return (
     <div className={join(props.className, theme?.VirtualSpreadsheet)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>

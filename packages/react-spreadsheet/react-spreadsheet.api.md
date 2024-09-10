@@ -40,10 +40,12 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
 export interface VirtualSpreadsheetProps {
     className?: string;
     height: number;
+    maxColumnCount?: number;
     maxCssSize?: number;
-    minColumnCount: number;
+    maxRowCount?: number;
+    minColumnCount?: number;
     minNumPages?: number;
-    minRowCount: number;
+    minRowCount?: number;
     // (undocumented)
     theme?: VirtualSpreadsheetTheme | Record<string, string>;
     width: number;
