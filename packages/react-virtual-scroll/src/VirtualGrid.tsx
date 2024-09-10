@@ -106,6 +106,12 @@ export interface VirtualGridProxy {
    * @param columnIndex - Column of item to scroll to
    */
   scrollToItem(rowIndex?: number, columnIndex?: number): void;
+
+  /** Exposes DOM clientWidth property */
+  get clientWidth(): number;
+
+    /** Exposes DOM clientHeight property */
+    get clientHeight(): number;
 }
 
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;
@@ -153,6 +159,14 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
         const rowOffset = (rowIndex != undefined) ? rowOffsetMapping.itemOffset(rowIndex) : undefined;
         const columnOffset = (columnIndex != undefined) ? columnOffsetMapping.itemOffset(columnIndex) : undefined;
         this.scrollTo(rowOffset, columnOffset);
+      },
+
+      get clientWidth(): number {
+        return outerRef.current ? outerRef.current.clientWidth : /* istanbul ignore next */ 0;
+      },
+
+      get clientHeight(): number {
+        return outerRef.current ? outerRef.current.clientHeight : /* istanbul ignore next */ 0;
       }
     }
   }, [ rowOffsetMapping, columnOffsetMapping, doScrollToRow, doScrollToColumn ]);

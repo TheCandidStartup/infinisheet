@@ -158,7 +158,15 @@ describe('VirtualGrid', () => {
       </VirtualGrid>
       )
 
+      const header = screen.getByText('Header 0');
+      const innerDiv = header.parentElement || throwErr("No inner div");
+      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
+      updateLayout(innerDiv, outerDiv);
+
       const proxy = ref.current || throwErr("null ref");
+      expect(proxy.clientWidth).toBe(600);
+      expect(proxy.clientHeight).toBe(240);
+
       {act(() => { proxy.scrollTo(100, 200); })}
       expect(mock).toBeCalledWith({ left: 200, top: 100 });
 

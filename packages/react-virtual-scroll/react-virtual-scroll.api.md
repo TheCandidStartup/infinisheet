@@ -82,6 +82,8 @@ export interface VirtualGridProps extends VirtualBaseProps {
 
 // @public
 export interface VirtualGridProxy {
+    get clientHeight(): number;
+    get clientWidth(): number;
     scrollTo(rowOffset?: number, columnOffset?: number): void;
     scrollToItem(rowIndex?: number, columnIndex?: number): void;
 }
