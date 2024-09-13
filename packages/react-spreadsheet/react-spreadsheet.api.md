@@ -12,8 +12,28 @@ export type ColRef = string;
 // @public
 export function colRefToIndex(col: ColRef): number;
 
+// @public (undocumented)
+export class EmptySpreadsheetData implements SpreadsheetData {
+    // (undocumented)
+    getCellValue(_snapshot: number, _row: number, _column: number): string;
+    // (undocumented)
+    getColumnCount(): number;
+    // (undocumented)
+    getRowCount(): number;
+    // (undocumented)
+    getSnapshot(): number;
+    // (undocumented)
+    subscribe(_onDataChange: () => void): () => void;
+}
+
 // @public
 export function indexToColRef(index: number): ColRef;
+
+// @public (undocumented)
+export interface ReactSpreadsheetData extends SpreadsheetData {
+    // (undocumented)
+    getServerSnapshot?: () => number;
+}
 
 // @public
 export type RowColCoords = [row: number | undefined, col: number | undefined];
@@ -31,6 +51,20 @@ export function rowColRefToCoords(ref: RowColRef): RowColCoords;
 export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: ColRef | undefined];
 
 // @public (undocumented)
+export interface SpreadsheetData {
+    // (undocumented)
+    getCellValue(snapshot: number, row: number, column: number): string;
+    // (undocumented)
+    getColumnCount(snapshot: number): number;
+    // (undocumented)
+    getRowCount(snapshot: number): number;
+    // (undocumented)
+    getSnapshot: () => number;
+    // (undocumented)
+    subscribe: (onDataChange: () => void) => () => void;
+}
+
+// @public (undocumented)
 export function VirtualSpreadsheet(props: VirtualSpreadsheetProps): react_jsx_runtime.JSX.Element;
 
 // @public (undocumented)
@@ -39,6 +73,7 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
 // @public
 export interface VirtualSpreadsheetProps {
     className?: string;
+    data: ReactSpreadsheetData;
     height: number;
     maxColumnCount?: number;
     maxCssSize?: number;

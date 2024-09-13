@@ -2,7 +2,12 @@ import React from 'react';
 import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
   useFixedSizeItemOffsetMapping, VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
-import { indexToColRef, RowColCoords, rowColCoordsToRef, rowColRefToCoords } from './RowColRef'
+import { indexToColRef, RowColCoords, rowColRefToCoords } from './RowColRef'
+import type { SpreadsheetData } from './SpreadsheetData'
+
+export interface ReactSpreadsheetData extends SpreadsheetData {
+  getServerSnapshot?: () => number
+}
 
 /**
  * Props for {@link VirtualSpreadsheet}
@@ -18,6 +23,9 @@ export interface VirtualSpreadsheetProps {
 
    /** Component width */
   width: number,
+
+  /** Data to display and edit */
+  data: ReactSpreadsheetData,
 
   /** Minimum number of rows in the spreadsheet 
    * @defaultValue 100
@@ -68,22 +76,26 @@ function join(a?: string, b?: string) {
 }
 
 export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
-  const { theme, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
+  const { theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const columnMapping = useFixedSizeItemOffsetMapping(100);
   const rowMapping = useFixedSizeItemOffsetMapping(30);
   const columnRef = React.useRef<VirtualListProxy>(null);
   const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
   const pendingScrollToSelectionRef = React.useRef<boolean>(false);
+  const snapshot = React.useSyncExternalStore<number>(data.subscribe.bind(data), 
+    data.getSnapshot.bind(data), data.getServerSnapshot?.bind(data));
 
   const [name, setName] = React.useState("");
   const [hwmRowIndex, setHwmRowIndex] = React.useState(0);
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
 
-  const rowCount = Math.max(minRowCount, hwmRowIndex+1);
+  const dataRowCount = data.getRowCount(snapshot);
+  const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1);
   const rowOffset = rowMapping.itemOffset(rowCount);
-  const columnCount = Math.max(minColumnCount, hwmColumnIndex+1);
+  const dataColumnCount = data.getColumnCount(snapshot);
+  const columnCount = Math.max(minColumnCount, dataColumnCount, hwmColumnIndex+1);
   const columnOffset = columnMapping.itemOffset(columnCount);
 
   React.useLayoutEffect(() => {
@@ -163,7 +175,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
   
   const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
     <div className={theme?.VirtualSpreadsheet_Cell} style={style}>
-      { rowColCoordsToRef(rowIndex, columnIndex) }
+      { (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? data.getCellValue(snapshot, rowIndex, columnIndex) : "" }
     </div>
   );
 
