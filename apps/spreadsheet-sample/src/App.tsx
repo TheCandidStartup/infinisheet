@@ -18,8 +18,8 @@ class AppData implements SpreadsheetData {
 
   getSnapshot() { return this.count; }
   
-  getRowCount() { return this.count; }
-  getColumnCount() { return 26; }
+  getRowCount(snapshot: number) { return snapshot; }
+  getColumnCount(_snapshot: number) { return 26; }
   getCellValue(_snapshot: number, row: number, column: number) { 
     return rowColCoordsToRef(row, column); 
   }
@@ -35,8 +35,8 @@ export function App() {
     data={data}
     theme={theme}
     height={240}
-    maxRowCount={1000}
-    maxColumnCount={1000}
+    maxRowCount={1000000}
+    maxColumnCount={100}
     width={600}>
   </VirtualSpreadsheet>
   )
