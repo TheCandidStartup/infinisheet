@@ -13,13 +13,13 @@ export type ColRef = string;
 export function colRefToIndex(col: ColRef): number;
 
 // @public (undocumented)
-export class EmptySpreadsheetData implements SpreadsheetData {
+export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
     getCellValue(_snapshot: number, _row: number, _column: number): string;
     // (undocumented)
-    getColumnCount(): number;
+    getColumnCount(_snapshot: number): number;
     // (undocumented)
-    getRowCount(): number;
+    getRowCount(_snapshot: number): number;
     // (undocumented)
     getSnapshot(): number;
     // (undocumented)
@@ -30,9 +30,9 @@ export class EmptySpreadsheetData implements SpreadsheetData {
 export function indexToColRef(index: number): ColRef;
 
 // @public (undocumented)
-export interface ReactSpreadsheetData extends SpreadsheetData {
+export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
     // (undocumented)
-    getServerSnapshot?: () => number;
+    getServerSnapshot?: () => Snapshot;
 }
 
 // @public
@@ -51,29 +51,29 @@ export function rowColRefToCoords(ref: RowColRef): RowColCoords;
 export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: ColRef | undefined];
 
 // @public (undocumented)
-export interface SpreadsheetData {
+export interface SpreadsheetData<Snapshot> {
     // (undocumented)
-    getCellValue(snapshot: number, row: number, column: number): string;
+    getCellValue(snapshot: Snapshot, row: number, column: number): string;
     // (undocumented)
-    getColumnCount(snapshot: number): number;
+    getColumnCount(snapshot: Snapshot): number;
     // (undocumented)
-    getRowCount(snapshot: number): number;
+    getRowCount(snapshot: Snapshot): number;
     // (undocumented)
-    getSnapshot: () => number;
+    getSnapshot(): Snapshot;
     // (undocumented)
     subscribe: (onDataChange: () => void) => () => void;
 }
 
 // @public (undocumented)
-export function VirtualSpreadsheet(props: VirtualSpreadsheetProps): react_jsx_runtime.JSX.Element;
+export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>): react_jsx_runtime.JSX.Element;
 
 // @public (undocumented)
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
 
 // @public
-export interface VirtualSpreadsheetProps {
+export interface VirtualSpreadsheetProps<Snapshot> {
     className?: string;
-    data: ReactSpreadsheetData;
+    data: ReactSpreadsheetData<Snapshot>;
     height: number;
     maxColumnCount?: number;
     maxCssSize?: number;

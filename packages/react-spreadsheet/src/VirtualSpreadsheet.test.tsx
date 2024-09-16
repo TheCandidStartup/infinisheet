@@ -5,15 +5,15 @@ import { VirtualSpreadsheetDefaultTheme } from './VirtualSpreadsheetTheme'
 import type { SpreadsheetData } from './SpreadsheetData';
 import { rowColCoordsToRef } from './RowColRef';
 
-class TestData implements SpreadsheetData {
+class TestData implements SpreadsheetData<number> {
   subscribe(_onDataChange: () => void) {
     return () => {};
   }
 
   getSnapshot() { return 0; }
   
-  getRowCount() { return 100; }
-  getColumnCount() { return 26; }
+  getRowCount(_snapshot: number) { return 100; }
+  getColumnCount(_snapshot: number) { return 26; }
   getCellValue(_snapshot: number, row: number, column: number) { 
     return rowColCoordsToRef(row, column); 
   }

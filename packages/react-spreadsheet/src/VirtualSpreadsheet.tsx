@@ -5,14 +5,14 @@ import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
 
-export interface ReactSpreadsheetData extends SpreadsheetData {
-  getServerSnapshot?: () => number
+export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
+  getServerSnapshot?: () => Snapshot
 }
 
 /**
  * Props for {@link VirtualSpreadsheet}
  */
-export interface VirtualSpreadsheetProps {
+export interface VirtualSpreadsheetProps<Snapshot> {
   /** The `className` applied to the spreadsheet as a whole */
   className?: string,
 
@@ -25,7 +25,7 @@ export interface VirtualSpreadsheetProps {
   width: number,
 
   /** Data to display and edit */
-  data: ReactSpreadsheetData,
+  data: ReactSpreadsheetData<Snapshot>,
 
   /** Minimum number of rows in the spreadsheet 
    * @defaultValue 100
@@ -75,7 +75,7 @@ function join(a?: string, b?: string) {
   return a ? a : b;
 }
 
-export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
+export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
   const { theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const columnMapping = useFixedSizeItemOffsetMapping(100);
   const rowMapping = useFixedSizeItemOffsetMapping(30);
@@ -83,7 +83,7 @@ export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
   const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
   const pendingScrollToSelectionRef = React.useRef<boolean>(false);
-  const snapshot = React.useSyncExternalStore<number>(data.subscribe.bind(data), 
+  const snapshot = React.useSyncExternalStore<Snapshot>(data.subscribe.bind(data), 
     data.getSnapshot.bind(data), data.getServerSnapshot?.bind(data));
 
   const [name, setName] = React.useState("");

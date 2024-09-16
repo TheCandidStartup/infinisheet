@@ -5,7 +5,7 @@ import theme from '@candidstartup/react-spreadsheet/VirtualSpreadsheet.module.cs
 
 import './App.css';
 
-class AppData implements SpreadsheetData {
+class AppData implements SpreadsheetData<number> {
   constructor() { this.count = 0; }
 
   subscribe(onDataChange: () => void) {

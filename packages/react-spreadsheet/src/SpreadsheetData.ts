@@ -1,18 +1,18 @@
-export interface SpreadsheetData {
+export interface SpreadsheetData<Snapshot> {
   subscribe: (onDataChange: () => void) => () => void,
-  getSnapshot: () => number,
+  getSnapshot(): Snapshot,
 
-  getRowCount(snapshot: number): number,
-  getColumnCount(snapshot: number): number,
-  getCellValue(snapshot: number, row: number, column: number): string
+  getRowCount(snapshot: Snapshot): number,
+  getColumnCount(snapshot: Snapshot): number,
+  getCellValue(snapshot: Snapshot, row: number, column: number): string
 }
 
-export class EmptySpreadsheetData implements SpreadsheetData {
+export class EmptySpreadsheetData implements SpreadsheetData<number> {
   subscribe(_onDataChange: () => void) { return () => {}; }
   getSnapshot() { return 0; }
   
-  getRowCount() { return 0; }
-  getColumnCount() { return 0; }
+  getRowCount(_snapshot: number) { return 0; }
+  getColumnCount(_snapshot: number) { return 0; }
   getCellValue(_snapshot: number, _row: number, _column: number) { return ""; }
 }
 
