@@ -28,8 +28,6 @@ describe('VirtualSpreadsheet', () => {
       <VirtualSpreadsheet
         data={data}
         height={240}
-        minRowCount={100}
-        minColumnCount={26}
         width={600}>
       </VirtualSpreadsheet>
     )
@@ -45,8 +43,6 @@ describe('VirtualSpreadsheet', () => {
         data={data}
         className={"Testy"}
         height={240}
-        minRowCount={100}
-        minColumnCount={26}
         width={600}>
       </VirtualSpreadsheet>
     )
@@ -62,8 +58,6 @@ describe('VirtualSpreadsheet', () => {
         data={data}
         theme={VirtualSpreadsheetDefaultTheme}
         height={240}
-        minRowCount={100}
-        minColumnCount={26}
         width={600}>
       </VirtualSpreadsheet>
     )
@@ -80,8 +74,6 @@ describe('VirtualSpreadsheet', () => {
         className={"Testy"}
         theme={VirtualSpreadsheetDefaultTheme}
         height={240}
-        minRowCount={100}
-        minColumnCount={26}
         width={600}>
       </VirtualSpreadsheet>
     )

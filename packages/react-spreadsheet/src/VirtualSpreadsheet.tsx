@@ -83,8 +83,11 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
   const pendingScrollToSelectionRef = React.useRef<boolean>(false);
-  const snapshot = React.useSyncExternalStore<Snapshot>(data.subscribe.bind(data), 
-    data.getSnapshot.bind(data), data.getServerSnapshot?.bind(data));
+
+  // ESLint can only validate that dependencies are correct if first argument is an inline function. In this case dependencies
+  // are trivially correct as there's no way that bind can capture any context and the only argument is listed as a dependency.
+  const subscribeFn = React.useCallback(data.subscribe.bind(data), [data]); // eslint-disable-line react-hooks/exhaustive-deps
+  const snapshot = React.useSyncExternalStore<Snapshot>(subscribeFn, data.getSnapshot.bind(data), data.getServerSnapshot?.bind(data));
 
   const [name, setName] = React.useState("");
   const [hwmRowIndex, setHwmRowIndex] = React.useState(0);
