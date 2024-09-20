@@ -2,7 +2,7 @@ import { render, screen } from '../../../shared/test/wrapper'
 
 import { VirtualSpreadsheet } from './VirtualSpreadsheet'
 import { VirtualSpreadsheetDefaultTheme } from './VirtualSpreadsheetTheme'
-import type { SpreadsheetData } from './SpreadsheetData';
+import type { SpreadsheetData, CellValue } from './SpreadsheetData';
 import { rowColCoordsToRef } from './RowColRef';
 
 class TestData implements SpreadsheetData<number> {
@@ -14,8 +14,31 @@ class TestData implements SpreadsheetData<number> {
   
   getRowCount(_snapshot: number) { return 100; }
   getColumnCount(_snapshot: number) { return 26; }
-  getCellValue(_snapshot: number, row: number, column: number) { 
-    return rowColCoordsToRef(row, column); 
+  getCellValue(_snapshot: number, row: number, column: number): CellValue {
+    switch (column) { 
+      case 2:
+        return row;
+      case 3:
+        return row;
+      case 4:
+        return (row <= 1) ? (row % 2) == 0 : null;
+      case 5:
+        return (row == 0) ? "'apostrophe" : undefined;
+      case 6:
+        return (row == 0) ? { type: 'CellError', value: '#NULL!'} : "";
+      default:
+        return rowColCoordsToRef(row, column); 
+    }
+  }
+  getCellFormat(_snapshot: number, _row: number, column: number) { 
+    switch (column) { 
+      case 2:
+        return "0.00";
+      case 3:
+        return "yyyy-mm-dd";
+      default:
+        return undefined; 
+    }
   }
 }
 
@@ -81,5 +104,27 @@ describe('VirtualSpreadsheet', () => {
     expect(cell).toBeInTheDocument()
     const spreadsheet = document.querySelector("div div");
     expect(spreadsheet).toHaveProperty("className", "Testy VirtualSpreadsheet");
+  })
+
+  it('should render formatted cells', () => {
+    render(
+      <VirtualSpreadsheet
+        data={data}
+        height={240}
+        width={1000}>
+      </VirtualSpreadsheet>
+    )
+    const cell = screen.getByText('A1')
+    expect(cell).toBeInTheDocument()
+    const num = screen.getByText('0.00')
+    expect(num).toBeInTheDocument()
+    const date = screen.getByText('1900-01-01')
+    expect(date).toBeInTheDocument()
+    const bool = screen.getByText('TRUE');
+    expect(bool).toBeInTheDocument();
+    const str = screen.getByText('apostrophe');
+    expect(str).toBeInTheDocument();
+    const err = screen.getByText('#NULL!');
+    expect(err).toBeInTheDocument();
   })
 })

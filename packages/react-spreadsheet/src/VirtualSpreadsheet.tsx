@@ -4,6 +4,7 @@ import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
+import { format as numfmtFormat } from 'numfmt'
 
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
   getServerSnapshot?: () => Snapshot
@@ -73,6 +74,26 @@ function join(a?: string, b?: string) {
   if (a && b)
     return a + ' ' + b;
   return a ? a : b;
+}
+
+function formatContent<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snapshot, rowIndex: number, columnIndex: number): string {
+  const value = data.getCellValue(snapshot, rowIndex, columnIndex);
+  if (value === null ||  value === undefined)
+    return "";
+
+  if (typeof value === 'object')
+      return value.value;
+
+  if (typeof value === 'string' && value[0] == '\'') {
+    // Leading apostrophe means display rest of string as is
+    return value.substring(1);
+  }
+
+  let format = data.getCellFormat(snapshot, rowIndex, columnIndex);
+  if (format === undefined)
+    format = "";
+
+  return numfmtFormat(format, value);
 }
 
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
@@ -178,7 +199,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   
   const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
     <div className={theme?.VirtualSpreadsheet_Cell} style={style}>
-      { (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? data.getCellValue(snapshot, rowIndex, columnIndex) : "" }
+      { (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? formatContent(data, snapshot, rowIndex, columnIndex) : "" }
     </div>
   );
 

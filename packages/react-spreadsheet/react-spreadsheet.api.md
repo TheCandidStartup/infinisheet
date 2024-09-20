@@ -6,6 +6,20 @@
 
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
+// @public (undocumented)
+export interface CellError {
+    // (undocumented)
+    type: 'CellError';
+    // (undocumented)
+    value: CellErrorValue;
+}
+
+// @public (undocumented)
+export type CellErrorValue = '#NULL!' | '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME?' | '#NUM!' | '#N/A' | '#GETTING_DATA' | '#SPILL!' | '#UNKNOWN!' | '#FIELD!' | '#CALC!';
+
+// @public (undocumented)
+export type CellValue = string | number | boolean | null | undefined | CellError;
+
 // @public
 export type ColRef = string;
 
@@ -15,7 +29,9 @@ export function colRefToIndex(col: ColRef): number;
 // @public (undocumented)
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
-    getCellValue(_snapshot: number, _row: number, _column: number): string;
+    getCellFormat(_snapshot: number, _row: number, _column: number): undefined;
+    // (undocumented)
+    getCellValue(_snapshot: number, _row: number, _column: number): null;
     // (undocumented)
     getColumnCount(_snapshot: number): number;
     // (undocumented)
@@ -53,7 +69,9 @@ export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: C
 // @public (undocumented)
 export interface SpreadsheetData<Snapshot> {
     // (undocumented)
-    getCellValue(snapshot: Snapshot, row: number, column: number): string;
+    getCellFormat(snapshot: Snapshot, row: number, column: number): string | undefined;
+    // (undocumented)
+    getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
     // (undocumented)
     getColumnCount(snapshot: Snapshot): number;
     // (undocumented)
