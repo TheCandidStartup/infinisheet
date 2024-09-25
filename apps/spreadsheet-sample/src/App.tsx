@@ -3,7 +3,7 @@ import theme from '@candidstartup/react-spreadsheet/VirtualSpreadsheet.module.cs
 import './App.css';
 
 class AppData implements SpreadsheetData<number> {
-  constructor() { this.count = 0; }
+  constructor() { this.count = 100; }
 
   subscribe(onDataChange: () => void) {
     const intervalId = setInterval(() => { 
@@ -20,9 +20,9 @@ class AppData implements SpreadsheetData<number> {
   getCellValue(_snapshot: number, row: number, column: number): CellValue {
     switch (column) { 
       case 1:
-        return row;
+        return row-10;
       case 2:
-        return row;
+        return row-10;
       case 3:
         return (row % 2) == 0;
       case 4:

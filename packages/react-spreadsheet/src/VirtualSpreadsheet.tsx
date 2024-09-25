@@ -76,6 +76,13 @@ function join(a?: string, b?: string) {
   return a ? a : b;
 }
 
+// Options for numfmt that match Google Sheets and ECMA-376 behavior. This is compatible with supported dates in Excel apart from Jan/Feb 1900. 
+// This is due to Excel's backwards compatibility support for the Lotus 1-2-3 leap year bug that incorrectly thinks 1900 is a leap year.
+const numfmtOptions = {
+  leap1900: false,
+  dateSpanLarge: true
+}
+
 function formatContent<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snapshot, rowIndex: number, columnIndex: number): string {
   const value = data.getCellValue(snapshot, rowIndex, columnIndex);
   if (value === null ||  value === undefined)
@@ -93,7 +100,7 @@ function formatContent<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snap
   if (format === undefined)
     format = "";
 
-  return numfmtFormat(format, value);
+  return numfmtFormat(format, value, numfmtOptions);
 }
 
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
