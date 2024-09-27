@@ -1,10 +1,16 @@
 import { SpreadsheetData, CellValue } from '@candidstartup/react-spreadsheet';
+import { dateToSerial } from 'numfmt'
 
 const headerRow = [ "Date", "Time", "Item", "Price", "Quantity", "Cost", "Tax Rate", "Tax", "Subtotal", "Transaction Fee", "Total", "Running Total"];
 const totalHeaderRow = [ "First", "Last", "Count", "Average", "Max", "Total", "Min", "Total", "Total", "Total", "Total", "Running Total"]
 
 export class BoringData implements SpreadsheetData<number> {
-  constructor() { this.count = 1000000; }
+  constructor() { 
+    this.count = 1000000;
+    const now = new Date();
+    const serialNow = dateToSerial(now) || 0;
+    this.base = serialNow - this.count / (24*60);
+  }
 
   subscribe(onDataChange: () => void) {
     const intervalId = setInterval(() => { 
@@ -19,7 +25,7 @@ export class BoringData implements SpreadsheetData<number> {
   getRowCount(snapshot: number) { return snapshot+4; }
   getColumnCount(_snapshot: number) { return 12; }
 
-  dateTime(row: number) { return 44870 + row / (24*60); }
+  dateTime(row: number) { return this.base + row / (24*60); }
 
   totalRow(num: number, column: number): CellValue {
     switch (column) { 
@@ -91,4 +97,5 @@ export class BoringData implements SpreadsheetData<number> {
   }
 
   count: number;
+  base: number;
 }
