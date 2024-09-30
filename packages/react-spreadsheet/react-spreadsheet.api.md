@@ -79,7 +79,7 @@ export interface SpreadsheetData<Snapshot> {
     // (undocumented)
     getSnapshot(): Snapshot;
     // (undocumented)
-    subscribe: (onDataChange: () => void) => () => void;
+    subscribe(onDataChange: () => void): () => void;
 }
 
 // @public (undocumented)

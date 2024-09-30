@@ -19,7 +19,7 @@ export interface CellError {
 export type CellValue = string | number | boolean | null | undefined | CellError;
 
 export interface SpreadsheetData<Snapshot> {
-  subscribe: (onDataChange: () => void) => () => void,
+  subscribe(onDataChange: () => void): () => void,
   getSnapshot(): Snapshot,
 
   getRowCount(snapshot: Snapshot): number,
