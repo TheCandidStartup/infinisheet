@@ -111,6 +111,8 @@ export interface VirtualSpreadsheetTheme {
     // (undocumented)
     VirtualSpreadsheet_Cell: string;
     // (undocumented)
+    VirtualSpreadsheet_Cell__Focus: string;
+    // (undocumented)
     VirtualSpreadsheet_Column: string;
     // (undocumented)
     VirtualSpreadsheet_ColumnHeader: string;
