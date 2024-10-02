@@ -103,6 +103,18 @@ function formatContent<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snap
   return numfmtFormat(format, value, numfmtOptions);
 }
 
+type HeaderItemRender = (index: number, style: React.CSSProperties) => JSX.Element;
+function HeaderItem({ index, data, style }: { index: number, data:unknown, style: React.CSSProperties }) {
+  const itemRender = data as HeaderItemRender;
+  return itemRender(index, style);
+}
+
+type CellRender = (rowIndex: number, columnIndex: number, style: React.CSSProperties) => JSX.Element;
+function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, columnIndex: number, data: unknown, style: React.CSSProperties }) {
+  const cellRender = data as CellRender;
+  return cellRender(rowIndex, columnIndex, style);
+}
+
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
   const { theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const columnMapping = useFixedSizeItemOffsetMapping(100);
@@ -111,6 +123,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
   const pendingScrollToSelectionRef = React.useRef<boolean>(false);
+  const focusCellRef = React.useRef<HTMLDivElement>(null);
 
   // Originally passed data.subscribe.bind(data) to useCallback. It works but React hooks lint fails because it can only validate
   // dependencies for an inline function.
@@ -121,6 +134,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const [hwmRowIndex, setHwmRowIndex] = React.useState(0);
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
+  const [focusCell, setFocusCell] = React.useState<RowColCoords>([undefined,undefined]);
 
   const dataRowCount = data.getRowCount(snapshot);
   const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1);
@@ -136,6 +150,10 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       gridRef.current?.scrollToItem(selection[0], selection[1]);
     }
   }, [selection])
+
+  React.useEffect(() => {
+    focusCellRef.current?.focus()
+  }, [focusCell])
 
   function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
     columnRef.current?.scrollTo(columnOffsetValue);
@@ -184,6 +202,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     }
 
     setSelection([row,col]);
+    setFocusCell([row,col]);
     if (sizeChanged)
     {
       // Need to defer scroll to selection until after larger grid has been rendered
@@ -196,23 +215,34 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   // grid when you scroll to the end. The grid and headers have different content
   // extents because of the grid scroll bars. The headers need something that can be
   // scrolled into view at the end of the scroll bars.
-  const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+  const colRender: HeaderItemRender = (index, style ) => (
     <div className={theme?.VirtualSpreadsheet_Column} style={style}>
       { (index < columnCount) ? indexToColRef(index) : "" }
     </div>
   );
   
-  const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+  const rowRender: HeaderItemRender = (index, style) => (
     <div className={theme?.VirtualSpreadsheet_Row} style={style}>
       { (index < rowCount) ? index+1 : "" }
     </div>
   );
   
-  const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
-    <div className={theme?.VirtualSpreadsheet_Cell} style={style}>
-      { (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? formatContent(data, snapshot, rowIndex, columnIndex) : "" }
-    </div>
-  );
+  const cellRender: CellRender = (rowIndex, columnIndex, style) => {
+    const value = (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? formatContent(data, snapshot, rowIndex, columnIndex) : "";
+    if (rowIndex == focusCell[0] && columnIndex == focusCell[1]) {
+      return <div
+        ref={focusCellRef}
+        className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus)}
+        tabIndex={0}
+        style={style}>
+        { value }
+      </div>
+    } else {
+      return <div className={theme?.VirtualSpreadsheet_Cell} style={style}>
+        { value }
+      </div>
+    }
+  };
 
   return (
     <div className={join(props.className, theme?.VirtualSpreadsheet)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>
@@ -236,6 +266,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       <VirtualList
         ref={columnRef}
         className={theme?.VirtualSpreadsheet_ColumnHeader}
+        itemData={colRender}
         outerComponent={Outer}
         height={50}
         itemCount={columnCount+1}
@@ -244,12 +275,13 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         maxCssSize={props.maxCssSize}
         minNumPages={props.minNumPages}
         width={props.width}>
-        {Col}
+        {HeaderItem}
       </VirtualList>
 
       <VirtualList
         ref={rowRef}
         className={theme?.VirtualSpreadsheet_RowHeader}
+        itemData={rowRender}
         outerComponent={Outer}
         height={props.height}
         itemCount={rowCount+1}
@@ -257,12 +289,13 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         maxCssSize={props.maxCssSize}
         minNumPages={props.minNumPages}
         width={100}>
-        {Row}
+        {HeaderItem}
       </VirtualList>
 
       <VirtualGrid
         className={theme?.VirtualSpreadsheet_Grid}
         ref={gridRef}
+        itemData={cellRender}
         onScroll={onScroll}
         height={props.height}
         rowCount={rowCount}

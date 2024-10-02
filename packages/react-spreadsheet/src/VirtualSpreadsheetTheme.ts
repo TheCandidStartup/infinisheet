@@ -11,7 +11,8 @@ export interface VirtualSpreadsheetTheme {
   VirtualSpreadsheet_Column: string,
   VirtualSpreadsheet_RowHeader: string,
   VirtualSpreadsheet_Row: string,
-  VirtualSpreadsheet_Cell: string
+  VirtualSpreadsheet_Cell: string,
+  VirtualSpreadsheet_Cell__Focus: string
 }
 
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
@@ -24,4 +25,5 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
   VirtualSpreadsheet_RowHeader: "VirtualSpreadsheet_RowHeader",
   VirtualSpreadsheet_Row: "VirtualSpreadsheet_Row",
   VirtualSpreadsheet_Cell: "VirtualSpreadsheet_Cell",
+  VirtualSpreadsheet_Cell__Focus: "VirtualSpreadsheet_Cell__Focus"
 }

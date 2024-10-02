@@ -34,4 +34,13 @@
   border-top: 1px solid transparent;
   border-right: 1px solid lightgrey;
   border-bottom: 1px solid lightgrey;
+  resize: none;
+}
+
+.VirtualSpreadsheet_Cell__Focus {
+  border: 2px solid darkblue;
+}
+
+.VirtualSpreadsheet_Cell__Focus:focus {
+  outline: none;
 }
