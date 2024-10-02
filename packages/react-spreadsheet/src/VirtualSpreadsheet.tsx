@@ -192,15 +192,19 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       gridRef.current?.scrollToItem(row, col);
   }
 
+  // Row and column header are oversized by one. Without this the headers don't align with the
+  // grid when you scroll to the end. The grid and headers have different content
+  // extents because of the grid scroll bars. The headers need something that can be
+  // scrolled into view at the end of the scroll bars.
   const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div className={theme?.VirtualSpreadsheet_Column} style={style}>
-      { indexToColRef(index) }
+      { (index < columnCount) ? indexToColRef(index) : "" }
     </div>
   );
   
   const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div className={theme?.VirtualSpreadsheet_Row} style={style}>
-      { index+1 }
+      { (index < rowCount) ? index+1 : "" }
     </div>
   );
   
@@ -234,7 +238,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         className={theme?.VirtualSpreadsheet_ColumnHeader}
         outerComponent={Outer}
         height={50}
-        itemCount={columnCount}
+        itemCount={columnCount+1}
         itemOffsetMapping={columnMapping}
         layout={'horizontal'}
         maxCssSize={props.maxCssSize}
@@ -248,7 +252,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         className={theme?.VirtualSpreadsheet_RowHeader}
         outerComponent={Outer}
         height={props.height}
-        itemCount={rowCount}
+        itemCount={rowCount+1}
         itemOffsetMapping={rowMapping}
         maxCssSize={props.maxCssSize}
         minNumPages={props.minNumPages}
