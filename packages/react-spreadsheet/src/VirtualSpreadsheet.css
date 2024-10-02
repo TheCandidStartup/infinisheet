@@ -1,13 +1,37 @@
 /* Example global style sheet that works with default theme */
 
 .VirtualSpreadsheet_ColumnHeader {
-  border: 1px solid lightgrey;
+  box-sizing: border-box;
+  border: 1px solid grey;
+}
+
+.VirtualSpreadsheet_Column {
+  box-sizing: border-box;
+  border-right: 1px solid lightgrey;
 }
 
 .VirtualSpreadsheet_RowHeader {
-  border: 1px solid lightgrey;
+  box-sizing: border-box;
+  border: 1px solid grey;
+}
+
+.VirtualSpreadsheet_Row {
+  box-sizing: border-box;
+  border-bottom: 1px solid lightgrey;
 }
 
 .VirtualSpreadsheet_Grid {
-  border: 1px solid lightgrey;
+  box-sizing: border-box;
+  border-left: 1px solid transparent;
+  border-top: 1px solid transparent;
+  border-right: 1px solid grey;
+  border-bottom: 1px solid grey;
+}
+
+.VirtualSpreadsheet_Cell {
+  box-sizing: border-box;
+  border-left: 1px solid transparent;
+  border-top: 1px solid transparent;
+  border-right: 1px solid lightgrey;
+  border-bottom: 1px solid lightgrey;
 }
