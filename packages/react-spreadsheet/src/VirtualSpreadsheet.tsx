@@ -227,7 +227,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   // scrolled into view at the end of the scroll bars.
   const colRender: HeaderItemRender = (index, style ) => (
     <div className={join(theme?.VirtualSpreadsheet_Column, 
-                    ifdef(undefined == selection[0] && index == selection[1], theme?.VirtualSpreadsheet_Column__Selected))} 
+                    ifdef(undefined == selection[0] && index == selection[1], theme?.VirtualSpreadsheet_Column__Selected),
+                    ifdef(undefined !== selection[0] && index == selection[1], theme?.VirtualSpreadsheet_Column__CellSelected))} 
          style={style}>
       { (index < columnCount) ? indexToColRef(index) : "" }
     </div>
@@ -235,7 +236,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   
   const rowRender: HeaderItemRender = (index, style) => (
     <div className={join(theme?.VirtualSpreadsheet_Row, 
-                    ifdef(index == selection[0] && undefined == selection[1], theme?.VirtualSpreadsheet_Row__Selected))}
+                    ifdef(index == selection[0] && undefined == selection[1], theme?.VirtualSpreadsheet_Row__Selected),
+                    ifdef(index == selection[0] && undefined !== selection[1], theme?.VirtualSpreadsheet_Row__CellSelected))}
          style={style}>
       { (index < rowCount) ? index+1 : "" }
     </div>

@@ -15,6 +15,10 @@
   background-color: darkblue;
 }
 
+.VirtualSpreadsheet_Column__CellSelected {
+  background-color: lightblue;
+}
+
 .VirtualSpreadsheet_RowHeader {
   box-sizing: border-box;
   border: 1px solid grey;
@@ -28,6 +32,10 @@
 .VirtualSpreadsheet_Row__Selected {
   color: white;
   background-color: darkblue;
+}
+
+.VirtualSpreadsheet_Row__CellSelected {
+  background-color: lightblue;
 }
 
 .VirtualSpreadsheet_Grid {
