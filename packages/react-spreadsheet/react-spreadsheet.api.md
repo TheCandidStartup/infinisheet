@@ -111,9 +111,15 @@ export interface VirtualSpreadsheetTheme {
     // (undocumented)
     VirtualSpreadsheet_Cell: string;
     // (undocumented)
+    VirtualSpreadsheet_Cell__ColumnSelected: string;
+    // (undocumented)
     VirtualSpreadsheet_Cell__Focus: string;
     // (undocumented)
+    VirtualSpreadsheet_Cell__RowSelected: string;
+    // (undocumented)
     VirtualSpreadsheet_Column: string;
+    // (undocumented)
+    VirtualSpreadsheet_Column__Selected: string;
     // (undocumented)
     VirtualSpreadsheet_ColumnHeader: string;
     // (undocumented)
@@ -124,6 +130,8 @@ export interface VirtualSpreadsheetTheme {
     VirtualSpreadsheet_Name: string;
     // (undocumented)
     VirtualSpreadsheet_Row: string;
+    // (undocumented)
+    VirtualSpreadsheet_Row__Selected: string;
     // (undocumented)
     VirtualSpreadsheet_RowHeader: string;
 }

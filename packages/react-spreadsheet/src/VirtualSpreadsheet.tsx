@@ -70,11 +70,18 @@ const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...r
 ))
 Outer.displayName = "HideScrollBar";
 
-function join(a?: string, b?: string) {
-  if (a && b)
-    return a + ' ' + b;
-  return a ? a : b;
+function join(...v: (string|undefined)[]) {
+  let s: string|undefined = undefined;
+  v.forEach(a => {
+    if (s && a)
+      s = s + ' ' + a;
+    else if (a)
+      s = a;
+  });
+  return s;
 }
+
+function ifdef(b: boolean, s: string|undefined) { return (b) ? s : undefined }
 
 // Options for numfmt that match Google Sheets and ECMA-376 behavior. This is compatible with supported dates in Excel apart from Jan/Feb 1900. 
 // This is due to Excel's backwards compatibility support for the Lotus 1-2-3 leap year bug that incorrectly thinks 1900 is a leap year.
@@ -134,7 +141,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const [hwmRowIndex, setHwmRowIndex] = React.useState(0);
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
-  const [focusCell, setFocusCell] = React.useState<RowColCoords>([undefined,undefined]);
+  const [focusCell, setFocusCell] = React.useState<[number,number]|null>(null);
 
   const dataRowCount = data.getRowCount(snapshot);
   const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1);
@@ -202,7 +209,10 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     }
 
     setSelection([row,col]);
-    setFocusCell([row,col]);
+    if (row === undefined && col === undefined)
+      setFocusCell(null);
+    else
+      setFocusCell([row ? row : 0, col ? col : 0])
     if (sizeChanged)
     {
       // Need to defer scroll to selection until after larger grid has been rendered
@@ -216,29 +226,37 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   // extents because of the grid scroll bars. The headers need something that can be
   // scrolled into view at the end of the scroll bars.
   const colRender: HeaderItemRender = (index, style ) => (
-    <div className={theme?.VirtualSpreadsheet_Column} style={style}>
+    <div className={join(theme?.VirtualSpreadsheet_Column, 
+                    ifdef(undefined == selection[0] && index == selection[1], theme?.VirtualSpreadsheet_Column__Selected))} 
+         style={style}>
       { (index < columnCount) ? indexToColRef(index) : "" }
     </div>
   );
   
   const rowRender: HeaderItemRender = (index, style) => (
-    <div className={theme?.VirtualSpreadsheet_Row} style={style}>
+    <div className={join(theme?.VirtualSpreadsheet_Row, 
+                    ifdef(index == selection[0] && undefined == selection[1], theme?.VirtualSpreadsheet_Row__Selected))}
+         style={style}>
       { (index < rowCount) ? index+1 : "" }
     </div>
   );
   
   const cellRender: CellRender = (rowIndex, columnIndex, style) => {
     const value = (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? formatContent(data, snapshot, rowIndex, columnIndex) : "";
-    if (rowIndex == focusCell[0] && columnIndex == focusCell[1]) {
+    const classNames = join(theme?.VirtualSpreadsheet_Cell,
+      ifdef(rowIndex == selection[0] && undefined == selection[1], theme?.VirtualSpreadsheet_Cell__RowSelected),
+      ifdef(undefined == selection[0] && columnIndex == selection[1], theme?.VirtualSpreadsheet_Cell__ColumnSelected));
+
+    if (focusCell && rowIndex == focusCell[0] && columnIndex == focusCell[1]) {
       return <div
         ref={focusCellRef}
-        className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus)}
+        className={join(classNames, theme?.VirtualSpreadsheet_Cell__Focus)}
         tabIndex={0}
         style={style}>
         { value }
       </div>
     } else {
-      return <div className={theme?.VirtualSpreadsheet_Cell} style={style}>
+      return <div className={classNames} style={style}>
         { value }
       </div>
     }

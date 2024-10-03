@@ -10,6 +10,11 @@
   border-right: 1px solid lightgrey;
 }
 
+.VirtualSpreadsheet_Column__Selected {
+  color: white;
+  background-color: darkblue;
+}
+
 .VirtualSpreadsheet_RowHeader {
   box-sizing: border-box;
   border: 1px solid grey;
@@ -18,6 +23,11 @@
 .VirtualSpreadsheet_Row {
   box-sizing: border-box;
   border-bottom: 1px solid lightgrey;
+}
+
+.VirtualSpreadsheet_Row__Selected {
+  color: white;
+  background-color: darkblue;
 }
 
 .VirtualSpreadsheet_Grid {
@@ -43,4 +53,12 @@
 
 .VirtualSpreadsheet_Cell__Focus:focus {
   outline: none;
+}
+
+.VirtualSpreadsheet_Cell__RowSelected {
+  background-color: lightblue;
+}
+
+.VirtualSpreadsheet_Cell__ColumnSelected {
+  background-color: lightblue;
 }

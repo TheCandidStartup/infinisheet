@@ -9,10 +9,14 @@ export interface VirtualSpreadsheetTheme {
   VirtualSpreadsheet_Grid: string,
   VirtualSpreadsheet_ColumnHeader: string,
   VirtualSpreadsheet_Column: string,
+  VirtualSpreadsheet_Column__Selected: string,
   VirtualSpreadsheet_RowHeader: string,
   VirtualSpreadsheet_Row: string,
+  VirtualSpreadsheet_Row__Selected: string,
   VirtualSpreadsheet_Cell: string,
-  VirtualSpreadsheet_Cell__Focus: string
+  VirtualSpreadsheet_Cell__Focus: string,
+  VirtualSpreadsheet_Cell__RowSelected: string,
+  VirtualSpreadsheet_Cell__ColumnSelected: string,
 }
 
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
@@ -22,8 +26,12 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
   VirtualSpreadsheet_Grid: "VirtualSpreadsheet_Grid",
   VirtualSpreadsheet_ColumnHeader: "VirtualSpreadsheet_ColumnHeader",
   VirtualSpreadsheet_Column: "VirtualSpreadsheet_Column",
+  VirtualSpreadsheet_Column__Selected: "VirtualSpreadsheet_Column__Selected",
   VirtualSpreadsheet_RowHeader: "VirtualSpreadsheet_RowHeader",
   VirtualSpreadsheet_Row: "VirtualSpreadsheet_Row",
+  VirtualSpreadsheet_Row__Selected: "VirtualSpreadsheet_Row__Selected",
   VirtualSpreadsheet_Cell: "VirtualSpreadsheet_Cell",
-  VirtualSpreadsheet_Cell__Focus: "VirtualSpreadsheet_Cell__Focus"
+  VirtualSpreadsheet_Cell__Focus: "VirtualSpreadsheet_Cell__Focus",
+  VirtualSpreadsheet_Cell__RowSelected: "VirtualSpreadsheet_Cell__RowSelected",
+  VirtualSpreadsheet_Cell__ColumnSelected: "VirtualSpreadsheet_Cell__ColumnSelected"
 }
