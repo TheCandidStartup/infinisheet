@@ -221,14 +221,23 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       gridRef.current?.scrollToItem(row, col);
   }
 
+  function colSelected(index: number) { return (selection[0] == undefined && selection[1] == index) }
+  function colCellSelected(index: number) { 
+    return (selection[0] != undefined) && (selection[1] == undefined || selection[1] == index)
+  }
+  function rowSelected(index: number) { return (selection[0] == index && selection[1] == undefined) }
+  function rowCellSelected(index: number) { 
+    return (selection[1] != undefined) && (selection[0] == undefined || selection[0] == index)
+  }
+
   // Row and column header are oversized by one. Without this the headers don't align with the
   // grid when you scroll to the end. The grid and headers have different content
   // extents because of the grid scroll bars. The headers need something that can be
   // scrolled into view at the end of the scroll bars.
   const colRender: HeaderItemRender = (index, style ) => (
     <div className={join(theme?.VirtualSpreadsheet_Column, 
-                    ifdef(undefined == selection[0] && index == selection[1], theme?.VirtualSpreadsheet_Column__Selected),
-                    ifdef(undefined !== selection[0] && index == selection[1], theme?.VirtualSpreadsheet_Column__CellSelected))} 
+                    ifdef(colSelected(index), theme?.VirtualSpreadsheet_Column__Selected),
+                    ifdef(colCellSelected(index), theme?.VirtualSpreadsheet_Column__CellSelected))} 
          style={style}>
       { (index < columnCount) ? indexToColRef(index) : "" }
     </div>
@@ -236,8 +245,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   
   const rowRender: HeaderItemRender = (index, style) => (
     <div className={join(theme?.VirtualSpreadsheet_Row, 
-                    ifdef(index == selection[0] && undefined == selection[1], theme?.VirtualSpreadsheet_Row__Selected),
-                    ifdef(index == selection[0] && undefined !== selection[1], theme?.VirtualSpreadsheet_Row__CellSelected))}
+                    ifdef(rowSelected(index), theme?.VirtualSpreadsheet_Row__Selected),
+                    ifdef(rowCellSelected(index), theme?.VirtualSpreadsheet_Row__CellSelected))}
          style={style}>
       { (index < rowCount) ? index+1 : "" }
     </div>
@@ -246,8 +255,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const cellRender: CellRender = (rowIndex, columnIndex, style) => {
     const value = (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? formatContent(data, snapshot, rowIndex, columnIndex) : "";
     const classNames = join(theme?.VirtualSpreadsheet_Cell,
-      ifdef(rowIndex == selection[0] && undefined == selection[1], theme?.VirtualSpreadsheet_Cell__RowSelected),
-      ifdef(undefined == selection[0] && columnIndex == selection[1], theme?.VirtualSpreadsheet_Cell__ColumnSelected));
+      ifdef(rowSelected(rowIndex), theme?.VirtualSpreadsheet_Cell__RowSelected),
+      ifdef(colSelected(columnIndex), theme?.VirtualSpreadsheet_Cell__ColumnSelected));
 
     if (focusCell && rowIndex == focusCell[0] && columnIndex == focusCell[1]) {
       return <div
