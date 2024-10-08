@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, VirtualInnerProps } from '@candidstartup/react-virtual-scroll';
+import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, VirtualInnerRender } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -18,7 +18,7 @@ const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boole
   </div>
 );
 
-const Inner = React.forwardRef<HTMLDivElement, VirtualInnerProps >(({style, ...rest}, ref) => (
+const innerRender: VirtualInnerRender = (({style, ...rest}, ref) => (
   <div 
     ref={ref} 
     style={{
@@ -51,7 +51,7 @@ function App() {
       <VirtualList
         ref={ref}
         className={'outerContainer'}
-        innerComponent={Inner}
+        innerRender={innerRender}
         height={240}
         itemCount={100}
         itemOffsetMapping={mapping}

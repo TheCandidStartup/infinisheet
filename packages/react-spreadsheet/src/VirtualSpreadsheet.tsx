@@ -1,6 +1,6 @@
 import React from 'react';
 import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
-  useFixedSizeItemOffsetMapping, VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
+  useFixedSizeItemOffsetMapping, VirtualOuterRender } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
@@ -65,10 +65,9 @@ export interface VirtualSpreadsheetProps<Snapshot> {
   minNumPages?: number
 }
 
-const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...rest}, ref) => (
+const outerRender: VirtualOuterRender = ({style, ...rest}, ref) => (
   <div ref={ref} style={{ ...style, overflow: "hidden"}} {...rest}/>
-))
-Outer.displayName = "HideScrollBar";
+)
 
 function join(...v: (string|undefined)[]) {
   let s: string|undefined = undefined;
@@ -296,7 +295,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={columnRef}
         className={theme?.VirtualSpreadsheet_ColumnHeader}
         itemData={colRender}
-        outerComponent={Outer}
+        outerRender={outerRender}
         height={50}
         itemCount={columnCount+1}
         itemOffsetMapping={columnMapping}
@@ -311,7 +310,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={rowRef}
         className={theme?.VirtualSpreadsheet_RowHeader}
         itemData={rowRender}
-        outerComponent={Outer}
+        outerRender={outerRender}
         height={props.height}
         itemCount={rowCount+1}
         itemOffsetMapping={rowMapping}

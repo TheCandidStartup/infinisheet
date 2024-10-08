@@ -72,10 +72,10 @@ export interface VirtualGridProps extends VirtualBaseProps {
     children: VirtualGridItem;
     columnCount: number;
     columnOffsetMapping: ItemOffsetMapping;
-    innerComponent?: VirtualInnerComponent;
+    innerRender?: VirtualInnerRender;
     itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React_2.Key;
     onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
-    outerComponent?: VirtualOuterComponent;
+    outerRender?: VirtualOuterRender;
     rowCount: number;
     rowOffsetMapping: ItemOffsetMapping;
 }
@@ -89,14 +89,14 @@ export interface VirtualGridProxy {
 }
 
 // @public
-export type VirtualInnerComponent = React_2.ComponentType<VirtualInnerProps>;
-
-// @public
 export interface VirtualInnerProps {
     children: React_2.ReactNode;
     className: string | undefined;
     style: React_2.CSSProperties;
 }
+
+// @public
+export type VirtualInnerRender = (props: VirtualInnerProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
 
 // @public
 export const VirtualList: React_2.ForwardRefExoticComponent<VirtualListProps & React_2.RefAttributes<VirtualListProxy>>;
@@ -112,13 +112,13 @@ export interface VirtualListItemProps extends VirtualBaseItemProps {
 // @public
 export interface VirtualListProps extends VirtualBaseProps {
     children: VirtualListItem;
-    innerComponent?: VirtualInnerComponent;
+    innerRender?: VirtualInnerRender;
     itemCount: number;
     itemKey?: (index: number, data: unknown) => React_2.Key;
     itemOffsetMapping: ItemOffsetMapping;
     layout?: ScrollLayout;
     onScroll?: (offset: number, newScrollState: ScrollState) => void;
-    outerComponent?: VirtualOuterComponent;
+    outerRender?: VirtualOuterRender;
 }
 
 // @public
@@ -128,15 +128,15 @@ export interface VirtualListProxy {
 }
 
 // @public
-export type VirtualOuterComponent = React_2.ComponentType<VirtualOuterProps>;
-
-// @public
 export interface VirtualOuterProps {
     children: React_2.ReactNode;
     className: string | undefined;
     onScroll: (event: ScrollEvent) => void;
     style: React_2.CSSProperties;
 }
+
+// @public
+export type VirtualOuterRender = (props: VirtualOuterProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
 
 // (No @packageDocumentation comment for this package)
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Fragment } from "react";
 import { ItemOffsetMapping,  VirtualBaseItemProps, VirtualBaseProps, 
-  VirtualInnerComponent, VirtualOuterComponent, ScrollEvent } from './VirtualBase';
+  VirtualInnerRender, VirtualInnerProps, VirtualOuterRender, VirtualOuterProps, ScrollEvent } from './VirtualBase';
 import { getRangeToRender } from './VirtualCommon';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
@@ -82,11 +82,11 @@ export interface VirtualGridProps extends VirtualBaseProps {
    */
   onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
 
-  /** Component implementing {@link VirtualOuterComponent}. Used to customize {@link VirtualGrid}. */
-  outerComponent?: VirtualOuterComponent;
+  /** Render prop implementing {@link VirtualOuterRender}. Used to customize {@link VirtualGrid}. */
+  outerRender?: VirtualOuterRender;
 
-  /** Component implementing {@link VirtualInnerComponent}. Used to customize {@link VirtualGrid}. */
-  innerComponent?: VirtualInnerComponent;
+  /** Render prop implementing {@link VirtualInnerRender}. Used to customize {@link VirtualGrid}. */
+  innerRender?: VirtualInnerRender;
 }
 
 /**
@@ -115,6 +115,30 @@ export interface VirtualGridProxy {
 }
 
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;
+
+interface VirtualInnerComponentProps extends VirtualInnerProps {
+  render: VirtualInnerRender;
+}
+
+const Inner = React.forwardRef<HTMLDivElement, VirtualInnerComponentProps >(function VirtualGridInner({render, ...rest}, ref) {
+  return render(rest, ref)
+})
+
+function defaultInnerRender({...rest}: VirtualInnerProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
+  return <div ref={ref} {...rest} />
+}
+
+interface VirtualOuterComponentProps extends VirtualOuterProps {
+  render: VirtualOuterRender;
+}
+
+const Outer = React.forwardRef<HTMLDivElement, VirtualOuterComponentProps >(function VirtualGridOuter({render, ...rest}, ref) {
+  return render(rest, ref)
+})
+
+function defaultOuterRender({...rest}: VirtualOuterProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
+  return <div ref={ref} {...rest} />
+}
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 /**
@@ -190,8 +214,8 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
   // naming convention as components do. 
   const ChildVar = children;
-  const Outer = props.outerComponent || 'div';
-  const Inner = props.innerComponent || 'div';
+  const outerRender = props.outerRender || defaultOuterRender;
+  const innerRender = props.innerRender || defaultInnerRender;
 
   // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
   // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
@@ -201,9 +225,9 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   let nextColumnOffset=0, columnIndex=0, columnOffset=0;
 
   return (
-    <Outer className={className} onScroll={onScroll} ref={outerRef} 
+    <Outer className={className} render={outerRender} onScroll={onScroll} ref={outerRef} 
         style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <Inner className={innerClassName} style={{ height: renderRowSize, width: renderColumnSize }}>
+      <Inner className={innerClassName} render={innerRender} style={{ height: renderRowSize, width: renderColumnSize }}>
         {rowSizes.map((rowSize, rowArrayIndex) => (
           rowOffset = nextRowOffset,
           nextRowOffset += rowSize,

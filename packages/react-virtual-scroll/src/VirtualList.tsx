@@ -1,6 +1,6 @@
 import React from "react";
-import { ItemOffsetMapping, VirtualBaseItemProps, 
-  VirtualBaseProps, VirtualInnerComponent, VirtualOuterComponent, ScrollEvent } from './VirtualBase';
+import { ItemOffsetMapping, VirtualBaseItemProps, VirtualBaseProps, 
+  VirtualInnerProps, VirtualInnerRender, VirtualOuterProps, VirtualOuterRender, ScrollEvent } from './VirtualBase';
 import { getRangeToRender } from './VirtualCommon';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
@@ -71,11 +71,11 @@ export interface VirtualListProps extends VirtualBaseProps {
    */
   onScroll?: (offset: number, newScrollState: ScrollState) => void;
 
-  /** Component implementing {@link VirtualOuterComponent}. Used to customize {@link VirtualList}. */
-  outerComponent?: VirtualOuterComponent;
+  /** Render prop implementing {@link VirtualOuterRender}. Used to customize {@link VirtualList}. */
+  outerRender?: VirtualOuterRender;
 
-  /** Component implementing {@link VirtualInnerComponent}. Used to customize {@link VirtualList}. */
-  innerComponent?: VirtualInnerComponent;
+  /** Render prop implementing {@link VirtualInnerRender}. Used to customize {@link VirtualList}. */
+  innerRender?: VirtualInnerRender;
 }
 
 /**
@@ -98,6 +98,30 @@ export interface VirtualListProxy {
 }
 
 const defaultItemKey = (index: number, _data: unknown) => index;
+
+interface VirtualInnerComponentProps extends VirtualInnerProps {
+  render: VirtualInnerRender;
+}
+
+const Inner = React.forwardRef<HTMLDivElement, VirtualInnerComponentProps >(function VirtualListInner({render, ...rest}, ref) {
+  return render(rest, ref)
+})
+
+function defaultInnerRender({...rest}: VirtualInnerProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
+  return <div ref={ref} {...rest} />
+}
+
+interface VirtualOuterComponentProps extends VirtualOuterProps {
+  render: VirtualOuterRender;
+}
+
+const Outer = React.forwardRef<HTMLDivElement, VirtualOuterComponentProps >(function VirtualListOuter({render, ...rest}, ref) {
+  return render(rest, ref)
+})
+
+function defaultOuterRender({...rest}: VirtualOuterProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
+  return <div ref={ref} {...rest} />
+}
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 /**
@@ -162,8 +186,8 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
   // naming convention as components do.
   const ChildVar = children;
-  const Outer = props.outerComponent || 'div';
-  const Inner = props.innerComponent || 'div';
+  const outerRender = props.outerRender || defaultOuterRender;
+  const innerRender = props.innerRender || defaultInnerRender;
 
   // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
   // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
@@ -172,9 +196,10 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   let index, offset;
 
   return (
-    <Outer className={className} onScroll={onScroll} ref={outerRef} 
+    <Outer className={className} render={outerRender} onScroll={onScroll} ref={outerRef} 
         style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <Inner className={innerClassName} style={{ height: isVertical ? renderSize : "100%", width: isVertical ? "100%" : renderSize }}>
+      <Inner className={innerClassName} render={innerRender}
+          style={{ height: isVertical ? renderSize : "100%", width: isVertical ? "100%" : renderSize }}>
         {sizes.map((size, arrayIndex) => (
           offset = nextOffset,
           nextOffset += size,

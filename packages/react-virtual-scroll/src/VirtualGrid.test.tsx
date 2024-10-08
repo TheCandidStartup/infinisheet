@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd } from '../../../shared/test/utils'
-import { VirtualOuterProps, VirtualInnerProps } from './VirtualBase'
+import { VirtualInnerRender, VirtualOuterRender } from './VirtualBase'
 import { VirtualGrid, VirtualGridProxy } from './VirtualGrid'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
@@ -187,20 +187,20 @@ describe('VirtualGrid', () => {
   })
 
   it('should support customization', () => {
-    const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...rest}, ref) => (
+    const outerRender: VirtualOuterRender = ({style, ...rest}, ref) => (
       <div ref={ref} style={{ ...style, height: "500px"}} {...rest}/>
-    ))
+    )
 
-    const Inner = React.forwardRef<HTMLDivElement, VirtualInnerProps >(({style, ...rest}, ref) => (
+    const innerRender: VirtualInnerRender = ({style, ...rest}, ref) => (
       <div ref={ref} style={{ ...style, height: "400px"}} {...rest}/>
-    ))
+    )
 
     render(
       <VirtualGrid
         className={"outerClass"}
-        outerComponent={Outer}
+        outerRender={outerRender}
         innerClassName={"innerClass"}
-        innerComponent={Inner}
+        innerRender={innerRender}
         height={50}
         rowCount={240}
         rowOffsetMapping={rowMapping}

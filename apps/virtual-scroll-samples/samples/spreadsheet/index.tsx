@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
-  useFixedSizeItemOffsetMapping, VirtualOuterProps } from '@candidstartup/react-virtual-scroll';
+  useFixedSizeItemOffsetMapping, VirtualOuterRender } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -23,9 +23,9 @@ const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex:
   </div>
 );
 
-const Outer = React.forwardRef<HTMLDivElement, VirtualOuterProps >(({style, ...rest}, ref) => (
+const outerRender: VirtualOuterRender = ({style, ...rest}, ref) => (
   <div ref={ref} style={{ ...style, overflow: "hidden"}} {...rest}/>
-))
+)
 
 function App() {
   const columnMapping = useFixedSizeItemOffsetMapping(100);
@@ -60,7 +60,7 @@ function App() {
       <VirtualList
         ref={columnRef}
         className={'spreadsheetColumnHeader'}
-        outerComponent={Outer}
+        outerRender={outerRender}
         height={50}
         itemCount={100}
         itemOffsetMapping={columnMapping}
@@ -72,7 +72,7 @@ function App() {
       <VirtualList
         ref={rowRef}
         className={'spreadsheetRowHeader'}
-        outerComponent={Outer}
+        outerRender={outerRender}
         height={240}
         itemCount={100}
         itemOffsetMapping={rowMapping}
