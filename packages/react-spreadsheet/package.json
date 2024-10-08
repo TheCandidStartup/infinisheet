@@ -1,7 +1,7 @@
 {
   "name": "@candidstartup/react-spreadsheet",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Modern React Spreadsheet Frontend",
   "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
   "license": "BSD-3-Clause",
