@@ -110,8 +110,8 @@ export interface VirtualGridProxy {
   /** Exposes DOM clientWidth property */
   get clientWidth(): number;
 
-    /** Exposes DOM clientHeight property */
-    get clientHeight(): number;
+  /** Exposes DOM clientHeight property */
+  get clientHeight(): number;
 }
 
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;
