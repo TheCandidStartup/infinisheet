@@ -1,6 +1,7 @@
 import React from 'react';
 import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
-  useFixedSizeItemOffsetMapping, VirtualOuterRender } from '@candidstartup/react-virtual-scroll';
+  useFixedSizeItemOffsetMapping, VirtualOuterRender, 
+  ScrollState} from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
@@ -65,7 +66,7 @@ export interface VirtualSpreadsheetProps<Snapshot> {
   minNumPages?: number
 }
 
-const outerRender: VirtualOuterRender = ({style, ...rest}, ref) => (
+const outerListRender: VirtualOuterRender = ({style, ...rest}, ref) => (
   <div ref={ref} style={{ ...style, overflow: "hidden"}} {...rest}/>
 )
 
@@ -121,15 +122,22 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
   return cellRender(rowIndex, columnIndex, style);
 }
 
+const defaultScrollState: ScrollState = {
+  scrollOffset: 0,
+  renderOffset: 0,
+  page: 0,
+  scrollDirection: 'forward'
+}
+
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
-  const { theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
+  const { width, height, theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const columnMapping = useFixedSizeItemOffsetMapping(100);
   const rowMapping = useFixedSizeItemOffsetMapping(30);
   const columnRef = React.useRef<VirtualListProxy>(null);
   const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
   const pendingScrollToSelectionRef = React.useRef<boolean>(false);
-  const focusCellRef = React.useRef<HTMLDivElement>(null);
+  const focusSinkRef = React.useRef<HTMLInputElement>(null);
 
   // Originally passed data.subscribe.bind(data) to useCallback. It works but React hooks lint fails because it can only validate
   // dependencies for an inline function.
@@ -141,12 +149,13 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
   const [focusCell, setFocusCell] = React.useState<[number,number]|null>(null);
+  const [gridScrollState, setGridScrollState] = React.useState<[ScrollState,ScrollState]>([defaultScrollState, defaultScrollState]);
 
   const dataRowCount = data.getRowCount(snapshot);
-  const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1);
+  const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1, focusCell ? focusCell[0] : 0, selection[0] || 0);
   const rowOffset = rowMapping.itemOffset(rowCount);
   const dataColumnCount = data.getColumnCount(snapshot);
-  const columnCount = Math.max(minColumnCount, dataColumnCount, hwmColumnIndex+1);
+  const columnCount = Math.max(minColumnCount, dataColumnCount, hwmColumnIndex+1, focusCell ? focusCell[1] : 0, selection[1] || 0);
   const columnOffset = columnMapping.itemOffset(columnCount);
 
   React.useLayoutEffect(() => {
@@ -158,10 +167,10 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   }, [selection])
 
   React.useEffect(() => {
-    focusCellRef.current?.focus()
+    focusSinkRef.current?.focus({preventScroll: true})
   }, [focusCell])
 
-  function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
+  function onScroll(rowOffsetValue: number, columnOffsetValue: number, rowState: ScrollState, columnState: ScrollState) {
     columnRef.current?.scrollTo(columnOffsetValue);
     rowRef.current?.scrollTo(rowOffsetValue);
 
@@ -180,6 +189,26 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       if (hwmColumnIndex < columnCount && columnCount < maxColumnCount)
         setHwmColumnIndex(columnCount);
     }
+
+    setGridScrollState([rowState, columnState]);
+  }
+
+  function updateSelection(row: number|undefined, col: number|undefined) {
+    setSelection([row,col]);
+    if (row === undefined && col === undefined)
+      setFocusCell(null);
+    else
+      setFocusCell([row ? row : 0, col ? col : 0])
+  }
+
+  function focusTo(row: number, col: number) {
+    if (row < 0 || row >= rowCount)
+      return;
+
+    if (col < 0 || col >= columnCount)
+      return;
+
+    updateSelection(row,col);
   }
 
   function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -207,11 +236,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         setHwmColumnIndex(0);
     }
 
-    setSelection([row,col]);
-    if (row === undefined && col === undefined)
-      setFocusCell(null);
-    else
-      setFocusCell([row ? row : 0, col ? col : 0])
+    updateSelection(row,col);
     if (sizeChanged)
     {
       // Need to defer scroll to selection until after larger grid has been rendered
@@ -251,6 +276,54 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     </div>
   );
   
+  const outerGridRender: VirtualOuterRender = ({children, ...rest}, ref) => {
+    let focusSink;
+    if (focusCell) {
+      const row = focusCell[0];
+      const col = focusCell[1];
+
+      // Position focus sink underneath focused cell. If focused cell is more than an incremental scroll
+      // outside the viewport, clamp position to make sure we don't run off the VirtualGrid page.
+      // Careful - focus cell might be bigger than the viewport!
+      const originTop = gridScrollState[0].scrollOffset;
+      const focusHeight = rowMapping.itemSize(row);
+      const maxHeight = Math.max(height, focusHeight*3);
+      let focusTop = rowMapping.itemOffset(row) - gridScrollState[0].renderOffset;
+      if (focusTop < originTop - maxHeight)
+        focusTop = originTop - maxHeight;
+      else if (focusTop > originTop + height + maxHeight)
+        focusTop = originTop + height + maxHeight;
+
+      const originLeft = gridScrollState[1].scrollOffset;
+      const focusWidth = columnMapping.itemSize(col);
+      const maxWidth = Math.max(width, focusWidth*3);
+      let focusLeft = columnMapping.itemOffset(col) - gridScrollState[1].renderOffset;
+      if (focusLeft < originLeft - maxWidth)
+        focusLeft = originLeft - maxWidth;
+      else if (focusLeft > originLeft + width + maxWidth)
+        focusLeft = originLeft + width + maxWidth;
+
+      focusSink = <input
+        ref={focusSinkRef}
+        className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus)}
+        type={"text"}
+        onKeyDown={(event) => {
+          switch (event.key) {
+            case "ArrowDown": focusTo(row+1,col); event.preventDefault(); break;
+            case "ArrowUp": focusTo(row-1,col); event.preventDefault(); break;
+            case "ArrowLeft": focusTo(row,col-1); event.preventDefault(); break;
+            case "ArrowRight": focusTo(row,col+1); event.preventDefault(); break;
+          }
+        }}
+        style={{ zIndex: -1, position: "absolute", top: focusTop, height: focusHeight, left: focusLeft, width: focusWidth }}
+      />
+    }
+    return <div ref={ref} {...rest}>
+      {children}
+      {focusSink}
+    </div>
+  }
+
   const cellRender: CellRender = (rowIndex, columnIndex, style) => {
     const value = (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? formatContent(data, snapshot, rowIndex, columnIndex) : "";
     const classNames = join(theme?.VirtualSpreadsheet_Cell,
@@ -259,14 +332,18 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
 
     if (focusCell && rowIndex == focusCell[0] && columnIndex == focusCell[1]) {
       return <div
-        ref={focusCellRef}
         className={join(classNames, theme?.VirtualSpreadsheet_Cell__Focus)}
         tabIndex={0}
         style={style}>
         { value }
       </div>
     } else {
-      return <div className={classNames} style={style}>
+      return <div 
+        className={classNames}
+        onClick={(_event) => {
+          updateSelection(rowIndex,columnIndex);
+        }}
+        style={style}>
         { value }
       </div>
     }
@@ -295,7 +372,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={columnRef}
         className={theme?.VirtualSpreadsheet_ColumnHeader}
         itemData={colRender}
-        outerRender={outerRender}
+        outerRender={outerListRender}
         height={50}
         itemCount={columnCount+1}
         itemOffsetMapping={columnMapping}
@@ -310,7 +387,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={rowRef}
         className={theme?.VirtualSpreadsheet_RowHeader}
         itemData={rowRender}
-        outerRender={outerRender}
+        outerRender={outerListRender}
         height={props.height}
         itemCount={rowCount+1}
         itemOffsetMapping={rowMapping}
@@ -324,6 +401,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         className={theme?.VirtualSpreadsheet_Grid}
         ref={gridRef}
         itemData={cellRender}
+        outerRender={outerGridRender}
         onScroll={onScroll}
         height={props.height}
         rowCount={rowCount}
