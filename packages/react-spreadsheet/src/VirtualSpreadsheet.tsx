@@ -148,10 +148,10 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const [gridScrollState, setGridScrollState] = React.useState<[ScrollState,ScrollState]>([defaultScrollState, defaultScrollState]);
 
   const dataRowCount = data.getRowCount(snapshot);
-  const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1, focusCell ? focusCell[0] : 0, selection[0] || 0);
+  const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1, focusCell ? focusCell[0]+1 : 0);
   const rowOffset = rowMapping.itemOffset(rowCount);
   const dataColumnCount = data.getColumnCount(snapshot);
-  const columnCount = Math.max(minColumnCount, dataColumnCount, hwmColumnIndex+1, focusCell ? focusCell[1] : 0, selection[1] || 0);
+  const columnCount = Math.max(minColumnCount, dataColumnCount, hwmColumnIndex+1, focusCell ? focusCell[1]+1 : 0);
   const columnOffset = columnMapping.itemOffset(columnCount);
 
   React.useLayoutEffect(() => {
