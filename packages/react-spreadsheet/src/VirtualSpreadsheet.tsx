@@ -3,7 +3,7 @@ import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
   useFixedSizeItemOffsetMapping, VirtualOuterRender, 
   ScrollState} from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
-import { indexToColRef, RowColCoords, rowColRefToCoords } from './RowColRef'
+import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
 import { format as numfmtFormat } from 'numfmt'
 
@@ -66,10 +66,6 @@ export interface VirtualSpreadsheetProps<Snapshot> {
   minNumPages?: number
 }
 
-const outerListRender: VirtualOuterRender = ({style, ...rest}, ref) => (
-  <div ref={ref} style={{ ...style, overflow: "hidden"}} {...rest}/>
-)
-
 function join(...v: (string|undefined)[]) {
   let s: string|undefined = undefined;
   v.forEach(a => {
@@ -81,7 +77,7 @@ function join(...v: (string|undefined)[]) {
   return s;
 }
 
-function ifdef(b: boolean, s: string|undefined) { return (b) ? s : undefined }
+function ifdef(b: boolean|null, s: string|undefined) { return (b) ? s : undefined }
 
 // Options for numfmt that match Google Sheets and ECMA-376 behavior. This is compatible with supported dates in Excel apart from Jan/Feb 1900. 
 // This is due to Excel's backwards compatibility support for the Lotus 1-2-3 leap year bug that incorrectly thinks 1900 is a leap year.
@@ -193,12 +189,17 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     setGridScrollState([rowState, columnState]);
   }
 
-  function updateSelection(row: number|undefined, col: number|undefined) {
-    setSelection([row,col]);
+  function updateFocus(row: number|undefined, col: number|undefined) {
     if (row === undefined && col === undefined)
       setFocusCell(null);
     else
       setFocusCell([row ? row : 0, col ? col : 0])
+  }
+
+  function updateSelection(row: number|undefined, col: number|undefined) {
+    setSelection([row,col]);
+    setName(rowColCoordsToRef(row,col));
+    updateFocus(row, col);
   }
 
   function focusTo(row: number, col: number) {
@@ -254,6 +255,28 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     return (selection[1] != undefined) && (selection[0] == undefined || selection[0] == index)
   }
 
+  const colHeaderRender: VirtualOuterRender = ({style, ...rest}, ref) => (
+    <div ref={ref} style={{ ...style, overflow: "hidden"}}
+    onClick={(event) => {
+      const headerRect = event.currentTarget.getBoundingClientRect();
+      const colOffset = event.clientX - headerRect.left + gridScrollState[1].renderOffset + gridScrollState[1].scrollOffset;
+      const [colIndex] = columnMapping.offsetToItem(colOffset);
+      updateSelection(undefined,colIndex);
+    }} 
+    {...rest}/>
+  )
+
+  const rowHeaderRender: VirtualOuterRender = ({style, ...rest}, ref) => (
+    <div ref={ref} style={{ ...style, overflow: "hidden"}}
+    onClick={(event) => {
+      const headerRect = event.currentTarget.getBoundingClientRect();
+      const rowOffset = event.clientY - headerRect.top + gridScrollState[0].renderOffset + gridScrollState[0].scrollOffset;
+      const [rowIndex] = rowMapping.offsetToItem(rowOffset);
+      updateSelection(rowIndex, undefined);
+    }} 
+    {...rest}/>
+  )
+  
   // Row and column header are oversized by one. Without this the headers don't align with the
   // grid when you scroll to the end. The grid and headers have different content
   // extents because of the grid scroll bars. The headers need something that can be
@@ -318,7 +341,16 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         style={{ zIndex: -1, position: "absolute", top: focusTop, height: focusHeight, left: focusLeft, width: focusWidth }}
       />
     }
-    return <div ref={ref} {...rest}>
+    return <div ref={ref}
+      onClick={(event) => {
+        const gridRect = event.currentTarget.getBoundingClientRect();
+        const colOffset = event.clientX - gridRect.left + gridScrollState[1].renderOffset + gridScrollState[1].scrollOffset;
+        const rowOffset = event.clientY - gridRect.top + gridScrollState[0].renderOffset + gridScrollState[0].scrollOffset;
+        const [rowIndex] = rowMapping.offsetToItem(rowOffset);
+        const [colIndex] = columnMapping.offsetToItem(colOffset);
+        updateSelection(rowIndex,colIndex);
+      }} 
+      {...rest}>
       {children}
       {focusSink}
     </div>
@@ -326,27 +358,15 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
 
   const cellRender: CellRender = (rowIndex, columnIndex, style) => {
     const value = (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? formatContent(data, snapshot, rowIndex, columnIndex) : "";
+    const focused = focusCell && rowIndex == focusCell[0] && columnIndex == focusCell[1];
     const classNames = join(theme?.VirtualSpreadsheet_Cell,
       ifdef(rowSelected(rowIndex), theme?.VirtualSpreadsheet_Cell__RowSelected),
-      ifdef(colSelected(columnIndex), theme?.VirtualSpreadsheet_Cell__ColumnSelected));
+      ifdef(colSelected(columnIndex), theme?.VirtualSpreadsheet_Cell__ColumnSelected),
+      ifdef(focused, theme?.VirtualSpreadsheet_Cell__Focus));
 
-    if (focusCell && rowIndex == focusCell[0] && columnIndex == focusCell[1]) {
-      return <div
-        className={join(classNames, theme?.VirtualSpreadsheet_Cell__Focus)}
-        tabIndex={0}
-        style={style}>
-        { value }
-      </div>
-    } else {
-      return <div 
-        className={classNames}
-        onClick={(_event) => {
-          updateSelection(rowIndex,columnIndex);
-        }}
-        style={style}>
-        { value }
-      </div>
-    }
+    return <div className={classNames} style={style}>
+      { value }
+    </div>
   };
 
   return (
@@ -372,7 +392,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={columnRef}
         className={theme?.VirtualSpreadsheet_ColumnHeader}
         itemData={colRender}
-        outerRender={outerListRender}
+        outerRender={colHeaderRender}
         height={50}
         itemCount={columnCount+1}
         itemOffsetMapping={columnMapping}
@@ -387,7 +407,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={rowRef}
         className={theme?.VirtualSpreadsheet_RowHeader}
         itemData={rowRender}
-        outerRender={outerListRender}
+        outerRender={rowHeaderRender}
         height={props.height}
         itemCount={rowCount+1}
         itemOffsetMapping={rowMapping}

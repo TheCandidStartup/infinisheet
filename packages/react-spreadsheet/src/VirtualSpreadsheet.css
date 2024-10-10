@@ -55,18 +55,19 @@
   resize: none;
 }
 
-.VirtualSpreadsheet_Cell__Focus {
-  border: 2px solid darkblue;
-}
-
-.VirtualSpreadsheet_Cell__Focus:focus {
-  outline: none;
-}
-
 .VirtualSpreadsheet_Cell__RowSelected {
   background-color: lightblue;
 }
 
 .VirtualSpreadsheet_Cell__ColumnSelected {
   background-color: lightblue;
+}
+
+.VirtualSpreadsheet_Cell__Focus {
+  border: 2px solid darkblue;
+  background-color: transparent;
+}
+
+.VirtualSpreadsheet_Cell__Focus:focus {
+  outline: none;
 }
