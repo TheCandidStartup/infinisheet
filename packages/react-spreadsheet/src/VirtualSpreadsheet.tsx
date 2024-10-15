@@ -158,7 +158,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     if (pendingScrollToSelectionRef.current) {
       pendingScrollToSelectionRef.current = false;
 
-      gridRef.current?.scrollToItem(selection[0], selection[1]);
+      gridRef.current?.scrollToItem(selection[0], selection[1], 'visible');
     }
   }, [selection])
 
@@ -210,6 +210,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       return;
 
     updateSelection(row,col);
+    gridRef.current?.scrollToItem(row, col, 'visible');
   }
 
   function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -243,7 +244,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       // Need to defer scroll to selection until after larger grid has been rendered
       pendingScrollToSelectionRef.current = true;
     } else 
-      gridRef.current?.scrollToItem(row, col);
+      gridRef.current?.scrollToItem(row, col, 'visible');
   }
 
   function colSelected(index: number) { return (selection[0] == undefined && selection[1] == index) }
