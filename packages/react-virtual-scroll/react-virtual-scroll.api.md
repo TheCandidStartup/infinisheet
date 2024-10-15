@@ -31,6 +31,9 @@ export interface ScrollState {
 }
 
 // @public
+export type ScrollToOption = 'topleft' | 'visible';
+
+// @public
 export function useFixedSizeItemOffsetMapping(itemSize: number): ItemOffsetMapping;
 
 // @public
@@ -85,7 +88,7 @@ export interface VirtualGridProxy {
     get clientHeight(): number;
     get clientWidth(): number;
     scrollTo(rowOffset?: number, columnOffset?: number): void;
-    scrollToItem(rowIndex?: number, columnIndex?: number): void;
+    scrollToItem(rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void;
 }
 
 // @public
@@ -124,7 +127,7 @@ export interface VirtualListProps extends VirtualBaseProps {
 // @public
 export interface VirtualListProxy {
     scrollTo(offset: number): void;
-    scrollToItem(index: number): void;
+    scrollToItem(index: number, option?: ScrollToOption): void;
 }
 
 // @public

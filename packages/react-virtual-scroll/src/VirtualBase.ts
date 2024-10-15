@@ -148,3 +148,12 @@ export interface ItemOffsetMapping {
 /**  Alias for type of event that React passes to a `div` element's `OnScroll` handler. */
 export type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
 
+/**
+ * Option for {@link VirtualGridProxy.scrollToItem} and {@link VirtualListProxy.scrollToItem}
+ * 
+ * * `topleft` scrolls the item as far to the top and left as possible
+ * * `visible` scrolls the item the minimum amount needed to ensure that it's visible
+ * 
+ *  @defaultValue `topleft`
+ */
+export type ScrollToOption = 'topleft' | 'visible';

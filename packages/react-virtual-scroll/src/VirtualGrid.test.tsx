@@ -163,24 +163,36 @@ describe('VirtualGrid', () => {
       const outerDiv = innerDiv.parentElement || throwErr("No outer div");
       updateLayout(innerDiv, outerDiv);
 
-      const proxy = ref.current || throwErr("null ref");
+      let proxy = ref.current || throwErr("null ref");
       expect(proxy.clientWidth).toBe(600);
       expect(proxy.clientHeight).toBe(240);
 
       {act(() => { proxy.scrollTo(100, 200); })}
-      expect(mock).toBeCalledWith({ left: 200, top: 100 });
+      expect(mock).lastCalledWith({ left: 200, top: 100 });
 
+      proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42, 7); })}
-      expect(mock).toBeCalledWith({ left: 700, top: 41*30+50 });
+      expect(mock).lastCalledWith({ left: 700, top: 41*30+50 });
 
+      proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(0, 0); })}
-      expect(mock).toBeCalledWith({ left: 0, top: 0 });
+      expect(mock).lastCalledWith({ left: 0, top: 0 });
 
+      proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42); })}
-      expect(mock).toBeCalledWith({ top: 41*30+50 });
+      expect(mock).lastCalledWith({ top: 41*30+50 });
 
+      proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(undefined, 7); })}
-      expect(mock).toBeCalledWith({ left: 700 });
+      expect(mock).lastCalledWith({ left: 700 });
+
+      proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(43, 8, 'visible'); })}
+      expect(mock).lastCalledWith({});
+
+      proxy = ref.current || throwErr("null ref");
+      {act(() => { proxy.scrollToItem(80, 50, 'visible'); })}
+      expect(mock).lastCalledWith({ left: 50*100-600+100, top: 79*30+50-240+30});
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
@@ -352,7 +364,7 @@ describe('Paged VirtualList', () => {
       // Scroll to last item on second page
       let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(3999, 1199); })}
-      expect(mock).toBeCalledWith({ left: 119900, top: 119970 });
+      expect(mock).lastCalledWith({ left: 119900, top: 119970 });
       const item3999 = screen.getByText('Cell 3999:1199');
       expect(item3999).toBeInTheDocument()
       expect(item3999).toHaveProperty("style.top", '119970px')
@@ -363,7 +375,7 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 119900, scrollTop: 119970 }});
         fireEventScrollEnd(outerDiv);
       })}
-      expect(onScroll).toBeCalledWith(119970, 119900, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'},
+      expect(onScroll).lastCalledWith(119970, 119900, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'},
         { scrollOffset: 119900, renderOffset: 0, page: 1, scrollDirection: 'forward'});
 
       // Scroll down 2 items to cross page boundary
@@ -372,8 +384,8 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 120100, scrollTop: 120030 }});
         fireEventScrollEnd(outerDiv);
       })}
-      expect(mock).toBeCalledWith(60100, 60030);
-      expect(onScroll).toBeCalledWith(120030, 120100, { scrollOffset: 60030, renderOffset: 60000, page: 2, scrollDirection: 'forward'},
+      expect(mock).lastCalledWith(60100, 60030);
+      expect(onScroll).lastCalledWith(120030, 120100, { scrollOffset: 60030, renderOffset: 60000, page: 2, scrollDirection: 'forward'},
         { scrollOffset: 60100, renderOffset: 60000, page: 2, scrollDirection: 'forward'});
       const item4001 = screen.getByText('Cell 4001:1201');
       expect(item4001).toBeInTheDocument()
@@ -383,7 +395,7 @@ describe('Paged VirtualList', () => {
       // Scroll back to first cell
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(0, 0); })}
-      expect(mock).toBeCalledWith({ left: 0, top: 0});
+      expect(mock).lastCalledWith({ left: 0, top: 0});
       const item1 = screen.getByText('Cell 1:1');
       expect(item1).toBeInTheDocument()
       expect(item1).toHaveProperty("style.top", '30px')
@@ -394,7 +406,7 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 0, scrollTop: 0 }});
         fireEventScrollEnd(outerDiv);
       })}
-      expect(onScroll).toBeCalledWith(0, 0, { scrollOffset: 0, renderOffset: 0, page: 0, scrollDirection: 'backward'},
+      expect(onScroll).lastCalledWith(0, 0, { scrollOffset: 0, renderOffset: 0, page: 0, scrollDirection: 'backward'},
         { scrollOffset: 0, renderOffset: 0, page: 0, scrollDirection: 'backward'});
 
     } finally {

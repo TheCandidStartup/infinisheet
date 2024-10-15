@@ -1,7 +1,7 @@
 import React from "react";
-import { ItemOffsetMapping, VirtualBaseItemProps, VirtualBaseProps, 
+import { ItemOffsetMapping, VirtualBaseItemProps, VirtualBaseProps, ScrollToOption,
   VirtualInnerProps, VirtualInnerRender, VirtualOuterProps, VirtualOuterRender, ScrollEvent } from './VirtualBase';
-import { getRangeToRender } from './VirtualCommon';
+import { getRangeToRender, getOffsetToScroll } from './VirtualCommon';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
@@ -93,8 +93,9 @@ export interface VirtualListProxy {
   /**
    * Scrolls the list so that the specified item is visible
    * @param index - Index of item to scroll to
+   * @param option - Where to {@link ScrollToOption | position} the item within the viewport
    */
-  scrollToItem(index: number): void;
+  scrollToItem(index: number, option?: ScrollToOption): void;
 }
 
 const defaultItemKey = (index: number, _data: unknown) => index;
@@ -158,11 +159,19 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
         }
       },
 
-      scrollToItem(index: number): void {
-        this.scrollTo(itemOffsetMapping.itemOffset(index));
+      scrollToItem(index: number, option?: ScrollToOption): void {
+        const outer = outerRef.current;
+        /* istanbul ignore if*/
+        if (!outer)
+          return;
+
+        const extent = isVertical ? outer.clientHeight : outer.clientWidth;
+        const offset = getOffsetToScroll(index, itemOffsetMapping, extent, scrollOffset + renderOffset, option);
+        if (offset != undefined)
+          this.scrollTo(offset);
       }
     }
-  }, [ itemOffsetMapping, isVertical, doScrollTo ]);
+  }, [ itemOffsetMapping, isVertical, doScrollTo, scrollOffset, renderOffset ]);
 
   function onScroll(event: ScrollEvent) {
     if (isVertical) {

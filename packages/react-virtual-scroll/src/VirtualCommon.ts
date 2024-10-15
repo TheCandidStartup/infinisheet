@@ -1,4 +1,4 @@
-import type { ItemOffsetMapping } from "./VirtualBase";
+import type { ItemOffsetMapping, ScrollToOption } from "./VirtualBase";
 
 type RangeToRender = [
   startIndex: number,
@@ -42,3 +42,34 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
 
   return [startIndex, startOffset, sizes];
 }
+
+export function getOffsetToScroll(index: number | undefined, itemOffsetMapping: ItemOffsetMapping, 
+  clientExtent: number, scrollOffset: number, option?: ScrollToOption): number | undefined
+{
+  if (index === undefined)
+    return undefined;
+
+  const itemOffset = itemOffsetMapping.itemOffset(index);
+  if (option != 'visible')
+    return itemOffset;
+
+  // Start of item offscreen before start of viewport?
+  if (itemOffset < scrollOffset)
+    return itemOffset;
+
+  // Already completely visible?
+  const itemSize = itemOffsetMapping.itemSize(index);
+  const endOffset = itemOffset + itemSize;
+  const endViewport = scrollOffset + clientExtent;
+  if (endOffset <= endViewport)
+    return undefined;
+
+  // Item offscreen past end of viewport
+
+  // Item bigger than viewport? Make sure start is in view
+  if (itemSize > clientExtent)
+    return itemOffset;
+
+  // Scroll so end of item aligns with end of viewport
+  return itemOffset - clientExtent + itemSize;
+ }

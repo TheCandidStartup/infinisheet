@@ -1,8 +1,8 @@
 import React from "react";
 import { Fragment } from "react";
-import { ItemOffsetMapping,  VirtualBaseItemProps, VirtualBaseProps, 
+import { ItemOffsetMapping,  VirtualBaseItemProps, VirtualBaseProps, ScrollToOption,
   VirtualInnerRender, VirtualInnerProps, VirtualOuterRender, VirtualOuterProps, ScrollEvent } from './VirtualBase';
-import { getRangeToRender } from './VirtualCommon';
+import { getRangeToRender, getOffsetToScroll } from './VirtualCommon';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 
@@ -104,8 +104,9 @@ export interface VirtualGridProxy {
    * Scrolls the list so that the specified item is visible
    * @param rowIndex - Row of item to scroll to
    * @param columnIndex - Column of item to scroll to
+   * @param option - Where to {@link ScrollToOption | position} the item within the viewport
    */
-  scrollToItem(rowIndex?: number, columnIndex?: number): void;
+  scrollToItem(rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void;
 
   /** Exposes DOM clientWidth property */
   get clientWidth(): number;
@@ -179,10 +180,15 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
         }
       },
 
-      scrollToItem(rowIndex?: number, columnIndex?: number): void {
-        const rowOffset = (rowIndex != undefined) ? rowOffsetMapping.itemOffset(rowIndex) : undefined;
-        const columnOffset = (columnIndex != undefined) ? columnOffsetMapping.itemOffset(columnIndex) : undefined;
-        this.scrollTo(rowOffset, columnOffset);
+      scrollToItem(rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void {
+        const outer = outerRef.current;
+        /* istanbul ignore if*/
+        if (!outer)
+          return;
+
+        const rowOffset = getOffsetToScroll(rowIndex, rowOffsetMapping, outer.clientHeight, scrollRowOffset + renderRowOffset, option);
+        const colOffset = getOffsetToScroll(columnIndex, columnOffsetMapping, outer.clientWidth, scrollColumnOffset + renderColumnOffset, option);
+        this.scrollTo(rowOffset, colOffset);
       },
 
       get clientWidth(): number {
@@ -193,8 +199,8 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
         return outerRef.current ? outerRef.current.clientHeight : /* istanbul ignore next */ 0;
       }
     }
-  }, [ rowOffsetMapping, columnOffsetMapping, doScrollToRow, doScrollToColumn ]);
-
+  }, [ rowOffsetMapping, columnOffsetMapping, doScrollToRow, doScrollToColumn, 
+       scrollRowOffset, renderRowOffset, scrollColumnOffset, renderColumnOffset ]);
 
   function onScroll(event: ScrollEvent) {
     const { clientWidth, clientHeight, scrollWidth, scrollHeight, scrollLeft, scrollTop } = event.currentTarget;
