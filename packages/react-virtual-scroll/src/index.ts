@@ -12,6 +12,7 @@
 export * from './VirtualBase'
 export * from './VirtualGrid'
 export * from './VirtualList'
+export * from './DisplayList'
 export * from './useFixedSizeItemOffsetMapping'
 export * from './useVariableSizeItemOffsetMapping'
 export type { ScrollState, ScrollDirection } from './useVirtualScroll';

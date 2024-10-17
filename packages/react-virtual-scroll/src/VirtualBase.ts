@@ -34,7 +34,7 @@ export interface VirtualBaseProps {
    /** Component width */
   width: number,
 
-    /** Passed as {@link VirtualBaseItemProps.data} to each child item */
+  /** Passed as {@link VirtualBaseItemProps.data} to each child item */
   itemData?: unknown,
 
   /** 
@@ -118,7 +118,7 @@ export interface VirtualOuterProps {
  * 
  * @example Minimal compliant implementation
  * ```
- * const outerRender: VirtualOuterRender = ({style, ...rest}, ref) => (
+ * const outerRender: VirtualOuterRender = ({...rest}, ref) => (
  *   <div ref={ref} {...rest} />
  * )
  * ```
@@ -157,3 +157,6 @@ export type ScrollEvent = React.SyntheticEvent<HTMLDivElement>;
  *  @defaultValue `topleft`
  */
 export type ScrollToOption = 'topleft' | 'visible';
+
+/** Specifies the direction over which lists should implement virtual scrolling */
+export type ScrollLayout = "horizontal" | "vertical";

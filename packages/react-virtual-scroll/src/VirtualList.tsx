@@ -1,12 +1,9 @@
 import React from "react";
-import { ItemOffsetMapping, VirtualBaseItemProps, VirtualBaseProps, ScrollToOption,
+import { ItemOffsetMapping, VirtualBaseItemProps, VirtualBaseProps, ScrollToOption, ScrollLayout, 
   VirtualInnerProps, VirtualInnerRender, VirtualOuterProps, VirtualOuterRender, ScrollEvent } from './VirtualBase';
 import { getRangeToRender, getOffsetToScroll } from './VirtualCommon';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
-
-/** Specifies the direction over which the list should implement virtual scrolling */
-export type ScrollLayout = "horizontal" | "vertical";
 
 /**
  * Props accepted by {@link VirtualListItem}

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
-  useFixedSizeItemOffsetMapping, VirtualOuterRender } from '@candidstartup/react-virtual-scroll';
+import { DisplayList, VirtualGrid, VirtualGridProxy, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -23,20 +22,14 @@ const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex:
   </div>
 );
 
-const outerRender: VirtualOuterRender = ({style, ...rest}, ref) => (
-  <div ref={ref} style={{ ...style, overflow: "hidden"}} {...rest}/>
-)
-
 function App() {
   const columnMapping = useFixedSizeItemOffsetMapping(100);
   const rowMapping = useFixedSizeItemOffsetMapping(30);
-  const columnRef = React.useRef<VirtualListProxy>(null);
-  const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
+  const [offset, setOffset] = React.useState<[number,number]>([0,0]);
 
   function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
-    columnRef.current?.scrollTo(columnOffsetValue);
-    rowRef.current?.scrollTo(rowOffsetValue);
+    setOffset([rowOffsetValue, columnOffsetValue]);
   }
 
   return (
@@ -57,28 +50,26 @@ function App() {
 
       <div></div>
 
-      <VirtualList
-        ref={columnRef}
+      <DisplayList
+        offset={offset[1]}
         className={'spreadsheetColumnHeader'}
-        outerRender={outerRender}
         height={50}
         itemCount={100}
         itemOffsetMapping={columnMapping}
         layout={'horizontal'}
         width={600}>
         {Col}
-      </VirtualList>
+      </DisplayList>
 
-      <VirtualList
-        ref={rowRef}
+      <DisplayList
+        offset={offset[0]}
         className={'spreadsheetRowHeader'}
-        outerRender={outerRender}
         height={240}
         itemCount={100}
         itemOffsetMapping={rowMapping}
         width={100}>
         {Row}
-      </VirtualList>
+      </DisplayList>
 
       <VirtualGrid
         className={"spreadsheetGrid"}
