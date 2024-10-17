@@ -5,6 +5,45 @@
 ```ts
 
 import { default as React_2 } from 'react';
+import * as react_jsx_runtime from 'react/jsx-runtime';
+
+// @public
+export interface DisplayContainerProps {
+    children: React_2.ReactNode;
+    className: string | undefined;
+    style: React_2.CSSProperties;
+}
+
+// @public
+export type DisplayContainerRender = (props: DisplayContainerProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
+
+// @public
+export function DisplayList(props: DisplayListProps): react_jsx_runtime.JSX.Element;
+
+// @public
+export type DisplayListItem = React_2.ComponentType<DisplayListItemProps>;
+
+// @public
+export interface DisplayListItemProps {
+    data: unknown;
+    index: number;
+    style: React_2.CSSProperties;
+}
+
+// @public
+export interface DisplayListProps {
+    children: DisplayListItem;
+    className?: string;
+    containerRender?: DisplayContainerRender;
+    height: number;
+    itemCount: number;
+    itemData?: unknown;
+    itemKey?: (index: number, data: unknown) => React_2.Key;
+    itemOffsetMapping: ItemOffsetMapping;
+    layout?: ScrollLayout;
+    offset: number;
+    width: number;
+}
 
 // @public
 export interface ItemOffsetMapping {
