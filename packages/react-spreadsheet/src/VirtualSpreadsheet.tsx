@@ -1,5 +1,5 @@
 import React from 'react';
-import { VirtualList, VirtualListProxy, VirtualGrid, VirtualGridProxy,
+import { DisplayList, DisplayContainerRender, VirtualGrid, VirtualGridProxy,
   useFixedSizeItemOffsetMapping, VirtualOuterRender, 
   ScrollState} from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
@@ -129,8 +129,6 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const { width, height, theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const columnMapping = useFixedSizeItemOffsetMapping(100);
   const rowMapping = useFixedSizeItemOffsetMapping(30);
-  const columnRef = React.useRef<VirtualListProxy>(null);
-  const rowRef = React.useRef<VirtualListProxy>(null);
   const gridRef = React.useRef<VirtualGridProxy>(null);
   const pendingScrollToSelectionRef = React.useRef<boolean>(false);
   const focusSinkRef = React.useRef<HTMLInputElement>(null);
@@ -146,6 +144,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
   const [focusCell, setFocusCell] = React.useState<[number,number]|null>(null);
   const [gridScrollState, setGridScrollState] = React.useState<[ScrollState,ScrollState]>([defaultScrollState, defaultScrollState]);
+  const gridRowOffset = gridScrollState[0].renderOffset + gridScrollState[0].scrollOffset;
+  const gridColumnOffset = gridScrollState[1].renderOffset + gridScrollState[1].scrollOffset;
 
   const dataRowCount = data.getRowCount(snapshot);
   const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1, focusCell ? focusCell[0]+1 : 0);
@@ -167,9 +167,6 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   }, [focusCell])
 
   function onScroll(rowOffsetValue: number, columnOffsetValue: number, rowState: ScrollState, columnState: ScrollState) {
-    columnRef.current?.scrollTo(columnOffsetValue);
-    rowRef.current?.scrollTo(rowOffsetValue);
-
     if (rowOffsetValue == 0)
       setHwmRowIndex(0);
     else if (gridRef.current && (rowOffsetValue + gridRef.current.clientHeight == rowOffset)) {
@@ -256,38 +253,34 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     return (selection[1] != undefined) && (selection[0] == undefined || selection[0] == index)
   }
 
-  const colHeaderRender: VirtualOuterRender = ({style, ...rest}, ref) => (
-    <div ref={ref} style={{ ...style, overflow: "hidden"}}
+  const colHeaderRender: DisplayContainerRender = ({...rest}, ref) => (
+    <div ref={ref}
     onClick={(event) => {
       const headerRect = event.currentTarget.getBoundingClientRect();
-      const colOffset = event.clientX - headerRect.left + gridScrollState[1].renderOffset + gridScrollState[1].scrollOffset;
+      const colOffset = event.clientX - headerRect.left + gridColumnOffset;
       const [colIndex] = columnMapping.offsetToItem(colOffset);
       updateSelection(undefined,colIndex);
     }} 
     {...rest}/>
   )
 
-  const rowHeaderRender: VirtualOuterRender = ({style, ...rest}, ref) => (
-    <div ref={ref} style={{ ...style, overflow: "hidden"}}
+  const rowHeaderRender: DisplayContainerRender = ({...rest}, ref) => (
+    <div ref={ref}
     onClick={(event) => {
       const headerRect = event.currentTarget.getBoundingClientRect();
-      const rowOffset = event.clientY - headerRect.top + gridScrollState[0].renderOffset + gridScrollState[0].scrollOffset;
+      const rowOffset = event.clientY - headerRect.top + gridRowOffset;
       const [rowIndex] = rowMapping.offsetToItem(rowOffset);
       updateSelection(rowIndex, undefined);
     }} 
     {...rest}/>
   )
   
-  // Row and column header are oversized by one. Without this the headers don't align with the
-  // grid when you scroll to the end. The grid and headers have different content
-  // extents because of the grid scroll bars. The headers need something that can be
-  // scrolled into view at the end of the scroll bars.
   const colRender: HeaderItemRender = (index, style ) => (
     <div className={join(theme?.VirtualSpreadsheet_Column, 
                     ifdef(colSelected(index), theme?.VirtualSpreadsheet_Column__Selected),
                     ifdef(colCellSelected(index), theme?.VirtualSpreadsheet_Column__CellSelected))} 
          style={style}>
-      { (index < columnCount) ? indexToColRef(index) : "" }
+      { indexToColRef(index) }
     </div>
   );
   
@@ -296,7 +289,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
                     ifdef(rowSelected(index), theme?.VirtualSpreadsheet_Row__Selected),
                     ifdef(rowCellSelected(index), theme?.VirtualSpreadsheet_Row__CellSelected))}
          style={style}>
-      { (index < rowCount) ? index+1 : "" }
+      { index+1 }
     </div>
   );
   
@@ -345,8 +338,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     return <div ref={ref}
       onClick={(event) => {
         const gridRect = event.currentTarget.getBoundingClientRect();
-        const colOffset = event.clientX - gridRect.left + gridScrollState[1].renderOffset + gridScrollState[1].scrollOffset;
-        const rowOffset = event.clientY - gridRect.top + gridScrollState[0].renderOffset + gridScrollState[0].scrollOffset;
+        const colOffset = event.clientX - gridRect.left + gridColumnOffset;
+        const rowOffset = event.clientY - gridRect.top + gridRowOffset;
         const [rowIndex] = rowMapping.offsetToItem(rowOffset);
         const [colIndex] = columnMapping.offsetToItem(colOffset);
         updateSelection(rowIndex,colIndex);
@@ -389,34 +382,30 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
 
       <div></div>
 
-      <VirtualList
-        ref={columnRef}
+      <DisplayList
+        offset={gridColumnOffset}
         className={theme?.VirtualSpreadsheet_ColumnHeader}
         itemData={colRender}
-        outerRender={colHeaderRender}
+        containerRender={colHeaderRender}
         height={50}
-        itemCount={columnCount+1}
+        itemCount={columnCount}
         itemOffsetMapping={columnMapping}
         layout={'horizontal'}
-        maxCssSize={props.maxCssSize}
-        minNumPages={props.minNumPages}
         width={props.width}>
         {HeaderItem}
-      </VirtualList>
+      </DisplayList>
 
-      <VirtualList
-        ref={rowRef}
+      <DisplayList
+        offset={gridRowOffset}
         className={theme?.VirtualSpreadsheet_RowHeader}
         itemData={rowRender}
-        outerRender={rowHeaderRender}
+        containerRender={rowHeaderRender}
         height={props.height}
-        itemCount={rowCount+1}
+        itemCount={rowCount}
         itemOffsetMapping={rowMapping}
-        maxCssSize={props.maxCssSize}
-        minNumPages={props.minNumPages}
         width={100}>
         {HeaderItem}
-      </VirtualList>
+      </DisplayList>
 
       <VirtualGrid
         className={theme?.VirtualSpreadsheet_Grid}
