@@ -34,14 +34,16 @@ export interface DisplayListItemProps {
 export interface DisplayListProps {
     children: DisplayListItem;
     className?: string;
-    containerRender?: DisplayContainerRender;
     height: number;
+    innerClassName?: string;
+    innerRender?: DisplayContainerRender;
     itemCount: number;
     itemData?: unknown;
     itemKey?: (index: number, data: unknown) => React_2.Key;
     itemOffsetMapping: ItemOffsetMapping;
     layout?: ScrollLayout;
     offset: number;
+    outerRender?: DisplayContainerRender;
     width: number;
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { DisplayList, DisplayContainerRender, VirtualGrid, VirtualGridProxy,
-  useFixedSizeItemOffsetMapping, VirtualOuterRender, 
+  useVariableSizeItemOffsetMapping, VirtualOuterRender, 
   ScrollState} from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
@@ -127,8 +127,8 @@ const defaultScrollState: ScrollState = {
 
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
   const { width, height, theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
-  const columnMapping = useFixedSizeItemOffsetMapping(100);
-  const rowMapping = useFixedSizeItemOffsetMapping(30);
+  const columnMapping = useVariableSizeItemOffsetMapping(100, [160]);
+  const rowMapping = useVariableSizeItemOffsetMapping(30, [70]);
   const gridRef = React.useRef<VirtualGridProxy>(null);
   const pendingScrollToSelectionRef = React.useRef<boolean>(false);
   const focusSinkRef = React.useRef<HTMLInputElement>(null);
@@ -386,7 +386,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         offset={gridColumnOffset}
         className={theme?.VirtualSpreadsheet_ColumnHeader}
         itemData={colRender}
-        containerRender={colHeaderRender}
+        outerRender={colHeaderRender}
         height={50}
         itemCount={columnCount}
         itemOffsetMapping={columnMapping}
@@ -399,7 +399,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         offset={gridRowOffset}
         className={theme?.VirtualSpreadsheet_RowHeader}
         itemData={rowRender}
-        containerRender={rowHeaderRender}
+        outerRender={rowHeaderRender}
         height={props.height}
         itemCount={rowCount}
         itemOffsetMapping={rowMapping}

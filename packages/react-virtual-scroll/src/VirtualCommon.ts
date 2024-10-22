@@ -11,7 +11,21 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
     return [0, 0, []];
   }
 
+  // Negative offset equivalent to reducing the size of the window (possibly down to nothing)
+  if (scrollOffset < 0) {
+    clientExtent += scrollOffset;
+    scrollOffset = 0;
+  }
+
+  if (clientExtent <= 0) {
+    return [0, 0, []];
+  }
+
   let [itemIndex, startOffset] = itemOffsetMapping.offsetToItem(scrollOffset);
+  if (itemIndex >= itemCount) {
+    return [0, 0, []];
+  }
+  
   itemIndex = Math.max(0, Math.min(itemCount - 1, itemIndex));
   const endOffset = scrollOffset + clientExtent;
 
@@ -41,6 +55,39 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
   }
 
   return [startIndex, startOffset, sizes];
+}
+
+function formatRepeat(repeat: number, size: number): string {
+  return (repeat == 1) ? `${size}px` : `repeat(${repeat},${size}px)`;
+}
+
+function join(a: string|undefined, s: string) {
+  return a ? a + ' ' + s : s;
+}
+
+export function getGridTemplate(sizes: number[]): string | undefined {
+  const count = sizes.length;
+  if (count == 0)
+    return undefined;
+
+  let ret = undefined;
+  let lastSize = sizes[0];
+  let repeat = 1;
+
+  for (let i = 1; i < count; i ++) {
+    const size = sizes[i];
+    if (size == lastSize) {
+      repeat ++;
+    } else {
+      const s = formatRepeat(repeat, lastSize);
+      ret = join(ret,s);
+      lastSize = size;
+      repeat = 1;
+    }
+  }
+
+  const s = formatRepeat(repeat, lastSize);
+  return join(ret,s);
 }
 
 export function getOffsetToScroll(index: number | undefined, itemOffsetMapping: ItemOffsetMapping, 

@@ -1,6 +1,6 @@
 import React from "react";
 import { ItemOffsetMapping, ScrollLayout } from './VirtualBase';
-import { getRangeToRender } from './VirtualCommon';
+import { getRangeToRender, getGridTemplate } from './VirtualCommon';
 
 /**
  * Props accepted by {@link DisplayListItem}
@@ -12,7 +12,7 @@ export interface DisplayListItemProps  {
   /** Value of {@link DisplayListProps.itemData} from owning component */
   data: unknown,
 
-  /** Style that should be applied to each item rendered. Positions the item within the container. */
+  /** Style that should be applied to each item rendered. Positions the item within the inner container. */
   style: React.CSSProperties,
 }
 
@@ -38,13 +38,13 @@ export type DisplayListItem = React.ComponentType<DisplayListItemProps>;
  * Props that an implementation of {@link DisplayContainerRender} must accept.
  */
 export interface DisplayContainerProps {
-  /** The `className` to apply to the container div. Passed through from {@link DisplayListProps.className} */
+  /** The `className` to apply to the container div. */
   className: string | undefined;
 
-  /** The visible child items rendered into the inner container div */
+  /** The child items rendered into the container div */
   children: React.ReactNode;
 
-  /** Style to apply to the inner container div */
+  /** Style to apply to the container div */
   style: React.CSSProperties;
 }
 
@@ -71,8 +71,11 @@ export interface DisplayListProps {
   /** Component used as a template to render items in the list. Must implement {@link DisplayListItem} interface. */
   children: DisplayListItem,
 
-  /** The `className` applied to the container element. Use when styling the entire component. */
+  /** The `className` applied to the outer container element. Use when styling the entire component. */
   className?: string,
+
+  /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
+  innerClassName?: string,
 
   /** Component height */
   height: number,
@@ -109,8 +112,17 @@ export interface DisplayListProps {
    */
   layout?: ScrollLayout,
 
-  /** Render prop implementing {@link DisplayContainerRender}. Used to customize {@link DisplayList}. */
-  containerRender?: DisplayContainerRender;
+  /** 
+   * Renders the outer viewport div which provides a window onto the inner grid div
+   * 
+   * Render prop implementing {@link DisplayContainerRender}. Used to customize {@link DisplayList}. */
+  outerRender?: DisplayContainerRender;
+
+  /** 
+   * Renders the inner grid div containing all the list items
+   * 
+   * Render prop implementing {@link DisplayContainerRender}. Used to customize {@link DisplayList}. */
+  innerRender?: DisplayContainerRender;
 }
 
 const defaultItemKey = (index: number, _data: unknown) => index;
@@ -127,6 +139,8 @@ const defaultContainerRender: DisplayContainerRender = ({...rest}, ref) => (
   <div ref={ref} {...rest} />
 )
 
+const boxStyle: React.CSSProperties = { boxSizing: 'border-box' };
+
 /**
  * Display List
  * 
@@ -137,41 +151,38 @@ const defaultContainerRender: DisplayContainerRender = ({...rest}, ref) => (
  * @group Components
  */
 export function DisplayList(props: DisplayListProps) {
-  const { width, height, itemCount, itemOffsetMapping, className, offset: renderOffset, children,
-    itemData, itemKey = defaultItemKey, layout = 'vertical', containerRender = defaultContainerRender } = props;
+  const { width, height, itemCount, itemOffsetMapping, className, innerClassName, offset: renderOffset, children,
+    itemData, itemKey = defaultItemKey, layout = 'vertical', outerRender = defaultContainerRender,
+    innerRender = defaultContainerRender } = props;
 
-  const outerRef = React.useRef<HTMLDivElement>(null);
   const isVertical = layout === 'vertical';
 
   const [startIndex, startOffset, sizes] = getRangeToRender(itemCount, itemOffsetMapping, 
     isVertical ? height : width, renderOffset);
+  const renderSize = sizes.reduce((accum,current) => accum + current, 0);
+  const template = getGridTemplate(sizes);
+  const offset = startOffset - renderOffset;
 
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
   // naming convention as components do.
   const ChildVar = children;
 
-  // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
-  // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
-  // returns the result of the final statement which makes the iteration a little clumsier.
-  let nextOffset = startOffset - renderOffset;
-  let index, offset;
-
   return (
-    <Container className={className} render={containerRender} ref={outerRef} 
+   <Container className={className} render={outerRender}
         style={{ position: "relative", height, width, overflow: "hidden", willChange: "transform" }}>
-      {sizes.map((size, arrayIndex) => (
-        offset = nextOffset,
-        nextOffset += size,
-        index = startIndex + arrayIndex,
-        <ChildVar data={itemData} key={itemKey(index, itemData)} index={index}
-          style={{ 
-            position: "absolute", 
-            top: isVertical ? offset : undefined, 
-            left: isVertical ? undefined : offset,
-            height: isVertical ? size : "100%", 
-            width: isVertical ? "100%" : size, 
-          }}/>
-      ))}
+       <Container className={innerClassName} render={innerRender}
+        style={{ position: 'absolute',
+          display: 'grid',
+          gridTemplateColumns: isVertical ? undefined : template,
+          gridTemplateRows: isVertical ? template : undefined,
+          top: isVertical ? offset : 0, 
+          left: isVertical ? 0 : offset, 
+          height: isVertical ? renderSize : "100%", 
+          width: isVertical ? "100%" : renderSize }}>
+        {sizes.map((_size, arrayIndex) => (
+          <ChildVar data={itemData} key={itemKey(startIndex + arrayIndex, itemData)} index={startIndex + arrayIndex} style={boxStyle}/>
+        ))}
+      </Container>
     </Container>
   );
 }
