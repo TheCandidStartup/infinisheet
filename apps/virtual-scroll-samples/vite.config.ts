@@ -20,6 +20,7 @@ export default defineConfig({
         "trillion-row-list": resolve(__dirname, 'samples/trillion-row-list/index.html'),
         "trillion-square-grid": resolve(__dirname, 'samples/trillion-square-grid/index.html'),
         "horizontal-list": resolve(__dirname, 'samples/horizontal-list/index.html'),
+        "display-list": resolve(__dirname, 'samples/display-list/index.html'),
         "paging-functional-test": resolve(__dirname, 'samples/paging-functional-test/index.html'),
         "spreadsheet": resolve(__dirname, 'samples/spreadsheet/index.html'),
         "padding": resolve(__dirname, 'samples/padding/index.html'),
