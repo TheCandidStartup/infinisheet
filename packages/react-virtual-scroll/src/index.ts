@@ -10,6 +10,7 @@
  */
 
 export * from './VirtualBase'
+export * from './VirtualScroll'
 export * from './VirtualGrid'
 export * from './VirtualList'
 export * from './DisplayList'

@@ -8,6 +8,13 @@ import { default as React_2 } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 // @public
+export interface ComponentProps {
+    className?: string;
+    height: number;
+    width: number;
+}
+
+// @public
 export interface DisplayContainerProps {
     children: React_2.ReactNode;
     className: string | undefined;
@@ -88,16 +95,20 @@ export interface VirtualBaseItemProps {
 }
 
 // @public
-export interface VirtualBaseProps {
-    className?: string;
-    height: number;
+export interface VirtualBaseProps extends ComponentProps, VirtualScrollableProps {
     innerClassName?: string;
     itemData?: unknown;
-    maxCssSize?: number;
-    minNumPages?: number;
-    useIsScrolling?: boolean;
-    width: number;
 }
+
+// @public
+export interface VirtualContentProps {
+    className: string | undefined;
+    isScrolling?: boolean;
+    style: React_2.CSSProperties;
+}
+
+// @public
+export type VirtualContentRender = (props: VirtualContentProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
 
 // @public
 export const VirtualGrid: React_2.ForwardRefExoticComponent<VirtualGridProps & React_2.RefAttributes<VirtualGridProxy>>;
@@ -181,6 +192,33 @@ export interface VirtualOuterProps {
 
 // @public
 export type VirtualOuterRender = (props: VirtualOuterProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
+
+// @public
+export const VirtualScroll: React_2.ForwardRefExoticComponent<VirtualScrollProps & React_2.RefAttributes<VirtualScrollProxy>>;
+
+// @public
+export interface VirtualScrollableProps {
+    maxCssSize?: number;
+    minNumPages?: number;
+    useIsScrolling?: boolean;
+}
+
+// @public
+export interface VirtualScrollProps extends ComponentProps, VirtualScrollableProps {
+    contentClassName?: string;
+    contentRender?: VirtualContentRender;
+    onScroll?: (verticalOffset: number, horizontalOffset: number, newVerticalScrollState: ScrollState, newHorizontalScrollState: ScrollState) => void;
+    outerRender?: VirtualOuterRender;
+    scrollHeight?: number;
+    scrollWidth?: number;
+}
+
+// @public
+export interface VirtualScrollProxy {
+    get clientHeight(): number;
+    get clientWidth(): number;
+    scrollTo(verticalOffset?: number, horizontalOffset?: number): void;
+}
 
 // (No @packageDocumentation comment for this package)
 

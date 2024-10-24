@@ -10,7 +10,7 @@ export interface VirtualBaseItemProps {
   /** 
    * Is the owning component being actively scrolled? Used to change how the item is rendered depending on scroll state.
    * 
-   * Only defined if {@link VirtualBaseProps.useIsScrolling} is true. 
+   * Only defined if {@link VirtualScrollableProps.useIsScrolling} is true. 
    * */
   isScrolling?: boolean,
 
@@ -19,27 +19,26 @@ export interface VirtualBaseItemProps {
 }
 
 /**
- * Common props for {@link VirtualList} and {@link VirtualGrid}
+ * Common props for all components
  */
-export interface VirtualBaseProps {
+export interface ComponentProps {
   /** The `className` applied to the outer container element. Use when styling the entire component. */
   className?: string,
-
-  /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
-  innerClassName?: string,
 
   /** Component height */
   height: number,
 
    /** Component width */
-  width: number,
+  width: number
+}
 
-  /** Passed as {@link VirtualBaseItemProps.data} to each child item */
-  itemData?: unknown,
-
+/**
+ * Common props for all virtual scrollable components
+ */
+export interface VirtualScrollableProps {
   /** 
    * Determines whether the component should track whether it's being actively scrolled
-   * and pass to child items as {@link VirtualBaseItemProps.isScrolling}.
+   * and pass through when rendering its content.
    * 
    * @defaultValue false
    * */
@@ -54,12 +53,23 @@ export interface VirtualBaseProps {
   maxCssSize?: number,
 
   /**
-   * The minimum number of virtual pages to use when inner container would otherwise be more than {@link VirtualBaseProps.maxCssSize} big.
+   * The minimum number of virtual pages to use when inner container would otherwise be more than {@link VirtualScrollableProps.maxCssSize} big.
    * You should never normally need to change this.
    * 
    * @defaultValue 100
    */
   minNumPages?: number
+}
+
+/**
+ * Common props for {@link VirtualList} and {@link VirtualGrid}
+ */
+export interface VirtualBaseProps extends ComponentProps, VirtualScrollableProps {
+  /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
+  innerClassName?: string,
+
+  /** Passed as {@link VirtualBaseItemProps.data} to each child item */
+  itemData?: unknown,
 }
 
 /**
@@ -96,7 +106,7 @@ export type VirtualInnerRender = (props: VirtualInnerProps, ref?: React.Forwarde
  * Props that an implementation of {@link VirtualOuterRender} must accept.
  */
 export interface VirtualOuterProps {
-    /** The `className` to apply to the outer container div. Passed through from {@link VirtualBaseProps.className} */
+    /** The `className` to apply to the outer container div. Passed through from {@link ComponentProps.className} */
   className: string | undefined;
 
   /** The child inner container rendered into the outer container div */

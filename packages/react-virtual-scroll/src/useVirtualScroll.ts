@@ -20,7 +20,7 @@ export interface ScrollState {
   scrollDirection: ScrollDirection, 
 }
 
-export interface VirtualScroll extends ScrollState {
+export interface VirtualScrollState extends ScrollState {
   renderSize: number;
 
   // Returns updated scrollOffset. Caller should update scroll bar position if different from value passed in. 
@@ -36,7 +36,7 @@ export interface VirtualScroll extends ScrollState {
 const MAX_SUPPORTED_CSS_SIZE = 6000000;
 const MIN_NUMBER_PAGES = 100;
 
-export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_CSS_SIZE, minNumberPages = MIN_NUMBER_PAGES): VirtualScroll {
+export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_CSS_SIZE, minNumberPages = MIN_NUMBER_PAGES): VirtualScrollState {
   let renderSize=0, pageSize=0, numPages=0;
   if (totalSize < maxCssSize) {
     // No paging needed
