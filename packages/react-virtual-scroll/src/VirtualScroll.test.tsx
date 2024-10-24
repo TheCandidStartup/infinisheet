@@ -89,7 +89,7 @@ describe('VirtualScroll', () => {
       expect(header.dataset.verticaloffset).toBe("120")
       expect(header.dataset.horizontaloffset).toBe("0")
 
-      let proxy = ref.current || throwErr("null ref");
+      const proxy = ref.current || throwErr("null ref");
       expect(proxy.clientHeight).toBe(240);
       expect(proxy.clientWidth).lessThan(600);
       {act(() => { proxy.scrollTo(100); })}
@@ -134,7 +134,7 @@ describe('VirtualScroll', () => {
       expect(header.dataset.verticaloffset).toBe("0")
       expect(header.dataset.horizontaloffset).toBe("250")
 
-      let proxy = ref.current || throwErr("null ref");
+      const proxy = ref.current || throwErr("null ref");
       expect(proxy.clientHeight).lessThan(240);
       expect(proxy.clientWidth).toBe(600);
       {act(() => { proxy.scrollTo(undefined, 400); })}
