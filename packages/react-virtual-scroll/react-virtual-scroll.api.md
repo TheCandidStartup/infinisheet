@@ -8,6 +8,25 @@ import { default as React_2 } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 // @public
+export function AutoSizer(props: AutoSizerProps): react_jsx_runtime.JSX.Element;
+
+// @public
+export interface AutoSizerProps {
+    children: AutoSizerRender;
+    className?: string;
+    style?: React_2.CSSProperties;
+}
+
+// @public
+export type AutoSizerRender = (props: AutoSizerRenderProps) => JSX.Element;
+
+// @public
+export interface AutoSizerRenderProps {
+    height: number;
+    width: number;
+}
+
+// @public
 export interface ComponentProps {
     className?: string;
     height: number;

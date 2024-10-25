@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { VirtualScroll, VirtualScrollProxy, ScrollState, VirtualContentRender } from '@candidstartup/react-virtual-scroll';
+import { VirtualScroll, VirtualScrollProxy, ScrollState, VirtualContentRender, 
+  DisplayList, useVariableSizeItemOffsetMapping, AutoSizer } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -11,14 +12,22 @@ interface AppState {
   horizontalScrollState: ScrollState
 }
 
+const mapping = useVariableSizeItemOffsetMapping(30, [50]);
+
+const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+  <div className={ index == 0 ? "header" : "cell" } style={style}>
+    { (index == 0) ? "Header" : "Item " + index }
+  </div>
+);
+
 function App() {
   const [appState, setAppState] = React.useState<AppState|null>(null);
   const ref = React.useRef<VirtualScrollProxy>(null);
-  const [scrollHeight, setScrollHeight] = React.useState<number>(10000000);
-  const [scrollWidth, setScrollWidth] = React.useState<number>(10000);
+  const [scrollHeight, setScrollHeight] = React.useState<number>(3200);
+  const [scrollWidth, setScrollWidth] = React.useState<number>(0);
 
-  const contentRender: VirtualContentRender = ({isScrolling, ...rest}, ref) => (
-    <div ref={ref} {...rest}>
+  const contentRender: VirtualContentRender = ({isScrolling, style, ...rest}, ref) => (
+    <div ref={ref} style={{display: 'flex', flexDirection: 'column', ...style}} {...rest}>
       isScrolling: {isScrolling ? 'true' : 'false'} <br/>
       verticalOffset: {appState?.verticalOffset} <br/>
       verticalPage: {appState?.verticalScrollState.page} <br/>
@@ -26,6 +35,17 @@ function App() {
       horizontalOffset: {appState?.horizontalOffset} <br/>
       horizontalPage: {appState?.horizontalScrollState.page} <br/>
       horizontalDirection: {appState?.horizontalScrollState.scrollDirection} <br/>
+      <AutoSizer style={{ flexGrow: 1, width: '100%'}}>
+        {({height,width}) => (
+      <DisplayList
+        offset={appState ? appState.verticalOffset : 0}
+        height={height}
+        itemCount={100}
+        itemOffsetMapping={mapping}
+        width={width}>
+        {Row}
+      </DisplayList>)}
+      </AutoSizer>
     </div>
   )
 
@@ -83,7 +103,7 @@ function App() {
           setAppState({ verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState })
         }}
         contentRender={contentRender}
-        height={240}
+        height={500}
         width={600}/>
     </div>
   )

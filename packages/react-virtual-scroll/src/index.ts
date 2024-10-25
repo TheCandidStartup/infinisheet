@@ -9,6 +9,7 @@
  * @packageDocumentation
  */
 
+export * from './AutoSizer'
 export * from './VirtualBase'
 export * from './VirtualScroll'
 export * from './VirtualGrid'
