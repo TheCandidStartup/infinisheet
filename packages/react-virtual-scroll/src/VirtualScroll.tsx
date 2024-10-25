@@ -30,7 +30,7 @@ export interface VirtualContentProps {
  * 
  * @example Minimal compliant implementation
  * ```
- * const contentRender: VirtualContentRender = ({...rest}, ref) => (
+ * const contentRender: VirtualContentRender = ({isScrolling, ...rest}, ref) => (
  *   <div ref={ref} {...rest} />
  * )
  * ```
@@ -100,7 +100,7 @@ const Content = React.forwardRef<HTMLDivElement, VirtualContentComponentProps >(
   return render(rest, ref)
 })
 
-function defaultContentRender({...rest}: VirtualContentProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
+function defaultContentRender({isScrolling: _isScrolling, ...rest}: VirtualContentProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
   return <div ref={ref} {...rest} />
 }
 

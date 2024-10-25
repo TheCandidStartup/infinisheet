@@ -71,6 +71,9 @@ export function AutoSizer(props: AutoSizerProps) {
     }
   })
 
+  // No point rendering children until we've measured size and found a usable area
+  const renderChildren = height > 0 && width > 0;
+
   // Ensure that size is driven only by parent. Wrapping child in a zero sized inner div
   // which it can overflow stops child's size having any impact on size of outer div. 
   // Otherwise can end up in infinite loop if child makes itself bigger than the 
@@ -79,7 +82,7 @@ export function AutoSizer(props: AutoSizerProps) {
   return (
     <div ref={ref} className={className} style={style}>
       <div style={{ overflow: 'visible', width: 0, height: 0 }}>
-      {height && width && children({height, width})}
+      {renderChildren && children({height, width})}
       </div>
     </div>
   );
