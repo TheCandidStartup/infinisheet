@@ -1,7 +1,8 @@
 import React from "react";
-import { ComponentProps, VirtualScrollableProps, VirtualOuterRender, VirtualOuterProps, ScrollEvent } from './VirtualBase';
+import { ComponentProps, VirtualScrollableProps, VirtualOuterRender, VirtualOuterProps, ScrollEvent, ScrollToOption } from './VirtualBase';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
+import { getOffsetToScrollRange } from './VirtualCommon';
 
 /**
  * Props that an implementation of {@link VirtualContentRender} must accept.
@@ -81,9 +82,23 @@ export interface VirtualScrollProps extends ComponentProps, VirtualScrollablePro
  */
 export interface VirtualScrollProxy {
   /**
-   * Scrolls the list to the specified vertical and horizontal offset in pixels
+   * Scrolls to the specified vertical and horizontal offset in pixels
+   * Either offset can be left undefined to scroll in one dimension only
+   * @param verticalOffset - Offset to scroll to vertically
+   * @param horizontalOffset - Offset to scroll to horizontally
    */
   scrollTo(verticalOffset?: number, horizontalOffset?: number): void;
+
+    /**
+   * Scrolls to the specified area
+   * Either offset/size pair can be left undefined to scroll in one dimension only
+   * @param verticalOffset - Offset to scroll to vertically
+   * @param verticalSize - Size of target area vertically
+   * @param horizontalOffset - Offset to scroll to horizontally
+   * @param horizontalSize - Size of target area horizontally
+   * @param option - Where to {@link ScrollToOption | position} the area within the viewport
+   */
+  scrollToArea(verticalOffset?: number, verticalSize?: number, horizontalOffset?: number, horizontalSize?: number, option?: ScrollToOption): void;
 
   /** Exposes DOM clientWidth property */
   get clientWidth(): number;
@@ -131,11 +146,14 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
   const { width, height, scrollWidth = 0, scrollHeight = 0, className, contentClassName, onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   const outerRef = React.useRef<HTMLDivElement>(null);
-  const { renderSize: renderRowSize,
+  const { scrollOffset: scrollRowOffset, renderOffset: renderRowOffset, renderSize: renderRowSize,
     onScroll: onScrollRow, doScrollTo: doScrollToRow } = useVirtualScroll(scrollHeight, props.maxCssSize, props.minNumPages);
-  const { renderSize: renderColumnSize,
+  const currentVerticalOffset = scrollRowOffset + renderRowOffset;
+  const { scrollOffset: scrollColOffset, renderOffset: renderColOffset, renderSize: renderColumnSize,
     onScroll: onScrollColumn, doScrollTo: doScrollToColumn} = useVirtualScroll(scrollWidth, props.maxCssSize, props.minNumPages);
-  const isScrolling = useIsScrollingHook(outerRef); 
+  const currentHorizontalOffset = scrollColOffset + renderColOffset;
+  const isScrolling = useIsScrollingHook(outerRef);
+
 
   React.useImperativeHandle(ref, () => {
     return {
@@ -152,6 +170,17 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
         }
       },
 
+      scrollToArea(verticalOffset?: number, verticalSize?: number, horizontalOffset?: number, horizontalSize?: number, option?: ScrollToOption) {
+        const outer = outerRef.current;
+        /* istanbul ignore if*/
+        if (!outer)
+          return;
+
+        const rowOffset = getOffsetToScrollRange(verticalOffset, verticalSize, outer.clientHeight, currentVerticalOffset, option);
+        const colOffset = getOffsetToScrollRange(horizontalOffset, horizontalSize, outer.clientWidth, currentHorizontalOffset, option);
+        this.scrollTo(rowOffset, colOffset);
+      },
+
       get clientWidth(): number {
         return outerRef.current ? outerRef.current.clientWidth : /* istanbul ignore next */ 0;
       },
@@ -160,7 +189,7 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
         return outerRef.current ? outerRef.current.clientHeight : /* istanbul ignore next */ 0;
       }
     }
-  }, [ doScrollToRow, doScrollToColumn ]);
+  }, [ doScrollToRow, doScrollToColumn, currentVerticalOffset, currentHorizontalOffset ]);
 
   function onScroll(event: ScrollEvent) {
     const { clientWidth, clientHeight, scrollWidth, scrollHeight, scrollLeft, scrollTop } = event.currentTarget;

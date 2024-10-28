@@ -25,7 +25,7 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
   if (itemIndex >= itemCount) {
     return [0, 0, []];
   }
-  
+
   itemIndex = Math.max(0, Math.min(itemCount - 1, itemIndex));
   const endOffset = scrollOffset + clientExtent;
 
@@ -90,23 +90,23 @@ export function getGridTemplate(sizes: number[]): string | undefined {
   return join(ret,s);
 }
 
-export function getOffsetToScroll(index: number | undefined, itemOffsetMapping: ItemOffsetMapping, 
+export function getOffsetToScrollRange(offset: number | undefined, size: number | undefined, 
   clientExtent: number, scrollOffset: number, option?: ScrollToOption): number | undefined
 {
-  if (index === undefined)
+  if (offset === undefined)
     return undefined;
 
-  const itemOffset = itemOffsetMapping.itemOffset(index);
   if (option != 'visible')
-    return itemOffset;
+    return offset;
 
   // Start of item offscreen before start of viewport?
-  if (itemOffset < scrollOffset)
-    return itemOffset;
+  if (offset < scrollOffset)
+    return offset;
+
+  size = size || 0;
 
   // Already completely visible?
-  const itemSize = itemOffsetMapping.itemSize(index);
-  const endOffset = itemOffset + itemSize;
+  const endOffset = offset + size;
   const endViewport = scrollOffset + clientExtent;
   if (endOffset <= endViewport)
     return undefined;
@@ -114,9 +114,20 @@ export function getOffsetToScroll(index: number | undefined, itemOffsetMapping: 
   // Item offscreen past end of viewport
 
   // Item bigger than viewport? Make sure start is in view
-  if (itemSize > clientExtent)
-    return itemOffset;
+  if (size > clientExtent)
+    return offset;
 
   // Scroll so end of item aligns with end of viewport
-  return itemOffset - clientExtent + itemSize;
+  return offset - clientExtent + size;
  }
+
+export function getOffsetToScroll(index: number | undefined, itemOffsetMapping: ItemOffsetMapping, 
+  clientExtent: number, scrollOffset: number, option?: ScrollToOption): number | undefined
+{
+  if (index === undefined)
+    return undefined;
+
+  return getOffsetToScrollRange(itemOffsetMapping.itemOffset(index), itemOffsetMapping.itemSize(index), 
+    clientExtent, scrollOffset, option);
+ }
+ 

@@ -237,6 +237,7 @@ export interface VirtualScrollProxy {
     get clientHeight(): number;
     get clientWidth(): number;
     scrollTo(verticalOffset?: number, horizontalOffset?: number): void;
+    scrollToArea(verticalOffset?: number, verticalSize?: number, horizontalOffset?: number, horizontalSize?: number, option?: ScrollToOption): void;
 }
 
 // (No @packageDocumentation comment for this package)
