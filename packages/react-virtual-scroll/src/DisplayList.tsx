@@ -1,19 +1,13 @@
 import React from "react";
-import { ItemOffsetMapping, ScrollLayout } from './VirtualBase';
+import { ItemOffsetMapping, ScrollLayout, VirtualBaseItemProps } from './VirtualBase';
 import { getRangeToRender, getGridTemplate } from './VirtualCommon';
 
 /**
  * Props accepted by {@link DisplayListItem}
  */
-export interface DisplayListItemProps  {
-  /** Index of item in the list being rendered */
-  index: number,
-
-  /** Value of {@link DisplayListProps.itemData} from owning component */
-  data: unknown,
-
-  /** Style that should be applied to each item rendered. Positions the item within the inner container. */
-  style: React.CSSProperties,
+export interface DisplayListItemProps extends VirtualBaseItemProps {
+    /** Index of item in the list being rendered */
+    index: number,
 }
 
 /**
@@ -21,7 +15,7 @@ export interface DisplayListItemProps  {
  *
  * Must be passed as a child to {@link DisplayList}. 
  * Accepts props defined by {@link DisplayListItemProps}.
- * Component must pass {@link DisplayListItemProps.style} to whatever it renders. 
+ * Component must pass {@link VirtualBaseItemProps.style} to whatever it renders. 
  * 
  * @example Basic implementation
  * ```
@@ -89,8 +83,15 @@ export interface DisplayListProps {
   /** Offset to start of displayed content */
   offset: number,
 
-  /** Passed as {@link DisplayListItemProps.data} to each child item */
+  /** Passed as {@link VirtualBaseItemProps.data} to each child item */
   itemData?: unknown,
+
+    /** Passed as {@link VirtualBaseItemProps.isScrolling} to each child item
+     * 
+     * Provided as a convenience when combining DisplayList with {@link VirtualScroll}
+     * Not interpreted by DisplayList
+     */
+  isScrolling?: boolean,
 
   /** 
    * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each item in the list
@@ -153,7 +154,7 @@ const boxStyle: React.CSSProperties = { boxSizing: 'border-box' };
 export function DisplayList(props: DisplayListProps) {
   const { width, height, itemCount, itemOffsetMapping, className, innerClassName, offset: renderOffset, children,
     itemData, itemKey = defaultItemKey, layout = 'vertical', outerRender = defaultContainerRender,
-    innerRender = defaultContainerRender } = props;
+    innerRender = defaultContainerRender, isScrolling } = props;
 
   const isVertical = layout === 'vertical';
 
@@ -180,7 +181,8 @@ export function DisplayList(props: DisplayListProps) {
           height: isVertical ? renderSize : "100%", 
           width: isVertical ? "100%" : renderSize }}>
         {sizes.map((_size, arrayIndex) => (
-          <ChildVar data={itemData} key={itemKey(startIndex + arrayIndex, itemData)} index={startIndex + arrayIndex} style={boxStyle}/>
+          <ChildVar data={itemData} isScrolling={isScrolling} 
+            key={itemKey(startIndex + arrayIndex, itemData)} index={startIndex + arrayIndex} style={boxStyle}/>
         ))}
       </Container>
     </Container>

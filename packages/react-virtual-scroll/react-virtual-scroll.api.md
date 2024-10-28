@@ -50,10 +50,8 @@ export function DisplayList(props: DisplayListProps): react_jsx_runtime.JSX.Elem
 export type DisplayListItem = React_2.ComponentType<DisplayListItemProps>;
 
 // @public
-export interface DisplayListItemProps {
-    data: unknown;
+export interface DisplayListItemProps extends VirtualBaseItemProps {
     index: number;
-    style: React_2.CSSProperties;
 }
 
 // @public
@@ -63,6 +61,7 @@ export interface DisplayListProps {
     height: number;
     innerClassName?: string;
     innerRender?: DisplayContainerRender;
+    isScrolling?: boolean;
     itemCount: number;
     itemData?: unknown;
     itemKey?: (index: number, data: unknown) => React_2.Key;
