@@ -1,7 +1,7 @@
 import React from "react";
 
 /**
- * Common props for {@link VirtualListItem} and {@link VirtualGridItem}
+ * Common props for {@link DisplayListItem} and {@link VirtualGridItem}
  */
 export interface VirtualBaseItemProps {
   /** Value of {@link VirtualBaseProps.itemData} from owning component */

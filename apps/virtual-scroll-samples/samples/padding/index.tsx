@@ -8,25 +8,24 @@ const PADDING_SIZE = 10;
 
 const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
   <div 
-    className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } 
-    style={{
-      ...style,
-      top: style.top as number + PADDING_SIZE
-    }}
-  >
+    className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
     { (index == 0) ? "Header" : "Item " + index }
   </div>
 );
 
-const innerRender: VirtualInnerRender = (({style, ...rest}, ref) => (
+const innerRender: VirtualInnerRender = (({style, children, ...rest}, ref) => (
   <div 
     ref={ref} 
     style={{
       ...style,
-      height: style.height as number + PADDING_SIZE * 2
+      height: style.height as number + PADDING_SIZE * 2,
+      gridTemplateRows: PADDING_SIZE + "px " + style.gridTemplateRows + " " + PADDING_SIZE +"px"
     }} 
-    {...rest}
-  />
+    {...rest}>
+    <div style={{ boxSizing: 'border-box' }}/>
+    {children}
+    <div style={{ boxSizing: 'border-box' }}/>
+  </div>
 ))
 
 function App() {

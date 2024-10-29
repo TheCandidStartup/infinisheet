@@ -158,6 +158,9 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
   React.useImperativeHandle(ref, () => {
     return {
       scrollTo(rowOffset?: number, columnOffset?: number): void {
+        if (rowOffset === undefined && columnOffset === undefined)
+          return;
+        
         const outer = outerRef.current;
         /* istanbul ignore else */
         if (outer) {

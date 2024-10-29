@@ -1,25 +1,36 @@
 import React from "react";
 import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
-import { throwErr, overrideProp, fireEventScrollEnd } from '../../../shared/test/utils'
+import { throwErr, overrideProp, fireEventScrollEnd, stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 import { VirtualInnerRender, VirtualOuterRender } from './VirtualBase'
 import { VirtualList, VirtualListProxy } from './VirtualList'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 import { ScrollState } from './useVirtualScroll';
 
-function updateLayout(innerDiv: HTMLElement, outerDiv: HTMLElement) {
-  const scrollHeight = parseInt(innerDiv.style.height);
-  overrideProp(outerDiv, "scrollHeight", scrollHeight);
-  const scrollWidth = parseInt(innerDiv.style.width);
-  overrideProp(outerDiv, "scrollWidth", scrollWidth);
+// Set layout related properties and find div to scroll starting
+// from an item in the list.
+function updateLayout(item: HTMLElement): HTMLElement {
+  const displayInner = item.parentElement || throwErr("No DisplayList inner");
+  const displayOuter = displayInner.parentElement || throwErr("No DisplayList outer");
+  const autoInner = displayOuter.parentElement || throwErr("No AutoSizer inner");
+  const autoOuter = autoInner.parentElement || throwErr("No AutoSizer outer");
+  const scrollContent = autoOuter.parentElement || throwErr("No VirtualScroll content");
+  const scrollOuter = scrollContent.parentElement || throwErr("No VirtualScroll outer");
+  const scrollInner = scrollOuter.children[1] as HTMLElement || throwErr("No VirtualScroll inner");
 
-  const clientHeight = parseInt(outerDiv.style.height);
-  overrideProp(outerDiv, "clientHeight", clientHeight);
-  const clientWidth = parseInt(outerDiv.style.width);
-  overrideProp(outerDiv, "clientWidth", clientWidth);
+  const scrollHeight = parseInt(scrollInner.style.height);
+  overrideProp(scrollOuter, "scrollHeight", scrollHeight);
+  const scrollWidth = parseInt(scrollInner.style.width);
+  overrideProp(scrollOuter, "scrollWidth", scrollWidth);
+
+  return scrollOuter;
 }
 
 describe('Fixed Size VirtualList', () => {
+  afterEach(() => {
+    unstubAllProperties();
+  })
+
   const Cell = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div className={ index == 0 ? "header" : "cell" } style={style}>
       { (index == 0) ? "Header" : "Item " + index }
@@ -29,6 +40,9 @@ describe('Fixed Size VirtualList', () => {
   const mapping = useFixedSizeItemOffsetMapping(30);
   
   it('should render and scroll', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 240);
+
     render(
       <VirtualList
         height={240}
@@ -40,25 +54,16 @@ describe('Fixed Size VirtualList', () => {
     )
     const header = screen.getByText('Header');
     expect(header).toBeInTheDocument()
-    expect(header).toHaveProperty("style.top", '0px')
-    expect(header).toHaveProperty("style.height", '30px')
+    const outerDiv = updateLayout(header);
 
     const item1 = screen.getByText('Item 1');
     expect(item1).toBeInTheDocument()
-    expect(item1).toHaveProperty("style.top", '30px')
-    expect(item1).toHaveProperty("style.height", '30px')
 
     // Overscan should render one item after visible window
     const item8 = screen.getByText('Item 8');
     expect(item8).toBeInTheDocument()
-    expect(item8).toHaveProperty("style.top", '240px')
-    expect(item8).toHaveProperty("style.height", '30px')
 
     expect(screen.queryByText('Item 9')).toBeNull()
-
-    const innerDiv = header.parentElement || throwErr("No inner div");
-    const outerDiv = innerDiv.parentElement || throwErr("No outer div");
-    updateLayout(innerDiv, outerDiv);
 
     // Scroll down 4 items.
     {act(() => {
@@ -72,24 +77,20 @@ describe('Fixed Size VirtualList', () => {
     // Overscan should render one item before the start of the visible window
     const item3 = screen.getByText('Item 3');
     expect(item3).toBeInTheDocument()
-    expect(item3).toHaveProperty("style.top", '90px')
-    expect(item3).toHaveProperty("style.height", '30px')
 
     // New items scrolled into view
     const item9= screen.getByText('Item 9');
     expect(item9).toBeInTheDocument()
-    expect(item9).toHaveProperty("style.top", '270px')
-    expect(item9).toHaveProperty("style.height", '30px')
 
     const item12= screen.getByText('Item 12');
     expect(item12).toBeInTheDocument()
-    expect(item12).toHaveProperty("style.top", '360px')
-    expect(item12).toHaveProperty("style.height", '30px')
 
     expect(screen.queryByText('Item 13')).toBeNull()
   })
 
   it('empty list', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 240);
     render(
       <VirtualList
         height={240}
@@ -103,6 +104,8 @@ describe('Fixed Size VirtualList', () => {
   })
 
   it('should support ref to a VirtualListProxy', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 240);
     const mock = vi.fn();
     Element.prototype["scrollTo"] = mock;
 
@@ -120,21 +123,20 @@ describe('Fixed Size VirtualList', () => {
       )
 
       const header = screen.getByText('Header');
-      const innerDiv = header.parentElement || throwErr("No inner div");
-      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
-      updateLayout(innerDiv, outerDiv);
+      expect(header).toBeInTheDocument()
+      updateLayout(header);
 
       let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollTo(100); })}
-      expect(mock).lastCalledWith(0, 100);
+      expect(mock).lastCalledWith({ "top": 100 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42); })}
-      expect(mock).lastCalledWith(0, 42*30);
+      expect(mock).lastCalledWith({ "top": 42*30 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(0); })}
-      expect(mock).lastCalledWith(0, 0);
+      expect(mock).lastCalledWith({ "top":  0 });
 
       proxy = ref.current || throwErr("null ref");
       expect(mock).toBeCalledTimes(3);
@@ -143,17 +145,19 @@ describe('Fixed Size VirtualList', () => {
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42, 'visible'); })}
-      expect(mock).lastCalledWith(0, 42*30 - 240 + 30);
+      expect(mock).lastCalledWith({ "top":  42*30 - 240 + 30 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(10, 'visible'); })}
-      expect(mock).lastCalledWith(0, 10*30);
+      expect(mock).lastCalledWith({ "top":  10*30 });
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
   })
 
   it('should support small viewport', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 10);
     const mock = vi.fn();
     Element.prototype["scrollTo"] = mock;
 
@@ -171,39 +175,40 @@ describe('Fixed Size VirtualList', () => {
       )
 
       const header = screen.getByText('Header');
-      const innerDiv = header.parentElement || throwErr("No inner div");
-      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
-      updateLayout(innerDiv, outerDiv);
+      expect(header).toBeInTheDocument()
+      updateLayout(header);
 
       let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollTo(100); })}
-      expect(mock).lastCalledWith(0, 100);
+      expect(mock).lastCalledWith({ "top": 100 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42); })}
-      expect(mock).lastCalledWith(0, 42*30);
+      expect(mock).lastCalledWith({ "top": 42*30 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(0); })}
-      expect(mock).lastCalledWith(0, 0);
+      expect(mock).lastCalledWith({ "top": 0 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(1, 'visible'); })}
-      expect(mock).lastCalledWith(0, 30);
+      expect(mock).lastCalledWith({ "top": 30 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42, 'visible'); })}
-      expect(mock).lastCalledWith(0, 42*30);
+      expect(mock).lastCalledWith({ "top": 42*30 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(10, 'visible'); })}
-      expect(mock).lastCalledWith(0, 10*30);
+      expect(mock).lastCalledWith({ "top": 10*30 });
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
   })
 
   it('should support horizontal layout', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 600);
+    stubProperty(HTMLElement.prototype, "clientHeight", 35);
     const mock = vi.fn();
     Element.prototype["scrollTo"] = mock;
 
@@ -223,17 +228,10 @@ describe('Fixed Size VirtualList', () => {
 
       const header = screen.getByText('Header');
       expect(header).toBeInTheDocument()
-      expect(header).toHaveProperty("style.left", '0px')
-      expect(header).toHaveProperty("style.width", '30px')
+      const outerDiv = updateLayout(header);
   
       const item1 = screen.getByText('Item 1');
       expect(item1).toBeInTheDocument()
-      expect(item1).toHaveProperty("style.left", '30px')
-      expect(item1).toHaveProperty("style.width", '30px')
-
-      const innerDiv = header.parentElement || throwErr("No inner div");
-      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
-      updateLayout(innerDiv, outerDiv);
 
       // Scroll across 4 items.
       {act(() => {
@@ -246,20 +244,18 @@ describe('Fixed Size VirtualList', () => {
 
       const item3 = screen.getByText('Item 3');
       expect(item3).toBeInTheDocument()
-      expect(item3).toHaveProperty("style.left", '90px')
-      expect(item3).toHaveProperty("style.width", '30px')
 
       let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollTo(100); })}
-      expect(mock).lastCalledWith(100, 0);
+      expect(mock).lastCalledWith({ "left": 100 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42); })}
-      expect(mock).lastCalledWith(42*30, 0);
+      expect(mock).lastCalledWith({ "left": 42*30 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(0); })}
-      expect(mock).lastCalledWith(0, 0);
+      expect(mock).lastCalledWith({ "left": 0 });
 
       proxy = ref.current || throwErr("null ref");
       expect(mock).toBeCalledTimes(3);
@@ -268,17 +264,19 @@ describe('Fixed Size VirtualList', () => {
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42, 'visible'); })}
-      expect(mock).lastCalledWith(42*30 - 600 + 30, 0);
+      expect(mock).lastCalledWith({ "left": 42*30 - 600 + 30 });
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(10, 'visible'); })}
-      expect(mock).lastCalledWith(10*30, 0);
+      expect(mock).lastCalledWith({ "left": 10*30 });
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
   })
 
   it('should support customization', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 50);
     const outerRender: VirtualOuterRender = ({style, ...rest}, ref) => (
       <div ref={ref} style={{ ...style, height: "500px"}} {...rest}/>
     )
@@ -302,8 +300,9 @@ describe('Fixed Size VirtualList', () => {
     )
 
     const header = screen.getByText('Header');
-    const innerDiv = header.parentElement || throwErr("No inner div");
-    const outerDiv = innerDiv.parentElement || throwErr("No outer div");
+    expect(header).toBeInTheDocument()
+    const outerDiv = updateLayout(header);
+    const innerDiv = header.parentElement || throwErr("No DisplayList inner");
 
     expect(outerDiv).toHaveProperty("className", "outerClass")
     expect(outerDiv).toHaveProperty("style.height", '500px')
@@ -313,6 +312,10 @@ describe('Fixed Size VirtualList', () => {
 })
 
 describe('Variable Size VirtualList with useIsScrolling', () => {
+  afterEach(() => {
+    unstubAllProperties();
+  })
+
   const Cell = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
     <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
       { (index == 0) ? "Header" : "Item " + index }
@@ -323,6 +326,8 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
   const mapping = useVariableSizeItemOffsetMapping(30, [60]);
   
   it('should render and scroll', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 240);
     render(
       <VirtualList
         height={240}
@@ -335,25 +340,16 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     )
     const header = screen.getByText('Header');
     expect(header).toBeInTheDocument()
-    expect(header).toHaveProperty("style.top", '0px')
-    expect(header).toHaveProperty("style.height", '60px')
+    const outerDiv = updateLayout(header);
 
     const item1 = screen.getByText('Item 1');
     expect(item1).toBeInTheDocument()
-    expect(item1).toHaveProperty("style.top", '60px')
-    expect(item1).toHaveProperty("style.height", '30px')
 
     // Should be one less item than fixed size case
     const item7 = screen.getByText('Item 7');
     expect(item7).toBeInTheDocument()
-    expect(item7).toHaveProperty("style.top", '240px')
-    expect(item7).toHaveProperty("style.height", '30px')
 
     expect(screen.queryByText('Item 8')).toBeNull()
-
-    const innerDiv = header.parentElement || throwErr("No inner div");
-    const outerDiv = innerDiv.parentElement || throwErr("No outer div");
-    updateLayout(innerDiv, outerDiv);
 
     // Check that trying to scroll past the end is handled sensibly
     // Send scrollEnd separately so can check isScrolling property works
@@ -367,15 +363,11 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     // Overscan should render one item before the start of the visible window
     let item91 = screen.getByText('Item 91');
     expect(item91).toBeInTheDocument()
-    expect(item91).toHaveProperty("style.top", '2760px')
-    expect(item91).toHaveProperty("style.height", '30px')
     expect(item91).toHaveProperty("className", 'cellScroll')
 
     // Last item in list should be visible
     let item99 = screen.getByText('Item 99');
     expect(item99).toBeInTheDocument()
-    expect(item99).toHaveProperty("style.top", '3000px')
-    expect(item99).toHaveProperty("style.height", '30px')
 
     expect(screen.queryByText('Item 100')).toBeNull()
 
@@ -385,18 +377,16 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
 
     item91 = screen.getByText('Item 91');
     expect(item91).toBeInTheDocument()
-    expect(item91).toHaveProperty("style.top", '2760px')
-    expect(item91).toHaveProperty("style.height", '30px')
     expect(item91).toHaveProperty("className", 'cell')
 
     item99 = screen.getByText('Item 99');
     expect(item99).toBeInTheDocument()
-    expect(item99).toHaveProperty("style.top", '3000px')
-    expect(item99).toHaveProperty("style.height", '30px')
     expect(item99).toHaveProperty("className", 'cell')
   })
 
   it('should render list with no variable sizes', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 240);
     const fixedMapping = useVariableSizeItemOffsetMapping(30);
     render(
       <VirtualList
@@ -410,18 +400,16 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     )
     const header = screen.getByText('Header');
     expect(header).toBeInTheDocument()
-    expect(header).toHaveProperty("style.top", '0px')
-    expect(header).toHaveProperty("style.height", '30px')
 
     const item7 = screen.getByText('Item 8');
     expect(item7).toBeInTheDocument()
-    expect(item7).toHaveProperty("style.top", '240px')
-    expect(item7).toHaveProperty("style.height", '30px')
 
     expect(screen.queryByText('Item 9')).toBeNull()
   })
 
   it('should render list with less items than sizes', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 240);
     const longMapping = useVariableSizeItemOffsetMapping(30, [50, 100, 150]);
 
     render(
@@ -436,13 +424,13 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     )
     const header = screen.getByText('Header');
     expect(header).toBeInTheDocument()
-    expect(header).toHaveProperty("style.top", '0px')
-    expect(header).toHaveProperty("style.height", '50px')
 
     expect(screen.queryByText('Item 1')).toBeNull()
   })
 
   it('should support scrollToItem with index=-1,0,1,2', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 240);
     const mock = vi.fn();
     Element.prototype["scrollTo"] = mock;
 
@@ -461,19 +449,19 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
 
       const proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollTo(100); })}
-      expect(mock).lastCalledWith(0, 100);
+      expect(mock).lastCalledWith({ "top": 100 });
 
       {act(() => { proxy.scrollToItem(-1); })}
-      expect(mock).lastCalledWith(0, 0);
+      expect(mock).lastCalledWith({ "top": 0 });
 
       {act(() => { proxy.scrollToItem(0); })}
-      expect(mock).lastCalledWith(0, 0);
+      expect(mock).lastCalledWith({ "top": 0 });
 
       {act(() => { proxy.scrollToItem(1); })}
-      expect(mock).lastCalledWith(0, 60);
+      expect(mock).lastCalledWith({ "top": 60 });
 
       {act(() => { proxy.scrollToItem(2); })}
-      expect(mock).lastCalledWith(0, 90);
+      expect(mock).lastCalledWith({ "top": 90 });
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
@@ -481,6 +469,10 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
 })
 
 describe('Paged VirtualList', () => {
+  afterEach(() => {
+    unstubAllProperties();
+  })
+
   const Cell = ({ index, style }: { index: number, style: React.CSSProperties }) => (
     <div className={ index == 0 ? "header" : "cell" } style={style}>
       { (index == 0) ? "Header" : "Item " + index }
@@ -490,6 +482,8 @@ describe('Paged VirtualList', () => {
   const mapping = useFixedSizeItemOffsetMapping(30);
   
   it('should manipulate the scroll bar position for vertical layout', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 240);
     try {
       const onScroll = vi.fn<[number,ScrollState],void>();
       const ref = React.createRef<VirtualListProxy>();
@@ -508,22 +502,15 @@ describe('Paged VirtualList', () => {
 
       const header = screen.getByText('Header');
       expect(header).toBeInTheDocument()
-      expect(header).toHaveProperty("style.top", '0px')
-
-      const innerDiv = header.parentElement || throwErr("No inner div");
-      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
-      updateLayout(innerDiv, outerDiv);
-
+      const outerDiv = updateLayout(header);
+  
       const mock = vi.fn()
       Element.prototype["scrollTo"] = mock;
 
       // Scroll to last item on first page
       let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(1999); })}
-      expect(mock).lastCalledWith(0, 59970);
-      const item1999 = screen.getByText('Item 1999');
-      expect(item1999).toBeInTheDocument()
-      expect(item1999).toHaveProperty("style.top", '59970px')
+      expect(mock).lastCalledWith({ "top": 59970 });
 
       // If there was an actual implementation of scrollTo it
       // would have updated scrollTop and sent events as a side effect
@@ -532,6 +519,9 @@ describe('Paged VirtualList', () => {
         fireEventScrollEnd(outerDiv);
       })}
       expect(onScroll).lastCalledWith(59970, { scrollOffset: 59970, renderOffset: 0, page: 0, scrollDirection: 'forward'})
+
+      const item1999 = screen.getByText('Item 1999');
+      expect(item1999).toBeInTheDocument()
 
       // Scroll down 2 items to cross page boundary
       // Scroll bar should not be adjusted on first boundary
@@ -543,15 +533,11 @@ describe('Paged VirtualList', () => {
       expect(outerDiv).toHaveProperty("scrollTop", 60030);
       const item2001 = screen.getByText('Item 2001');
       expect(item2001).toBeInTheDocument()
-      expect(item2001).toHaveProperty("style.top", '60030px')
 
       // Scroll to last item on second page
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(3999); })}
-      expect(mock).lastCalledWith(0, 119970);
-      const item3999 = screen.getByText('Item 3999');
-      expect(item3999).toBeInTheDocument()
-      expect(item3999).toHaveProperty("style.top", '119970px')
+      expect(mock).lastCalledWith({ "top": 119970 });
 
       // Resulting update of ScrollTop
       {act(() => {
@@ -559,6 +545,9 @@ describe('Paged VirtualList', () => {
         fireEventScrollEnd(outerDiv);
       })}
       expect(onScroll).lastCalledWith(119970, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'})
+
+      const item3999 = screen.getByText('Item 3999');
+      expect(item3999).toBeInTheDocument()
 
       // Scroll down 2 items to cross page boundary
       // Scroll bar should be adjusted backwards by size of page
@@ -570,15 +559,11 @@ describe('Paged VirtualList', () => {
       expect(mock).lastCalledWith(0, 60030);
       const item4001 = screen.getByText('Item 4001');
       expect(item4001).toBeInTheDocument()
-      expect(item4001).toHaveProperty("style.top", '60030px')
 
       // Scroll back to first item
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(0); })}
-      expect(mock).lastCalledWith(0, 0);
-      const item1 = screen.getByText('Item 1');
-      expect(item1).toBeInTheDocument()
-      expect(item1).toHaveProperty("style.top", '30px')
+      expect(mock).lastCalledWith({ "top": 0 });
 
       // Resulting update of ScrollTop
       {act(() => {
@@ -587,13 +572,19 @@ describe('Paged VirtualList', () => {
       })}
       expect(onScroll).lastCalledWith(0, { scrollOffset: 0, renderOffset: 0, page: 0, scrollDirection: 'backward'})
 
+      const item1 = screen.getByText('Item 1');
+      expect(item1).toBeInTheDocument()
+
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");
     }
   })
 
   it('should manipulate the scroll bar position for horizontal layout', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 600);
+    stubProperty(HTMLElement.prototype, "clientHeight", 35);
     try {
+      const onScroll = vi.fn<[number,ScrollState],void>();
       const ref = React.createRef<VirtualListProxy>();
       render(
         <VirtualList
@@ -602,6 +593,7 @@ describe('Paged VirtualList', () => {
           itemCount={1000000000000}
           itemOffsetMapping={mapping}
           layout={'horizontal'}
+          onScroll={onScroll}
           width={600}>
           {Cell}
         </VirtualList>
@@ -609,11 +601,7 @@ describe('Paged VirtualList', () => {
 
       const header = screen.getByText('Header');
       expect(header).toBeInTheDocument()
-      expect(header).toHaveProperty("style.left", '0px')
-
-      const innerDiv = header.parentElement || throwErr("No inner div");
-      const outerDiv = innerDiv.parentElement || throwErr("No outer div");
-      updateLayout(innerDiv, outerDiv);
+      const outerDiv = updateLayout(header);
 
       const mock = vi.fn()
       Element.prototype["scrollTo"] = mock;
@@ -621,10 +609,7 @@ describe('Paged VirtualList', () => {
       // Scroll to last item on first page
       let proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(1999); })}
-      expect(mock).lastCalledWith(59970, 0);
-      const item1999 = screen.getByText('Item 1999');
-      expect(item1999).toBeInTheDocument()
-      expect(item1999).toHaveProperty("style.left", '59970px')
+      expect(mock).lastCalledWith({ "left": 59970 });
 
       // If there was an actual implementation of scrollTo it
       // would have updated scrollLeft and sent events as a side effect
@@ -632,6 +617,10 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 59970, scrollTop: 0 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).lastCalledWith(59970, { scrollOffset: 59970, renderOffset: 0, page: 0, scrollDirection: 'forward'})
+
+      const item1999 = screen.getByText('Item 1999');
+      expect(item1999).toBeInTheDocument()
 
       // Scroll down 2 items to cross page boundary
       // Scroll bar should not be adjusted on first boundary
@@ -639,24 +628,25 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 60030 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).lastCalledWith(60030, { scrollOffset: 60030, renderOffset: 0, page: 1, scrollDirection: 'forward'})
       expect(outerDiv).toHaveProperty("scrollLeft", 60030);
       const item2001 = screen.getByText('Item 2001');
       expect(item2001).toBeInTheDocument()
-      expect(item2001).toHaveProperty("style.left", '60030px')
 
       // Scroll to last item on second page
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(3999); })}
-      expect(mock).lastCalledWith(119970, 0);
-      const item3999 = screen.getByText('Item 3999');
-      expect(item3999).toBeInTheDocument()
-      expect(item3999).toHaveProperty("style.left", '119970px')
+      expect(mock).lastCalledWith({ "left": 119970 });
 
       // Resulting update of ScrollTop
       {act(() => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 119970, scrollTop: 0 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).lastCalledWith(119970, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'})
+
+      const item3999 = screen.getByText('Item 3999');
+      expect(item3999).toBeInTheDocument()
 
       // Scroll down 2 items to cross page boundary
       // Scroll bar should be adjusted backwards by size of page
@@ -664,10 +654,10 @@ describe('Paged VirtualList', () => {
         fireEvent.scroll(outerDiv, { target: { scrollLeft: 120030 }});
         fireEventScrollEnd(outerDiv);
       })}
+      expect(onScroll).lastCalledWith(120030, { scrollOffset: 60030, renderOffset: 60000, page: 2, scrollDirection: 'forward'})
       expect(mock).lastCalledWith(60030, 0);
       const item4001 = screen.getByText('Item 4001');
       expect(item4001).toBeInTheDocument()
-      expect(item4001).toHaveProperty("style.left", '60030px')
 
     } finally {
       Reflect.deleteProperty(Element.prototype, "scrollTo");

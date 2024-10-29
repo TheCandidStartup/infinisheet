@@ -175,17 +175,9 @@ export type VirtualInnerRender = (props: VirtualInnerProps, ref?: React_2.Forwar
 export const VirtualList: React_2.ForwardRefExoticComponent<VirtualListProps & React_2.RefAttributes<VirtualListProxy>>;
 
 // @public
-export type VirtualListItem = React_2.ComponentType<VirtualListItemProps>;
-
-// @public
-export interface VirtualListItemProps extends VirtualBaseItemProps {
-    index: number;
-}
-
-// @public
 export interface VirtualListProps extends VirtualBaseProps {
-    children: VirtualListItem;
-    innerRender?: VirtualInnerRender;
+    children: DisplayListItem;
+    innerRender?: DisplayContainerRender;
     itemCount: number;
     itemKey?: (index: number, data: unknown) => React_2.Key;
     itemOffsetMapping: ItemOffsetMapping;
