@@ -34,16 +34,6 @@ export interface ComponentProps {
 }
 
 // @public
-export interface DisplayContainerProps {
-    children: React_2.ReactNode;
-    className: string | undefined;
-    style: React_2.CSSProperties;
-}
-
-// @public
-export type DisplayContainerRender = (props: DisplayContainerProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
-
-// @public
 export function DisplayList(props: DisplayListProps): react_jsx_runtime.JSX.Element;
 
 // @public
@@ -60,7 +50,7 @@ export interface DisplayListProps {
     className?: string;
     height: number;
     innerClassName?: string;
-    innerRender?: DisplayContainerRender;
+    innerRender?: VirtualContainerRender;
     isScrolling?: boolean;
     itemCount: number;
     itemData?: unknown;
@@ -68,7 +58,7 @@ export interface DisplayListProps {
     itemOffsetMapping: ItemOffsetMapping;
     layout?: ScrollLayout;
     offset: number;
-    outerRender?: DisplayContainerRender;
+    outerRender?: VirtualContainerRender;
     width: number;
 }
 
@@ -117,6 +107,21 @@ export interface VirtualBaseProps extends ComponentProps, VirtualScrollableProps
     innerClassName?: string;
     itemData?: unknown;
 }
+
+// @public (undocumented)
+export const VirtualContainer: React_2.ForwardRefExoticComponent<VirtualContainerComponentProps & React_2.RefAttributes<HTMLDivElement>>;
+
+// @public (undocumented)
+export interface VirtualContainerComponentProps extends VirtualContainerRenderProps {
+    // (undocumented)
+    render?: VirtualContainerRender;
+}
+
+// @public
+export type VirtualContainerRender = (props: VirtualContainerRenderProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
+
+// @public
+export type VirtualContainerRenderProps = React_2.ComponentPropsWithoutRef<'div'>;
 
 // @public
 export interface VirtualContentProps {
@@ -175,13 +180,13 @@ export const VirtualList: React_2.ForwardRefExoticComponent<VirtualListProps & R
 // @public
 export interface VirtualListProps extends VirtualBaseProps {
     children: DisplayListItem;
-    innerRender?: DisplayContainerRender;
+    innerRender?: VirtualContainerRender;
     itemCount: number;
     itemKey?: (index: number, data: unknown) => React_2.Key;
     itemOffsetMapping: ItemOffsetMapping;
     layout?: ScrollLayout;
     onScroll?: (offset: number, newScrollState: ScrollState) => void;
-    outerRender?: VirtualOuterRender;
+    outerRender?: VirtualContainerRender;
 }
 
 // @public
@@ -215,9 +220,9 @@ export interface VirtualScrollableProps {
 export interface VirtualScrollProps extends ComponentProps, VirtualScrollableProps {
     children: VirtualContentRender;
     contentClassName?: string;
-    innerRender?: VirtualInnerRender;
+    innerRender?: VirtualContainerRender;
     onScroll?: (verticalOffset: number, horizontalOffset: number, newVerticalScrollState: ScrollState, newHorizontalScrollState: ScrollState) => void;
-    outerRender?: VirtualOuterRender;
+    outerRender?: VirtualContainerRender;
     scrollHeight?: number;
     scrollWidth?: number;
 }

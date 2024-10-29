@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd, stubProperty, unstubAllProperties } from '../../../shared/test/utils'
-import { VirtualInnerRender, VirtualOuterRender } from './VirtualBase'
+import { VirtualContainerRender } from './VirtualContainer'
 import { VirtualList, VirtualListProxy } from './VirtualList'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
@@ -277,11 +277,11 @@ describe('Fixed Size VirtualList', () => {
   it('should support customization', () => {
     stubProperty(HTMLElement.prototype, "clientWidth", 585);
     stubProperty(HTMLElement.prototype, "clientHeight", 50);
-    const outerRender: VirtualOuterRender = ({style, ...rest}, ref) => (
+    const outerRender: VirtualContainerRender = ({style, ...rest}, ref) => (
       <div ref={ref} style={{ ...style, height: "500px"}} {...rest}/>
     )
 
-    const innerRender: VirtualInnerRender = ({style, ...rest}, ref) => (
+    const innerRender: VirtualContainerRender = ({style, ...rest}, ref) => (
       <div ref={ref} style={{ ...style, height: "400px"}} {...rest}/>
     )
 

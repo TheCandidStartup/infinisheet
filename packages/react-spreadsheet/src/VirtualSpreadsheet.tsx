@@ -1,7 +1,6 @@
 import React from 'react';
-import { DisplayList, DisplayContainerRender, VirtualGrid, VirtualGridProxy,
-  useVariableSizeItemOffsetMapping, VirtualOuterRender, 
-  ScrollState} from '@candidstartup/react-virtual-scroll';
+import { DisplayList, VirtualContainerRender, VirtualGrid, VirtualGridProxy,
+  useVariableSizeItemOffsetMapping, ScrollState} from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
@@ -253,7 +252,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     return (selection[1] != undefined) && (selection[0] == undefined || selection[0] == index)
   }
 
-  const colHeaderRender: DisplayContainerRender = ({...rest}, ref) => (
+  const colHeaderRender: VirtualContainerRender = ({...rest}, ref) => (
     <div ref={ref}
     onClick={(event) => {
       const headerRect = event.currentTarget.getBoundingClientRect();
@@ -264,7 +263,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     {...rest}/>
   )
 
-  const rowHeaderRender: DisplayContainerRender = ({...rest}, ref) => (
+  const rowHeaderRender: VirtualContainerRender = ({...rest}, ref) => (
     <div ref={ref}
     onClick={(event) => {
       const headerRect = event.currentTarget.getBoundingClientRect();
@@ -293,7 +292,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     </div>
   );
   
-  const outerGridRender: VirtualOuterRender = ({children, ...rest}, ref) => {
+  const outerGridRender: VirtualContainerRender = ({children, ...rest}, ref) => {
     let focusSink;
     if (focusCell) {
       const row = focusCell[0];

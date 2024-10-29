@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, VirtualInnerRender } from '@candidstartup/react-virtual-scroll';
+import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, VirtualContainerRender } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -13,13 +13,13 @@ const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boole
   </div>
 );
 
-const innerRender: VirtualInnerRender = (({style, children, ...rest}, ref) => (
+const innerRender: VirtualContainerRender = (({style, children, ...rest}, ref) => (
   <div 
     ref={ref} 
     style={{
       ...style,
-      height: style.height as number + PADDING_SIZE * 2,
-      gridTemplateRows: PADDING_SIZE + "px " + style.gridTemplateRows + " " + PADDING_SIZE +"px"
+      height: style?.height as number + PADDING_SIZE * 2,
+      gridTemplateRows: PADDING_SIZE + "px " + style?.gridTemplateRows + " " + PADDING_SIZE +"px"
     }} 
     {...rest}>
     <div style={{ boxSizing: 'border-box' }}/>

@@ -1,6 +1,7 @@
 import React from "react";
-import { ItemOffsetMapping, VirtualBaseProps, ScrollToOption, ScrollLayout, VirtualOuterRender } from './VirtualBase';
-import { DisplayList, DisplayListItem, DisplayContainerRender } from './DisplayList';
+import { ItemOffsetMapping, VirtualBaseProps, ScrollToOption, ScrollLayout } from './VirtualBase';
+import { DisplayList, DisplayListItem } from './DisplayList';
+import { VirtualContainerRender } from './VirtualContainer';
 import { VirtualScroll, VirtualScrollProxy } from './VirtualScroll';
 import { AutoSizer } from './AutoSizer';
 import { ScrollState } from './useVirtualScroll';
@@ -42,11 +43,11 @@ export interface VirtualListProps extends VirtualBaseProps {
    */
   onScroll?: (offset: number, newScrollState: ScrollState) => void;
 
-  /** Render prop implementing {@link VirtualOuterRender}. Used to customize {@link VirtualList}. */
-  outerRender?: VirtualOuterRender;
+  /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualList} outer container. */
+  outerRender?: VirtualContainerRender;
 
-  /** Render prop implementing {@link DisplayContainerRender}. Used to customize {@link DisplayList} within {@link VirtualList}. */
-  innerRender?: DisplayContainerRender;
+  /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayList} within {@link VirtualList} inner container. */
+  innerRender?: VirtualContainerRender;
 }
 
 /**

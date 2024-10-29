@@ -9,6 +9,7 @@
  * @packageDocumentation
  */
 
+export * from './VirtualContainer'
 export * from './AutoSizer'
 export * from './VirtualBase'
 export * from './VirtualScroll'

@@ -1,6 +1,7 @@
 import React from "react";
 import { ItemOffsetMapping, ScrollLayout, VirtualBaseItemProps } from './VirtualBase';
 import { getRangeToRender, getGridTemplate } from './VirtualCommon';
+import { VirtualContainer, VirtualContainerRender } from './VirtualContainer';
 
 /**
  * Props accepted by {@link DisplayListItem}
@@ -27,36 +28,6 @@ export interface DisplayListItemProps extends VirtualBaseItemProps {
  * ```
  */
 export type DisplayListItem = React.ComponentType<DisplayListItemProps>;
-
-/**
- * Props that an implementation of {@link DisplayContainerRender} must accept.
- */
-export interface DisplayContainerProps {
-  /** The `className` to apply to the container div. */
-  className: string | undefined;
-
-  /** The child items rendered into the container div */
-  children: React.ReactNode;
-
-  /** Style to apply to the container div */
-  style: React.CSSProperties;
-}
-
-/**
- * Render prop for container in a {@link DisplayList}
- *
- * Can be passed to {@link DisplayList} to replace default implementation. 
- * Function must render a div and forward {@link DisplayContainerProps}
- * and any `ref` to it. 
- * 
- * @example Minimal compliant implementation
- * ```
- * const containerRender: DisplayContainerRender = ({...rest}, ref) => (
- *   <div ref={ref} {...rest} />
- * )
- * ```
- */
-export type DisplayContainerRender = (props: DisplayContainerProps, ref?: React.ForwardedRef<HTMLDivElement>) => JSX.Element;
 
 /**
  * Props accepted by {@link DisplayList}
@@ -116,29 +87,17 @@ export interface DisplayListProps {
   /** 
    * Renders the outer viewport div which provides a window onto the inner grid div
    * 
-   * Render prop implementing {@link DisplayContainerRender}. Used to customize {@link DisplayList}. */
-  outerRender?: DisplayContainerRender;
+   * Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayList} outer container. */
+  outerRender?: VirtualContainerRender;
 
   /** 
    * Renders the inner grid div containing all the list items
    * 
-   * Render prop implementing {@link DisplayContainerRender}. Used to customize {@link DisplayList}. */
-  innerRender?: DisplayContainerRender;
+   * Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayList} inner container. */
+  innerRender?: VirtualContainerRender;
 }
 
 const defaultItemKey = (index: number, _data: unknown) => index;
-
-interface  DisplayContainerComponentProps extends DisplayContainerProps {
-  render: DisplayContainerRender;
-}
-
-const Container = React.forwardRef<HTMLDivElement, DisplayContainerComponentProps >(function DisplayListContainer({render, ...rest}, ref) {
-  return render(rest, ref)
-})
-
-const defaultContainerRender: DisplayContainerRender = ({...rest}, ref) => (
-  <div ref={ref} {...rest} />
-)
 
 const boxStyle: React.CSSProperties = { boxSizing: 'border-box' };
 
@@ -153,8 +112,7 @@ const boxStyle: React.CSSProperties = { boxSizing: 'border-box' };
  */
 export function DisplayList(props: DisplayListProps) {
   const { width, height, itemCount, itemOffsetMapping, className, innerClassName, offset: renderOffset, children,
-    itemData, itemKey = defaultItemKey, layout = 'vertical', outerRender = defaultContainerRender,
-    innerRender = defaultContainerRender, isScrolling } = props;
+    itemData, itemKey = defaultItemKey, layout = 'vertical', outerRender, innerRender, isScrolling } = props;
 
   const isVertical = layout === 'vertical';
 
@@ -169,9 +127,9 @@ export function DisplayList(props: DisplayListProps) {
   const ChildVar = children;
 
   return (
-   <Container className={className} render={outerRender}
+   <VirtualContainer className={className} render={outerRender}
         style={{ position: "relative", height, width, overflow: "hidden", willChange: "transform" }}>
-       <Container className={innerClassName} render={innerRender}
+       <VirtualContainer className={innerClassName} render={innerRender}
         style={{ position: 'absolute',
           display: 'grid',
           gridTemplateColumns: isVertical ? undefined : template,
@@ -184,8 +142,8 @@ export function DisplayList(props: DisplayListProps) {
           <ChildVar data={itemData} isScrolling={isScrolling} 
             key={itemKey(startIndex + arrayIndex, itemData)} index={startIndex + arrayIndex} style={boxStyle}/>
         ))}
-      </Container>
-    </Container>
+      </VirtualContainer>
+    </VirtualContainer>
   );
 }
 

@@ -1,6 +1,6 @@
 import React from "react";
-import { ComponentProps, VirtualScrollableProps, VirtualInnerRender, VirtualInnerProps, 
-  VirtualOuterRender, VirtualOuterProps, ScrollEvent, ScrollToOption } from './VirtualBase';
+import { VirtualContainer, VirtualContainerRender } from './VirtualContainer';
+import { ComponentProps, VirtualScrollableProps, ScrollEvent, ScrollToOption } from './VirtualBase';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 import { getOffsetToScrollRange } from './VirtualCommon';
@@ -66,11 +66,11 @@ export interface VirtualScrollProps extends ComponentProps, VirtualScrollablePro
    */
   onScroll?: (verticalOffset: number, horizontalOffset: number, newVerticalScrollState: ScrollState, newHorizontalScrollState: ScrollState) => void;
 
-  /** Render prop implementing {@link VirtualOuterRender}. Used to customize {@link VirtualScroll}. */
-  outerRender?: VirtualOuterRender;
+  /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualScroll} outer container. */
+  outerRender?: VirtualContainerRender;
 
-  /** Render prop implementing {@link VirtualInnerRender}. Used to customize {@link VirtualScroll}. */
-  innerRender?: VirtualInnerRender;
+  /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualScroll} inner container. */
+  innerRender?: VirtualContainerRender;
 }
 
 /**
@@ -105,30 +105,6 @@ export interface VirtualScrollProxy {
   get clientHeight(): number;
 }
 
-interface VirtualInnerComponentProps extends VirtualInnerProps {
-  render: VirtualInnerRender;
-}
-
-const Inner = React.forwardRef<HTMLDivElement, VirtualInnerComponentProps >(function VirtualGridInner({render, ...rest}, ref) {
-  return render(rest, ref)
-})
-
-function defaultInnerRender({...rest}: VirtualInnerProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
-  return <div ref={ref} {...rest} />
-}
-
-interface VirtualOuterComponentProps extends VirtualOuterProps {
-  render: VirtualOuterRender;
-}
-
-const Outer = React.forwardRef<HTMLDivElement, VirtualOuterComponentProps >(function VirtualScrollOuter({render, ...rest}, ref) {
-  return render(rest, ref)
-})
-
-function defaultOuterRender({...rest}: VirtualOuterProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
-  return <div ref={ref} {...rest} />
-}
-
 // Using a named function rather than => so that the name shows up in React Developer Tools
 /**
  * Customizable Virtual Scrolling Component
@@ -142,7 +118,7 @@ function defaultOuterRender({...rest}: VirtualOuterProps, ref?: React.ForwardedR
  */
 export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollProps>(function VirtualGrid(props, ref) {
   const { width, height, scrollWidth = 0, scrollHeight = 0, className, contentClassName, children,
-    onScroll: onScrollCallback, useIsScrolling = false, innerRender = defaultInnerRender, outerRender = defaultOuterRender } = props;
+    onScroll: onScrollCallback, useIsScrolling = false, innerRender, outerRender } = props;
 
   const outerRef = React.useRef<HTMLDivElement>(null);
   const { scrollOffset: scrollRowOffset, renderOffset: renderRowOffset, renderSize: renderRowSize,
@@ -205,16 +181,16 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
   const isScrolling = useIsScrolling ? isActuallyScrolling : undefined;
 
   return (
-    <Outer className={className} render={outerRender} onScroll={onScroll} ref={outerRef} 
+    <VirtualContainer className={className} render={outerRender} onScroll={onScroll} ref={outerRef} 
         style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <Inner className={contentClassName} render={innerRender} 
+      <VirtualContainer className={contentClassName} render={innerRender} 
         style={{ zIndex: 1, position: 'sticky', top: 0, left: 0, width: '100%', height: '100%' }}>
         {children({isScrolling})}
-      </Inner>
+      </VirtualContainer>
       <div style={{ position: 'absolute', top: 0, left: 0, 
         height: scrollHeight ? renderRowSize : '100%', 
         width: scrollWidth ? renderColumnSize : '100%'}}/>
-    </Outer>
+    </VirtualContainer>
   );
 });
 
