@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import { VirtualScroll, VirtualScrollProxy, ScrollState, VirtualContentRender, 
+import { VirtualScroll, VirtualScrollProxy, ScrollState, 
   DisplayList, useVariableSizeItemOffsetMapping, AutoSizer } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
@@ -25,29 +25,6 @@ function App() {
   const ref = React.useRef<VirtualScrollProxy>(null);
   const [scrollHeight, setScrollHeight] = React.useState<number>(3200);
   const [scrollWidth, setScrollWidth] = React.useState<number>(0);
-
-  const contentRender: VirtualContentRender = ({isScrolling, style, ...rest}, ref) => (
-    <div ref={ref} style={{display: 'flex', flexDirection: 'column', ...style}} {...rest}>
-      isScrolling: {isScrolling ? 'true' : 'false'} <br/>
-      verticalOffset: {appState?.verticalOffset} <br/>
-      verticalPage: {appState?.verticalScrollState.page} <br/>
-      verticalDirection: {appState?.verticalScrollState.scrollDirection} <br/>
-      horizontalOffset: {appState?.horizontalOffset} <br/>
-      horizontalPage: {appState?.horizontalScrollState.page} <br/>
-      horizontalDirection: {appState?.horizontalScrollState.scrollDirection} <br/>
-      <AutoSizer style={{ flexGrow: 1, width: '100%'}}>
-        {({height,width}) => (
-      <DisplayList
-        offset={appState ? appState.verticalOffset : 0}
-        height={height}
-        itemCount={100}
-        itemOffsetMapping={mapping}
-        width={width}>
-        {Row}
-      </DisplayList>)}
-      </AutoSizer>
-    </div>
-  )
 
   return (
     <div className="app-container">
@@ -102,9 +79,34 @@ function App() {
         onScroll={(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState) => {
           setAppState({ verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState })
         }}
-        contentRender={contentRender}
+        innerRender={({style, ...rest}, ref) => (
+          <div ref={ref} style={{display: 'flex', flexDirection: 'column', ...style}} {...rest}/>
+        )}
         height={500}
-        width={600}/>
+        width={600}>
+        {({ isScrolling }) => (
+          <Fragment>
+            isScrolling: {isScrolling ? 'true' : 'false'} <br/>
+            verticalOffset: {appState?.verticalOffset} <br/>
+            verticalPage: {appState?.verticalScrollState.page} <br/>
+            verticalDirection: {appState?.verticalScrollState.scrollDirection} <br/>
+            horizontalOffset: {appState?.horizontalOffset} <br/>
+            horizontalPage: {appState?.horizontalScrollState.page} <br/>
+            horizontalDirection: {appState?.horizontalScrollState.scrollDirection} <br/>
+            <AutoSizer style={{ flexGrow: 1, width: '100%'}}>
+              {({height,width}) => (
+              <DisplayList
+                offset={appState ? appState.verticalOffset : 0}
+                height={height}
+                itemCount={100}
+                itemOffsetMapping={mapping}
+                width={width}>
+                {Row}
+              </DisplayList>)}
+            </AutoSizer>
+          </Fragment>
+        )}
+      </VirtualScroll>
     </div>
   )
 }

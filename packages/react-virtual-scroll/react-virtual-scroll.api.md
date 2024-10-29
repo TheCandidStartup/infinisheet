@@ -120,9 +120,7 @@ export interface VirtualBaseProps extends ComponentProps, VirtualScrollableProps
 
 // @public
 export interface VirtualContentProps {
-    className: string | undefined;
     isScrolling?: boolean;
-    style: React_2.CSSProperties;
 }
 
 // @public
@@ -215,8 +213,9 @@ export interface VirtualScrollableProps {
 
 // @public
 export interface VirtualScrollProps extends ComponentProps, VirtualScrollableProps {
+    children: VirtualContentRender;
     contentClassName?: string;
-    contentRender?: VirtualContentRender;
+    innerRender?: VirtualInnerRender;
     onScroll?: (verticalOffset: number, horizontalOffset: number, newVerticalScrollState: ScrollState, newHorizontalScrollState: ScrollState) => void;
     outerRender?: VirtualOuterRender;
     scrollHeight?: number;

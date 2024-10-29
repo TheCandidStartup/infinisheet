@@ -1,5 +1,6 @@
 import React from "react";
-import { ComponentProps, VirtualScrollableProps, VirtualOuterRender, VirtualOuterProps, ScrollEvent, ScrollToOption } from './VirtualBase';
+import { ComponentProps, VirtualScrollableProps, VirtualInnerRender, VirtualInnerProps, 
+  VirtualOuterRender, VirtualOuterProps, ScrollEvent, ScrollToOption } from './VirtualBase';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 import { getOffsetToScrollRange } from './VirtualCommon';
@@ -8,18 +9,12 @@ import { getOffsetToScrollRange } from './VirtualCommon';
  * Props that an implementation of {@link VirtualContentRender} must accept.
  */
 export interface VirtualContentProps {
-  /** The `className` to apply to the content container div. Passed through from {@link VirtualScrollProps.contentClassName} */
-  className: string | undefined;
-
-  /** Style to apply to the content container div */
-  style: React.CSSProperties;
-
   /** 
    * Is the owning component being actively scrolled? Used to change how the content is rendered depending on scroll state.
    * 
    * Only defined if {@link VirtualScrollableProps.useIsScrolling} is true. 
    * */
-  isScrolling?: boolean,
+  isScrolling?: boolean
 }
 
 /**
@@ -42,6 +37,9 @@ export type VirtualContentRender = (props: VirtualContentProps, ref?: React.Forw
  * Props accepted by {@link VirtualScroll}
  */
 export interface VirtualScrollProps extends ComponentProps, VirtualScrollableProps {
+  /** Function implementing {@link VirtualContentRender} that renders the content that needs to respond to scrolling */
+  children: VirtualContentRender
+
   /** 
    * Height of area to scroll over 
    * 
@@ -71,8 +69,8 @@ export interface VirtualScrollProps extends ComponentProps, VirtualScrollablePro
   /** Render prop implementing {@link VirtualOuterRender}. Used to customize {@link VirtualScroll}. */
   outerRender?: VirtualOuterRender;
 
-  /** Render prop implementing {@link VirtualInnerRender}. Used to render scroll dependent content in the viewport. */
-  contentRender?: VirtualContentRender;
+  /** Render prop implementing {@link VirtualInnerRender}. Used to customize {@link VirtualScroll}. */
+  innerRender?: VirtualInnerRender;
 }
 
 /**
@@ -107,15 +105,15 @@ export interface VirtualScrollProxy {
   get clientHeight(): number;
 }
 
-interface VirtualContentComponentProps extends VirtualContentProps {
-  render: VirtualContentRender;
+interface VirtualInnerComponentProps extends VirtualInnerProps {
+  render: VirtualInnerRender;
 }
 
-const Content = React.forwardRef<HTMLDivElement, VirtualContentComponentProps >(function VirtualScrollContent({render, ...rest}, ref) {
+const Inner = React.forwardRef<HTMLDivElement, VirtualInnerComponentProps >(function VirtualGridInner({render, ...rest}, ref) {
   return render(rest, ref)
 })
 
-function defaultContentRender({isScrolling: _isScrolling, ...rest}: VirtualContentProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
+function defaultInnerRender({...rest}: VirtualInnerProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
   return <div ref={ref} {...rest} />
 }
 
@@ -143,7 +141,8 @@ function defaultOuterRender({...rest}: VirtualOuterProps, ref?: React.ForwardedR
  * @group Components
  */
 export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollProps>(function VirtualGrid(props, ref) {
-  const { width, height, scrollWidth = 0, scrollHeight = 0, className, contentClassName, onScroll: onScrollCallback, useIsScrolling = false } = props;
+  const { width, height, scrollWidth = 0, scrollHeight = 0, className, contentClassName, children,
+    onScroll: onScrollCallback, useIsScrolling = false, innerRender = defaultInnerRender, outerRender = defaultOuterRender } = props;
 
   const outerRef = React.useRef<HTMLDivElement>(null);
   const { scrollOffset: scrollRowOffset, renderOffset: renderRowOffset, renderSize: renderRowSize,
@@ -152,15 +151,14 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
   const { scrollOffset: scrollColOffset, renderOffset: renderColOffset, renderSize: renderColumnSize,
     onScroll: onScrollColumn, doScrollTo: doScrollToColumn} = useVirtualScroll(scrollWidth, props.maxCssSize, props.minNumPages);
   const currentHorizontalOffset = scrollColOffset + renderColOffset;
-  const isScrolling = useIsScrollingHook(outerRef);
-
+  const isActuallyScrolling = useIsScrollingHook(outerRef);
 
   React.useImperativeHandle(ref, () => {
     return {
       scrollTo(rowOffset?: number, columnOffset?: number): void {
         if (rowOffset === undefined && columnOffset === undefined)
           return;
-        
+
         const outer = outerRef.current;
         /* istanbul ignore else */
         if (outer) {
@@ -204,14 +202,15 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
       newColumnScrollState.scrollOffset+newColumnScrollState.renderOffset, newRowScrollState, newColumnScrollState);
   }
 
-  const outerRender = props.outerRender || defaultOuterRender;
-  const contentRender = props.contentRender || defaultContentRender;
+  const isScrolling = useIsScrolling ? isActuallyScrolling : undefined;
 
   return (
     <Outer className={className} render={outerRender} onScroll={onScroll} ref={outerRef} 
         style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <Content className={contentClassName} render={contentRender} isScrolling={useIsScrolling ? isScrolling : undefined}
-        style={{ zIndex: 1, position: 'sticky', top: 0, left: 0, width: '100%', height: '100%' }}/>
+      <Inner className={contentClassName} render={innerRender} 
+        style={{ zIndex: 1, position: 'sticky', top: 0, left: 0, width: '100%', height: '100%' }}>
+        {children({isScrolling})}
+      </Inner>
       <div style={{ position: 'absolute', top: 0, left: 0, 
         height: scrollHeight ? renderRowSize : '100%', 
         width: scrollWidth ? renderColumnSize : '100%'}}/>

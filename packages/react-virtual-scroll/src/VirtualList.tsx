@@ -1,7 +1,7 @@
 import React from "react";
 import { ItemOffsetMapping, VirtualBaseProps, ScrollToOption, ScrollLayout, VirtualOuterRender } from './VirtualBase';
 import { DisplayList, DisplayListItem, DisplayContainerRender } from './DisplayList';
-import { VirtualScroll, VirtualScrollProxy, VirtualContentRender } from './VirtualScroll';
+import { VirtualScroll, VirtualScrollProxy } from './VirtualScroll';
 import { AutoSizer } from './AutoSizer';
 import { ScrollState } from './useVirtualScroll';
 
@@ -125,28 +125,6 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   // naming convention as components do.
   const ChildVar = children;
 
-  const contentRender: VirtualContentRender = ({isScrolling, ...rest}, ref) => (
-    <div ref={ref} {...rest}>
-      <AutoSizer style={{ height: '100%', width: '100%' }}>
-        {({height,width}) => (
-          <DisplayList
-            innerClassName={innerClassName}
-            innerRender={innerRender}
-            layout={layout}
-            offset={offset}
-            height={height}
-            itemCount={itemCount}
-            itemData={itemData}
-            isScrolling={isScrolling}
-            itemOffsetMapping={itemOffsetMapping}
-            width={width}>
-            {ChildVar}
-        </DisplayList>
-      )}
-      </AutoSizer>
-    </div>
-  )
-
   return (
     <VirtualScroll
       ref={scrollRef}
@@ -163,9 +141,28 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
         if (onScrollCallback)
           onScrollCallback(newOffset, isVertical ? verticalScrollState : horizontalScrollState);
       }}
-      contentRender={contentRender}
       height={height}
-      width={width}/>
+      width={width}>
+      {({ isScrolling }) => (
+        <AutoSizer style={{ height: '100%', width: '100%' }}>
+        {({height,width}) => (
+          <DisplayList
+            innerClassName={innerClassName}
+            innerRender={innerRender}
+            layout={layout}
+            offset={offset}
+            height={height}
+            itemCount={itemCount}
+            itemData={itemData}
+            isScrolling={isScrolling}
+            itemOffsetMapping={itemOffsetMapping}
+            width={width}>
+            {ChildVar}
+        </DisplayList>
+      )}
+      </AutoSizer>
+      )}
+    </VirtualScroll>
   );
 });
 
