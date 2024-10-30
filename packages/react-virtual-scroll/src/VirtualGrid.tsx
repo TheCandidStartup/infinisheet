@@ -103,9 +103,8 @@ function getRangeToScroll(index: number | undefined, mapping: ItemOffsetMapping)
  * @group Components
  */
 export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(function VirtualGrid(props, ref) {
-  const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, className, innerClassName,
-    outerRender, innerRender, maxCssSize, minNumPages,  
-    itemData, itemKey, onScroll: onScrollCallback, useIsScrolling = false } = props;
+  const { rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, 
+    innerClassName, innerRender, itemData, itemKey, onScroll: onScrollCallback, ...scrollProps } = props;
 
   // Total size is same as offset to item one off the end
   const totalRowSize = rowOffsetMapping.itemOffset(rowCount);
@@ -154,20 +153,14 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   return (
     <VirtualScroll
       ref={scrollRef}
-      className={className}
-      outerRender={outerRender}
-      useIsScrolling={useIsScrolling}
-      maxCssSize={maxCssSize}
-      minNumPages={minNumPages}
+      {...scrollProps}
       scrollHeight={totalRowSize}
       scrollWidth={totalColumnSize}
       onScroll={(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState) => {
         setState([verticalOffset, horizontalOffset]);
         if (onScrollCallback)
           onScrollCallback(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState);
-      }}
-      height={height}
-      width={width}>
+      }}>
       {({ isScrolling }) => (
         <AutoSizer style={{ height: '100%', width: '100%' }}>
         {({height,width}) => (

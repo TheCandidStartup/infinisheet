@@ -80,9 +80,8 @@ export interface VirtualListProxy {
  * @group Components
  */
 export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(function VirtualList(props, ref) {
-  const { width, height, itemCount, itemOffsetMapping, children, className, innerClassName,
-    outerRender, innerRender, maxCssSize, minNumPages, 
-    itemData, itemKey, layout = 'vertical', onScroll: onScrollCallback, useIsScrolling = false } = props;
+  const { itemCount, itemOffsetMapping, children, layout = 'vertical', onScroll: onScrollCallback,
+    innerClassName, innerRender, itemData, itemKey, ...scrollProps } = props;
 
   // Total size is same as offset to item one off the end
   const renderSize = itemOffsetMapping.itemOffset(itemCount);
@@ -129,11 +128,7 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   return (
     <VirtualScroll
       ref={scrollRef}
-      className={className}
-      outerRender={outerRender}
-      useIsScrolling={useIsScrolling}
-      maxCssSize={maxCssSize}
-      minNumPages={minNumPages}
+      {...scrollProps}
       scrollHeight={isVertical ? renderSize : undefined}
       scrollWidth={isVertical ? undefined : renderSize}
       onScroll={(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState) => {
@@ -141,9 +136,7 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
         setOffset(newOffset);
         if (onScrollCallback)
           onScrollCallback(newOffset, isVertical ? verticalScrollState : horizontalScrollState);
-      }}
-      height={height}
-      width={width}>
+      }}>
       {({ isScrolling }) => (
         <AutoSizer style={{ height: '100%', width: '100%' }}>
         {({height,width}) => (
