@@ -1,6 +1,6 @@
 import React from "react";
 import { VirtualContainer, VirtualContainerRender } from './VirtualContainer';
-import { ComponentProps, VirtualScrollableProps, ScrollEvent, ScrollToOption } from './VirtualBase';
+import { VirtualScrollableProps, ScrollEvent, ScrollToOption } from './VirtualBase';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
 import { getOffsetToScrollRange } from './VirtualCommon';
@@ -36,7 +36,7 @@ export type VirtualContentRender = (props: VirtualContentProps, ref?: React.Forw
 /**
  * Props accepted by {@link VirtualScroll}
  */
-export interface VirtualScrollProps extends ComponentProps, VirtualScrollableProps {
+export interface VirtualScrollProps extends VirtualScrollableProps {
   /** Function implementing {@link VirtualContentRender} that renders the content that needs to respond to scrolling */
   children: VirtualContentRender
 
@@ -53,9 +53,6 @@ export interface VirtualScrollProps extends ComponentProps, VirtualScrollablePro
    * @defaultValue 0
    */
   scrollWidth?: number,
-
-  /** The `className` applied to the content container element. Used for styling the rendered content. */
-  contentClassName?: string,
 
   /**
    * Callback after a scroll event has been processed and state updated but before rendering
@@ -117,7 +114,7 @@ export interface VirtualScrollProxy {
  * @group Components
  */
 export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollProps>(function VirtualScroll(props, ref) {
-  const { width, height, scrollWidth = 0, scrollHeight = 0, className, contentClassName, children,
+  const { width, height, scrollWidth = 0, scrollHeight = 0, className, innerClassName, children,
     onScroll: onScrollCallback, useIsScrolling = false, innerRender, outerRender } = props;
 
   const outerRef = React.useRef<HTMLDivElement>(null);
@@ -183,7 +180,7 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
   return (
     <VirtualContainer className={className} render={outerRender} onScroll={onScroll} ref={outerRef} 
         style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <VirtualContainer className={contentClassName} render={innerRender} 
+      <VirtualContainer className={innerClassName} render={innerRender} 
         style={{ zIndex: 1, position: 'sticky', top: 0, left: 0, width: '100%', height: '100%' }}>
         {children({isScrolling})}
       </VirtualContainer>

@@ -1,16 +1,17 @@
 import React from "react";
+import { VirtualContainerRender } from './VirtualContainer';
 
 /**
  * Common props for {@link DisplayListItem} and {@link DisplayGridItem}
  */
-export interface VirtualBaseItemProps {
-  /** Value of {@link VirtualBaseProps.itemData} from owning component */
+export interface DisplayBaseItemProps {
+  /** Value of {@link DisplayBaseProps.itemData} from owning component */
   data: unknown,
 
   /** 
    * Is the owning component being actively scrolled? Used to change how the item is rendered depending on scroll state.
    * 
-   * Only defined if {@link VirtualScrollableProps.useIsScrolling} is true. 
+   * Value passed through from {@link DisplayBaseProps.isScrolling}.
    * */
   isScrolling?: boolean,
 
@@ -25,6 +26,9 @@ export interface ComponentProps {
   /** The `className` applied to the outer container element. Use when styling the entire component. */
   className?: string,
 
+  /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
+  innerClassName?: string,
+
   /** Component height */
   height: number,
 
@@ -33,9 +37,38 @@ export interface ComponentProps {
 }
 
 /**
+ * Common props for {@link DisplayList} and {@link DisplayGrid}
+ */
+export interface  DisplayBaseProps extends ComponentProps {
+  /** Passed as {@link DisplayBaseItemProps.data} to each child item */
+  itemData?: unknown,
+
+  /** Passed as {@link DisplayBaseItemProps.isScrolling} to each child item
+   * 
+   * Provided as a convenience when combining display components with {@link VirtualScroll}
+   * Not interpreted by the display component itself
+   */
+  isScrolling?: boolean,
+
+  /** 
+   * Renders the outer viewport div which provides a window onto the inner grid div
+   * 
+   * Render prop implementing {@link VirtualContainerRender}. Used to customize display component outer container.
+   */
+  outerRender?: VirtualContainerRender;
+
+  /** 
+   * Renders the inner grid div containing all the list items
+   * 
+   * Render prop implementing {@link VirtualContainerRender}. Used to customize display component inner container.
+   */
+  innerRender?: VirtualContainerRender;
+}
+
+/**
  * Common props for all virtual scrollable components
  */
-export interface VirtualScrollableProps {
+export interface VirtualScrollableProps extends ComponentProps {
   /** 
    * Determines whether the component should track whether it's being actively scrolled
    * and pass through when rendering its content.
@@ -64,76 +97,10 @@ export interface VirtualScrollableProps {
 /**
  * Common props for {@link VirtualList} and {@link VirtualGrid}
  */
-export interface VirtualBaseProps extends ComponentProps, VirtualScrollableProps {
-  /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
-  innerClassName?: string,
-
-  /** Passed as {@link VirtualBaseItemProps.data} to each child item */
+export interface VirtualBaseProps extends VirtualScrollableProps {
+  /** Passed as {@link DisplayBaseItemProps.data} to each child item */
   itemData?: unknown,
 }
-
-/**
- * Props that an implementation of {@link VirtualInnerRender} must accept.
- */
-export interface VirtualInnerProps {
-  /** The `className` to apply to the inner container div. Passed through from {@link VirtualBaseProps.innerClassName} */
-  className: string | undefined;
-
-  /** The visible child items rendered into the inner container div */
-  children: React.ReactNode;
-
-  /** Style to apply to the inner container div */
-  style: React.CSSProperties;
-}
-
-/**
- * Render prop for inner container in a virtual scrolling component
- *
- * Can be passed to {@link VirtualList} or {@link VirtualGrid} to replace default
- * implementation. Function must render a div and forward {@link VirtualInnerProps}
- * and any `ref` to it. 
- * 
- * @example Minimal compliant implementation
- * ```
- * const innerRender: VirtualInnerRender = ({...rest}, ref) => (
- *   <div ref={ref} {...rest} />
- * )
- * ```
- */
-export type VirtualInnerRender = (props: VirtualInnerProps, ref?: React.ForwardedRef<HTMLDivElement>) => JSX.Element;
-
-/**
- * Props that an implementation of {@link VirtualOuterRender} must accept.
- */
-export interface VirtualOuterProps {
-    /** The `className` to apply to the outer container div. Passed through from {@link ComponentProps.className} */
-  className: string | undefined;
-
-  /** The child inner container rendered into the outer container div */
-  children: React.ReactNode;
-
-    /** Style to apply to the outer container div */
-  style: React.CSSProperties;
-
-  /** Scroll callback that should be applied to the outer container div */
-  onScroll: (event: ScrollEvent) => void;
-}
-
-/**
- * Render prop for outer container in a virtual scrolling component
- *
- * Can be passed to {@link VirtualList} or {@link VirtualGrid} to replace default
- * implementation. Function must render a div and forward {@link VirtualOuterProps}
- * and any `ref` to it. 
- * 
- * @example Minimal compliant implementation
- * ```
- * const outerRender: VirtualOuterRender = ({...rest}, ref) => (
- *   <div ref={ref} {...rest} />
- * )
- * ```
- */
-export type VirtualOuterRender = (props: VirtualOuterProps, ref?: React.ForwardedRef<HTMLDivElement>) => JSX.Element;
 
 /**
  * Interface that {@link VirtualList} and {@link VirtualGrid} use to determine size and 

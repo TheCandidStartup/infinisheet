@@ -1,12 +1,12 @@
 import React, { Fragment } from "react";
-import { ItemOffsetMapping, VirtualBaseItemProps } from './VirtualBase';
+import { ItemOffsetMapping, DisplayBaseItemProps, DisplayBaseProps } from './VirtualBase';
 import { getRangeToRender, getGridTemplate } from './VirtualCommon';
-import { VirtualContainer, VirtualContainerRender } from './VirtualContainer';
+import { VirtualContainer } from './VirtualContainer';
 
 /**
  * Props accepted by {@link DisplayGridItem}
  */
-export interface DisplayGridItemProps extends VirtualBaseItemProps {
+export interface DisplayGridItemProps extends DisplayBaseItemProps {
   /** Row index of item in the grid being rendered */
   rowIndex: number,
 
@@ -19,7 +19,7 @@ export interface DisplayGridItemProps extends VirtualBaseItemProps {
  *
  * Must be passed as a child to {@link DisplayGrid}. 
  * Accepts props defined by {@link DisplayGridItemProps}.
- * Component must pass {@link VirtualBaseItemProps.style} to whatever it renders. 
+ * Component must pass {@link DisplayBaseItemProps.style} to whatever it renders. 
  * 
  * @example Basic implementation
  * ```
@@ -35,21 +35,9 @@ export type DisplayGridItem = React.ComponentType<DisplayGridItemProps>;
 /**
  * Props accepted by {@link DisplayGrid}
  */
-export interface DisplayGridProps {
+export interface DisplayGridProps extends DisplayBaseProps {
   /** Component used as a template to render items in the list. Must implement {@link DisplayGridItem} interface. */
   children: DisplayGridItem,
-
-  /** The `className` applied to the outer container element. Use when styling the entire component. */
-  className?: string,
-
-  /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
-  innerClassName?: string,
-
-  /** Component height */
-  height: number,
-
-   /** Component width */
-  width: number,
 
   /** Number of rows in the grid */
   rowCount: number,
@@ -79,36 +67,14 @@ export interface DisplayGridProps {
   /** Horizontal offset to start of displayed content */
   columnOffset: number,
 
-  /** Passed as {@link VirtualBaseItemProps.data} to each child item */
-  itemData?: unknown,
-
-  /** Passed as {@link VirtualBaseItemProps.isScrolling} to each child item
-   * 
-   * Provided as a convenience when combining DisplayGrid with {@link VirtualScroll}
-   * Not interpreted by DisplayGrid itself
-   */
-  isScrolling?: boolean,
-
   /**
-   * Function that defines the key to use for each item given row and column index and value of {@link DisplayGridProps.itemData}.
+   * Function that defines the key to use for each item given row and column index and value of {@link DisplayBaseProps.itemData}.
    * @defaultValue
    * ```ts
    * (rowIndex, columnIndex, _data) => `${rowIndex}:${columnIndex}`
    * ```
    */
   itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React.Key,
-
-  /** 
-   * Renders the outer viewport div which provides a window onto the inner grid div
-   * 
-   * Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayGrid} outer container. */
-  outerRender?: VirtualContainerRender;
-
-  /** 
-   * Renders the inner grid div containing all the list items
-   * 
-   * Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayGrid} inner container. */
-  innerRender?: VirtualContainerRender;
 }
 
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;

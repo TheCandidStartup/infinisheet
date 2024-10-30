@@ -1,14 +1,14 @@
 import React from "react";
-import { ItemOffsetMapping, ScrollLayout, VirtualBaseItemProps } from './VirtualBase';
+import { ItemOffsetMapping, ScrollLayout, DisplayBaseItemProps, DisplayBaseProps } from './VirtualBase';
 import { getRangeToRender, getGridTemplate } from './VirtualCommon';
-import { VirtualContainer, VirtualContainerRender } from './VirtualContainer';
+import { VirtualContainer } from './VirtualContainer';
 
 /**
  * Props accepted by {@link DisplayListItem}
  */
-export interface DisplayListItemProps extends VirtualBaseItemProps {
-    /** Index of item in the list being rendered */
-    index: number,
+export interface DisplayListItemProps extends DisplayBaseItemProps {
+  /** Index of item in the list being rendered */
+  index: number,
 }
 
 /**
@@ -16,7 +16,7 @@ export interface DisplayListItemProps extends VirtualBaseItemProps {
  *
  * Must be passed as a child to {@link DisplayList}. 
  * Accepts props defined by {@link DisplayListItemProps}.
- * Component must pass {@link VirtualBaseItemProps.style} to whatever it renders. 
+ * Component must pass {@link DisplayBaseItemProps.style} to whatever it renders. 
  * 
  * @example Basic implementation
  * ```
@@ -32,37 +32,15 @@ export type DisplayListItem = React.ComponentType<DisplayListItemProps>;
 /**
  * Props accepted by {@link DisplayList}
  */
-export interface DisplayListProps {
+export interface DisplayListProps extends DisplayBaseProps {
   /** Component used as a template to render items in the list. Must implement {@link DisplayListItem} interface. */
   children: DisplayListItem,
-
-  /** The `className` applied to the outer container element. Use when styling the entire component. */
-  className?: string,
-
-  /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
-  innerClassName?: string,
-
-  /** Component height */
-  height: number,
-
-   /** Component width */
-  width: number,
 
   /** Number of items in the list */
   itemCount: number,
 
   /** Offset to start of displayed content */
   offset: number,
-
-  /** Passed as {@link VirtualBaseItemProps.data} to each child item */
-  itemData?: unknown,
-
-    /** Passed as {@link VirtualBaseItemProps.isScrolling} to each child item
-     * 
-     * Provided as a convenience when combining DisplayList with {@link VirtualScroll}
-     * Not interpreted by DisplayList
-     */
-  isScrolling?: boolean,
 
   /** 
    * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each item in the list
@@ -73,7 +51,7 @@ export interface DisplayListProps {
   itemOffsetMapping: ItemOffsetMapping,
 
   /**
-   * Function that defines the key to use for each item given item index and value of {@link DisplayListProps.itemData}.
+   * Function that defines the key to use for each item given item index and value of {@link DisplayBaseProps.itemData}.
    * @defaultValue `(index, _data) => index`
    */
   itemKey?: (index: number, data: unknown) => React.Key,
@@ -83,18 +61,6 @@ export interface DisplayListProps {
    * @defaultValue 'vertical'
    */
   layout?: ScrollLayout,
-
-  /** 
-   * Renders the outer viewport div which provides a window onto the inner grid div
-   * 
-   * Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayList} outer container. */
-  outerRender?: VirtualContainerRender;
-
-  /** 
-   * Renders the inner grid div containing all the list items
-   * 
-   * Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayList} inner container. */
-  innerRender?: VirtualContainerRender;
 }
 
 const defaultItemKey = (index: number, _data: unknown) => index;
