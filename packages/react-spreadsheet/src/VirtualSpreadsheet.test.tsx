@@ -1,4 +1,5 @@
-import { render, screen } from '../../../shared/test/wrapper'
+import { render, screen,  } from '../../../shared/test/wrapper'
+import { stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 
 import { VirtualSpreadsheet } from './VirtualSpreadsheet'
 import { VirtualSpreadsheetDefaultTheme } from './VirtualSpreadsheetTheme'
@@ -45,8 +46,13 @@ class TestData implements SpreadsheetData<number> {
 const data = new TestData;
 
 describe('VirtualSpreadsheet', () => {
+  afterEach(() => {
+    unstubAllProperties();
+  })
 
   it('should render with no theme or class name', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
       <VirtualSpreadsheet
         data={data}
@@ -61,6 +67,8 @@ describe('VirtualSpreadsheet', () => {
   })
 
   it('should render with class name', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
       <VirtualSpreadsheet
         data={data}
@@ -76,6 +84,8 @@ describe('VirtualSpreadsheet', () => {
   })
 
   it('should render with default theme', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
       <VirtualSpreadsheet
         data={data}
@@ -91,6 +101,8 @@ describe('VirtualSpreadsheet', () => {
   })
 
   it('should render with class name and theme', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
       <VirtualSpreadsheet
         data={data}
@@ -107,6 +119,8 @@ describe('VirtualSpreadsheet', () => {
   })
 
   it('should render formatted cells', () => {
+    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
       <VirtualSpreadsheet
         data={data}
