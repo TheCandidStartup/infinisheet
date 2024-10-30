@@ -1,46 +1,17 @@
 import React from "react";
-import { Fragment } from "react";
-import { ItemOffsetMapping,  VirtualBaseItemProps, VirtualBaseProps, ScrollToOption,
-  VirtualInnerRender, VirtualInnerProps, VirtualOuterRender, VirtualOuterProps, ScrollEvent } from './VirtualBase';
-import { getRangeToRender, getOffsetToScroll } from './VirtualCommon';
-import { useVirtualScroll, ScrollState } from './useVirtualScroll';
-import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
-
-/**
- * Props accepted by {@link VirtualGridItem}
- */
-export interface VirtualGridItemProps extends VirtualBaseItemProps {
-  /** Row index of item in the grid being rendered */
-  rowIndex: number,
-
-  /** Column index of item in the grid being rendered */
-  columnIndex: number,
-}
-
-/**
- * Type of item in a {@link VirtualGrid}
- *
- * Must be passed as a child to {@link VirtualGrid}. 
- * Accepts props defined by {@link VirtualGridItemProps}.
- * Component must pass {@link VirtualBaseItemProps.style} to whatever it renders. 
- * 
- * @example Basic implementation
- * ```
- * const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
- *   <div className="cell" style={style}>
- *     { `${rowIndex}:${columnIndex}` }
- *   </div>
- * );
- * ```
- */
-export type VirtualGridItem = React.ComponentType<VirtualGridItemProps>;
+import { ItemOffsetMapping, VirtualBaseProps, ScrollToOption } from './VirtualBase';
+import { DisplayGrid, DisplayGridItem } from './DisplayGrid';
+import { VirtualContainerRender } from './VirtualContainer';
+import { VirtualScroll, VirtualScrollProxy } from './VirtualScroll';
+import { AutoSizer } from './AutoSizer';
+import { ScrollState } from './useVirtualScroll';
 
 /**
  * Props accepted by {@link VirtualGrid}
  */
 export interface VirtualGridProps extends VirtualBaseProps {
-  /** Component used as a template to render items in the grid. Must implement {@link VirtualGridItem} interface. */
-  children: VirtualGridItem,
+  /** Component used as a template to render items in the grid. Must implement {@link DisplayGridItem} interface. */
+  children: DisplayGridItem,
 
   /** Number of rows in the grid */
   rowCount: number,
@@ -82,11 +53,11 @@ export interface VirtualGridProps extends VirtualBaseProps {
    */
   onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
 
-  /** Render prop implementing {@link VirtualOuterRender}. Used to customize {@link VirtualGrid}. */
-  outerRender?: VirtualOuterRender;
+  /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualGrid} outer container. */
+  outerRender?: VirtualContainerRender;
 
-  /** Render prop implementing {@link VirtualInnerRender}. Used to customize {@link VirtualGrid}. */
-  innerRender?: VirtualInnerRender;
+  /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayGrid} within {@link VirtualGrid} inner container. */
+  innerRender?: VirtualContainerRender;
 }
 
 /**
@@ -115,30 +86,11 @@ export interface VirtualGridProxy {
   get clientHeight(): number;
 }
 
-const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;
+function getRangeToScroll(index: number | undefined, mapping: ItemOffsetMapping) {
+  if (index === undefined)
+    return [undefined, undefined];
 
-interface VirtualInnerComponentProps extends VirtualInnerProps {
-  render: VirtualInnerRender;
-}
-
-const Inner = React.forwardRef<HTMLDivElement, VirtualInnerComponentProps >(function VirtualGridInner({render, ...rest}, ref) {
-  return render(rest, ref)
-})
-
-function defaultInnerRender({...rest}: VirtualInnerProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
-  return <div ref={ref} {...rest} />
-}
-
-interface VirtualOuterComponentProps extends VirtualOuterProps {
-  render: VirtualOuterRender;
-}
-
-const Outer = React.forwardRef<HTMLDivElement, VirtualOuterComponentProps >(function VirtualGridOuter({render, ...rest}, ref) {
-  return render(rest, ref)
-})
-
-function defaultOuterRender({...rest}: VirtualOuterProps, ref?: React.ForwardedRef<HTMLDivElement>): JSX.Element {
-  return <div ref={ref} {...rest} />
+  return [mapping.itemOffset(index), mapping.itemSize(index)];
 }
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
@@ -147,112 +99,98 @@ function defaultOuterRender({...rest}: VirtualOuterProps, ref?: React.ForwardedR
  * 
  * Accepts props defined by {@link VirtualGridProps}. 
  * Refs are forwarded to {@link VirtualGridProxy}. 
- * You must pass a single instance of {@link VirtualGridItem} as a child.
+ * You must pass a single instance of {@link DisplayGridItem} as a child.
  * @group Components
  */
 export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(function VirtualGrid(props, ref) {
-  const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, className, innerClassName, 
-    itemData = undefined, itemKey = defaultItemKey, onScroll: onScrollCallback, useIsScrolling = false } = props;
+  const { width, height, rowCount, rowOffsetMapping, columnCount, columnOffsetMapping, children, className, innerClassName,
+    outerRender, innerRender, maxCssSize, minNumPages,  
+    itemData, itemKey, onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   // Total size is same as offset to item one off the end
   const totalRowSize = rowOffsetMapping.itemOffset(rowCount);
   const totalColumnSize = columnOffsetMapping.itemOffset(columnCount);
 
-  const outerRef = React.useRef<HTMLDivElement>(null);
-  const { scrollOffset: scrollRowOffset, renderOffset: renderRowOffset, renderSize: renderRowSize,
-    onScroll: onScrollRow, doScrollTo: doScrollToRow } = useVirtualScroll(totalRowSize, props.maxCssSize, props.minNumPages);
-  const { scrollOffset: scrollColumnOffset, renderOffset: renderColumnOffset, renderSize: renderColumnSize,
-    onScroll: onScrollColumn, doScrollTo: doScrollToColumn} = useVirtualScroll(totalColumnSize, props.maxCssSize, props.minNumPages);
-  const isScrolling = useIsScrollingHook(outerRef); 
+  const [state, setState] = React.useState<[number,number]>([0,0]);
+  const scrollRef = React.useRef<VirtualScrollProxy>(null);
+
 
   React.useImperativeHandle(ref, () => {
     return {
       scrollTo(rowOffset?: number, columnOffset?: number): void {
-        const outer = outerRef.current;
+        const scroll = scrollRef.current;
         /* istanbul ignore else */
-        if (outer) {
-          const options: ScrollToOptions = {};
-          if (rowOffset != undefined)
-            options.top = doScrollToRow(rowOffset, outer.clientHeight);
-          if (columnOffset != undefined)
-            options.left = doScrollToColumn(columnOffset, outer.clientWidth);
-          outer.scrollTo(options);
-        }
+        if (scroll)
+          scroll.scrollTo(rowOffset, columnOffset);
       },
 
       scrollToItem(rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void {
-        const outer = outerRef.current;
-        /* istanbul ignore if*/
-        if (!outer)
+        const scroll = scrollRef.current;
+        /* istanbul ignore if */
+        if (!scroll)
           return;
 
-        const rowOffset = getOffsetToScroll(rowIndex, rowOffsetMapping, outer.clientHeight, scrollRowOffset + renderRowOffset, option);
-        const colOffset = getOffsetToScroll(columnIndex, columnOffsetMapping, outer.clientWidth, scrollColumnOffset + renderColumnOffset, option);
-        this.scrollTo(rowOffset, colOffset);
+        const [rowOffset, rowSize] = getRangeToScroll(rowIndex, rowOffsetMapping);
+        const [colOffset, colSize] = getRangeToScroll(columnIndex, columnOffsetMapping);
+
+        scroll.scrollToArea(rowOffset, rowSize, colOffset, colSize, option);
       },
 
       get clientWidth(): number {
-        return outerRef.current ? outerRef.current.clientWidth : /* istanbul ignore next */ 0;
+        return scrollRef.current ? scrollRef.current.clientWidth : /* istanbul ignore next */ 0;
       },
 
       get clientHeight(): number {
-        return outerRef.current ? outerRef.current.clientHeight : /* istanbul ignore next */ 0;
+        return scrollRef.current ? scrollRef.current.clientHeight : /* istanbul ignore next */ 0;
       }
     }
-  }, [ rowOffsetMapping, columnOffsetMapping, doScrollToRow, doScrollToColumn, 
-       scrollRowOffset, renderRowOffset, scrollColumnOffset, renderColumnOffset ]);
+  }, [ rowOffsetMapping, columnOffsetMapping ]);
 
-  function onScroll(event: ScrollEvent) {
-    const { clientWidth, clientHeight, scrollWidth, scrollHeight, scrollLeft, scrollTop } = event.currentTarget;
-    const [newScrollTop, newRowScrollState] = onScrollRow(clientHeight, scrollHeight, scrollTop);
-    const [newScrollLeft, newColumnScrollState] = onScrollColumn(clientWidth, scrollWidth, scrollLeft);
-    if (outerRef.current && (newScrollTop != scrollTop || newScrollLeft != scrollLeft ))
-      outerRef.current.scrollTo(newScrollLeft, newScrollTop);
-    onScrollCallback?.(newRowScrollState.scrollOffset+newRowScrollState.renderOffset, 
-      newColumnScrollState.scrollOffset+newColumnScrollState.renderOffset, newRowScrollState, newColumnScrollState);
-  }
-
-  const [startRowIndex, startRowOffset, rowSizes] = 
-    getRangeToRender(rowCount, rowOffsetMapping, height, scrollRowOffset + renderRowOffset);
-  const [startColumnIndex, startColumnOffset, columnSizes] = 
-    getRangeToRender(columnCount, columnOffsetMapping, width, scrollColumnOffset + renderColumnOffset);
 
   // We can decide the JSX child type at runtime as long as we use a variable that uses the same capitalized
   // naming convention as components do. 
   const ChildVar = children;
-  const outerRender = props.outerRender || defaultOuterRender;
-  const innerRender = props.innerRender || defaultInnerRender;
-
-  // Being far too clever. Implementing a complex iteration in JSX in a map expression by abusing the comma operator. 
-  // You can't declare local variables in an expression so they need to be hoisted out of the JSX. The comma operator
-  // returns the result of the final statement which makes the iteration a little clumsier.
-  let nextRowOffset = startRowOffset - renderRowOffset;
-  let rowIndex=0, rowOffset=0;
-  let nextColumnOffset=0, columnIndex=0, columnOffset=0;
 
   return (
-    <Outer className={className} render={outerRender} onScroll={onScroll} ref={outerRef} 
-        style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
-      <Inner className={innerClassName} render={innerRender} style={{ height: renderRowSize, width: renderColumnSize }}>
-        {rowSizes.map((rowSize, rowArrayIndex) => (
-          rowOffset = nextRowOffset,
-          nextRowOffset += rowSize,
-          rowIndex = startRowIndex + rowArrayIndex,
-          nextColumnOffset = startColumnOffset - renderColumnOffset,
-          <Fragment key={itemKey(rowIndex, 0, itemData)}>
-          {columnSizes.map((columnSize, columnArrayIndex) => (
-            columnOffset = nextColumnOffset,
-            nextColumnOffset += columnSize,
-            columnIndex = startColumnIndex + columnArrayIndex,
-            <ChildVar data={itemData} key={itemKey(rowIndex, columnIndex, itemData)}
-                      rowIndex={rowIndex} columnIndex={columnIndex}
-                      isScrolling={useIsScrolling ? isScrolling : undefined}
-                      style={{ position: "absolute", top: rowOffset, height: rowSize, left: columnOffset, width: columnSize }}/>
-          ))}
-          </Fragment>
-        ))}
-      </Inner>
-    </Outer>
+    <VirtualScroll
+      ref={scrollRef}
+      className={className}
+      outerRender={outerRender}
+      useIsScrolling={useIsScrolling}
+      maxCssSize={maxCssSize}
+      minNumPages={minNumPages}
+      scrollHeight={totalRowSize}
+      scrollWidth={totalColumnSize}
+      onScroll={(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState) => {
+        setState([verticalOffset, horizontalOffset]);
+        if (onScrollCallback)
+          onScrollCallback(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState);
+      }}
+      height={height}
+      width={width}>
+      {({ isScrolling }) => (
+        <AutoSizer style={{ height: '100%', width: '100%' }}>
+        {({height,width}) => (
+          <DisplayGrid
+            innerClassName={innerClassName}
+            innerRender={innerRender}
+            rowOffset={state[0]}
+            columnOffset={state[1]}
+            height={height}
+            rowCount={rowCount}
+            columnCount={columnCount}
+            itemData={itemData}
+            itemKey={itemKey}
+            isScrolling={isScrolling}
+            rowOffsetMapping={rowOffsetMapping}
+            columnOffsetMapping={columnOffsetMapping}
+            width={width}>
+            {ChildVar}
+        </DisplayGrid>
+      )}
+      </AutoSizer>
+      )}
+    </VirtualScroll>
   );
 });
 

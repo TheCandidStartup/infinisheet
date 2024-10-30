@@ -82,7 +82,7 @@ export interface VirtualListProxy {
 export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(function VirtualList(props, ref) {
   const { width, height, itemCount, itemOffsetMapping, children, className, innerClassName,
     outerRender, innerRender, maxCssSize, minNumPages, 
-    itemData = undefined, layout = 'vertical', onScroll: onScrollCallback, useIsScrolling = false } = props;
+    itemData, itemKey, layout = 'vertical', onScroll: onScrollCallback, useIsScrolling = false } = props;
 
   // Total size is same as offset to item one off the end
   const renderSize = itemOffsetMapping.itemOffset(itemCount);
@@ -155,6 +155,7 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
             height={height}
             itemCount={itemCount}
             itemData={itemData}
+            itemKey={itemKey}
             isScrolling={isScrolling}
             itemOffsetMapping={itemOffsetMapping}
             width={width}>

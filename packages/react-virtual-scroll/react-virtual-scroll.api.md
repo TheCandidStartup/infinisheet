@@ -167,23 +167,14 @@ export type VirtualContentRender = (props: VirtualContentProps, ref?: React_2.Fo
 export const VirtualGrid: React_2.ForwardRefExoticComponent<VirtualGridProps & React_2.RefAttributes<VirtualGridProxy>>;
 
 // @public
-export type VirtualGridItem = React_2.ComponentType<VirtualGridItemProps>;
-
-// @public
-export interface VirtualGridItemProps extends VirtualBaseItemProps {
-    columnIndex: number;
-    rowIndex: number;
-}
-
-// @public
 export interface VirtualGridProps extends VirtualBaseProps {
-    children: VirtualGridItem;
+    children: DisplayGridItem;
     columnCount: number;
     columnOffsetMapping: ItemOffsetMapping;
-    innerRender?: VirtualInnerRender;
+    innerRender?: VirtualContainerRender;
     itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React_2.Key;
     onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
-    outerRender?: VirtualOuterRender;
+    outerRender?: VirtualContainerRender;
     rowCount: number;
     rowOffsetMapping: ItemOffsetMapping;
 }

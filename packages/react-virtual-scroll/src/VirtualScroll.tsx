@@ -116,7 +116,7 @@ export interface VirtualScrollProxy {
  * Refs are forwarded to {@link VirtualScrollProxy}. 
  * @group Components
  */
-export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollProps>(function VirtualGrid(props, ref) {
+export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollProps>(function VirtualScroll(props, ref) {
   const { width, height, scrollWidth = 0, scrollHeight = 0, className, contentClassName, children,
     onScroll: onScrollCallback, useIsScrolling = false, innerRender, outerRender } = props;
 
