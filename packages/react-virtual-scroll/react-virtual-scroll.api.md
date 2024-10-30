@@ -34,6 +34,38 @@ export interface ComponentProps {
 }
 
 // @public
+export function DisplayGrid(props: DisplayGridProps): react_jsx_runtime.JSX.Element;
+
+// @public
+export type DisplayGridItem = React_2.ComponentType<DisplayGridItemProps>;
+
+// @public
+export interface DisplayGridItemProps extends VirtualBaseItemProps {
+    columnIndex: number;
+    rowIndex: number;
+}
+
+// @public
+export interface DisplayGridProps {
+    children: DisplayGridItem;
+    className?: string;
+    columnCount: number;
+    columnOffset: number;
+    columnOffsetMapping: ItemOffsetMapping;
+    height: number;
+    innerClassName?: string;
+    innerRender?: VirtualContainerRender;
+    isScrolling?: boolean;
+    itemData?: unknown;
+    itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React_2.Key;
+    outerRender?: VirtualContainerRender;
+    rowCount: number;
+    rowOffset: number;
+    rowOffsetMapping: ItemOffsetMapping;
+    width: number;
+}
+
+// @public
 export function DisplayList(props: DisplayListProps): react_jsx_runtime.JSX.Element;
 
 // @public
