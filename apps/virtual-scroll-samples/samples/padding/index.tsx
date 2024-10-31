@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, VirtualContainerRender } from '@candidstartup/react-virtual-scroll';
+import { VirtualScroll, VirtualScrollProxy, DisplayList, AutoSizer, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -13,24 +13,12 @@ const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boole
   </div>
 );
 
-const innerRender: VirtualContainerRender = (({style, children, ...rest}, ref) => (
-  <div 
-    ref={ref} 
-    style={{
-      ...style,
-      height: style?.height as number + PADDING_SIZE * 2,
-      gridTemplateRows: PADDING_SIZE + "px " + style?.gridTemplateRows + " " + PADDING_SIZE +"px"
-    }} 
-    {...rest}>
-    <div style={{ boxSizing: 'border-box' }}/>
-    {children}
-    <div style={{ boxSizing: 'border-box' }}/>
-  </div>
-))
-
 function App() {
   const mapping = useFixedSizeItemOffsetMapping(30);
-  const ref = React.useRef<VirtualListProxy>(null);
+  const [offset, setOffset] = React.useState<number>(0);
+  const ref = React.useRef<VirtualScrollProxy>(null);
+  const itemCount = 100;
+  const totalSize = mapping.itemOffset(itemCount);
 
   return (
     <div className="app-container">
@@ -47,16 +35,30 @@ function App() {
         />
       </label>
 
-      <VirtualList
-        ref={ref}
-        className={'outerContainer'}
-        innerRender={innerRender}
-        height={240}
-        itemCount={100}
-        itemOffsetMapping={mapping}
-        width={600}>
-        {Row}
-      </VirtualList>
+      <VirtualScroll
+      ref={ref}
+      className={'outerContainer'}
+      height={240}
+      width={600}
+      scrollHeight={totalSize + PADDING_SIZE*2}
+      onScroll={(newOffset) => {
+        setOffset(newOffset);
+      }}>
+      {(_) => (
+        <AutoSizer style={{ height: '100%', width: '100%' }}>
+        {({height,width}) => (
+          <DisplayList
+            offset={offset - PADDING_SIZE}
+            height={height}
+            itemCount={itemCount}
+            itemOffsetMapping={mapping}
+            width={width}>
+            {Row}
+          </DisplayList>
+        )}
+        </AutoSizer>
+      )}
+      </VirtualScroll>
     </div>
   )
 }
