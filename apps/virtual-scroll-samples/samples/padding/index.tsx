@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, VirtualContainerRender } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
@@ -61,4 +61,4 @@ function App() {
   )
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+createRoot(document.getElementById('root')!).render(<App />);
