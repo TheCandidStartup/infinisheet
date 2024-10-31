@@ -95,12 +95,10 @@ export function DisplayGrid(props: DisplayGridProps) {
     rowOffset: rowRenderOffset, columnOffset: colRenderOffset, children,
     itemData, itemKey = defaultItemKey, outerRender, innerRender, isScrolling } = props;
 
-  const [rowStartIndex, rowStartOffset, rowSizes] = getRangeToRender(rowCount, rowOffsetMapping, height, rowRenderOffset);
-  const rowRenderSize = rowSizes.reduce((accum,current) => accum + current, 0);
+  const [rowStartIndex, rowStartOffset, rowRenderSize, rowSizes] = getRangeToRender(rowCount, rowOffsetMapping, height, rowRenderOffset);
   const rowTemplate = getGridTemplate(rowSizes);
 
-  const [colStartIndex, colStartOffset, colSizes] = getRangeToRender(columnCount, columnOffsetMapping, width, colRenderOffset);
-  const colRenderSize = colSizes.reduce((accum,current) => accum + current, 0);
+  const [colStartIndex, colStartOffset, colRenderSize, colSizes] = getRangeToRender(columnCount, columnOffsetMapping, width, colRenderOffset);
   const colTemplate = getGridTemplate(colSizes);
 
   const rowOffset = rowStartOffset - rowRenderOffset;

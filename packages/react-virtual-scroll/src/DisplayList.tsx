@@ -82,9 +82,8 @@ export function DisplayList(props: DisplayListProps) {
 
   const isVertical = layout === 'vertical';
 
-  const [startIndex, startOffset, sizes] = getRangeToRender(itemCount, itemOffsetMapping, 
+  const [startIndex, startOffset, renderSize, sizes] = getRangeToRender(itemCount, itemOffsetMapping, 
     isVertical ? height : width, renderOffset);
-  const renderSize = sizes.reduce((accum,current) => accum + current, 0);
   const template = getGridTemplate(sizes);
   const offset = startOffset - renderOffset;
 

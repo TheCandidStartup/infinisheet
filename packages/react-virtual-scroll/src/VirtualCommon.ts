@@ -3,12 +3,13 @@ import type { ItemOffsetMapping, ScrollToOption } from "./VirtualBase";
 type RangeToRender = [
   startIndex: number,
   startOffset: number,
+  totalSize: number,
   sizes: number[]
 ];
 
 export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffsetMapping, clientExtent: number, scrollOffset: number): RangeToRender {
   if (itemCount == 0) {
-    return [0, 0, []];
+    return [0, 0, 0, []];
   }
 
   // Negative offset equivalent to reducing the size of the window (possibly down to nothing)
@@ -18,12 +19,12 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
   }
 
   if (clientExtent <= 0) {
-    return [0, 0, []];
+    return [0, 0, 0, []];
   }
 
   let [itemIndex, startOffset] = itemOffsetMapping.offsetToItem(scrollOffset);
   if (itemIndex >= itemCount) {
-    return [0, 0, []];
+    return [0, 0, 0, []];
   }
 
   itemIndex = Math.max(0, Math.min(itemCount - 1, itemIndex));
@@ -40,10 +41,12 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
   const startIndex = itemIndex;
   let offset = startOffset;
   const sizes: number[] = [];
+  let totalSize = 0;
 
   while (offset < endOffset && itemIndex < itemCount) {
     const size = itemOffsetMapping.itemSize(itemIndex);
     sizes.push(size);
+    totalSize += size;
     offset += size;
     itemIndex ++;
   }
@@ -51,10 +54,11 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
   for (let step = 0; step < overscanForward && itemIndex < itemCount; step ++) {
     const size = itemOffsetMapping.itemSize(itemIndex);
     sizes.push(size);
+    totalSize += size;
     itemIndex ++;
   }
 
-  return [startIndex, startOffset, sizes];
+  return [startIndex, startOffset, totalSize, sizes];
 }
 
 function formatRepeat(repeat: number, size: number): string {
@@ -130,4 +134,3 @@ export function getOffsetToScroll(index: number | undefined, itemOffsetMapping: 
   return getOffsetToScrollRange(itemOffsetMapping.itemOffset(index), itemOffsetMapping.itemSize(index), 
     clientExtent, scrollOffset, option);
  }
- 
