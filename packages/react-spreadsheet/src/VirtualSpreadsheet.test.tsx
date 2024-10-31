@@ -119,7 +119,7 @@ describe('VirtualSpreadsheet', () => {
   })
 
   it('should render formatted cells', () => {
-    stubProperty(HTMLElement.prototype, "clientWidth", 585);
+    stubProperty(HTMLElement.prototype, "clientWidth", 985);
     stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
       <VirtualSpreadsheet

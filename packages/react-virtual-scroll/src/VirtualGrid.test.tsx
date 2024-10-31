@@ -64,16 +64,15 @@ describe('VirtualGrid', () => {
     const item1a = screen.getByText('Cell 1:1');
     expect(item1a).toBeInTheDocument()
 
-    // Overscan should render one item after visible window
-    const item8 = screen.getByText('Cell 7:0');
+    const item8 = screen.getByText('Cell 6:0');
     expect(item8).toBeInTheDocument()
 
-    const item8a = screen.getByText('Cell 7:6');
+    const item8a = screen.getByText('Cell 6:5');
     expect(item8a).toBeInTheDocument()
 
-    expect(screen.queryByText('Cell 8:0')).toBeNull()
-    expect(screen.queryByText('Cell 0:7')).toBeNull()
-    expect(screen.queryByText('Cell 8:7')).toBeNull()
+    expect(screen.queryByText('Cell 7:0')).toBeNull()
+    expect(screen.queryByText('Cell 0:6')).toBeNull()
+    expect(screen.queryByText('Cell 7:6')).toBeNull()
 
     // Scroll down 4 rows and across 3 rows
     {act(() => {
@@ -88,18 +87,18 @@ describe('VirtualGrid', () => {
     expect(screen.queryByText('Cell 2:1')).toBeNull()
 
     // Overscan should render one item before the start of the visible window
-    const item3 = screen.getByText('Cell 3:2');
+    const item3 = screen.getByText('Cell 4:3');
     expect(item3).toBeInTheDocument()
 
     // New items scrolled into view
     const item9 = screen.getByText('Cell 9:3');
     expect(item9).toBeInTheDocument()
 
-    const item12 = screen.getByText('Cell 12:9');
+    const item12 = screen.getByText('Cell 11:8');
     expect(item12).toBeInTheDocument()
 
-    expect(screen.queryByText('Cell 13:0')).toBeNull()
-    expect(screen.queryByText('Cell 12:10')).toBeNull()
+    expect(screen.queryByText('Cell 12:0')).toBeNull()
+    expect(screen.queryByText('Cell 11:9')).toBeNull()
   })
 
   it('empty grid', () => {
@@ -257,10 +256,10 @@ describe('VirtualGrid with useIsScrolling', () => {
     const item1 = screen.getByText('Cell 1:0');
     expect(item1).toBeInTheDocument()
 
-    const item7 = screen.getByText('Cell 7:0');
+    const item7 = screen.getByText('Cell 6:0');
     expect(item7).toBeInTheDocument()
 
-    expect(screen.queryByText('Cell 8:0')).toBeNull()
+    expect(screen.queryByText('Cell 7:0')).toBeNull()
 
     // Check that trying to scroll past the end is handled sensibly
     // Send scrollEnd separately so can check isScrolling property works
@@ -271,8 +270,7 @@ describe('VirtualGrid with useIsScrolling', () => {
     expect(screen.queryByText('Cell 1:0')).toBeNull()
     expect(screen.queryByText('Cell 90:0')).toBeNull()
 
-    // Overscan should render one item before the start of the visible window
-    let item91 = screen.getByText('Cell 91:0');
+    let item91 = screen.getByText('Cell 92:0');
     expect(item91).toBeInTheDocument()
     expect(item91).toHaveProperty("className", 'cellScroll')
 
@@ -286,7 +284,7 @@ describe('VirtualGrid with useIsScrolling', () => {
       fireEventScrollEnd(outerDiv);
     })}
 
-    item91 = screen.getByText('Cell 91:0');
+    item91 = screen.getByText('Cell 92:0');
     expect(item91).toBeInTheDocument()
     expect(item91).toHaveProperty("className", 'cell')
 

@@ -30,16 +30,15 @@ describe('DisplayList', () => {
     const innerDiv = header.parentElement || throwErr("No inner div");
     expect(innerDiv).toHaveProperty("style.top", '0px')
     expect(innerDiv).toHaveProperty("style.left", '0px')
-    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(9,30px)')
+    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(8,30px)')
 
     const item1 = screen.getByText('Item 1');
     expect(item1).toBeInTheDocument()
 
-    // Overscan should render one item after visible window
-    const item8 = screen.getByText('Item 8');
+    const item8 = screen.getByText('Item 7');
     expect(item8).toBeInTheDocument()
 
-    expect(screen.queryByText('Item 9')).toBeNull()
+    expect(screen.queryByText('Item 8')).toBeNull()
   })
 
   it('should render at fractional offset', () => {
@@ -57,23 +56,22 @@ describe('DisplayList', () => {
     expect(screen.queryByText('header')).toBeNull()
     expect(screen.queryByText('Item 1')).toBeNull()
 
-    // Overscan should render one item before the start of the visible window
-    const item2 = screen.getByText('Item 2');
-    expect(item2).toBeInTheDocument()
+    const item3 = screen.getByText('Item 3');
+    expect(item3).toBeInTheDocument()
 
-    const innerDiv = item2.parentElement || throwErr("No inner div");
-    expect(innerDiv).toHaveProperty("style.top", '-40px')
+    const innerDiv = item3.parentElement || throwErr("No inner div");
+    expect(innerDiv).toHaveProperty("style.top", '-10px')
     expect(innerDiv).toHaveProperty("style.left", '0px')
-    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(11,30px)')
+    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(9,30px)')
 
     // New items scrolled into view
     const item9= screen.getByText('Item 9');
     expect(item9).toBeInTheDocument()
 
-    const item12= screen.getByText('Item 12');
+    const item12= screen.getByText('Item 11');
     expect(item12).toBeInTheDocument()
 
-    expect(screen.queryByText('Item 13')).toBeNull()
+    expect(screen.queryByText('Item 12')).toBeNull()
   })
 
   it('should render at negative offset', () => {
@@ -93,16 +91,15 @@ describe('DisplayList', () => {
     const innerDiv = header.parentElement || throwErr("No inner div");
     expect(innerDiv).toHaveProperty("style.top", '120px')
     expect(innerDiv).toHaveProperty("style.left", '0px')
-    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(5,30px)')
+    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(4,30px)')
 
     const item1 = screen.getByText('Item 1');
     expect(item1).toBeInTheDocument()
 
-    // Overscan should render one item after visible window
-    const item8 = screen.getByText('Item 4');
+    const item8 = screen.getByText('Item 3');
     expect(item8).toBeInTheDocument()
 
-    expect(screen.queryByText('Item 5')).toBeNull()
+    expect(screen.queryByText('Item 4')).toBeNull()
   })
 
   it('should render empty space beyond end of list', () => {
@@ -116,15 +113,15 @@ describe('DisplayList', () => {
         {Cell}
       </DisplayList>
     )
-    expect(screen.queryByText('Item 95')).toBeNull()
+    expect(screen.queryByText('Item 96')).toBeNull()
 
-    const header = screen.getByText('Item 96');
+    const header = screen.getByText('Item 97');
     expect(header).toBeInTheDocument()
 
     const innerDiv = header.parentElement || throwErr("No inner div");
-    expect(innerDiv).toHaveProperty("style.top", '-30px')
+    expect(innerDiv).toHaveProperty("style.top", '0px')
     expect(innerDiv).toHaveProperty("style.left", '0px')
-    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(4,30px)')
+    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(3,30px)')
 
     const item99 = screen.getByText('Item 99');
     expect(item99).toBeInTheDocument()
@@ -187,20 +184,20 @@ describe('DisplayList', () => {
       </DisplayList>
     )
 
-    const header = screen.getByText('Item 3');
+    const header = screen.getByText('Item 4');
     expect(header).toBeInTheDocument()
 
     const innerDiv = header.parentElement || throwErr("No inner div");
     expect(innerDiv).toHaveProperty("style.top", '0px')
-    expect(innerDiv).toHaveProperty("style.left", '-30px')
-    expect(innerDiv).toHaveProperty("style.grid-template-columns", 'repeat(22,30px)')
+    expect(innerDiv).toHaveProperty("style.left", '0px')
+    expect(innerDiv).toHaveProperty("style.grid-template-columns", 'repeat(20,30px)')
 
-    const item1 = screen.getByText('Item 4');
+    const item1 = screen.getByText('Item 5');
     expect(item1).toBeInTheDocument()
 
-    const item24 = screen.getByText('Item 24');
+    const item24 = screen.getByText('Item 23');
     expect(item24).toBeInTheDocument()
 
-    expect(screen.queryByText('Item 25')).toBeNull()
+    expect(screen.queryByText('Item 24')).toBeNull()
   })
 })

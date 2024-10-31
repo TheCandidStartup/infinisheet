@@ -35,21 +35,20 @@ describe('DisplayGrid', () => {
     const innerDiv = header.parentElement || throwErr("No inner div");
     expect(innerDiv).toHaveProperty("style.top", '0px')
     expect(innerDiv).toHaveProperty("style.left", '0px')
-    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(9,30px)')
-    expect(innerDiv).toHaveProperty("style.grid-template-columns", 'repeat(7,100px)')
+    expect(innerDiv).toHaveProperty("style.grid-template-rows", 'repeat(8,30px)')
+    expect(innerDiv).toHaveProperty("style.grid-template-columns", 'repeat(6,100px)')
 
     const item1 = screen.getByText('Cell 1:0');
     expect(item1).toBeInTheDocument()
 
-    // Overscan should render one item after visible window
-    const item8 = screen.getByText('Cell 8:0');
+    const item8 = screen.getByText('Cell 7:0');
     expect(item8).toBeInTheDocument()
 
-    const item8a = screen.getByText('Cell 8:6');
+    const item8a = screen.getByText('Cell 7:5');
     expect(item8a).toBeInTheDocument()
 
-    expect(screen.queryByText('Cell 9:0')).toBeNull()
-    expect(screen.queryByText('Cell 0:7')).toBeNull()
-    expect(screen.queryByText('Cell 9:7')).toBeNull()
+    expect(screen.queryByText('Cell 8:0')).toBeNull()
+    expect(screen.queryByText('Cell 0:6')).toBeNull()
+    expect(screen.queryByText('Cell 8:6')).toBeNull()
   })
 })

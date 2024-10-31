@@ -59,11 +59,10 @@ describe('Fixed Size VirtualList', () => {
     const item1 = screen.getByText('Item 1');
     expect(item1).toBeInTheDocument()
 
-    // Overscan should render one item after visible window
-    const item8 = screen.getByText('Item 8');
+    const item8 = screen.getByText('Item 7');
     expect(item8).toBeInTheDocument()
 
-    expect(screen.queryByText('Item 9')).toBeNull()
+    expect(screen.queryByText('Item 8')).toBeNull()
 
     // Scroll down 4 items.
     {act(() => {
@@ -73,19 +72,19 @@ describe('Fixed Size VirtualList', () => {
     expect(screen.queryByText('header')).toBeNull()
     expect(screen.queryByText('Item 1')).toBeNull()
     expect(screen.queryByText('Item 2')).toBeNull()
+    expect(screen.queryByText('Item 3')).toBeNull()
 
-    // Overscan should render one item before the start of the visible window
-    const item3 = screen.getByText('Item 3');
+    const item3 = screen.getByText('Item 4');
     expect(item3).toBeInTheDocument()
 
     // New items scrolled into view
     const item9= screen.getByText('Item 9');
     expect(item9).toBeInTheDocument()
 
-    const item12= screen.getByText('Item 12');
+    const item12= screen.getByText('Item 11');
     expect(item12).toBeInTheDocument()
 
-    expect(screen.queryByText('Item 13')).toBeNull()
+    expect(screen.queryByText('Item 12')).toBeNull()
   })
 
   it('empty list', () => {
@@ -241,8 +240,9 @@ describe('Fixed Size VirtualList', () => {
       expect(screen.queryByText('header')).toBeNull()
       expect(screen.queryByText('Item 1')).toBeNull()
       expect(screen.queryByText('Item 2')).toBeNull()
+      expect(screen.queryByText('Item 3')).toBeNull()
 
-      const item3 = screen.getByText('Item 3');
+      const item3 = screen.getByText('Item 4');
       expect(item3).toBeInTheDocument()
 
       let proxy = ref.current || throwErr("null ref");
@@ -346,10 +346,10 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     expect(item1).toBeInTheDocument()
 
     // Should be one less item than fixed size case
-    const item7 = screen.getByText('Item 7');
+    const item7 = screen.getByText('Item 6');
     expect(item7).toBeInTheDocument()
 
-    expect(screen.queryByText('Item 8')).toBeNull()
+    expect(screen.queryByText('Item 7')).toBeNull()
 
     // Check that trying to scroll past the end is handled sensibly
     // Send scrollEnd separately so can check isScrolling property works
@@ -358,10 +358,9 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     })}
     expect(screen.queryByText('header')).toBeNull()
     expect(screen.queryByText('Item 1')).toBeNull()
-    expect(screen.queryByText('Item 90')).toBeNull()
+    expect(screen.queryByText('Item 91')).toBeNull()
 
-    // Overscan should render one item before the start of the visible window
-    let item91 = screen.getByText('Item 91');
+    let item91 = screen.getByText('Item 92');
     expect(item91).toBeInTheDocument()
     expect(item91).toHaveProperty("className", 'cellScroll')
 
@@ -375,7 +374,7 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
       fireEventScrollEnd(outerDiv);
     })}
 
-    item91 = screen.getByText('Item 91');
+    item91 = screen.getByText('Item 92');
     expect(item91).toBeInTheDocument()
     expect(item91).toHaveProperty("className", 'cell')
 
@@ -401,10 +400,10 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     const header = screen.getByText('Header');
     expect(header).toBeInTheDocument()
 
-    const item7 = screen.getByText('Item 8');
+    const item7 = screen.getByText('Item 7');
     expect(item7).toBeInTheDocument()
 
-    expect(screen.queryByText('Item 9')).toBeNull()
+    expect(screen.queryByText('Item 8')).toBeNull()
   })
 
   it('should render list with less items than sizes', () => {

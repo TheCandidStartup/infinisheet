@@ -22,21 +22,13 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
     return [0, 0, 0, []];
   }
 
-  let [itemIndex, startOffset] = itemOffsetMapping.offsetToItem(scrollOffset);
-  if (itemIndex >= itemCount) {
+  const [baseIndex, startOffset] = itemOffsetMapping.offsetToItem(scrollOffset);
+  if (baseIndex >= itemCount) {
     return [0, 0, 0, []];
   }
 
-  itemIndex = Math.max(0, Math.min(itemCount - 1, itemIndex));
+  let itemIndex = Math.max(0, Math.min(itemCount - 1, baseIndex));
   const endOffset = scrollOffset + clientExtent;
-
-  const overscanBackward = 1;
-  const overscanForward = 1;
-
-  for (let step = 0; step < overscanBackward && itemIndex > 0; step ++) {
-    itemIndex --;
-    startOffset -= itemOffsetMapping.itemSize(itemIndex);
-  }
 
   const startIndex = itemIndex;
   let offset = startOffset;
@@ -48,13 +40,6 @@ export function getRangeToRender(itemCount: number, itemOffsetMapping: ItemOffse
     sizes.push(size);
     totalSize += size;
     offset += size;
-    itemIndex ++;
-  }
-
-  for (let step = 0; step < overscanForward && itemIndex < itemCount; step ++) {
-    const size = itemOffsetMapping.itemSize(itemIndex);
-    sizes.push(size);
-    totalSize += size;
     itemIndex ++;
   }
 
@@ -125,12 +110,3 @@ export function getOffsetToScrollRange(offset: number | undefined, size: number 
   return offset - clientExtent + size;
  }
 
-export function getOffsetToScroll(index: number | undefined, itemOffsetMapping: ItemOffsetMapping, 
-  clientExtent: number, scrollOffset: number, option?: ScrollToOption): number | undefined
-{
-  if (index === undefined)
-    return undefined;
-
-  return getOffsetToScrollRange(itemOffsetMapping.itemOffset(index), itemOffsetMapping.itemSize(index), 
-    clientExtent, scrollOffset, option);
- }
