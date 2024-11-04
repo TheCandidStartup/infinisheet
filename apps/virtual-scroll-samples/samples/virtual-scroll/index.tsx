@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import { VirtualScroll, VirtualScrollProxy, ScrollState, 
-  DisplayList, useVariableSizeItemOffsetMapping, AutoSizer } from '@candidstartup/react-virtual-scroll';
+import { VirtualScroll, VirtualScrollProxy, ScrollState } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
@@ -11,14 +10,6 @@ interface AppState {
   verticalScrollState: ScrollState,
   horizontalScrollState: ScrollState
 }
-
-const mapping = useVariableSizeItemOffsetMapping(30, [50]);
-
-const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
-  <div className={ index == 0 ? "header" : "cell" } style={style}>
-    { (index == 0) ? "Header" : "Item " + index }
-  </div>
-);
 
 function App() {
   const [appState, setAppState] = React.useState<AppState|null>(null);
@@ -93,17 +84,6 @@ function App() {
             horizontalOffset: {appState?.horizontalOffset} <br/>
             horizontalPage: {appState?.horizontalScrollState.page} <br/>
             horizontalDirection: {appState?.horizontalScrollState.scrollDirection} <br/>
-            <AutoSizer style={{ flexGrow: 1, width: '100%'}}>
-              {({height,width}) => (
-              <DisplayList
-                offset={appState ? appState.verticalOffset : 0}
-                height={height}
-                itemCount={100}
-                itemOffsetMapping={mapping}
-                width={width}>
-                {Row}
-              </DisplayList>)}
-            </AutoSizer>
           </Fragment>
         )}
       </VirtualScroll>
