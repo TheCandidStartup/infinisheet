@@ -54,22 +54,46 @@ export interface AutoSizerProps {
 export function AutoSizer(props: AutoSizerProps) {
   const { children, className, style } = props;
 
-  const [[height,width], setState] = React.useState<[number,number]>([0,0]);
+  // Using separate primitive states rather than one composite so that React
+  // can detect duplicates values and bail out of redundant renders.
+  const [width, setWidth] = React.useState<number>(0);
+  const [height, setHeight] = React.useState<number>(0);
   const ref = React.useRef<HTMLDivElement>(null);
 
-  // Need to run effect after every render as no way of knowing how parent
-  // might have changed.
-  //
-  // React lint complains about the use of height and width without listing as
-  // dependencies. Of course they can't be dependencies because we're trying to set them.
-  // We only access the current values to prevent an infinite loop repeatedly setting the same values.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Make sure resize callback is a stable value so we're not constantly
+  // creating and disconnecting resize observers.
+  const resizeCallback: ResizeObserverCallback = React.useCallback((entries) => {
+    entries.forEach(entry => {
+      // Context box sizes can contain fractional values while clientWidth
+      // and clientHeight properties are always rounded to nearest integer.
+      // Always use integer values to avoid confusion.
+      const newWidth = Math.round(entry.contentBoxSize[0].inlineSize);
+      setWidth(newWidth);
+      const newHeight = Math.round(entry.borderBoxSize[0].blockSize);
+      setHeight(newHeight);
+    })
+  }, []);
+
+  // Expect effect to run only on initial mount
   React.useLayoutEffect(() => {
     const div = ref.current;
-    if (div && (height != div.clientHeight || width != div.clientWidth)) {
-      setState([div.clientHeight, div.clientWidth]);
+     /* istanbul ignore if*/
+    if (!div)
+      return;
+
+    // Size on initial mount
+    setHeight(div.clientHeight);
+    setWidth(div.clientWidth);
+
+    // Updates size on any subsequent resize. Only available in browser
+    // environment so avoid crashing out when server side rendering, or
+    // running unit test without ResizeObserver being mocked. 
+    if (typeof ResizeObserver !== 'undefined') {
+      const resizeObserver = new ResizeObserver(resizeCallback);
+      resizeObserver.observe(div);
+      return () => { resizeObserver.disconnect() }
     }
-  })
+  }, [resizeCallback])
 
   // No point rendering children until we've measured size and found a usable area
   const renderChildren = height > 0 && width > 0;

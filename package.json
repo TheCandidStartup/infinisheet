@@ -10,6 +10,7 @@
     "lerna-lint": "npx lerna run lint",
     "lerna-prodapi": "npx lerna run prodapi",
     "lerna-test": "npx lerna run test -- --run --coverage",
+    "prodbuild": "npm run lerna-build && npm run lerna-lint && npm run lerna-prodapi && npm run lerna-test",
     "lerna-version": "npx lerna version --conventional-commits",
     "lerna-publish": "npx lerna publish from-package --yes"
   },
@@ -37,6 +38,7 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "globals": "^15.6.0",
     "jsdom": "^24.0.0",
+    "jsdom-testing-mocks": "^1.13.1",
     "lerna": "^8.1.2",
     "path": "^0.12.7",
     "rimraf": "^5.0.5",
