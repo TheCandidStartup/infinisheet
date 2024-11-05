@@ -1,5 +1,5 @@
 import React from 'react';
-import { DisplayList, VirtualContainerRender, VirtualGrid, VirtualGridProxy,
+import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy, virtualGridScrollToItem,
   useVariableSizeItemOffsetMapping, ScrollState} from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
@@ -128,7 +128,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const { width, height, theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const columnMapping = useVariableSizeItemOffsetMapping(100, [160]);
   const rowMapping = useVariableSizeItemOffsetMapping(30, [70]);
-  const gridRef = React.useRef<VirtualGridProxy>(null);
+  const scrollRef = React.useRef<VirtualScrollProxy>(null);
   const pendingScrollToSelectionRef = React.useRef<boolean>(false);
   const focusSinkRef = React.useRef<HTMLInputElement>(null);
 
@@ -157,9 +157,9 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     if (pendingScrollToSelectionRef.current) {
       pendingScrollToSelectionRef.current = false;
 
-      gridRef.current?.scrollToItem(selection[0], selection[1], 'visible');
+      virtualGridScrollToItem(scrollRef, rowMapping, columnMapping, selection[0], selection[1], 'visible');
     }
-  }, [selection])
+  }, [selection, rowMapping, columnMapping])
 
   React.useEffect(() => {
     focusSinkRef.current?.focus({preventScroll: true})
@@ -168,7 +168,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   function onScroll(rowOffsetValue: number, columnOffsetValue: number, rowState: ScrollState, columnState: ScrollState) {
     if (rowOffsetValue == 0)
       setHwmRowIndex(0);
-    else if (gridRef.current && (rowOffsetValue + gridRef.current.clientHeight == rowOffset)) {
+    else if (scrollRef.current && (rowOffsetValue + scrollRef.current.clientHeight == rowOffset)) {
       // Infinite scrolling if we've reached the end
       if (hwmRowIndex < rowCount && rowCount < maxRowCount)
         setHwmRowIndex(rowCount);
@@ -176,7 +176,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
 
     if (columnOffsetValue == 0)
       setHwmColumnIndex(0);
-    else if (gridRef.current && (columnOffsetValue + gridRef.current.clientWidth == columnOffset)) {
+    else if (scrollRef.current && (columnOffsetValue + scrollRef.current.clientWidth == columnOffset)) {
       // Infinite scrolling if we've reached the end
       if (hwmColumnIndex < columnCount && columnCount < maxColumnCount)
         setHwmColumnIndex(columnCount);
@@ -206,7 +206,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       return;
 
     updateSelection(row,col);
-    gridRef.current?.scrollToItem(row, col, 'visible');
+    virtualGridScrollToItem(scrollRef, rowMapping, columnMapping, row, col, 'visible');
   }
 
   function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -240,7 +240,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       // Need to defer scroll to selection until after larger grid has been rendered
       pendingScrollToSelectionRef.current = true;
     } else 
-      gridRef.current?.scrollToItem(row, col, 'visible');
+      virtualGridScrollToItem(scrollRef, rowMapping, columnMapping, row, col, 'visible');
   }
 
   function colSelected(index: number) { return (selection[0] == undefined && selection[1] == index) }
@@ -406,22 +406,36 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         {HeaderItem}
       </DisplayList>
 
-      <VirtualGrid
+      <VirtualScroll
         className={theme?.VirtualSpreadsheet_Grid}
-        ref={gridRef}
-        itemData={cellRender}
+        ref={scrollRef}
         outerRender={outerGridRender}
         onScroll={onScroll}
         height={props.height}
-        rowCount={rowCount}
-        rowOffsetMapping={rowMapping}
-        columnCount={columnCount}
-        columnOffsetMapping={columnMapping}
+        width={props.width}
+        scrollHeight={rowOffset}
+        scrollWidth={columnOffset}
         maxCssSize={props.maxCssSize}
-        minNumPages={props.minNumPages}
-        width={props.width}>
-        {Cell}
-      </VirtualGrid>
+        minNumPages={props.minNumPages}>
+        {(_) => (
+          <AutoSizer style={{ height: '100%', width: '100%' }}>
+          {({height,width}) => (
+            <DisplayGrid
+              rowOffset={gridRowOffset}
+              columnOffset={gridColumnOffset}
+              height={height}
+              width={width}
+              itemData={cellRender}
+              rowCount={rowCount}
+              rowOffsetMapping={rowMapping}
+              columnCount={columnCount}
+              columnOffsetMapping={columnMapping}>
+              {Cell}
+            </DisplayGrid>
+          )}
+          </AutoSizer>
+        )}
+      </VirtualScroll>
     </div>
   )
 }
