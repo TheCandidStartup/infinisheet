@@ -3,6 +3,7 @@ import { ItemOffsetMapping, VirtualBaseProps, ScrollToOption } from './VirtualBa
 import { DisplayGrid, DisplayGridItem } from './DisplayGrid';
 import { VirtualContainerRender } from './VirtualContainer';
 import { VirtualScroll, VirtualScrollProxy } from './VirtualScroll';
+import { virtualGridScrollToItem, VirtualGridProxy } from './VirtualGridProxy';
 import { AutoSizer } from './AutoSizer';
 import { ScrollState } from './useVirtualScroll';
 
@@ -60,39 +61,6 @@ export interface VirtualGridProps extends VirtualBaseProps {
   innerRender?: VirtualContainerRender;
 }
 
-/**
- * Custom ref handle returned by {@link VirtualGrid} that exposes imperative methods
- * 
- * Use `React.useRef<VirtualGridProxy>(null)` to create a ref.
- */
-export interface VirtualGridProxy {
-  /**
-   * Scrolls the list to the specified row and column in pixels
-   */
-  scrollTo(rowOffset?: number, columnOffset?: number): void;
-
-  /**
-   * Scrolls the list so that the specified item is visible
-   * @param rowIndex - Row of item to scroll to
-   * @param columnIndex - Column of item to scroll to
-   * @param option - Where to {@link ScrollToOption | position} the item within the viewport
-   */
-  scrollToItem(rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void;
-
-  /** Exposes DOM clientWidth property */
-  get clientWidth(): number;
-
-  /** Exposes DOM clientHeight property */
-  get clientHeight(): number;
-}
-
-function getRangeToScroll(index: number | undefined, mapping: ItemOffsetMapping) {
-  if (index === undefined)
-    return [undefined, undefined];
-
-  return [mapping.itemOffset(index), mapping.itemSize(index)];
-}
-
 // Using a named function rather than => so that the name shows up in React Developer Tools
 /**
  * Virtual Scrolling Grid
@@ -124,15 +92,7 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
       },
 
       scrollToItem(rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void {
-        const scroll = scrollRef.current;
-        /* istanbul ignore if */
-        if (!scroll)
-          return;
-
-        const [rowOffset, rowSize] = getRangeToScroll(rowIndex, rowOffsetMapping);
-        const [colOffset, colSize] = getRangeToScroll(columnIndex, columnOffsetMapping);
-
-        scroll.scrollToArea(rowOffset, rowSize, colOffset, colSize, option);
+        virtualGridScrollToItem(scrollRef, rowOffsetMapping, columnOffsetMapping, rowIndex, columnIndex, option);
       },
 
       get clientWidth(): number {

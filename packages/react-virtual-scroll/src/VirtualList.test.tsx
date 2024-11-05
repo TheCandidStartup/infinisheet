@@ -2,7 +2,8 @@ import React from "react";
 import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd, stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 import { VirtualContainerRender } from './VirtualContainer'
-import { VirtualList, VirtualListProxy } from './VirtualList'
+import { VirtualList } from './VirtualList'
+import { VirtualListProxy } from './VirtualListProxy'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 import { ScrollState } from './useVirtualScroll';

@@ -4,7 +4,7 @@
 
 ```ts
 
-import { default as React_2 } from 'react';
+import React$1 from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 // @public
@@ -14,7 +14,7 @@ export function AutoSizer(props: AutoSizerProps): react_jsx_runtime.JSX.Element;
 export interface AutoSizerProps {
     children: AutoSizerRender;
     className?: string;
-    style?: React_2.CSSProperties;
+    style?: React$1.CSSProperties;
 }
 
 // @public
@@ -38,7 +38,7 @@ export interface ComponentProps {
 export interface DisplayBaseItemProps {
     data: unknown;
     isScrolling?: boolean;
-    style: React_2.CSSProperties;
+    style: React$1.CSSProperties;
 }
 
 // @public
@@ -53,7 +53,7 @@ export interface DisplayBaseProps extends ComponentProps {
 export function DisplayGrid(props: DisplayGridProps): react_jsx_runtime.JSX.Element;
 
 // @public
-export type DisplayGridItem = React_2.ComponentType<DisplayGridItemProps>;
+export type DisplayGridItem = React$1.ComponentType<DisplayGridItemProps>;
 
 // @public
 export interface DisplayGridItemProps extends DisplayBaseItemProps {
@@ -67,7 +67,7 @@ export interface DisplayGridProps extends DisplayBaseProps {
     columnCount: number;
     columnOffset: number;
     columnOffsetMapping: ItemOffsetMapping;
-    itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React_2.Key;
+    itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React$1.Key;
     rowCount: number;
     rowOffset: number;
     rowOffsetMapping: ItemOffsetMapping;
@@ -77,7 +77,7 @@ export interface DisplayGridProps extends DisplayBaseProps {
 export function DisplayList(props: DisplayListProps): react_jsx_runtime.JSX.Element;
 
 // @public
-export type DisplayListItem = React_2.ComponentType<DisplayListItemProps>;
+export type DisplayListItem = React$1.ComponentType<DisplayListItemProps>;
 
 // @public
 export interface DisplayListItemProps extends DisplayBaseItemProps {
@@ -88,7 +88,7 @@ export interface DisplayListItemProps extends DisplayBaseItemProps {
 export interface DisplayListProps extends DisplayBaseProps {
     children: DisplayListItem;
     itemCount: number;
-    itemKey?: (index: number, data: unknown) => React_2.Key;
+    itemKey?: (index: number, data: unknown) => React$1.Key;
     itemOffsetMapping: ItemOffsetMapping;
     layout?: ScrollLayout;
     offset: number;
@@ -105,7 +105,7 @@ export interface ItemOffsetMapping {
 export type ScrollDirection = "forward" | "backward";
 
 // @public
-export type ScrollEvent = React_2.SyntheticEvent<HTMLDivElement>;
+export type ScrollEvent = React$1.SyntheticEvent<HTMLDivElement>;
 
 // @public
 export type ScrollLayout = "horizontal" | "vertical";
@@ -133,7 +133,7 @@ export interface VirtualBaseProps extends VirtualScrollableProps {
 }
 
 // @public (undocumented)
-export const VirtualContainer: React_2.ForwardRefExoticComponent<VirtualContainerComponentProps & React_2.RefAttributes<HTMLDivElement>>;
+export const VirtualContainer: React$1.ForwardRefExoticComponent<VirtualContainerComponentProps & React$1.RefAttributes<HTMLDivElement>>;
 
 // @public (undocumented)
 export interface VirtualContainerComponentProps extends VirtualContainerRenderProps {
@@ -142,10 +142,10 @@ export interface VirtualContainerComponentProps extends VirtualContainerRenderPr
 }
 
 // @public
-export type VirtualContainerRender = (props: VirtualContainerRenderProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
+export type VirtualContainerRender = (props: VirtualContainerRenderProps, ref?: React$1.ForwardedRef<HTMLDivElement>) => JSX.Element;
 
 // @public
-export type VirtualContainerRenderProps = React_2.ComponentPropsWithoutRef<'div'>;
+export type VirtualContainerRenderProps = React$1.ComponentPropsWithoutRef<'div'>;
 
 // @public
 export interface VirtualContentProps {
@@ -153,10 +153,10 @@ export interface VirtualContentProps {
 }
 
 // @public
-export type VirtualContentRender = (props: VirtualContentProps, ref?: React_2.ForwardedRef<HTMLDivElement>) => JSX.Element;
+export type VirtualContentRender = (props: VirtualContentProps, ref?: React$1.ForwardedRef<HTMLDivElement>) => JSX.Element;
 
 // @public
-export const VirtualGrid: React_2.ForwardRefExoticComponent<VirtualGridProps & React_2.RefAttributes<VirtualGridProxy>>;
+export const VirtualGrid: React$1.ForwardRefExoticComponent<VirtualGridProps & React$1.RefAttributes<VirtualGridProxy>>;
 
 // @public
 export interface VirtualGridProps extends VirtualBaseProps {
@@ -164,7 +164,7 @@ export interface VirtualGridProps extends VirtualBaseProps {
     columnCount: number;
     columnOffsetMapping: ItemOffsetMapping;
     innerRender?: VirtualContainerRender;
-    itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React_2.Key;
+    itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React$1.Key;
     onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
     outerRender?: VirtualContainerRender;
     rowCount: number;
@@ -180,14 +180,17 @@ export interface VirtualGridProxy {
 }
 
 // @public
-export const VirtualList: React_2.ForwardRefExoticComponent<VirtualListProps & React_2.RefAttributes<VirtualListProxy>>;
+export function virtualGridScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy>, rowOffsetMapping: ItemOffsetMapping, columnOffsetMapping: ItemOffsetMapping, rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void;
+
+// @public
+export const VirtualList: React$1.ForwardRefExoticComponent<VirtualListProps & React$1.RefAttributes<VirtualListProxy>>;
 
 // @public
 export interface VirtualListProps extends VirtualBaseProps {
     children: DisplayListItem;
     innerRender?: VirtualContainerRender;
     itemCount: number;
-    itemKey?: (index: number, data: unknown) => React_2.Key;
+    itemKey?: (index: number, data: unknown) => React$1.Key;
     itemOffsetMapping: ItemOffsetMapping;
     layout?: ScrollLayout;
     onScroll?: (offset: number, newScrollState: ScrollState) => void;
@@ -201,7 +204,10 @@ export interface VirtualListProxy {
 }
 
 // @public
-export const VirtualScroll: React_2.ForwardRefExoticComponent<VirtualScrollProps & React_2.RefAttributes<VirtualScrollProxy>>;
+export function virtualListScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy>, itemOffsetMapping: ItemOffsetMapping, isVertical: boolean, index: number, option?: ScrollToOption): void;
+
+// @public
+export const VirtualScroll: React$1.ForwardRefExoticComponent<VirtualScrollProps & React$1.RefAttributes<VirtualScrollProxy>>;
 
 // @public
 export interface VirtualScrollableProps extends ComponentProps {

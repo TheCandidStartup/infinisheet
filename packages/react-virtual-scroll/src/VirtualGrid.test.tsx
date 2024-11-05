@@ -2,7 +2,8 @@ import React from "react";
 import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd, stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 import { VirtualContainerRender } from './VirtualContainer'
-import { VirtualGrid, VirtualGridProxy } from './VirtualGrid'
+import { VirtualGrid } from './VirtualGrid'
+import { VirtualGridProxy } from './VirtualGridProxy'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 import { ScrollState } from './useVirtualScroll';

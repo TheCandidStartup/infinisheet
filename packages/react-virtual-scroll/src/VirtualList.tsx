@@ -3,6 +3,7 @@ import { ItemOffsetMapping, VirtualBaseProps, ScrollToOption, ScrollLayout } fro
 import { DisplayList, DisplayListItem } from './DisplayList';
 import { VirtualContainerRender } from './VirtualContainer';
 import { VirtualScroll, VirtualScrollProxy } from './VirtualScroll';
+import { virtualListScrollToItem, VirtualListProxy } from './VirtualListProxy';
 import { AutoSizer } from './AutoSizer';
 import { ScrollState } from './useVirtualScroll';
 
@@ -50,25 +51,7 @@ export interface VirtualListProps extends VirtualBaseProps {
   innerRender?: VirtualContainerRender;
 }
 
-/**
- * Custom ref handle returned by {@link VirtualList} that exposes imperative methods
- * 
- * Use `React.useRef<VirtualListProxy>(null)` to create a ref.
- */
-export interface VirtualListProxy {
-  /**
-   * Scrolls the list to the specified offset in pixels
-   * @param offset - Offset to scroll to
-   */
-  scrollTo(offset: number): void;
 
-  /**
-   * Scrolls the list so that the specified item is visible
-   * @param index - Index of item to scroll to
-   * @param option - Where to {@link ScrollToOption | position} the item within the viewport
-   */
-  scrollToItem(index: number, option?: ScrollToOption): void;
-}
 
 // Using a named function rather than => so that the name shows up in React Developer Tools
 /**
@@ -105,18 +88,7 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
       },
 
       scrollToItem(index: number, option?: ScrollToOption): void {
-        const scroll = scrollRef.current;
-        /* istanbul ignore if */
-        if (!scroll)
-          return;
-
-        const itemOffset = itemOffsetMapping.itemOffset(index);
-        const itemSize = itemOffsetMapping.itemSize(index);
-
-        if (isVertical)
-          scroll.scrollToArea(itemOffset, itemSize, undefined, undefined, option);
-        else
-          scroll.scrollToArea(undefined, undefined, itemOffset, itemSize, option);
+        virtualListScrollToItem(scrollRef, itemOffsetMapping, isVertical, index, option);
       }
     }
   }, [ itemOffsetMapping, isVertical ]);
