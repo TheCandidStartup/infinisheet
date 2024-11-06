@@ -1,6 +1,6 @@
 import React from 'react';
 import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy, virtualGridScrollToItem,
-  useVariableSizeItemOffsetMapping, ScrollState} from '@candidstartup/react-virtual-scroll';
+  useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
@@ -117,13 +117,6 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
   return cellRender(rowIndex, columnIndex, style);
 }
 
-const defaultScrollState: ScrollState = {
-  scrollOffset: 0,
-  renderOffset: 0,
-  page: 0,
-  scrollDirection: 'forward'
-}
-
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
   const { width, height, theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const columnMapping = useVariableSizeItemOffsetMapping(100, [160]);
@@ -142,9 +135,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
   const [focusCell, setFocusCell] = React.useState<[number,number]|null>(null);
-  const [gridScrollState, setGridScrollState] = React.useState<[ScrollState,ScrollState]>([defaultScrollState, defaultScrollState]);
-  const gridRowOffset = gridScrollState[0].renderOffset + gridScrollState[0].scrollOffset;
-  const gridColumnOffset = gridScrollState[1].renderOffset + gridScrollState[1].scrollOffset;
+  const [[gridRowOffset, gridColumnOffset], setGridScrollState] = React.useState<[number,number]>([0, 0]);
 
   const dataRowCount = data.getRowCount(snapshot);
   const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1, focusCell ? focusCell[0]+1 : 0);
@@ -165,7 +156,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     focusSinkRef.current?.focus({preventScroll: true})
   }, [focusCell])
 
-  function onScroll(rowOffsetValue: number, columnOffsetValue: number, rowState: ScrollState, columnState: ScrollState) {
+  function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
     if (rowOffsetValue == 0)
       setHwmRowIndex(0);
     else if (scrollRef.current && (rowOffsetValue + scrollRef.current.clientHeight == rowOffset)) {
@@ -182,7 +173,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         setHwmColumnIndex(columnCount);
     }
 
-    setGridScrollState([rowState, columnState]);
+    setGridScrollState([rowOffsetValue, columnOffsetValue]);
   }
 
   function updateFocus(row: number|undefined, col: number|undefined) {
@@ -298,26 +289,21 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       const row = focusCell[0];
       const col = focusCell[1];
 
-      // Position focus sink underneath focused cell. If focused cell is more than an incremental scroll
-      // outside the viewport, clamp position to make sure we don't run off the VirtualGrid page.
+      // Position focus sink underneath focused cell. If outside viewport clamp position.
       // Careful - focus cell might be bigger than the viewport!
-      const originTop = gridScrollState[0].scrollOffset;
       const focusHeight = rowMapping.itemSize(row);
-      const maxHeight = Math.max(height, focusHeight*3);
-      let focusTop = rowMapping.itemOffset(row) - gridScrollState[0].renderOffset;
-      if (focusTop < originTop - maxHeight)
-        focusTop = originTop - maxHeight;
-      else if (focusTop > originTop + height + maxHeight)
-        focusTop = originTop + height + maxHeight;
+      let focusTop = rowMapping.itemOffset(row) - gridRowOffset;
+      if (focusTop < -focusHeight)
+        focusTop = -focusHeight;
+      else if (focusTop > height)
+        focusTop = height;
 
-      const originLeft = gridScrollState[1].scrollOffset;
       const focusWidth = columnMapping.itemSize(col);
-      const maxWidth = Math.max(width, focusWidth*3);
-      let focusLeft = columnMapping.itemOffset(col) - gridScrollState[1].renderOffset;
-      if (focusLeft < originLeft - maxWidth)
-        focusLeft = originLeft - maxWidth;
-      else if (focusLeft > originLeft + width + maxWidth)
-        focusLeft = originLeft + width + maxWidth;
+      let focusLeft = columnMapping.itemOffset(col) - gridColumnOffset;
+      if (focusLeft < -focusWidth)
+        focusLeft = -focusWidth;
+      else if (focusLeft > width)
+        focusLeft = width;
 
       focusSink = <input
         ref={focusSinkRef}
@@ -409,7 +395,6 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       <VirtualScroll
         className={theme?.VirtualSpreadsheet_Grid}
         ref={scrollRef}
-        outerRender={outerGridRender}
         onScroll={onScroll}
         height={props.height}
         width={props.width}
@@ -426,6 +411,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
               height={height}
               width={width}
               itemData={cellRender}
+              outerRender={outerGridRender}
               rowCount={rowCount}
               rowOffsetMapping={rowMapping}
               columnCount={columnCount}
