@@ -95,6 +95,12 @@ export interface DisplayListProps extends DisplayBaseProps {
 }
 
 // @public
+export function getOffsetToScrollRange(offset: number | undefined, size: number | undefined, clientExtent: number, scrollOffset: number, option?: ScrollToOption): number | undefined;
+
+// @public
+export function getRangeToScroll(index: number | undefined, mapping: ItemOffsetMapping): ScrollRange;
+
+// @public
 export interface ItemOffsetMapping {
     itemOffset(itemIndex: number): number;
     itemSize(itemIndex: number): number;
@@ -109,6 +115,9 @@ export type ScrollEvent = React$1.SyntheticEvent<HTMLDivElement>;
 
 // @public
 export type ScrollLayout = "horizontal" | "vertical";
+
+// @public
+export type ScrollRange = [offset: number | undefined, size: number | undefined];
 
 // @public
 export interface ScrollState {

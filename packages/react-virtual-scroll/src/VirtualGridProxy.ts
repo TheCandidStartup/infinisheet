@@ -1,5 +1,5 @@
 import { ItemOffsetMapping, ScrollToOption } from './VirtualBase';
-import { VirtualScrollProxy } from './VirtualScroll';
+import { VirtualScrollProxy } from './VirtualScrollProxy';
 
 /**
  * Custom ref handle returned by {@link VirtualGrid} that exposes imperative methods
@@ -27,7 +27,16 @@ export interface VirtualGridProxy {
   get clientHeight(): number;
 }
 
-function getRangeToScroll(index: number | undefined, mapping: ItemOffsetMapping) {
+/** Range to scroll to in one dimension specified as (offset,size). May be undefined if no need to scroll. */
+export type ScrollRange = [ offset: number|undefined, size: number|undefined ];
+
+/**
+ * Returns the {@link ScrollRange} corresponding to a specified item.
+ * 
+ * Used internally to implement {@link VirtualGridProxy.scrollToItem}. Can be used directly for 
+ * advanced customization scenarios.
+ */
+export function getRangeToScroll(index: number | undefined, mapping: ItemOffsetMapping): ScrollRange {
   if (index === undefined)
     return [undefined, undefined];
 

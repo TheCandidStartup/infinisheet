@@ -1,4 +1,4 @@
-import type { ItemOffsetMapping, ScrollToOption } from "./VirtualBase";
+import type { ItemOffsetMapping } from "./VirtualBase";
 
 type RangeToRender = [
   startIndex: number,
@@ -79,34 +79,4 @@ export function getGridTemplate(sizes: number[]): string | undefined {
   return join(ret,s);
 }
 
-export function getOffsetToScrollRange(offset: number | undefined, size: number | undefined, 
-  clientExtent: number, scrollOffset: number, option?: ScrollToOption): number | undefined
-{
-  if (offset === undefined)
-    return undefined;
-
-  if (option != 'visible')
-    return offset;
-
-  // Start of item offscreen before start of viewport?
-  if (offset < scrollOffset)
-    return offset;
-
-  size = size || 0;
-
-  // Already completely visible?
-  const endOffset = offset + size;
-  const endViewport = scrollOffset + clientExtent;
-  if (endOffset <= endViewport)
-    return undefined;
-
-  // Item offscreen past end of viewport
-
-  // Item bigger than viewport? Make sure start is in view
-  if (size > clientExtent)
-    return offset;
-
-  // Scroll so end of item aligns with end of viewport
-  return offset - clientExtent + size;
- }
 

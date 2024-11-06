@@ -3,7 +3,7 @@ import { VirtualContainer, VirtualContainerRender } from './VirtualContainer';
 import { VirtualScrollableProps, ScrollEvent, ScrollToOption } from './VirtualBase';
 import { useVirtualScroll, ScrollState } from './useVirtualScroll';
 import { useIsScrolling as useIsScrollingHook} from './useIsScrolling';
-import { getOffsetToScrollRange } from './VirtualCommon';
+import { getOffsetToScrollRange, VirtualScrollProxy } from './VirtualScrollProxy';
 
 /**
  * Props that an implementation of {@link VirtualContentRender} must accept.
@@ -68,38 +68,6 @@ export interface VirtualScrollProps extends VirtualScrollableProps {
 
   /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualScroll} inner container. */
   innerRender?: VirtualContainerRender;
-}
-
-/**
- * Custom ref handle returned by {@link VirtualScroll} that exposes imperative methods
- * 
- * Use `React.useRef<VirtualScrollProxy>(null)` to create a ref.
- */
-export interface VirtualScrollProxy {
-  /**
-   * Scrolls to the specified vertical and horizontal offset in pixels
-   * Either offset can be left undefined to scroll in one dimension only
-   * @param verticalOffset - Offset to scroll to vertically
-   * @param horizontalOffset - Offset to scroll to horizontally
-   */
-  scrollTo(verticalOffset?: number, horizontalOffset?: number): void;
-
-    /**
-   * Scrolls to the specified area
-   * Either offset/size pair can be left undefined to scroll in one dimension only
-   * @param verticalOffset - Offset to scroll to vertically
-   * @param verticalSize - Size of target area vertically
-   * @param horizontalOffset - Offset to scroll to horizontally
-   * @param horizontalSize - Size of target area horizontally
-   * @param option - Where to {@link ScrollToOption | position} the area within the viewport
-   */
-  scrollToArea(verticalOffset?: number, verticalSize?: number, horizontalOffset?: number, horizontalSize?: number, option?: ScrollToOption): void;
-
-  /** Exposes DOM clientWidth property */
-  get clientWidth(): number;
-
-  /** Exposes DOM clientHeight property */
-  get clientHeight(): number;
 }
 
 // Using a named function rather than => so that the name shows up in React Developer Tools

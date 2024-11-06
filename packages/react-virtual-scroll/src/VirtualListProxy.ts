@@ -1,5 +1,5 @@
 import { ItemOffsetMapping, ScrollToOption } from './VirtualBase';
-import { VirtualScrollProxy } from './VirtualScroll';
+import { VirtualScrollProxy } from './VirtualScrollProxy';
 
 /**
  * Custom ref handle returned by {@link VirtualList} that exposes imperative methods
