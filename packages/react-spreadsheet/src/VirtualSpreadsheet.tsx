@@ -1,6 +1,6 @@
 import React from 'react';
 import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy, virtualGridScrollToItem,
-  useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+  useVariableSizeItemOffsetMapping, getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
@@ -173,7 +173,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         setHwmColumnIndex(columnCount);
     }
 
-    setGridScrollState([rowOffsetValue, columnOffsetValue]);
+    if (rowOffsetValue != gridRowOffset || columnOffsetValue != gridColumnOffset)
+      setGridScrollState([rowOffsetValue, columnOffsetValue]);
   }
 
   function updateFocus(row: number|undefined, col: number|undefined) {
@@ -189,6 +190,28 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     updateFocus(row, col);
   }
 
+  function ensureVisible(row: number, col: number) {
+    const scroll = scrollRef.current;
+    if (!scroll)
+      return;
+
+    // Implements same logic as VirtualScrollProxy.scrollToArea so that we can directly update our grid scroll state.
+    // React 18+ gives scroll events a lower priority than discrete events like key and mouse clicks. If we use
+    // scrollToArea + OnScroll callback we can end up with other state changes being rendered immediately with the
+    // scroll related changes being rendered a frame later. 
+    // We still need to call scrollTo so that the scroll bar position is updated to match. That will trigger the OnScroll
+    // callback but will early out because no state change required.
+    const rowRange = getRangeToScroll(row, rowMapping);
+    const colRange = getRangeToScroll(col, columnMapping);
+
+    const newRowOffset = getOffsetToScrollRange(...rowRange, scroll.clientHeight, gridRowOffset, 'visible');
+    const newColOffset = getOffsetToScrollRange(...colRange, scroll.clientWidth, gridColumnOffset, 'visible');
+    if (newRowOffset !== undefined || newColOffset !== undefined) {
+      setGridScrollState([(newRowOffset === undefined) ? gridRowOffset : newRowOffset, (newColOffset === undefined) ? gridColumnOffset : newColOffset]);
+      scroll.scrollTo(newRowOffset, newColOffset);
+    }
+  }
+
   function focusTo(row: number, col: number) {
     if (row < 0 || row >= rowCount)
       return;
@@ -197,7 +220,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       return;
 
     updateSelection(row,col);
-    virtualGridScrollToItem(scrollRef, rowMapping, columnMapping, row, col, 'visible');
+    ensureVisible(row,col);
   }
 
   function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -305,10 +328,15 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       else if (focusLeft > width)
         focusLeft = width;
 
+      // Browser will try and bring focus sink into view in various scenarios like text being typed or user
+      // giving it focus by tabbing between fields. All browsers I tested make a horrible mess of things
+      // due to the sticky positioning. Need to use my own ensureVisible method to clean up.
       focusSink = <input
         ref={focusSinkRef}
         className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus)}
         type={"text"}
+        onFocus={() => { ensureVisible(row,col) }}
+        onBeforeInput={() => { ensureVisible(row,col) }}
         onKeyDown={(event) => {
           switch (event.key) {
             case "ArrowDown": focusTo(row+1,col); event.preventDefault(); break;
