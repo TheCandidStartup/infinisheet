@@ -73,7 +73,7 @@ function App() {
         innerRender={({style, ...rest}, ref) => (
           <div ref={ref} style={{display: 'flex', flexDirection: 'column', ...style}} {...rest}/>
         )}
-        height={500}
+        height={200}
         width={600}>
         {({ isScrolling }) => (
           <Fragment>
