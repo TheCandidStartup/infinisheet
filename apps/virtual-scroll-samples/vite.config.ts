@@ -16,6 +16,7 @@ export default defineConfig({
       plugins: [sourcemaps()],
       input: {
         main: resolve(__dirname, 'index.html'),
+        "auto-sizer": resolve(__dirname, 'samples/auto-sizer/index.html'),
         "list-and-grid": resolve(__dirname, 'samples/list-and-grid/index.html'),
         "trillion-row-list": resolve(__dirname, 'samples/trillion-row-list/index.html'),
         "trillion-square-grid": resolve(__dirname, 'samples/trillion-square-grid/index.html'),
