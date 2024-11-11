@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.5.0...v0.6.0) (2024-11-11)
+
+
+### Bug Fixes
+
+* **react-spreadsheet:** Make sure focus sink correctly positioned and rendered ([b740c53](https://github.com/TheCandidStartup/infinisheet/commit/b740c534998b4ecc05712214e4977b2e73e0d50a))
+* **react-spreadsheet:** Off by one error when sizing grid to include focus cell ([75efe88](https://github.com/TheCandidStartup/infinisheet/commit/75efe8856162609e5d82e49d7947fba5a3b39344))
+
+
+### Features
+
+* **react-spreadsheet:** Click to select in row header, column header and grid with name of selected item updated in name box ([22344c8](https://github.com/TheCandidStartup/infinisheet/commit/22344c84ba37c1077906859815355c7f8df6d06e))
+* **react-spreadsheet:** First cut at selection using mouse and keyboard ([e4da3b5](https://github.com/TheCandidStartup/infinisheet/commit/e4da3b50272c34715856a40c977e0f822dc711cc))
+* **react-spreadsheet:** Focus cell is automatically scrolled into view on update ([b89d7e6](https://github.com/TheCandidStartup/infinisheet/commit/b89d7e66cebe9cd76fa7e0d396e335f78f5b5376))
+* **react-virtual-scroll:** Added VirtualContainer component that provides a generic customizable div ([aefccfd](https://github.com/TheCandidStartup/infinisheet/commit/aefccfd927681d2f0198da967620fb1aa7a76aad))
+* **react-virtual-scroll:** Improvements to DisplayList ([17e07cf](https://github.com/TheCandidStartup/infinisheet/commit/17e07cf5fb212a59607f98754e4e4b2f202810e3))
+
+
+### Performance Improvements
+
+* **react-spreadsheet:** Using DisplayList instead of VirtualList for headers ([7f5a512](https://github.com/TheCandidStartup/infinisheet/commit/7f5a512e8d8b17ba1b168b8d5fcf2e301e682a6b))
+* **react-virtual-scroll:** Removed overscan items from DIsplayList and DisplayGrid ([4acb018](https://github.com/TheCandidStartup/infinisheet/commit/4acb0189ebcf6abcbd28017a732cd3d50d42832a))
+
+
+
+
+
 # [0.5.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.4.0...v0.5.0) (2024-10-08)
 
 
