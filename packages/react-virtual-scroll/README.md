@@ -5,17 +5,29 @@
 
 # @candidstartup/react-virtual-scroll
 
-React virtual scrolling components for lists and grids following the same philosophy as [react-window](https://github.com/bvaughn/react-window). Written in TypeScript using modern React. Scalable to trillions of rows and columns. 
+React virtual scrolling components for lists and grids inspired by [react-window](https://github.com/bvaughn/react-window). Written in TypeScript using modern React. Scalable to trillions of rows and columns. 
 
 ## Interface
 
-The interface is similar to `react-window` with two main changes. First, the components are functional rather than class based. Second, rather than having fixed and variable size variants of each component, the components are passed an `ItemOffsetMapping` object as a prop. This is an interface that the components query to determine the size and position of each item. 
+The interface is similar to `react-window` with three main changes. First, the components are functional rather than class based. 
 
-The interface is [designed](https://www.thecandidstartup.org/2024/02/12/modern-react-virtual-scroll-grid-3.html) to ensure that the components have no scaling issues even with trillions of rows or columns. The package includes basic fixed and variable size item mappings. 
+Second, rather than having fixed and variable size variants of each component, the components are passed an `ItemOffsetMapping` object as a prop. This is an interface that the components query to determine the size and position of each item. The interface is [designed](https://www.thecandidstartup.org/2024/02/12/modern-react-virtual-scroll-grid-3.html) to ensure that the components have no scaling issues even with trillions of rows or columns. The package includes basic fixed and variable size item mappings. 
+
+Finally, customization options have been reworked and extended. Basic customization is provided by render props rather than component props. The virtual scrolling list and grid components are composed from simpler components rather than being self contained. Consumers can put together their own combination of basic components rather than being limited to the pre-composed high level components.
 
 ## Implementation
 
-Most of the logic is implemented by custom hooks that are used by both `VirtualList` and `VirtualGrid` controls. The logic that manages scrolling in a single dimension is implemented in `useVirtualScroll`. It's based on an [improved version](https://www.thecandidstartup.org/2024/04/29/modern-react-virtual-scroll-grid-9.html) of [SlickGrid's](https://github.com/6pac/SlickGrid) paged scrolling algorithm. One instance of the hook is used by `VirtualList` and two instances by `VirtualGrid`. 
+Most of the scrolling logic is implemented by custom hooks that are packaged up as the `VirtualScroll` basic component. The logic that manages scrolling in a single dimension is implemented in `useVirtualScroll`. It's based on an [improved version](https://www.thecandidstartup.org/2024/04/29/modern-react-virtual-scroll-grid-9.html) of [SlickGrid's](https://github.com/6pac/SlickGrid) paged scrolling algorithm. `VirtualScroll` uses two instances of the hook to handle scrolling in two dimensions.
+
+`VirtualScroll` provides scrolling over an arbitrary size scrollable area. Rendering visible content in response to changes in scroll position is left to child components. 
+
+`DisplayList` and `DisplayGrid` are controlled components that render a window onto virtualized lists and grids.
+
+`AutoSizer` is a higher level component that dynamically measures the size available and passes an explicit width and height to its children.
+
+`VirtualList` uses a `VirtualScroll` of an auto-sized `DisplayList`.
+
+`VirtualGrid` uses a `VirtualScroll` of an auto-sized `DisplayGrid`. 
 
 ## VirtualList Example
 
