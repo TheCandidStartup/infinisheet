@@ -68,8 +68,6 @@ const defaultItemKey = (index: number, _data: unknown) => index;
 const boxStyle: React.CSSProperties = { boxSizing: 'border-box' };
 
 /**
- * Display List
- * 
  * Displays a window onto the contents of a virtualized list starting from `offset`.
  * 
  * Accepts props defined by {@link DisplayListProps}. 

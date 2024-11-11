@@ -41,8 +41,6 @@ export interface AutoSizerProps {
 }
 
 /**
- * Auto Sizer
- * 
  * HOC that calculates the size available to it and makes the computed size available to children.
  * The size available depends on DOM layout and style applied wherever the AutoSizer finds itself.
  * You will probably want to pass something appropriate via the `className` or `style` props.

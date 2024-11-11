@@ -1,7 +1,8 @@
 import React, { Fragment } from "react";
 import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd } from '../../../shared/test/utils'
-import { VirtualScroll, VirtualScrollProxy } from './VirtualScroll'
+import { VirtualScroll } from './VirtualScroll'
+import { VirtualScrollProxy } from './VirtualScrollProxy'
 import { ScrollState } from './useVirtualScroll';
 
 function updateLayout(header: HTMLElement, barWidth: number, barHeight: number) {

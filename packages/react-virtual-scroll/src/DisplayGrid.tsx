@@ -82,8 +82,6 @@ const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) =
 const boxStyle: React.CSSProperties = { boxSizing: 'border-box' };
 
 /**
- * Display Grid
- * 
  * Displays a window onto the contents of a virtualized grid starting from `rowOffset`, `columnOffset`.
  * 
  * Accepts props defined by {@link DisplayGridProps}. 

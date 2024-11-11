@@ -4,7 +4,8 @@
  * @remarks
  * Written in TypeScript using modern React. Scalable to trillions of rows and columns.
  * 
- * Defines the {@link VirtualList} and {@link VirtualGrid} components.
+ * Defines the {@link VirtualList} and {@link VirtualGrid} components. Or build your own
+ * by combining {@link VirtualScroll}, {@link AutoSizer}, {@link DisplayList} and {@link DisplayGrid}.
  *
  * @packageDocumentation
  */

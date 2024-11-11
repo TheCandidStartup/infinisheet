@@ -31,7 +31,8 @@
       "GetSignature",
       "SetSignature"
     ],
-    "readme": "none"
+    "readme": "none",
+    "excludeExternals": true
   },
   "navigation": {
     "includeGroups": true
