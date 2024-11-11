@@ -141,12 +141,11 @@ export interface VirtualBaseProps extends VirtualScrollableProps {
     itemData?: unknown;
 }
 
-// @public (undocumented)
+// @public
 export const VirtualContainer: React$1.ForwardRefExoticComponent<VirtualContainerComponentProps & React$1.RefAttributes<HTMLDivElement>>;
 
-// @public (undocumented)
+// @public
 export interface VirtualContainerComponentProps extends VirtualContainerRenderProps {
-    // (undocumented)
     render?: VirtualContainerRender;
 }
 
