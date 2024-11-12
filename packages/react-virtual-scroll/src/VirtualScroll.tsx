@@ -14,7 +14,13 @@ export interface VirtualContentProps {
    * 
    * Only defined if {@link VirtualScrollableProps.useIsScrolling} is true. 
    * */
-  isScrolling?: boolean
+  isScrolling?: boolean,
+
+  /** Current scroll position vertical offset */
+  verticalOffset: number,
+
+    /** Current scroll position horizontal offset */
+  horizontalOffset: number
 }
 
 /**
@@ -144,13 +150,15 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
   }
 
   const isScrolling = useIsScrolling ? isActuallyScrolling : undefined;
+  const verticalOffset = currentVerticalOffset;
+  const horizontalOffset = currentHorizontalOffset;
 
   return (
     <VirtualContainer className={className} render={outerRender} onScroll={onScroll} ref={outerRef} 
         style={{ position: "relative", height, width, overflow: "auto", willChange: "transform" }}>
       <VirtualContainer className={innerClassName} render={innerRender} 
         style={{ zIndex: 1, position: 'sticky', top: 0, left: 0, width: '100%', height: '100%' }}>
-        {children({isScrolling})}
+        {children({isScrolling, verticalOffset, horizontalOffset})}
       </VirtualContainer>
       <div style={{ position: 'absolute', top: 0, left: 0, 
         height: scrollHeight ? renderRowSize : '100%', 

@@ -15,7 +15,6 @@ const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boole
 
 function App() {
   const mapping = useFixedSizeItemOffsetMapping(30);
-  const [offset, setOffset] = React.useState<number>(0);
   const ref = React.useRef<VirtualScrollProxy>(null);
   const itemCount = 100;
   const totalSize = mapping.itemOffset(itemCount);
@@ -40,15 +39,12 @@ function App() {
       className={'outerContainer'}
       height={240}
       width={600}
-      scrollHeight={totalSize + PADDING_SIZE*2}
-      onScroll={(newOffset) => {
-        setOffset(newOffset);
-      }}>
-      {(_) => (
+      scrollHeight={totalSize + PADDING_SIZE*2}>
+      {({ verticalOffset }) => (
         <AutoSizer style={{ height: '100%', width: '100%' }}>
         {({height,width}) => (
           <DisplayList
-            offset={offset - PADDING_SIZE}
+            offset={verticalOffset - PADDING_SIZE}
             height={height}
             itemCount={itemCount}
             itemOffsetMapping={mapping}

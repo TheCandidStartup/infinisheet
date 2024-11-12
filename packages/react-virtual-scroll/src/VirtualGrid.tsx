@@ -79,7 +79,6 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
   const totalRowSize = rowOffsetMapping.itemOffset(rowCount);
   const totalColumnSize = columnOffsetMapping.itemOffset(columnCount);
 
-  const [state, setState] = React.useState<[number,number]>([0,0]);
   const scrollRef = React.useRef<VirtualScrollProxy>(null);
 
 
@@ -118,18 +117,17 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
       scrollHeight={totalRowSize}
       scrollWidth={totalColumnSize}
       onScroll={(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState) => {
-        setState([verticalOffset, horizontalOffset]);
         if (onScrollCallback)
           onScrollCallback(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState);
       }}>
-      {({ isScrolling }) => (
+      {({ isScrolling, verticalOffset, horizontalOffset }) => (
         <AutoSizer style={{ height: '100%', width: '100%' }}>
         {({height,width}) => (
           <DisplayGrid
             innerClassName={innerClassName}
             innerRender={innerRender}
-            rowOffset={state[0]}
-            columnOffset={state[1]}
+            rowOffset={verticalOffset}
+            columnOffset={horizontalOffset}
             height={height}
             rowCount={rowCount}
             columnCount={columnCount}

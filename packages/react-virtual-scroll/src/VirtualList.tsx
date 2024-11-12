@@ -70,7 +70,6 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
   // Total size is same as offset to item one off the end
   const renderSize = itemOffsetMapping.itemOffset(itemCount);
 
-  const [offset, setOffset] = React.useState<number>(0);
   const scrollRef = React.useRef<VirtualScrollProxy>(null);
   const isVertical = layout === 'vertical';
 
@@ -106,18 +105,17 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
       scrollWidth={isVertical ? undefined : renderSize}
       onScroll={(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState) => {
         const newOffset = isVertical ? verticalOffset : horizontalOffset;
-        setOffset(newOffset);
         if (onScrollCallback)
           onScrollCallback(newOffset, isVertical ? verticalScrollState : horizontalScrollState);
       }}>
-      {({ isScrolling }) => (
+      {({ isScrolling, verticalOffset, horizontalOffset }) => (
         <AutoSizer style={{ height: '100%', width: '100%' }}>
         {({height,width}) => (
           <DisplayList
             innerClassName={innerClassName}
             innerRender={innerRender}
             layout={layout}
-            offset={offset}
+            offset={isVertical ? verticalOffset : horizontalOffset}
             height={height}
             itemCount={itemCount}
             itemData={itemData}

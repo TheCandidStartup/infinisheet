@@ -48,11 +48,13 @@ const TestRig = React.forwardRef<VirtualScrollProxy, TestProps>(function TestRig
         onScroll={(verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState) => {
           setTestState({ verticalOffset, horizontalOffset, verticalScrollState, horizontalScrollState })
         }}>
-        {({isScrolling}) => (
+        {({isScrolling, verticalOffset, horizontalOffset}) => (
           <div
             data-isscrolling={isScrolling === undefined ? 'undefined' : (isScrolling ? 'true' : 'false')}
-            data-verticaloffset={testState?.verticalOffset}
-            data-horizontaloffset={testState?.horizontalOffset}>
+            data-verticaloffset={verticalOffset}
+            data-horizontaloffset={horizontalOffset}
+            data-cbverticaloffset={testState?.verticalOffset}
+            data-cbhorizontaloffset={testState?.horizontalOffset}>
               header
           </div>
         )}
@@ -90,6 +92,8 @@ describe('VirtualScroll', () => {
       expect(header.dataset.isscrolling).toBe("undefined")
       expect(header.dataset.verticaloffset).toBe("120")
       expect(header.dataset.horizontaloffset).toBe("0")
+      expect(header.dataset.cbverticaloffset).toBe("120")
+      expect(header.dataset.cbhorizontaloffset).toBe("0")
 
       const proxy = ref.current || throwErr("null ref");
       expect(proxy.clientHeight).toBe(240);
@@ -132,6 +136,8 @@ describe('VirtualScroll', () => {
       expect(header.dataset.isscrolling).toBe("false")
       expect(header.dataset.verticaloffset).toBe("0")
       expect(header.dataset.horizontaloffset).toBe("250")
+      expect(header.dataset.cbverticaloffset).toBe("0")
+      expect(header.dataset.cbhorizontaloffset).toBe("250")
 
       const proxy = ref.current || throwErr("null ref");
       expect(proxy.clientHeight).lessThan(240);

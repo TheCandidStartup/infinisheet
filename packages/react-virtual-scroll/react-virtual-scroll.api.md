@@ -157,7 +157,9 @@ export type VirtualContainerRenderProps = React$1.ComponentPropsWithoutRef<'div'
 
 // @public
 export interface VirtualContentProps {
+    horizontalOffset: number;
     isScrolling?: boolean;
+    verticalOffset: number;
 }
 
 // @public
