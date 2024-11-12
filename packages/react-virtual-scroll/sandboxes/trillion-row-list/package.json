@@ -1,6 +1,7 @@
 {
   "description": "Demo of @candidstartup/react-virtual-scroll VirtualList with a trillion rows",
   "main": "index.js",
+  "type": "module",
   "dependencies": {
     "react": "^18",
     "react-dom": "^18",
