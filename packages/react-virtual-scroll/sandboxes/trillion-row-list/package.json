@@ -5,6 +5,6 @@
   "dependencies": {
     "react": "^18",
     "react-dom": "^18",
-    "@candidstartup/react-virtual-scroll": "^0.2"
+    "@candidstartup/react-virtual-scroll": "^0.3"
   }
 }
