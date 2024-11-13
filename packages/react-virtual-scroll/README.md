@@ -25,9 +25,9 @@ Most of the scrolling logic is implemented by custom hooks that are packaged up 
 
 `AutoSizer` is a higher level component that dynamically measures the size available and passes an explicit width and height to its children.
 
-`VirtualList` uses a `VirtualScroll` of an auto-sized `DisplayList`.
+`VirtualList` = `VirtualScroll` + `AutoSizer` + `DisplayList`.
 
-`VirtualGrid` uses a `VirtualScroll` of an auto-sized `DisplayGrid`. 
+`VirtualGrid` = `VirtualScroll` + `AutoSizer` + `DisplayGrid`. 
 
 ## VirtualList Example
 
