@@ -1,5 +1,5 @@
 import React from 'react';
-import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy, virtualGridScrollToItem,
+import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy,
   useVariableSizeItemOffsetMapping, getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
@@ -122,7 +122,6 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const columnMapping = useVariableSizeItemOffsetMapping(100, [160]);
   const rowMapping = useVariableSizeItemOffsetMapping(30, [70]);
   const scrollRef = React.useRef<VirtualScrollProxy>(null);
-  const pendingScrollToSelectionRef = React.useRef<boolean>(false);
   const focusSinkRef = React.useRef<HTMLInputElement>(null);
 
   // Originally passed data.subscribe.bind(data) to useCallback. It works but React hooks lint fails because it can only validate
@@ -144,13 +143,9 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const columnCount = Math.max(minColumnCount, dataColumnCount, hwmColumnIndex+1, focusCell ? focusCell[1]+1 : 0);
   const columnOffset = columnMapping.itemOffset(columnCount);
 
-  React.useLayoutEffect(() => {
-    if (pendingScrollToSelectionRef.current) {
-      pendingScrollToSelectionRef.current = false;
-
-      virtualGridScrollToItem(scrollRef, rowMapping, columnMapping, selection[0], selection[1], 'visible');
-    }
-  }, [selection, rowMapping, columnMapping])
+  React.useEffect(() => {
+    scrollRef.current?.scrollTo(gridRowOffset, gridColumnOffset);
+  }, [gridRowOffset, gridColumnOffset])
 
   React.useEffect(() => {
     focusSinkRef.current?.focus({preventScroll: true})
@@ -192,7 +187,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     updateFocus(row, col);
   }
 
-  function ensureVisible(row: number, col: number) {
+  function ensureVisible(row: number|undefined, col: number|undefined) {
     const scroll = scrollRef.current;
     if (!scroll)
       return;
@@ -201,8 +196,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     // React 18+ gives scroll events a lower priority than discrete events like key and mouse clicks. If we use
     // scrollToArea + OnScroll callback we can end up with other state changes being rendered immediately with the
     // scroll related changes being rendered a frame later. 
-    // We still need to call scrollTo so that the scroll bar position is updated to match. That will trigger the OnScroll
-    // callback but will early out because no state change required.
+    // Scroll bar position is synchronized with state in an effect post render.
     const rowRange = getRangeToScroll(row, rowMapping);
     const colRange = getRangeToScroll(col, columnMapping);
 
@@ -210,7 +204,6 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     const newColOffset = getOffsetToScrollRange(...colRange, scroll.clientWidth, gridColumnOffset, 'visible');
     if (newRowOffset !== undefined || newColOffset !== undefined) {
       setGridScrollState([(newRowOffset === undefined) ? gridRowOffset : newRowOffset, (newColOffset === undefined) ? gridColumnOffset : newColOffset]);
-      scroll.scrollTo(newRowOffset, newColOffset);
     }
   }
 
@@ -241,14 +234,12 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     if (event.key !== "Enter")
       return;
 
-    let sizeChanged = false;
     let [row, col] = rowColRefToCoords(name);
     if (row !== undefined) {
       if (row >= maxRowCount)
         row = maxRowCount - 1;
       if (row > hwmRowIndex) {
         setHwmRowIndex(row);
-        sizeChanged = true;
       } else if (row == 0)
         setHwmRowIndex(0);
     }
@@ -257,18 +248,12 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         col = maxColumnCount - 1;
       if (col > hwmColumnIndex) {
         setHwmColumnIndex(col);
-        sizeChanged = true;
       } else if (col == 0)
         setHwmColumnIndex(0);
     }
 
     updateSelection(row,col);
-    if (sizeChanged)
-    {
-      // Need to defer scroll to selection until after larger grid has been rendered
-      pendingScrollToSelectionRef.current = true;
-    } else 
-      virtualGridScrollToItem(scrollRef, rowMapping, columnMapping, row, col, 'visible');
+    ensureVisible(row, col);
   }
 
   function colSelected(index: number) { return (selection[0] == undefined && selection[1] == index) }
