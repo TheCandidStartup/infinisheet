@@ -157,6 +157,9 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   }, [focusCell])
 
   function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
+    if (rowOffsetValue == gridRowOffset && columnOffsetValue == gridColumnOffset)
+      return;
+
     if (rowOffsetValue == 0)
       setHwmRowIndex(0);
     else if (scrollRef.current && (rowOffsetValue + scrollRef.current.clientHeight == rowOffset)) {
@@ -173,8 +176,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         setHwmColumnIndex(columnCount);
     }
 
-    if (rowOffsetValue != gridRowOffset || columnOffsetValue != gridColumnOffset)
-      setGridScrollState([rowOffsetValue, columnOffsetValue]);
+    setGridScrollState([rowOffsetValue, columnOffsetValue]);
   }
 
   function updateFocus(row: number|undefined, col: number|undefined) {
@@ -218,6 +220,18 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
 
     if (col < 0 || col >= columnCount)
       return;
+
+    // Reset infinite scrolling if we're back at the start
+    if (row == 0)
+      setHwmRowIndex(0);
+    if (col == 0)
+      setHwmColumnIndex(0);
+
+    // Infinite scrolling if we've reached the end
+    if (row == rowCount-1 && rowCount < maxRowCount)
+      setHwmRowIndex(rowCount);
+    if (col == columnCount-1 && columnCount < maxColumnCount)
+      setHwmColumnIndex(columnCount);
 
     updateSelection(row,col);
     ensureVisible(row,col);
