@@ -46,13 +46,19 @@ class TestData implements SpreadsheetData<number> {
 const data = new TestData;
 
 describe('VirtualSpreadsheet', () => {
+  beforeEach(() => {
+    const mock = vi.fn();
+    Element.prototype["scrollTo"] = mock;
+  })
   afterEach(() => {
     unstubAllProperties();
+    Reflect.deleteProperty(Element.prototype, "scrollTo");
   })
 
   it('should render with no theme or class name', () => {
     stubProperty(HTMLElement.prototype, "clientWidth", 585);
     stubProperty(HTMLElement.prototype, "clientHeight", 225);
+
     render(
       <VirtualSpreadsheet
         data={data}
