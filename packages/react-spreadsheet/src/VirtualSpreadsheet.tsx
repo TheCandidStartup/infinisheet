@@ -207,35 +207,11 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     }
   }
 
-  function focusTo(row: number, col: number) {
-    if (row < 0 || row >= rowCount)
-      return;
-
-    if (col < 0 || col >= columnCount)
-      return;
-
-    // Reset infinite scrolling if we're back at the start
-    if (row == 0)
-      setHwmRowIndex(0);
-    if (col == 0)
-      setHwmColumnIndex(0);
-
-    // Infinite scrolling if we've reached the end
-    if (row == rowCount-1 && rowCount < maxRowCount)
-      setHwmRowIndex(rowCount);
-    if (col == columnCount-1 && columnCount < maxColumnCount)
-      setHwmColumnIndex(columnCount);
-
-    updateSelection(row,col);
-    ensureVisible(row,col);
-  }
-
-  function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key !== "Enter")
-      return;
-
-    let [row, col] = rowColRefToCoords(name);
+  // Expands grid as needed for target cell
+  function focusTo(row: number|undefined, col: number|undefined) {
     if (row !== undefined) {
+      if (row < 0)
+        return;
       if (row >= maxRowCount)
         row = maxRowCount - 1;
       if (row > hwmRowIndex) {
@@ -243,7 +219,10 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       } else if (row == 0)
         setHwmRowIndex(0);
     }
+
     if (col !== undefined) {
+      if (col < 0)
+        return;
       if (col >= maxColumnCount)
         col = maxColumnCount - 1;
       if (col > hwmColumnIndex) {
@@ -253,7 +232,15 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     }
 
     updateSelection(row,col);
-    ensureVisible(row, col);
+    ensureVisible(row,col);
+  }
+
+  function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "Enter")
+      return;
+
+    const [row, col] = rowColRefToCoords(name);
+    focusTo(row,col);
   }
 
   function colSelected(index: number) { return (selection[0] == undefined && selection[1] == index) }
