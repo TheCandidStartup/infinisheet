@@ -135,9 +135,17 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
 
       get clientHeight(): number {
         return outerRef.current ? outerRef.current.clientHeight : /* istanbul ignore next */ 0;
+      },
+
+      get verticalOffset(): number {
+        return outerRef.current ? outerRef.current.scrollTop + renderRowOffset : /* istanbul ignore next */ 0;
+      },
+
+      get horizontalOffset(): number {
+        return outerRef.current ? outerRef.current.scrollLeft + renderColOffset : /* istanbul ignore next */ 0;
       }
     }
-  }, [ doScrollToRow, doScrollToColumn, currentVerticalOffset, currentHorizontalOffset ]);
+  }, [ doScrollToRow, doScrollToColumn, currentVerticalOffset, currentHorizontalOffset, renderRowOffset, renderColOffset ]);
 
   function onScroll(event: ScrollEvent) {
     const { clientWidth, clientHeight, scrollWidth, scrollHeight, scrollLeft, scrollTop } = event.currentTarget;

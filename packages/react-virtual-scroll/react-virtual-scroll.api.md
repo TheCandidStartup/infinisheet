@@ -185,8 +185,10 @@ export interface VirtualGridProps extends VirtualBaseProps {
 export interface VirtualGridProxy {
     get clientHeight(): number;
     get clientWidth(): number;
+    get horizontalOffset(): number;
     scrollTo(rowOffset?: number, columnOffset?: number): void;
     scrollToItem(rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void;
+    get verticalOffset(): number;
 }
 
 // @public
@@ -209,6 +211,7 @@ export interface VirtualListProps extends VirtualBaseProps {
 
 // @public
 export interface VirtualListProxy {
+    get offset(): number;
     scrollTo(offset: number): void;
     scrollToItem(index: number, option?: ScrollToOption): void;
 }
@@ -240,8 +243,10 @@ export interface VirtualScrollProps extends VirtualScrollableProps {
 export interface VirtualScrollProxy {
     get clientHeight(): number;
     get clientWidth(): number;
+    get horizontalOffset(): number;
     scrollTo(verticalOffset?: number, horizontalOffset?: number): void;
     scrollToArea(verticalOffset?: number, verticalSize?: number, horizontalOffset?: number, horizontalSize?: number, option?: ScrollToOption): void;
+    get verticalOffset(): number;
 }
 
 // (No @packageDocumentation comment for this package)

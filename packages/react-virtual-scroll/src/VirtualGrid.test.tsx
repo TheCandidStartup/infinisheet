@@ -147,6 +147,8 @@ describe('VirtualGrid', () => {
       let proxy = ref.current || throwErr("null ref");
       expect(proxy.clientWidth).toBe(585);
       expect(proxy.clientHeight).toBe(225);
+      expect(proxy.verticalOffset).toBe(0);
+      expect(proxy.horizontalOffset).toBe(0);
 
       {act(() => { proxy.scrollTo(100, 200); })}
       expect(mock).lastCalledWith({ left: 200, top: 100 });
@@ -349,6 +351,8 @@ describe('Paged VirtualGrid', () => {
       })}
       expect(onScroll).lastCalledWith(119970, 119900, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'},
         { scrollOffset: 119900, renderOffset: 0, page: 1, scrollDirection: 'forward'});
+      expect(proxy.verticalOffset).toBe(119970);
+      expect(proxy.horizontalOffset).toBe(119900);
       const item3999 = screen.getByText('Cell 3999:1199');
       expect(item3999).toBeInTheDocument()
 

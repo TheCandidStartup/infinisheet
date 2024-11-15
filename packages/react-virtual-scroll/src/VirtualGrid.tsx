@@ -101,6 +101,14 @@ export const VirtualGrid = React.forwardRef<VirtualGridProxy, VirtualGridProps>(
 
       get clientHeight(): number {
         return scrollRef.current ? scrollRef.current.clientHeight : /* istanbul ignore next */ 0;
+      },
+
+      get verticalOffset(): number {
+        return scrollRef.current ? scrollRef.current.verticalOffset : /* istanbul ignore next */ 0;
+      },
+
+      get horizontalOffset(): number {
+        return scrollRef.current ? scrollRef.current.horizontalOffset : /* istanbul ignore next */ 0;
       }
     }
   }, [ rowOffsetMapping, columnOffsetMapping ]);

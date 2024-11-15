@@ -30,6 +30,12 @@ export interface VirtualScrollProxy {
 
   /** Exposes DOM clientHeight property */
   get clientHeight(): number;
+
+  /** Current vertical position of scroll bar */
+  get verticalOffset(): number;
+
+    /** Current horizontal position of scroll bar */
+  get horizontalOffset(): number;
 }
 
 /**

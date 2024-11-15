@@ -519,6 +519,7 @@ describe('Paged VirtualList', () => {
         fireEventScrollEnd(outerDiv);
       })}
       expect(onScroll).lastCalledWith(59970, { scrollOffset: 59970, renderOffset: 0, page: 0, scrollDirection: 'forward'})
+      expect(proxy.offset).toBe(59970);
 
       const item1999 = screen.getByText('Item 1999');
       expect(item1999).toBeInTheDocument()
@@ -545,6 +546,7 @@ describe('Paged VirtualList', () => {
         fireEventScrollEnd(outerDiv);
       })}
       expect(onScroll).lastCalledWith(119970, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'})
+      expect(proxy.offset).toBe(119970);
 
       const item3999 = screen.getByText('Item 3999');
       expect(item3999).toBeInTheDocument()
@@ -618,6 +620,7 @@ describe('Paged VirtualList', () => {
         fireEventScrollEnd(outerDiv);
       })}
       expect(onScroll).lastCalledWith(59970, { scrollOffset: 59970, renderOffset: 0, page: 0, scrollDirection: 'forward'})
+      expect(proxy.offset).toBe(59970);
 
       const item1999 = screen.getByText('Item 1999');
       expect(item1999).toBeInTheDocument()
@@ -644,6 +647,7 @@ describe('Paged VirtualList', () => {
         fireEventScrollEnd(outerDiv);
       })}
       expect(onScroll).lastCalledWith(119970, { scrollOffset: 119970, renderOffset: 0, page: 1, scrollDirection: 'forward'})
+      expect(proxy.offset).toBe(119970);
 
       const item3999 = screen.getByText('Item 3999');
       expect(item3999).toBeInTheDocument()

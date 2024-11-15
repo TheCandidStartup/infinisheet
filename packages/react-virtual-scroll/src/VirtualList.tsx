@@ -89,6 +89,15 @@ export const VirtualList = React.forwardRef<VirtualListProxy, VirtualListProps>(
 
       scrollToItem(index: number, option?: ScrollToOption): void {
         virtualListScrollToItem(scrollRef, itemOffsetMapping, isVertical, index, option);
+      },
+
+      get offset(): number {
+        const scroll = scrollRef.current;
+        /* istanbul ignore if */
+        if (!scroll)
+          return 0;
+
+        return isVertical ? scroll.verticalOffset : scroll.horizontalOffset;
       }
     }
   }, [ itemOffsetMapping, isVertical ]);

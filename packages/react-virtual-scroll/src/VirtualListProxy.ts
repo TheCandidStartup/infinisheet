@@ -19,6 +19,9 @@ export interface VirtualListProxy {
    * @param option - Where to {@link ScrollToOption | position} the item within the viewport
    */
   scrollToItem(index: number, option?: ScrollToOption): void;
+
+  /** Current scroll position */
+  get offset(): number;
 }
 
 /**

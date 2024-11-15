@@ -98,6 +98,8 @@ describe('VirtualScroll', () => {
       const proxy = ref.current || throwErr("null ref");
       expect(proxy.clientHeight).toBe(240);
       expect(proxy.clientWidth).lessThan(600);
+      expect(proxy.verticalOffset).toBe(120);
+      expect(proxy.horizontalOffset).toBe(0);
       {act(() => { proxy.scrollTo(100); })}
       expect(mock).lastCalledWith({ top: 100 });
 
@@ -142,6 +144,8 @@ describe('VirtualScroll', () => {
       const proxy = ref.current || throwErr("null ref");
       expect(proxy.clientHeight).lessThan(240);
       expect(proxy.clientWidth).toBe(600);
+      expect(proxy.verticalOffset).toBe(0);
+      expect(proxy.horizontalOffset).toBe(250);
       {act(() => { proxy.scrollTo(undefined, 400); })}
       expect(mock).lastCalledWith({ left: 400 });
 

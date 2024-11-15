@@ -25,6 +25,12 @@ export interface VirtualGridProxy {
 
   /** Exposes DOM clientHeight property */
   get clientHeight(): number;
+
+  /** Current vertical position of scroll bar */
+  get verticalOffset(): number;
+
+  /** Current horizontal position of scroll bar */
+  get horizontalOffset(): number;
 }
 
 /** Range to scroll to in one dimension specified as (offset,size). May be undefined if no need to scroll. */
