@@ -92,12 +92,10 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
     onScroll: onScrollCallback, useIsScrolling = false, innerRender, outerRender } = props;
 
   const outerRef = React.useRef<HTMLDivElement>(null);
-  const { scrollOffset: scrollRowOffset, renderOffset: renderRowOffset, renderSize: renderRowSize,
-    onScroll: onScrollRow, doScrollTo: doScrollToRow } = useVirtualScroll(scrollHeight, props.maxCssSize, props.minNumPages);
-  const currentVerticalOffset = scrollRowOffset + renderRowOffset;
-  const { scrollOffset: scrollColOffset, renderOffset: renderColOffset, renderSize: renderColumnSize,
-    onScroll: onScrollColumn, doScrollTo: doScrollToColumn} = useVirtualScroll(scrollWidth, props.maxCssSize, props.minNumPages);
-  const currentHorizontalOffset = scrollColOffset + renderColOffset;
+  const { totalOffset: currentVerticalOffset, renderSize: renderRowSize, onScroll: onScrollRow,
+    doScrollTo: doScrollToRow, getCurrentOffset: getVerticalOffset } = useVirtualScroll(scrollHeight, props.maxCssSize, props.minNumPages);
+  const { totalOffset: currentHorizontalOffset, renderSize: renderColumnSize, onScroll: onScrollColumn,
+    doScrollTo: doScrollToColumn, getCurrentOffset: getHorizontalOffset} = useVirtualScroll(scrollWidth, props.maxCssSize, props.minNumPages);
   const isActuallyScrolling = useIsScrollingHook(outerRef);
 
   React.useImperativeHandle(ref, () => {
@@ -137,15 +135,11 @@ export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollP
         return outerRef.current ? outerRef.current.clientHeight : /* istanbul ignore next */ 0;
       },
 
-      get verticalOffset(): number {
-        return outerRef.current ? outerRef.current.scrollTop + renderRowOffset : /* istanbul ignore next */ 0;
-      },
+      get verticalOffset(): number { return getVerticalOffset(); },
 
-      get horizontalOffset(): number {
-        return outerRef.current ? outerRef.current.scrollLeft + renderColOffset : /* istanbul ignore next */ 0;
-      }
+      get horizontalOffset(): number { return getHorizontalOffset(); }
     }
-  }, [ doScrollToRow, doScrollToColumn, currentVerticalOffset, currentHorizontalOffset, renderRowOffset, renderColOffset ]);
+  }, [ doScrollToRow, doScrollToColumn, currentVerticalOffset, currentHorizontalOffset, getVerticalOffset, getHorizontalOffset ]);
 
   function onScroll(event: ScrollEvent) {
     const { clientWidth, clientHeight, scrollWidth, scrollHeight, scrollLeft, scrollTop } = event.currentTarget;
