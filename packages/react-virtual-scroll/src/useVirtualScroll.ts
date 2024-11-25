@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, RefObject } from "react";
 
 /** Direction of scrolling */
 export type ScrollDirection = "forward" | "backward";
@@ -20,10 +20,11 @@ export interface ScrollState {
   scrollDirection: ScrollDirection, 
 }
 
-export interface VirtualScrollState extends ScrollState {
+export interface VirtualScrollState {
   /** Snapshot of overall offset at last render */
   totalOffset: number;
 
+  /** Physical size of scrollable area */
   renderSize: number;
 
   // Returns updated scrollOffset. Caller should update scroll bar position if different from value passed in. 
@@ -32,7 +33,11 @@ export interface VirtualScrollState extends ScrollState {
   // Scroll to offset in logical space returning offset to update scroll bar position to
   doScrollTo(offset: number, clientExtent: number): number;
 
+  // Returns current overall offset (NOT a snapshot)
   getCurrentOffset(): number;
+
+  // Internal scroll state. Most scenarios will never need to access this. Mainly here for unit test.
+  scrollState: RefObject<ScrollState>;
 }
 
 // Max size that is safe across all browsers (Firefox is the limiting factor)
@@ -41,6 +46,7 @@ export interface VirtualScrollState extends ScrollState {
 const MAX_SUPPORTED_CSS_SIZE = 6000000;
 const MIN_NUMBER_PAGES = 100;
 
+/** Custom hook that implements logic for paged virtual scrolling in a single dimension */
 export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_CSS_SIZE, minNumberPages = MIN_NUMBER_PAGES): VirtualScrollState {
   let renderSize=0, pageSize=0, numPages=0;
   if (totalSize < maxCssSize) {
@@ -138,7 +144,7 @@ export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_C
     return currState.scrollOffset + currState.renderOffset;
   }
 
-  return {...scrollState.current, totalOffset, renderSize, onScroll, doScrollTo, getCurrentOffset} as const;
+  return {totalOffset, renderSize, onScroll, doScrollTo, getCurrentOffset, scrollState} as const;
 }
 
 export default useVirtualScroll;
