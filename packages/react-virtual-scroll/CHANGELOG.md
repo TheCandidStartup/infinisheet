@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.2](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.1...v0.6.2) (2024-11-26)
+
+
+### Bug Fixes
+
+* **react-virtual-scroll:** Scroll position was jumping forwards and backwards when scrolling across a virtual page boundary ([a7379b4](https://github.com/TheCandidStartup/infinisheet/commit/a7379b407ece077c3d6c2b00adcfec371ba37799))
+
+
+### Features
+
+* **react-virtual-scroll:** Added useOffsets prop to VirtualScroll ([3ffa9fe](https://github.com/TheCandidStartup/infinisheet/commit/3ffa9fe932354f929feccd739cae243bd6317305))
+* **react-virtual-scroll:** Provided access to current scroll position on scroll proxys ([3864862](https://github.com/TheCandidStartup/infinisheet/commit/386486253af0a4e353f25a7da4b1ea010b18e683))
+
+
+
+
+
 ## [0.6.1](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.0...v0.6.1) (2024-11-13)
 
 
