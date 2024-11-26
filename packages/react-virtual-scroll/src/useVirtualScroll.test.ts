@@ -4,21 +4,24 @@ import { useVirtualScroll } from './useVirtualScroll'
 describe('useVirtualScroll', () => {
   it('should have initial value', () => {
     const { result } = renderHook(() => useVirtualScroll(100))
-    const { scrollState } = result.current;
+    const { scrollState, totalOffset } = result.current;
+    expect(totalOffset).toBe(0);
     expect(scrollState.current!.scrollOffset).toBe(0);
     expect(scrollState.current!.scrollDirection).toBe("forward");
   })
 
   it('should update offset and direction OnScroll', () => {
     const { result } = renderHook(() => useVirtualScroll(100));
-    let {scrollState, onScroll: onScrollExtent} = result.current;
+    let {scrollState, totalOffset, onScroll: onScrollExtent} = result.current;
+    expect(totalOffset).toBe(0);
     expect(scrollState.current!.scrollOffset).toBe(0);
     expect(scrollState.current!.scrollDirection).toBe("forward");
 
     {act(() => {
       onScrollExtent(100, 1000, 50);
     })}
-    ({scrollState, onScroll: onScrollExtent} = result.current);
+    ({scrollState, totalOffset, onScroll: onScrollExtent} = result.current);
+    expect(totalOffset).toBe(50);
     expect(scrollState.current!.scrollOffset).toBe(50);
     expect(scrollState.current!.scrollDirection).toBe("forward");
 
@@ -26,14 +29,16 @@ describe('useVirtualScroll', () => {
     {act(() => {
       onScrollExtent(100, 1000, 50);
     })}
-    ({scrollState, onScroll: onScrollExtent} = result.current);
+    ({scrollState, totalOffset, onScroll: onScrollExtent} = result.current);
+    expect(totalOffset).toBe(50);
     expect(scrollState.current!.scrollOffset).toBe(50);
     expect(scrollState.current!.scrollDirection).toBe("forward");
 
     {act(() => {
       onScrollExtent(100, 1000, 25);
     })}
-    ({ scrollState } = result.current);
+    ({ scrollState, totalOffset } = result.current);
+    expect(totalOffset).toBe(25);
     expect(scrollState.current!.scrollOffset).toBe(25);
     expect(scrollState.current!.scrollDirection).toBe("backward");
 
@@ -41,7 +46,8 @@ describe('useVirtualScroll', () => {
     {act(() => {
       onScrollExtent(100, 1000, 25);
     })}
-    ({ scrollState } = result.current);
+    ({ scrollState, totalOffset } = result.current);
+    expect(totalOffset).toBe(25);
     expect(scrollState.current!.scrollOffset).toBe(25);
     expect(scrollState.current!.scrollDirection).toBe("backward");
   })
@@ -52,6 +58,7 @@ describe('useVirtualScroll', () => {
     const { result } = renderHook(() => useVirtualScroll(totalSize));
     let vs = result.current;
 
+    expect(vs.totalOffset).toBe(0);
     expect(vs.scrollState.current!.scrollOffset).toBe(0);
     expect(vs.scrollState.current!.page).toBe(0);
     expect(vs.scrollState.current!.renderOffset).toBe(0);
@@ -65,6 +72,7 @@ describe('useVirtualScroll', () => {
     })}
     vs = result.current;
     expect(ret).toBe(50);
+    expect(vs.totalOffset).toBe(50);
     expect(vs.scrollState.current!.scrollOffset).toBe(50);
     expect(vs.scrollState.current!.page).toBe(0);
     expect(vs.scrollState.current!.renderOffset).toBe(0);
@@ -76,6 +84,7 @@ describe('useVirtualScroll', () => {
     })}
     vs = result.current;
     expect(ret).toBe(119970);
+    expect(vs.totalOffset).toBe(119970);
     expect(vs.scrollState.current!.scrollOffset).toBe(119970);
     expect(vs.scrollState.current!.page).toBe(1);
     expect(vs.scrollState.current!.renderOffset).toBe(0);
@@ -87,6 +96,7 @@ describe('useVirtualScroll', () => {
     })}
     vs = result.current;
     expect(ret).toBe(60030);
+    expect(vs.totalOffset).toBe(120030);
     expect(vs.scrollState.current!.scrollOffset).toBe(60030);
     expect(vs.scrollState.current!.page).toBe(2);
     expect(vs.scrollState.current!.renderOffset).toBe(60000);
@@ -98,6 +108,7 @@ describe('useVirtualScroll', () => {
     })}
     vs = result.current;
     expect(ret).toBe(119970);
+    expect(vs.totalOffset).toBe(119970);
     expect(vs.scrollState.current!.scrollOffset).toBe(119970);
     expect(vs.scrollState.current!.page).toBe(1);
     expect(vs.scrollState.current!.renderOffset).toBe(0);
@@ -113,6 +124,7 @@ describe('useVirtualScroll', () => {
     {
       // Expect to be within 1% of halfway point in container space
       const offset = vs.scrollState.current!.renderOffset + vs.scrollState.current!.scrollOffset;
+      expect(vs.totalOffset).toBe(offset);
       const halfOffset = totalSize / 2;
       const err = totalSize * 0.01;
       expect(offset).toBeGreaterThan(halfOffset-err);
@@ -131,6 +143,7 @@ describe('useVirtualScroll', () => {
     {
       const offset =  vs.scrollState.current!.renderOffset + vs.scrollState.current!.scrollOffset;
       expect(offset).toBe(totalSize - clientExtent);
+      expect(vs.totalOffset).toBe(offset);
     }
 
     // Jump back to halfway point in container space
@@ -144,6 +157,7 @@ describe('useVirtualScroll', () => {
       // Expect to be within 1% of halfway point on scroll bar
       const offset = vs.scrollState.current!.renderOffset + vs.scrollState.current!.scrollOffset;
       expect(offset).toBe(totalSize / 2);
+      expect(vs.totalOffset).toBe(offset);
       const halfScroll = vs.renderSize / 2;
       const err = vs.renderSize * 0.01;
       expect(vs.scrollState.current!.scrollOffset).toBeGreaterThan(halfScroll-err);
@@ -157,9 +171,33 @@ describe('useVirtualScroll', () => {
     })}
     vs = result.current;
     expect(ret).toBe(0);
+    expect(vs.totalOffset).toBe(0);
     expect(vs.scrollState.current!.scrollOffset).toBe(0);
     expect(vs.scrollState.current!.page).toBe(0);
     expect(vs.scrollState.current!.renderOffset).toBe(0);
     expect(vs.scrollState.current!.scrollDirection).toBe("backward");
+  })
+
+  it('should keep totalOffset at zero when useTotalOffset is false', () => {
+    const { result } = renderHook(() => useVirtualScroll(1000, 6000000, 100, false));
+    let {scrollState, totalOffset, onScroll: onScrollExtent, doScrollTo} = result.current;
+    expect(totalOffset).toBe(0);
+    expect(scrollState.current!.scrollOffset).toBe(0);
+
+    {act(() => {
+      onScrollExtent(100, 1000, 50);
+    })}
+    ({scrollState, totalOffset, onScroll: onScrollExtent, doScrollTo} = result.current);
+    expect(totalOffset).toBe(0);
+    expect(scrollState.current!.scrollOffset).toBe(50);
+
+    let ret = 0;
+    {act(() => {
+      (ret = doScrollTo(25, 100));
+    })}
+    ({scrollState, totalOffset, onScroll: onScrollExtent, doScrollTo} = result.current);
+    expect(totalOffset).toBe(0);
+    expect(ret).toBe(25);
+    expect(scrollState.current!.scrollOffset).toBe(25);
   })
 })

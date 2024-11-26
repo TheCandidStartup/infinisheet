@@ -414,6 +414,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         width={props.width}
         scrollHeight={rowOffset}
         scrollWidth={columnOffset}
+        useOffsets={false}
         maxCssSize={props.maxCssSize}
         minNumPages={props.minNumPages}>
         {(_) => (

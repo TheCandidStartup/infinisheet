@@ -237,6 +237,7 @@ export interface VirtualScrollProps extends VirtualScrollableProps {
     outerRender?: VirtualContainerRender;
     scrollHeight?: number;
     scrollWidth?: number;
+    useOffsets?: boolean;
 }
 
 // @public

@@ -60,6 +60,16 @@ export interface VirtualScrollProps extends VirtualScrollableProps {
    */
   scrollWidth?: number,
 
+  /** 
+   * Determines whether the component should pass {@link VirtualContentProps.verticalOffset|verticalOffset} and 
+   * {@link VirtualContentProps.horizontalOffset|horizontalOffset} to children when rendering.
+   * 
+   * Can reduce the number of renders needed if these props aren't used
+   * 
+   * @defaultValue true
+   * */
+  useOffsets?: boolean,
+
   /**
    * Callback after a scroll event has been processed and state updated but before rendering
    * @param verticalOffset - Resulting overall vertical offset. 
@@ -89,13 +99,13 @@ export interface VirtualScrollProps extends VirtualScrollableProps {
  */
 export const VirtualScroll = React.forwardRef<VirtualScrollProxy, VirtualScrollProps>(function VirtualScroll(props, ref) {
   const { width, height, scrollWidth = 0, scrollHeight = 0, className, innerClassName, children,
-    onScroll: onScrollCallback, useIsScrolling = false, innerRender, outerRender } = props;
+    onScroll: onScrollCallback, useIsScrolling = false, useOffsets = true, innerRender, outerRender } = props;
 
   const outerRef = React.useRef<HTMLDivElement>(null);
   const { totalOffset: currentVerticalOffset, renderSize: renderRowSize, onScroll: onScrollRow,
-    doScrollTo: doScrollToRow, getCurrentOffset: getVerticalOffset } = useVirtualScroll(scrollHeight, props.maxCssSize, props.minNumPages);
+    doScrollTo: doScrollToRow, getCurrentOffset: getVerticalOffset } = useVirtualScroll(scrollHeight, props.maxCssSize, props.minNumPages, useOffsets);
   const { totalOffset: currentHorizontalOffset, renderSize: renderColumnSize, onScroll: onScrollColumn,
-    doScrollTo: doScrollToColumn, getCurrentOffset: getHorizontalOffset} = useVirtualScroll(scrollWidth, props.maxCssSize, props.minNumPages);
+    doScrollTo: doScrollToColumn, getCurrentOffset: getHorizontalOffset} = useVirtualScroll(scrollWidth, props.maxCssSize, props.minNumPages, useOffsets);
   const isActuallyScrolling = useIsScrollingHook(outerRef);
 
   React.useImperativeHandle(ref, () => {

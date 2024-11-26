@@ -47,7 +47,8 @@ const MAX_SUPPORTED_CSS_SIZE = 6000000;
 const MIN_NUMBER_PAGES = 100;
 
 /** Custom hook that implements logic for paged virtual scrolling in a single dimension */
-export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_CSS_SIZE, minNumberPages = MIN_NUMBER_PAGES): VirtualScrollState {
+export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_CSS_SIZE, minNumberPages = MIN_NUMBER_PAGES, 
+                                 useTotalOffset = true): VirtualScrollState {
   let renderSize=0, pageSize=0, numPages=0;
   if (totalSize < maxCssSize) {
     // No paging needed
@@ -122,7 +123,8 @@ export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_C
     const newScrollState: ScrollState = 
       { scrollOffset: newOffset, renderOffset: newRenderOffset, page: newPage, scrollDirection: newScrollDirection };
     scrollState.current = newScrollState;
-    setTotalOffset(newOffset + newRenderOffset);
+    if (useTotalOffset)
+      setTotalOffset(newOffset + newRenderOffset);
     return [retScrollOffset, newScrollState];
   }
 
@@ -135,7 +137,8 @@ export function useVirtualScroll(totalSize: number, maxCssSize = MAX_SUPPORTED_C
     const scrollOffset = safeOffset - renderOffset;
 
     scrollState.current = { scrollOffset, renderOffset, page, scrollDirection };
-    setTotalOffset(scrollOffset + renderOffset);
+    if (useTotalOffset)
+      setTotalOffset(scrollOffset + renderOffset);
     return scrollOffset;
   }
 
