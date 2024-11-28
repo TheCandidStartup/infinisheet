@@ -2,7 +2,7 @@
 export type ColRef = string;
 
 /**  Classic Spreadsheet reference to Cell (e.g. "A1"), Row (e.g. "1") or Column (e.g "A") */
-export type RowColRef = string | ColRef;
+export type RowColRef = string;
 
 /** Equivalent to {@link RowColRef} as coordinate pair. "A1" has coords [0,0], "1" is [0,undefined] and "A" is [undefined,0] */
 export type RowColCoords = [row: number|undefined, col: number|undefined];

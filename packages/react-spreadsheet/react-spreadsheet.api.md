@@ -58,7 +58,7 @@ export type RowColCoords = [row: number | undefined, col: number | undefined];
 export function rowColCoordsToRef(row: number | undefined, col: number | undefined): RowColRef;
 
 // @public
-export type RowColRef = string | ColRef;
+export type RowColRef = string;
 
 // @public
 export function rowColRefToCoords(ref: RowColRef): RowColCoords;

@@ -28,13 +28,13 @@ export interface VirtualScrollState {
   renderSize: number;
 
   // Returns updated scrollOffset. Caller should update scroll bar position if different from value passed in. 
-  onScroll(clientExtent: number, scrollExtent: number, scrollOffset: number): [number, ScrollState];
+  onScroll(this: void, clientExtent: number, scrollExtent: number, scrollOffset: number): [number, ScrollState];
 
   // Scroll to offset in logical space returning offset to update scroll bar position to
-  doScrollTo(offset: number, clientExtent: number): number;
+  doScrollTo(this: void, offset: number, clientExtent: number): number;
 
   // Returns current overall offset (NOT a snapshot)
-  getCurrentOffset(): number;
+  getCurrentOffset(this: void): number;
 
   // Internal scroll state. Most scenarios will never need to access this. Mainly here for unit test.
   scrollState: RefObject<ScrollState>;

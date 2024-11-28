@@ -10,11 +10,19 @@ import { fixupPluginRules } from '@eslint/compat';
 
 export default tseslint.config(
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname
+      }
+    }
+  },
   reactRecommended,
   jsxRuntime,
   { files: ["**/*.ts", "**/*.tsx"] },
-  { ignores: ["**/dist", "**/*.js", "**/*.mjs", "**/*.cjs"] },
+  { ignores: ["**/dist", "**/*.js", "**/*.mjs", "**/*.cjs", "**/vite.config.ts"] },
   {
     languageOptions: {
       globals: { ...globals.browser }
