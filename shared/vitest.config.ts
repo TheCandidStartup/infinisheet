@@ -12,7 +12,7 @@ export default defineConfig({
     coverage: {
       provider: 'istanbul',
       include: ['src/**'],
-      exclude: ['src/test/**'],
+      exclude: ['src/test/**','src/*.test.*'],
     },
     fakeTimers: {
       toFake: [...(configDefaults.fakeTimers.toFake ?? []), 'performance'],
