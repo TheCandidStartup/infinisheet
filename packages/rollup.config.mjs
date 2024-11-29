@@ -12,12 +12,12 @@ export default [
     output: [
       {
         sourcemap: true,
-        file: "dist/index.js",
+        dir: "dist",
         format: "es"
       },
     ],
     plugins: [
-      typescript({ "declarationDir": "./types", tsconfig: "./tsconfig.build.json" })
+      typescript({ "declarationDir": "dist/types", tsconfig: "./tsconfig.build.json" })
     ],
   },
   {
