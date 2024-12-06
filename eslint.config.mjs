@@ -22,7 +22,7 @@ export default tseslint.config(
   reactRecommended,
   jsxRuntime,
   { files: ["**/*.ts", "**/*.tsx"] },
-  { ignores: ["**/dist", "**/*.js", "**/*.mjs", "**/*.cjs", "**/vite.config.ts"] },
+  { ignores: ["**/dist", "**/*.js", "**/*.mjs", "**/*.cjs", "**/vite.config.ts", "**/playwright.config.ts"] },
   {
     languageOptions: {
       globals: { ...globals.browser }
