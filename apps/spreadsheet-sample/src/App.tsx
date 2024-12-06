@@ -1,5 +1,5 @@
-import { VirtualSpreadsheet } from '@candidstartup/react-spreadsheet';
-import theme from '@candidstartup/react-spreadsheet/VirtualSpreadsheet.module.css';
+import { VirtualSpreadsheet, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
+import '@candidstartup/react-spreadsheet/VirtualSpreadsheet.css';
 import './App.css';
 import { BoringData } from './BoringData';
 

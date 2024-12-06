@@ -14,6 +14,8 @@ coverage
 temp
 *.local
 .nx/cache
+playwright-report
+test-results
 
 # Editor directories and files
 .vscode/*

@@ -369,6 +369,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         Scroll To Row, Column or Cell: 
         <input
           type={"text"}
+          name={"name"}
+          title={"Name"}
           value={name}
           height={200}
           onChange={(event) => {
