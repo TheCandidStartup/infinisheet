@@ -25,7 +25,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
+    - run: npx playwright install --with-deps
     - run: npm run lerna-build
     - run: npm run lerna-lint
     - run: npm run lerna-prodapi
     - run: npm run lerna-test
+    - run: npm run lerna-playwright
