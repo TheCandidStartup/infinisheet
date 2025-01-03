@@ -1,5 +1,5 @@
 {
-  "name": "storybook",
+  "name": "@candidstartup/storybook",
   "private": true,
   "version": "0.6.2",
   "type": "module",
