@@ -1,0 +1,22 @@
+{
+  "name": "storybook",
+  "private": true,
+  "version": "0.6.2",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build -o dist",
+    "preview": "vite preview --port 6006",
+    "playwrightx": "npx playwright test",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "@candidstartup/react-virtual-scroll": "^0.6.2",
+    "@candidstartup/react-spreadsheet": "^0.6.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

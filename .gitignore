@@ -27,3 +27,5 @@ test-results
 *.njsproj
 *.sln
 *.sw?
+
+*storybook.log
