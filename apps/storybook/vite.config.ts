@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
-import tsconfigPaths from 'vite-tsconfig-paths'
 import sourcemaps from '@gordonmleigh/rollup-plugin-sourcemaps'
 import { resolve } from 'path'
 
@@ -8,7 +7,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [
     react(),
-    tsconfigPaths()
+    // tsconfigPaths is added in /storybook/main.ts viteFinal
   ],
   build: {
     sourcemap: true,

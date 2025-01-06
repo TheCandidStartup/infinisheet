@@ -1,4 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 import { join, dirname } from "path";
 
@@ -24,5 +25,22 @@ const config: StorybookConfig = {
     name: getAbsolutePath("@storybook/react-vite"),
     options: {},
   },
+  async viteFinal(config, { configType }) { 
+    const { mergeConfig } = await import("vite");
+
+    // Production build doesn't use tsconfigPaths plugin
+    // to ensure that it builds against dependent packages
+    // from the monorepo rather than pulling in src directly.
+    // Want to make sure that I'm eating my own dog food.
+    if (configType === 'PRODUCTION')
+      return config;
+
+    // Add tsconfigPaths plugin for development build for
+    // nice development experience where I can edit src files
+    // in dependent packages and have storybook immediately update.
+    return mergeConfig(config, {
+      plugins: [ tsconfigPaths() ]
+    })
+  }
 };
 export default config;
