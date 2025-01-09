@@ -11,8 +11,8 @@
     "lerna-lint": "npx lerna run lint",
     "lerna-prodapi": "npx lerna run prodapi",
     "lerna-test": "npx lerna run test -- --run --coverage",
-    "lerna-playwright": "npx lerna run playwright",
-    "prodbuild": "npm run lerna-build && npm run lerna-lint && npm run lerna-prodapi && npm run lerna-test",
+    "lerna-playwright": "PROD=true npx lerna run playwright",
+    "prodbuild": "npm run lerna-build && npm run lerna-lint && npm run lerna-prodapi && npm run lerna-test && npm run lerna-playwright",
     "lerna-version": "npx lerna version --conventional-commits",
     "lerna-publish": "npx lerna publish from-package --yes",
     "test": "vitest --run --coverage"

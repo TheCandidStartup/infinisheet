@@ -10,7 +10,7 @@
     "dev": "storybook dev -p 6006",
     "build": "storybook build -o dist",
     "preview": "vite preview --port 6006",
-    "playwrightx": "npx playwright test",
+    "playwright": "npx playwright test",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
