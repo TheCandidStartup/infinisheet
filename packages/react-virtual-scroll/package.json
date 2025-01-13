@@ -47,6 +47,7 @@
     "dev": "vite",
     "clean": "rimraf {dist,temp}",
     "prebuild": "npm run clean",
+    "typecheck": "tsc -p tsconfig.json",
     "build-tsc": "tsc -p tsconfig.build.json",
     "build-rollup": "rollup -c ../rollup.config.mjs",
     "build": "npm run build-rollup",

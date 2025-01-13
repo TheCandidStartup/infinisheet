@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
+    "typecheck": "tsc -p tsconfig.json",
     "build": "storybook build -o dist",
     "preview": "vite preview --port 6006",
     "playwright": "npx playwright test",

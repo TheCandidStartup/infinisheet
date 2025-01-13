@@ -7,12 +7,13 @@
     "apps/*"
   ],
   "scripts": {
+    "lerna-typecheck": "npx lerna run typecheck",
     "lerna-build": "npx lerna run build",
     "lerna-lint": "npx lerna run lint",
     "lerna-prodapi": "npx lerna run prodapi",
     "lerna-test": "npx lerna run test -- --run --coverage",
     "lerna-playwright": "PROD=true npx lerna run playwright",
-    "prodbuild": "npm run lerna-build && npm run lerna-lint && npm run lerna-prodapi && npm run lerna-test && npm run lerna-playwright",
+    "prodbuild": "npm run lerna-typecheck && npm run lerna-build && npm run lerna-lint && npm run lerna-prodapi && npm run lerna-test && npm run lerna-playwright",
     "lerna-version": "npx lerna version --conventional-commits",
     "lerna-publish": "npx lerna publish from-package --yes",
     "test": "vitest --run --coverage"

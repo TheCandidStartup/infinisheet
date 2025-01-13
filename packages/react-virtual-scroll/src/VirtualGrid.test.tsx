@@ -2,11 +2,12 @@ import React from "react";
 import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd, stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 import { VirtualContainerRender } from './VirtualContainer'
-import { VirtualGrid } from './VirtualGrid'
+import { VirtualGrid, VirtualGridProps } from './VirtualGrid'
 import { VirtualGridProxy } from './VirtualGridProxy'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
-import { ScrollState } from './useVirtualScroll';
+
+type ScrollHandler = Exclude<VirtualGridProps['onScroll'], undefined>;
 
 // Set layout related properties and find div to scroll starting
 // from an item in the list.
@@ -316,7 +317,7 @@ describe('Paged VirtualGrid', () => {
     stubProperty(HTMLElement.prototype, "clientHeight", 225);
 
     try {
-      const onScroll = vi.fn<[number,number,ScrollState,ScrollState],void>();
+      const onScroll = vi.fn<ScrollHandler>();
       const ref = React.createRef<VirtualGridProxy>();
       render(
         <VirtualGrid

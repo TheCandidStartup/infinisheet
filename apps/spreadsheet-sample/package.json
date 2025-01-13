@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc -p tsconfig.json",
     "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview",
     "playwright": "npx playwright test",

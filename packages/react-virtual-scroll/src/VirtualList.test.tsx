@@ -2,11 +2,12 @@ import React from "react";
 import { render, screen, fireEvent, act } from '../../../shared/test/wrapper'
 import { throwErr, overrideProp, fireEventScrollEnd, stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 import { VirtualContainerRender } from './VirtualContainer'
-import { VirtualList } from './VirtualList'
+import { VirtualList, VirtualListProps } from './VirtualList'
 import { VirtualListProxy } from './VirtualListProxy'
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
-import { ScrollState } from './useVirtualScroll';
+
+type ScrollHandler = Exclude<VirtualListProps['onScroll'], undefined>;
 
 // Set layout related properties and find div to scroll starting
 // from an item in the list.
@@ -485,7 +486,7 @@ describe('Paged VirtualList', () => {
     stubProperty(HTMLElement.prototype, "clientWidth", 585);
     stubProperty(HTMLElement.prototype, "clientHeight", 240);
     try {
-      const onScroll = vi.fn<[number,ScrollState],void>();
+      const onScroll = vi.fn<ScrollHandler>();
       const ref = React.createRef<VirtualListProxy>();
       render(
         <VirtualList
@@ -586,7 +587,7 @@ describe('Paged VirtualList', () => {
     stubProperty(HTMLElement.prototype, "clientWidth", 600);
     stubProperty(HTMLElement.prototype, "clientHeight", 35);
     try {
-      const onScroll = vi.fn<[number,ScrollState],void>();
+      const onScroll = vi.fn<ScrollHandler>();
       const ref = React.createRef<VirtualListProxy>();
       render(
         <VirtualList
