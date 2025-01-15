@@ -3,16 +3,10 @@ import { stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 
 import { VirtualSpreadsheet } from './VirtualSpreadsheet'
 import { VirtualSpreadsheetDefaultTheme } from './VirtualSpreadsheetTheme'
-import type { SpreadsheetData, CellValue } from './SpreadsheetData';
+import { EmptySpreadsheetData, CellValue } from './SpreadsheetData';
 import { rowColCoordsToRef } from './RowColRef';
 
-class TestData implements SpreadsheetData<number> {
-  subscribe(_onDataChange: () => void) {
-    return () => {};
-  }
-
-  getSnapshot() { return 0; }
-  
+class TestData extends EmptySpreadsheetData {
   getRowCount(_snapshot: number) { return 100; }
   getColumnCount(_snapshot: number) { return 26; }
   getCellValue(_snapshot: number, row: number, column: number): CellValue {

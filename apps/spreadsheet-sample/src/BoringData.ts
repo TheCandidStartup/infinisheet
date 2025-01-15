@@ -1,8 +1,11 @@
 import { SpreadsheetData, CellValue } from '@candidstartup/react-spreadsheet';
+import { ItemOffsetMapping, useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 import { dateToSerial } from 'numfmt'
 
 const headerRow = [ "Date", "Time", "Item", "Price", "Quantity", "Cost", "Tax Rate", "Tax", "Subtotal", "Transaction Fee", "Total", "Running Total"];
 const totalHeaderRow = [ "First", "Last", "Count", "Average", "Max", "Total", "Min", "Total", "Total", "Total", "Total", "Running Total"]
+const columnMapping = useVariableSizeItemOffsetMapping(100, [160]);
+const rowMapping = useVariableSizeItemOffsetMapping(30, [50]);
 
 export class BoringData implements SpreadsheetData<number> {
   constructor() { 
@@ -23,7 +26,9 @@ export class BoringData implements SpreadsheetData<number> {
   getSnapshot() { return this.count; }
   
   getRowCount(snapshot: number) { return snapshot+4; }
+  getRowItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return rowMapping; }
   getColumnCount(_snapshot: number) { return 12; }
+  getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return columnMapping; }
 
   dateTime(row: number) { return this.base + row / (24*60); }
 

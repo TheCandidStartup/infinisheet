@@ -4,6 +4,7 @@
 
 ```ts
 
+import { ItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 // @public (undocumented)
@@ -29,13 +30,17 @@ export function colRefToIndex(col: ColRef): number;
 // @public (undocumented)
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
-    getCellFormat(_snapshot: number, _row: number, _column: number): undefined;
+    getCellFormat(_snapshot: number, _row: number, _column: number): string | undefined;
     // (undocumented)
-    getCellValue(_snapshot: number, _row: number, _column: number): null;
+    getCellValue(_snapshot: number, _row: number, _column: number): CellValue;
     // (undocumented)
     getColumnCount(_snapshot: number): number;
     // (undocumented)
+    getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping;
+    // (undocumented)
     getRowCount(_snapshot: number): number;
+    // (undocumented)
+    getRowItemOffsetMapping(_snapshot: number): ItemOffsetMapping;
     // (undocumented)
     getSnapshot(): number;
     // (undocumented)
@@ -44,6 +49,8 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
 
 // @public
 export function indexToColRef(index: number): ColRef;
+
+export { ItemOffsetMapping }
 
 // @public (undocumented)
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
@@ -75,7 +82,11 @@ export interface SpreadsheetData<Snapshot> {
     // (undocumented)
     getColumnCount(snapshot: Snapshot): number;
     // (undocumented)
+    getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
+    // (undocumented)
     getRowCount(snapshot: Snapshot): number;
+    // (undocumented)
+    getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
     // (undocumented)
     getSnapshot(): Snapshot;
     // (undocumented)

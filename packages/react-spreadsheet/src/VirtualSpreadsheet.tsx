@@ -1,6 +1,6 @@
 import React from 'react';
 import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy,
-  useVariableSizeItemOffsetMapping, getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
+  getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
 import type { SpreadsheetData } from './SpreadsheetData'
@@ -119,8 +119,6 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
 
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
   const { width, height, theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
-  const columnMapping = useVariableSizeItemOffsetMapping(100, [160]);
-  const rowMapping = useVariableSizeItemOffsetMapping(30, [70]);
   const scrollRef = React.useRef<VirtualScrollProxy>(null);
   const focusSinkRef = React.useRef<HTMLInputElement>(null);
 
@@ -138,9 +136,11 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
 
   const dataRowCount = data.getRowCount(snapshot);
   const rowCount = Math.max(minRowCount, dataRowCount, hwmRowIndex+1, focusCell ? focusCell[0]+1 : 0);
+  const rowMapping = data.getRowItemOffsetMapping(snapshot);
   const rowOffset = rowMapping.itemOffset(rowCount);
   const dataColumnCount = data.getColumnCount(snapshot);
   const columnCount = Math.max(minColumnCount, dataColumnCount, hwmColumnIndex+1, focusCell ? focusCell[1]+1 : 0);
+  const columnMapping = data.getColumnItemOffsetMapping(snapshot);
   const columnOffset = columnMapping.itemOffset(columnCount);
 
   React.useEffect(() => {

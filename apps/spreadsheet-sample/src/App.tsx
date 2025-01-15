@@ -11,7 +11,6 @@ export function App() {
     data={data}
     theme={theme}
     height={300}
-    minColumnCount={0}
     width={600}>
   </VirtualSpreadsheet>
   )

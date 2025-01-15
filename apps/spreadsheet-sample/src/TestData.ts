@@ -1,7 +1,7 @@
-import { SpreadsheetData, CellValue, rowColCoordsToRef } from '@candidstartup/react-spreadsheet';
+import { EmptySpreadsheetData, CellValue, rowColCoordsToRef } from '@candidstartup/react-spreadsheet';
 
-export class TestData implements SpreadsheetData<number> {
-  constructor() { this.count = 100; }
+export class TestData extends EmptySpreadsheetData {
+  constructor() { super(); this.count = 100; }
 
   subscribe(onDataChange: () => void) {
     const intervalId = setInterval(() => { 

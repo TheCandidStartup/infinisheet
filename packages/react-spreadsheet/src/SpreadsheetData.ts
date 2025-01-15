@@ -1,3 +1,7 @@
+import type { ItemOffsetMapping } from "@candidstartup/react-virtual-scroll";
+export type { ItemOffsetMapping } from "@candidstartup/react-virtual-scroll";
+import { useFixedSizeItemOffsetMapping } from "@candidstartup/react-virtual-scroll";
+
 export type CellErrorValue = '#NULL!' | 
   '#DIV/0!' |
   '#VALUE!' |
@@ -23,18 +27,25 @@ export interface SpreadsheetData<Snapshot> {
   getSnapshot(): Snapshot,
 
   getRowCount(snapshot: Snapshot): number,
+  getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping,
   getColumnCount(snapshot: Snapshot): number,
+  getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping,
   getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
   getCellFormat(snapshot: Snapshot, row: number, column: number): string | undefined;
 }
+
+const rowItemOffsetMapping = useFixedSizeItemOffsetMapping(30);
+const columnItemOffsetMapping = useFixedSizeItemOffsetMapping(100);
 
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
   subscribe(_onDataChange: () => void) { return () => {}; }
   getSnapshot() { return 0; }
   
   getRowCount(_snapshot: number) { return 0; }
+  getRowItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return rowItemOffsetMapping; }
   getColumnCount(_snapshot: number) { return 0; }
-  getCellValue(_snapshot: number, _row: number, _column: number) { return null; }
-  getCellFormat(_snapshot: number, _row: number, _column: number) { return undefined; }
+  getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return columnItemOffsetMapping; }
+  getCellValue(_snapshot: number, _row: number, _column: number): CellValue { return null; }
+  getCellFormat(_snapshot: number, _row: number, _column: number): string|undefined { return undefined; }
 }
 
