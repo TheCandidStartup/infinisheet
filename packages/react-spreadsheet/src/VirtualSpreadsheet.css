@@ -8,6 +8,7 @@
 .VirtualSpreadsheet_Column {
   box-sizing: border-box;
   border-right: 1px solid lightgrey;
+  text-align: center;
 }
 
 .VirtualSpreadsheet_Column__Selected {
@@ -27,6 +28,7 @@
 .VirtualSpreadsheet_Row {
   box-sizing: border-box;
   border-bottom: 1px solid lightgrey;
+  text-align: center;
 }
 
 .VirtualSpreadsheet_Row__Selected {
@@ -53,6 +55,33 @@
   border-right: 1px solid lightgrey;
   border-bottom: 1px solid lightgrey;
   resize: none;
+}
+
+.VirtualSpreadsheet_Cell__Type_string {
+  text-align: left;
+  padding-left: 2px;
+}
+
+.VirtualSpreadsheet_Cell__Type_number {
+  text-align: right;
+  padding-right: 2px;
+}
+
+.VirtualSpreadsheet_Cell__Type_boolean {
+  text-align: center;
+}
+
+.VirtualSpreadsheet_Cell__Type_null {
+  text-align: center;
+}
+
+.VirtualSpreadsheet_Cell__Type_undefined {
+  text-align: center;
+  background-color: whitesmoke;
+}
+
+.VirtualSpreadsheet_Cell__Type_CellError {
+  text-align: center;
 }
 
 .VirtualSpreadsheet_Cell__RowSelected {

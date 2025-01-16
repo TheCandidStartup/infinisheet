@@ -3,7 +3,7 @@ import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScr
   getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
-import type { SpreadsheetData } from './SpreadsheetData'
+import type { SpreadsheetData, CellValue } from './SpreadsheetData'
 import { format as numfmtFormat } from 'numfmt'
 
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
@@ -85,8 +85,7 @@ const numfmtOptions = {
   dateSpanLarge: true
 }
 
-function formatContent<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snapshot, rowIndex: number, columnIndex: number): string {
-  const value = data.getCellValue(snapshot, rowIndex, columnIndex);
+function formatContent(value: CellValue, format: string | undefined): string {
   if (value === null ||  value === undefined)
     return "";
 
@@ -98,11 +97,23 @@ function formatContent<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snap
     return value.substring(1);
   }
 
-  let format = data.getCellFormat(snapshot, rowIndex, columnIndex);
   if (format === undefined)
     format = "";
 
   return numfmtFormat(format, value, numfmtOptions);
+}
+
+function classForType(value: CellValue) {
+  if (value === null)
+    return 'VirtualSpreadsheet_Cell__Type_null';
+  if (value === undefined)
+    return 'VirtualSpreadsheet_Cell__Type_undefined';
+
+  const type = typeof value;
+  if (type === 'object')
+    return 'VirtualSpreadsheet_Cell__Type_CellError';
+
+  return 'VirtualSpreadsheet_Cell__Type_' + type;
 }
 
 type HeaderItemRender = (index: number, style: React.CSSProperties) => JSX.Element;
@@ -350,11 +361,19 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   }
 
   const cellRender: CellRender = (rowIndex, columnIndex, style) => {
-    const value = (rowIndex < dataRowCount && columnIndex < dataColumnCount) ? formatContent(data, snapshot, rowIndex, columnIndex) : "";
+    let dataValue: CellValue = undefined;
+    let value:string = "";
+    if (rowIndex < dataRowCount && columnIndex < dataColumnCount) {
+      dataValue = data.getCellValue(snapshot, rowIndex, columnIndex);
+      const format = data.getCellFormat(snapshot, rowIndex, columnIndex);
+      value = formatContent(dataValue, format);
+    }
+
     const focused = focusCell && rowIndex == focusCell[0] && columnIndex == focusCell[1];
     const classNames = join(theme?.VirtualSpreadsheet_Cell,
       ifdef(rowSelected(rowIndex), theme?.VirtualSpreadsheet_Cell__RowSelected),
       ifdef(colSelected(columnIndex), theme?.VirtualSpreadsheet_Cell__ColumnSelected),
+      classForType(dataValue),
       ifdef(focused, theme?.VirtualSpreadsheet_Cell__Focus));
 
     return <div className={classNames} style={style}>
