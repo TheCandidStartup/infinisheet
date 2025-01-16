@@ -32,6 +32,7 @@ export interface SpreadsheetData<Snapshot> {
   getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping,
   getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
   getCellFormat(snapshot: Snapshot, row: number, column: number): string | undefined;
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
 }
 
 const rowItemOffsetMapping = useFixedSizeItemOffsetMapping(30);
@@ -47,5 +48,6 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
   getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return columnItemOffsetMapping; }
   getCellValue(_snapshot: number, _row: number, _column: number): CellValue { return null; }
   getCellFormat(_snapshot: number, _row: number, _column: number): string|undefined { return undefined; }
+  setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): boolean { return false; }
 }
 

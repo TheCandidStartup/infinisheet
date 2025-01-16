@@ -1,4 +1,4 @@
-import { SpreadsheetData, CellValue } from '@candidstartup/react-spreadsheet';
+import { EmptySpreadsheetData, CellValue } from '@candidstartup/react-spreadsheet';
 import { ItemOffsetMapping, useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 import { dateToSerial } from 'numfmt'
 
@@ -7,8 +7,9 @@ const totalHeaderRow = [ "First", "Last", "Count", "Average", "Max", "Total", "M
 const columnMapping = useVariableSizeItemOffsetMapping(100, [160]);
 const rowMapping = useVariableSizeItemOffsetMapping(30, [50]);
 
-export class BoringData implements SpreadsheetData<number> {
+export class BoringData extends EmptySpreadsheetData {
   constructor() { 
+    super();
     this.count = 1000000;
     const now = new Date();
     const serialNow = dateToSerial(now) || 0;

@@ -44,6 +44,8 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
     getSnapshot(): number;
     // (undocumented)
+    setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): boolean;
+    // (undocumented)
     subscribe(_onDataChange: () => void): () => void;
 }
 
@@ -89,6 +91,8 @@ export interface SpreadsheetData<Snapshot> {
     getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
     // (undocumented)
     getSnapshot(): Snapshot;
+    // (undocumented)
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }
