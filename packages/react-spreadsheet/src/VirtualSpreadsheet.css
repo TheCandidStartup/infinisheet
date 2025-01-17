@@ -1,8 +1,27 @@
 /* Example global style sheet that works with default theme */
 
+.VirtualSpreadsheet_InputBar {
+  margin-bottom: 2px;
+}
+
+.VirtualSpreadsheet_Fx {
+  margin-left: 5px;
+  margin-right: 2px;
+  margin-top: auto;
+  margin-bottom: auto;
+  color: darkgrey;
+}
+
+.VirtualSpreadsheet_CornerHeader {
+  box-sizing: border-box;
+  border: 1px solid grey;
+  background-color: whitesmoke;
+}
+
 .VirtualSpreadsheet_ColumnHeader {
   box-sizing: border-box;
   border: 1px solid grey;
+  border-left: 1px solid transparent;
 }
 
 .VirtualSpreadsheet_Column {
@@ -23,6 +42,7 @@
 .VirtualSpreadsheet_RowHeader {
   box-sizing: border-box;
   border: 1px solid grey;
+  border-top: 1px solid transparent;
 }
 
 .VirtualSpreadsheet_Row {

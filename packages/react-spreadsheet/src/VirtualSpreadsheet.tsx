@@ -4,7 +4,7 @@ import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScr
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
 import type { SpreadsheetData, CellValue } from './SpreadsheetData'
-import { format as numfmtFormat } from 'numfmt'
+import * as numfmt from 'numfmt'
 
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
   getServerSnapshot?: () => Snapshot
@@ -100,7 +100,7 @@ function formatContent(value: CellValue, format: string | undefined): string {
   if (format === undefined)
     format = "";
 
-  return numfmtFormat(format, value, numfmtOptions);
+  return numfmt.format(format, value, numfmtOptions);
 }
 
 function classForType(value: CellValue) {
@@ -139,6 +139,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   const snapshot = React.useSyncExternalStore<Snapshot>(subscribeFn, data.getSnapshot.bind(data), data.getServerSnapshot?.bind(data));
 
   const [name, setName] = React.useState("");
+  const [formula, setFormula] = React.useState("");
   const [hwmRowIndex, setHwmRowIndex] = React.useState(0);
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
@@ -185,11 +186,27 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     setGridScrollState([rowOffsetValue, columnOffsetValue]);
   }
 
+  function updateFormula(rowIndex: number, colIndex: number) {
+    if (rowIndex < dataRowCount && colIndex < dataColumnCount) {
+      const dataValue = data.getCellValue(snapshot, rowIndex, colIndex);
+      const format = data.getCellFormat(snapshot, rowIndex, colIndex);
+      const value = formatContent(dataValue, format);
+      setFormula(value);
+    } else {
+      setFormula("");
+    }
+  }
+
   function updateFocus(row: number|undefined, col: number|undefined) {
-    if (row === undefined && col === undefined)
+    if (row === undefined && col === undefined) {
       setFocusCell(null);
-    else
-      setFocusCell([row ? row : 0, col ? col : 0])
+      setFormula("");
+    } else {
+      const rowIndex = row ? row : 0;
+      const colIndex = col ? col : 0;
+      setFocusCell([rowIndex, colIndex]);
+      updateFormula(rowIndex, colIndex);
+    }
   }
 
   function updateSelection(row: number|undefined, col: number|undefined) {
@@ -252,6 +269,35 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
 
     const [row, col] = rowColRefToCoords(name);
     focusTo(row,col);
+  }
+
+  function onFormulaKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (!focusCell)
+      return;
+
+    const rowIndex = focusCell[0];
+    const colIndex = focusCell[1];
+
+    if (event.key === 'Escape') {
+      updateFormula(rowIndex, colIndex);
+    }
+
+    if (event.key !== 'Enter')
+      return; 
+
+    let value: CellValue = undefined;
+    let format: string | undefined = undefined;
+    const parseData =  numfmt.parseValue(formula);
+    if (parseData) {
+      // number or boolean
+      value = parseData.v;
+      format = parseData.z;
+    } else {
+      // string
+      value = formula;
+    }
+
+    data.setCellValueAndFormat(rowIndex, colIndex, value, format);
   }
 
   function colSelected(index: number) { return (selection[0] == undefined && selection[1] == index) }
@@ -382,25 +428,34 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
   };
 
   return (
-    <div className={join(props.className, theme?.VirtualSpreadsheet)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "50px 50px 1fr"}}>
-      <div className={theme?.VirtualSpreadsheet_Name} style={{gridColumnStart: 1, gridColumnEnd: 3}}>
-      <label>
-        Scroll To Row, Column or Cell: 
-        <input
+    <div className={join(props.className, theme?.VirtualSpreadsheet)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "30px 50px 1fr"}}>
+      <div className={theme?.VirtualSpreadsheet_InputBar} style={{display: "flex", gridColumnStart: 1, gridColumnEnd: 3}}>
+        <input className={theme?.VirtualSpreadsheet_Name}
           type={"text"}
           name={"name"}
           title={"Name"}
           value={name}
-          height={200}
+          size={20}
           onChange={(event) => {
             setName(event.target?.value);
           }}
           onKeyUp={onNameKeyUp}
         />
-      </label>
+        <label className={theme?.VirtualSpreadsheet_Fx}>fx</label>
+        <input className={theme?.VirtualSpreadsheet_Formula}
+          style={{flexGrow: 1}}
+          type={"text"}
+          name={"formula"}
+          title={"Formula"}
+          value={formula}
+          onChange={(event) => {
+            setFormula(event.target?.value);
+          }}
+          onKeyUp={onFormulaKeyUp}
+        />
       </div>
 
-      <div></div>
+      <div className={theme?.VirtualSpreadsheet_CornerHeader}></div>
 
       <DisplayList
         offset={gridColumnOffset}

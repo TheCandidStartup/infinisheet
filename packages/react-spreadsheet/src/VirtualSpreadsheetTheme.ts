@@ -4,9 +4,12 @@
  */
 export interface VirtualSpreadsheetTheme {
   VirtualSpreadsheet: string,
+  VirtualSpreadsheet_InputBar: string,
   VirtualSpreadsheet_Name: string,
+  VirtualSpreadsheet_Fx: string,
   VirtualSpreadsheet_Formula: string,
   VirtualSpreadsheet_Grid: string,
+  VirtualSpreadsheet_CornerHeader: string,
   VirtualSpreadsheet_ColumnHeader: string,
   VirtualSpreadsheet_Column: string,
   VirtualSpreadsheet_Column__Selected: string,
@@ -29,9 +32,12 @@ export interface VirtualSpreadsheetTheme {
 
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
   VirtualSpreadsheet: "VirtualSpreadsheet",
+  VirtualSpreadsheet_InputBar: "VirtualSpreadsheet_InputBar",
   VirtualSpreadsheet_Name: "VirtualSpreadsheet_Name",
+  VirtualSpreadsheet_Fx: "VirtualSpreadsheet_Fx",
   VirtualSpreadsheet_Formula: "VirtualSpreadsheet_Formula",
   VirtualSpreadsheet_Grid: "VirtualSpreadsheet_Grid",
+  VirtualSpreadsheet_CornerHeader: "VirtualSpreadsheet_CornerHeader",
   VirtualSpreadsheet_ColumnHeader: "VirtualSpreadsheet_ColumnHeader",
   VirtualSpreadsheet_Column: "VirtualSpreadsheet_Column",
   VirtualSpreadsheet_Column__Selected: "VirtualSpreadsheet_Column__Selected",
