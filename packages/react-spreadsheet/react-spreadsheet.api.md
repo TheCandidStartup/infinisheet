@@ -152,9 +152,15 @@ export interface VirtualSpreadsheetTheme {
     // (undocumented)
     VirtualSpreadsheet_ColumnHeader: string;
     // (undocumented)
+    VirtualSpreadsheet_CornerHeader: string;
+    // (undocumented)
     VirtualSpreadsheet_Formula: string;
     // (undocumented)
+    VirtualSpreadsheet_Fx: string;
+    // (undocumented)
     VirtualSpreadsheet_Grid: string;
+    // (undocumented)
+    VirtualSpreadsheet_InputBar: string;
     // (undocumented)
     VirtualSpreadsheet_Name: string;
     // (undocumented)
