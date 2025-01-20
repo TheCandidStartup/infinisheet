@@ -140,6 +140,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
 
   const [name, setName] = React.useState("");
   const [formula, setFormula] = React.useState("");
+  const [cellValue, setCellValue] = React.useState("");
+  const [editMode, setEditMode] = React.useState(false);
   const [hwmRowIndex, setHwmRowIndex] = React.useState(0);
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
@@ -186,33 +188,51 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     setGridScrollState([rowOffsetValue, columnOffsetValue]);
   }
 
-  function updateFormula(rowIndex: number, colIndex: number) {
+  function updateFormula(rowIndex: number, colIndex: number, editMode: boolean) {
     if (rowIndex < dataRowCount && colIndex < dataColumnCount) {
       const dataValue = data.getCellValue(snapshot, rowIndex, colIndex);
       const format = data.getCellFormat(snapshot, rowIndex, colIndex);
       const value = formatContent(dataValue, format);
       setFormula(value);
+      setCellValue(editMode ? value : "");
     } else {
       setFormula("");
+      setCellValue("");
     }
   }
 
-  function updateFocus(row: number|undefined, col: number|undefined) {
-    if (row === undefined && col === undefined) {
-      setFocusCell(null);
-      setFormula("");
-    } else {
-      const rowIndex = row ? row : 0;
-      const colIndex = col ? col : 0;
-      setFocusCell([rowIndex, colIndex]);
-      updateFormula(rowIndex, colIndex);
+  function updateFocus(rowIndex: number, colIndex: number) {
+    if (!focusCell || rowIndex != focusCell[0] || colIndex != focusCell[1]) {
+      // Reset formula and edit mode only if the focus cell is changing
+      updateFormula(rowIndex, colIndex, false);
+      setEditMode(false);
     }
+
+    // We use change of focusCell state to trigger effect that gives focus to the focus sink
+    // Make sure we always change state, even if focus cell hasn't changed. Any click in grid
+    // removes focus from focus sink. Need to make sure it's always given back, even if user
+    // clicked on focus cell again. 
+    setFocusCell([rowIndex, colIndex]);
   }
 
   function updateSelection(row: number|undefined, col: number|undefined) {
-    setSelection([row,col]);
-    setName(rowColCoordsToRef(row,col));
-    updateFocus(row, col);
+    if (row === undefined && col === undefined) {
+      // Clear out and bail if nothing selected
+      setFocusCell(null);
+      setFormula("");
+      setCellValue("");
+      setEditMode(false);
+      return;
+    }
+
+    if (row !== selection[0] || col !== selection[1]) {
+      setSelection([row,col]);
+      setName(rowColCoordsToRef(row,col));
+    }
+
+    const rowIndex = row ? row : 0;
+    const colIndex = col ? col : 0;
+    updateFocus(rowIndex, colIndex);
   }
 
   function ensureVisible(row: number|undefined, col: number|undefined) {
@@ -279,7 +299,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     const colIndex = focusCell[1];
 
     if (event.key === 'Escape') {
-      updateFormula(rowIndex, colIndex);
+      updateFormula(rowIndex, colIndex, true);
+      setEditMode(false);
     }
 
     if (event.key !== 'Enter')
@@ -378,17 +399,24 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={focusSinkRef}
         className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus)}
         type={"text"}
+        value={cellValue}
+        onChange={(event) => {
+          setCellValue(event.target?.value);
+          setEditMode(true);
+          setFormula(event.target?.value);
+        }}
         onFocus={() => { ensureVisible(row,col) }}
         onBeforeInput={() => { ensureVisible(row,col) }}
         onKeyDown={(event) => {
           switch (event.key) {
-            case "ArrowDown": focusTo(row+1,col); event.preventDefault(); break;
-            case "ArrowUp": focusTo(row-1,col); event.preventDefault(); break;
-            case "ArrowLeft": focusTo(row,col-1); event.preventDefault(); break;
-            case "ArrowRight": focusTo(row,col+1); event.preventDefault(); break;
+            case "ArrowDown": if (!editMode) { focusTo(row+1,col); event.preventDefault(); } break;
+            case "ArrowUp": if (!editMode) { focusTo(row-1,col); event.preventDefault(); } break;
+            case "ArrowLeft": if (!editMode) { focusTo(row,col-1); event.preventDefault(); } break;
+            case "ArrowRight": if (!editMode) { focusTo(row,col+1); event.preventDefault(); } break;
+            case "Escape": if (editMode) { updateFormula(row,col, false); setEditMode(false); } break;
           }
         }}
-        style={{ zIndex: -1, position: "absolute", top: focusTop, height: focusHeight, left: focusLeft, width: focusWidth }}
+        style={{ zIndex: editMode ? 1 : -1, position: "absolute", top: focusTop, height: focusHeight, left: focusLeft, width: focusWidth }}
       />
     }
     return <div ref={ref}
@@ -399,6 +427,10 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         const [rowIndex] = rowMapping.offsetToItem(rowOffset);
         const [colIndex] = columnMapping.offsetToItem(colOffset);
         updateSelection(rowIndex,colIndex);
+      }} 
+      onDoubleClick={(_event) => {
+        setCellValue(formula);
+        setEditMode(true);
       }} 
       {...rest}>
       {children}
@@ -450,6 +482,14 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
           value={formula}
           onChange={(event) => {
             setFormula(event.target?.value);
+            if (focusCell)
+              setCellValue(event.target?.value);
+          }}
+          onFocus={() => {
+              if (focusCell) {
+                setCellValue(formula);
+                setEditMode(true);
+              }
           }}
           onKeyUp={onFormulaKeyUp}
         />

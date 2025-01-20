@@ -75,6 +75,7 @@
   border-right: 1px solid lightgrey;
   border-bottom: 1px solid lightgrey;
   resize: none;
+  background-color: white;
 }
 
 .VirtualSpreadsheet_Cell__Type_string {
@@ -114,7 +115,6 @@
 
 .VirtualSpreadsheet_Cell__Focus {
   border: 2px solid darkblue;
-  background-color: transparent;
 }
 
 .VirtualSpreadsheet_Cell__Focus:focus {
