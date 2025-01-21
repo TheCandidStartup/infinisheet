@@ -255,8 +255,17 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     }
   }
 
+  // Is cell in selected row or column?
+  function isInSelection(row: number|undefined, col: number|undefined): boolean {
+    if (row === undefined || col === undefined)
+      return false;
+
+    return (selection[0] === undefined && col === selection[1]) ||
+      (selection[1] === undefined && row === selection[0]);
+  }
+
   // Expands grid as needed for target cell
-  function focusTo(row: number|undefined, col: number|undefined) {
+  function selectItem(row: number|undefined, col: number|undefined, keepSelection?: boolean) {
     if (row !== undefined) {
       if (row < 0)
         return;
@@ -279,8 +288,39 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         setHwmColumnIndex(0);
     }
 
-    updateSelection(row,col);
+    // If desired and possible move focus within existing selection rather than changing selection
+    if (keepSelection && isInSelection(row,col)) {
+      const rowIndex = row ? row : 0;
+      const colIndex = col ? col : 0;
+      updateFocus(rowIndex, colIndex);
+    } else {
+      updateSelection(row,col);
+    }
     ensureVisible(row,col);
+  }
+
+  // Move on to next cell. 
+  // Moves within selected row or column. If none moves vertically if isVertical otherwise horizontally. 
+  // Move backwards (left/dup) if isBackwards, otherwise forwards
+  function nextCell(row: number, col: number, isVertical: boolean, isBackwards: boolean) {
+    if (selection[0] === undefined && selection[1] === undefined)
+      return;
+
+    const offset = isBackwards ? -1 : 1;
+
+    if (selection[0] === undefined) {
+      // Column selected - move vertically within existing selection
+      selectItem(row+offset, col, true);
+    } else if (selection[1] === undefined) {
+      // Row selected - move horizontally within existing selection
+      selectItem(row, col+offset, true);
+    } else {
+      // Cell selected
+      if (isVertical)
+        selectItem(row+offset,col);
+      else
+        selectItem(row,col+offset);
+    }
   }
 
   function onNameKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -288,24 +328,10 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       return;
 
     const [row, col] = rowColRefToCoords(name);
-    focusTo(row,col);
+    selectItem(row,col);
   }
 
-  function onFormulaKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (!focusCell)
-      return;
-
-    const rowIndex = focusCell[0];
-    const colIndex = focusCell[1];
-
-    if (event.key === 'Escape') {
-      updateFormula(rowIndex, colIndex, true);
-      setEditMode(false);
-    }
-
-    if (event.key !== 'Enter')
-      return; 
-
+  function CommitFormulaChange(rowIndex: number, colIndex: number) {
     let value: CellValue = undefined;
     let format: string | undefined = undefined;
     const parseData =  numfmt.parseValue(formula);
@@ -319,6 +345,60 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     }
 
     data.setCellValueAndFormat(rowIndex, colIndex, value, format);
+  }
+
+  // Used by both formula and focus sink input fields
+  function onEditValueKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (!focusCell)
+      return;
+
+    const row = focusCell[0];
+    const col = focusCell[1];
+
+    if (editMode) {
+      switch (event.key) {
+        case "Escape": { 
+          updateFormula(row, col, false); 
+          setEditMode(false); 
+          setFocusCell([row, col]); 
+        } 
+        break;
+
+        case "Enter": { 
+          CommitFormulaChange(row, col); 
+          updateFormula(row, col, false); 
+          setEditMode(false);
+          nextCell(row,col,true,event.shiftKey);
+        } 
+        break;
+
+        case "Tab": { 
+          CommitFormulaChange(row, col); 
+          updateFormula(row, col, false); 
+          setEditMode(false);
+          nextCell(row,col,false,event.shiftKey);
+          event.preventDefault();
+        } 
+        break;
+      }
+    } else {
+      switch (event.key) {
+        case "ArrowDown": { selectItem(row+1,col); event.preventDefault(); } break;
+        case "ArrowUp": { selectItem(row-1,col); event.preventDefault(); } break;
+        case "ArrowLeft": { selectItem(row,col-1); event.preventDefault(); } break;
+        case "ArrowRight": { selectItem(row,col+1); event.preventDefault(); } break;
+        case "Tab": { nextCell(row,col,false,event.shiftKey); event.preventDefault(); } break;
+        case "Enter": { 
+          if (isInSelection(row,col)) {
+            nextCell(row,col,true,event.shiftKey);
+          } else {
+            updateFormula(row, col, true); 
+            setEditMode(true);
+          }
+        } 
+        break;
+      }
+    }
   }
 
   function colSelected(index: number) { return (selection[0] == undefined && selection[1] == index) }
@@ -407,15 +487,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         }}
         onFocus={() => { ensureVisible(row,col) }}
         onBeforeInput={() => { ensureVisible(row,col) }}
-        onKeyDown={(event) => {
-          switch (event.key) {
-            case "ArrowDown": if (!editMode) { focusTo(row+1,col); event.preventDefault(); } break;
-            case "ArrowUp": if (!editMode) { focusTo(row-1,col); event.preventDefault(); } break;
-            case "ArrowLeft": if (!editMode) { focusTo(row,col-1); event.preventDefault(); } break;
-            case "ArrowRight": if (!editMode) { focusTo(row,col+1); event.preventDefault(); } break;
-            case "Escape": if (editMode) { updateFormula(row,col, false); setEditMode(false); } break;
-          }
-        }}
+        onKeyDown={onEditValueKeyDown}
         style={{ zIndex: editMode ? 1 : -1, position: "absolute", top: focusTop, height: focusHeight, left: focusLeft, width: focusWidth }}
       />
     }
@@ -482,6 +554,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
           value={formula}
           onChange={(event) => {
             setFormula(event.target?.value);
+            setEditMode(true);
             if (focusCell)
               setCellValue(event.target?.value);
           }}
@@ -491,7 +564,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
                 setEditMode(true);
               }
           }}
-          onKeyUp={onFormulaKeyUp}
+          onKeyDown={onEditValueKeyDown}
         />
       </div>
 
