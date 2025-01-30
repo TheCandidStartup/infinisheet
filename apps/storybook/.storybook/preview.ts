@@ -1,5 +1,7 @@
 import type { Preview } from "@storybook/react";
 
+import '@candidstartup/react-spreadsheet/VirtualSpreadsheet.css';
+
 const preview: Preview = {
   parameters: {
     controls: {
