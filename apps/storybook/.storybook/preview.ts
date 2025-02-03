@@ -10,6 +10,11 @@ const preview: Preview = {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
 
+    docs: {
+      //extractComponentDescription: (component) => { console.log("extractComponentDescription ", component); return null },
+      //extractArgTypes: (component) => { console.log("extractArgTypes ", component); return null }
+    },
+
     controls: {
       matchers: {
         color: /(background|color)$/i,

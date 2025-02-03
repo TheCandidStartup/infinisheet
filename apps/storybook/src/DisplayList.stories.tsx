@@ -1,8 +1,7 @@
 import React from "react";
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 
-import { VirtualList, VirtualListProps } from '@candidstartup/react-virtual-scroll';
+import { DisplayList, DisplayListProps } from '@candidstartup/react-virtual-scroll';
 import { mappingVariableVertical, mappingFixedVertical, mappingFixedHorizontal, rewriteMapping } from './mapping';
 
 const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
@@ -17,13 +16,13 @@ const Column = ({ index, style }: { index: number, style: React.CSSProperties })
   </div>
 );
 
-const meta: Meta<VirtualListProps> = {
-  title: 'react-virtual-scroll/VirtualList',
-  component: VirtualList,
+const meta: Meta<DisplayListProps> = {
+  title: 'react-virtual-scroll/DisplayList',
+  component: DisplayList,
   render: ( {layout, children: _children, itemOffsetMapping, ...args}) => (
-    <VirtualList layout={layout} itemOffsetMapping={rewriteMapping(itemOffsetMapping, layout)}{...args}>
+    <DisplayList layout={layout} itemOffsetMapping={rewriteMapping(itemOffsetMapping, layout)}{...args}>
       {layout === 'horizontal' ? Column : Row}
-    </VirtualList>
+    </DisplayList>
   ),
   argTypes: {
     itemOffsetMapping: {
@@ -34,8 +33,6 @@ const meta: Meta<VirtualListProps> = {
       }
     }
   },
-  // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
-  args: { onScroll: fn() },
 };
 
 export default meta;
@@ -44,33 +41,51 @@ type Story = StoryObj<typeof meta>;
 export const Vertical: Story = {
   args: {
     className: 'VirtualSpreadsheet_CornerHeader',
-    children: Row,
+    offset: 0,
+    layout: 'vertical',
     itemCount: 100,
     itemOffsetMapping: mappingVariableVertical,
     width: 600,
     height: 240,
+    children: Row,
+  },
+};
+
+export const NegativeOffset: Story = {
+  args: {
+    className: 'VirtualSpreadsheet_CornerHeader',
+    offset: -80,
+    layout: 'vertical',
+    itemCount: 100,
+    itemOffsetMapping: mappingVariableVertical,
+    width: 600,
+    height: 240,
+    children: Row,
+  },
+};
+
+export const PositiveOffset: Story = {
+  args: {
+    className: 'VirtualSpreadsheet_CornerHeader',
+    offset: 2820,
+    layout: 'vertical',
+    itemCount: 100,
+    itemOffsetMapping: mappingVariableVertical,
+    width: 600,
+    height: 240,
+    children: Row,
   },
 };
 
 export const Horizontal: Story = {
   args: {
     className: 'VirtualSpreadsheet_CornerHeader',
+    offset: 0,
     layout: 'horizontal',
     children: Column,
     itemCount: 100,
     itemOffsetMapping: mappingFixedHorizontal,
     width: 600,
     height: 50,
-  },
-};
-
-export const TrillionRows: Story = {
-  args: {
-    className: 'VirtualSpreadsheet_CornerHeader',
-    children: Row,
-    itemCount: 1000000000,
-    itemOffsetMapping: mappingVariableVertical,
-    width: 600,
-    height: 240,
   },
 };
