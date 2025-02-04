@@ -24,16 +24,19 @@ export interface VirtualContentProps {
 }
 
 /**
- * Render prop for content container in {@link VirtualScroll}
+ * Render prop for content in {@link VirtualScroll}
  *
- * Pass to {@link VirtualScroll} to render content into the viewport
- * implementation. Function must render a div and forward {@link VirtualContentProps}
- * and any `ref` to it. 
+ * Pass as child to {@link VirtualScroll} to render content and forward {@link VirtualContentProps}
+ * to whatever needs them. 
  * 
- * @example Minimal compliant implementation
+ * @example Simple implementation
  * ```
- * const contentRender: VirtualContentRender = ({isScrolling, ...rest}, ref) => (
- *   <div ref={ref} {...rest} />
+ * const contentRender: VirtualContentRender = ({isScrolling, verticalOffset, horizontalOffset}) => (
+ *   <DisplayGrid
+ *     isScrolling={isScrolling}
+ *     rowOffset={verticalOffset}
+ *     columnOffset={horizontalOffset}
+ *     {...rest}/>
  * )
  * ```
  */
@@ -91,7 +94,7 @@ export interface VirtualScrollProps extends VirtualScrollableProps {
  * Customizable Virtual Scrolling Component
  * 
  * Allows user to scroll over a virtual area `scrollHeight` x `scrollWidth` pixels. 
- * Use `onScroll` to track scroll state and `innerRender` to render scroll state specific content into the viewport
+ * Use `onScroll` to track scroll state and {@link VirtualContentRender} to render scroll state specific content into the viewport
  * 
  * Accepts props defined by {@link VirtualScrollProps}. 
  * Refs are forwarded to {@link VirtualScrollProxy}. 

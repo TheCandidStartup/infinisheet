@@ -1,6 +1,4 @@
-//import React from "react";
 import type { Meta, StoryObj } from '@storybook/react';
-//import { fn } from '@storybook/test';
 
 import { AutoSizer, AutoSizerProps } from '@candidstartup/react-virtual-scroll';
 
@@ -53,6 +51,5 @@ type Story = StoryObj<typeof meta>;
 
 export const FullScreen: Story = {
   args: {
-    //className: 'VirtualSpreadsheet_CornerHeader',
   },
 };
