@@ -3,11 +3,17 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { DisplayGrid, DisplayGridProps } from '@candidstartup/react-virtual-scroll';
 import { mappingVariableVertical, mappingFixedVertical, mappingVariableHorizontal, mappingFixedHorizontal } from './mapping';
 
-  const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
-    <div className={ rowIndex == 0 ? "VirtualSpreadsheet_Cell VirtualSpreadsheet_Cell__RowSelected" : "VirtualSpreadsheet_Cell" } style={style}>
-      { (rowIndex == 0) ? `${columnIndex}` : `${rowIndex}:${columnIndex}` }
-    </div>
-  );
+function cellClassName(rowIndex: number): string {
+  return rowIndex == 0 
+    ? "VirtualSpreadsheet_Row VirtualSpreadsheet_Row__Selected VirtualSpreadsheet_Cell__Type_boolean" : 
+      "VirtualSpreadsheet_Cell VirtualSpreadsheet_Cell__Type_boolean";
+}
+
+const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
+  <div className={ cellClassName(rowIndex) } style={style}>
+    { (rowIndex == 0) ? `${columnIndex}` : `${rowIndex}:${columnIndex}` }
+  </div>
+);
 
 const meta: Meta<DisplayGridProps> = {
   title: 'react-virtual-scroll/DisplayGrid',

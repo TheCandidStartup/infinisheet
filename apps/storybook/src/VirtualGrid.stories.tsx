@@ -9,8 +9,8 @@ const mappingWideHorizontal = useFixedSizeItemOffsetMapping(160);
 
 function cellClassName(rowIndex: number, isScrolling?: boolean): string {
   return rowIndex == 0 
-    ? "VirtualSpreadsheet_Cell VirtualSpreadsheet_Cell__RowSelected" : 
-    ( isScrolling ? "VirtualSpreadsheet_Cell VirtualSpreadsheet_Cell__Type_undefined" : "VirtualSpreadsheet_Cell" );
+    ? "VirtualSpreadsheet_Row VirtualSpreadsheet_Row__Selected VirtualSpreadsheet_Cell__Type_boolean" : 
+    ( isScrolling ? "VirtualSpreadsheet_Cell VirtualSpreadsheet_Cell__Type_undefined" : "VirtualSpreadsheet_Cell VirtualSpreadsheet_Cell__Type_boolean" );
 }
 
 const Cell = ({ rowIndex, columnIndex, isScrolling, style }: { rowIndex: number, columnIndex: number, isScrolling?: boolean, style: React.CSSProperties }) => (
@@ -70,6 +70,19 @@ export const TrillionSquare: Story = {
     columnCount: 1000000000,
     rowOffsetMapping: mappingVariableVertical,
     columnOffsetMapping: mappingWideHorizontal,
+    width: 600,
+    height: 240
+  },
+};
+
+export const UseIsScrolling: Story = {
+  args: {
+    useIsScrolling: true,
+    className: 'VirtualSpreadsheet_CornerHeader',
+    rowCount: 100,
+    columnCount: 100,
+    rowOffsetMapping: mappingVariableVertical,
+    columnOffsetMapping: mappingFixedHorizontal,
     width: 600,
     height: 240
   },
