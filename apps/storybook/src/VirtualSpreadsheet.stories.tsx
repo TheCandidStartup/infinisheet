@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { userEvent, within, expect } from '@storybook/test';
 
 import { VirtualSpreadsheet, VirtualSpreadsheetProps, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
 import { EmptySpreadsheetData } from '@candidstartup/react-spreadsheet';
@@ -14,6 +15,13 @@ const cellNameData = new CellRefData;
 const meta: Meta<VirtualSpreadsheetProps<number>> = {
   title: 'react-spreadsheet/VirtualSpreadsheet',
   component: VirtualSpreadsheet,
+  parameters: {
+    docs: {
+      story: {
+        autoplay: true
+      }
+    }
+  },
   argTypes: {
     theme: {
       options: ['Default'],
@@ -70,4 +78,52 @@ export const CellNamesData: Story = {
     width: 600,
     height: 300,
   },
+};
+
+export const RowSelected: Story = {
+  args: {
+    theme: theme,
+    data: testData,
+    width: 600,
+    height: 300,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = canvas.getByText("3");
+    await userEvent.click(row);
+    const name = canvas.getByTitle("Name");
+    await expect(name).toHaveProperty('value', "3");
+  }
+};
+
+export const ColumnSelected: Story = {
+  args: {
+    theme: theme,
+    data: testData,
+    width: 600,
+    height: 300,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = canvas.getByText("C");
+    await userEvent.click(row);
+    const name = canvas.getByTitle("Name");
+    await expect(name).toHaveProperty('value', "C");
+  }
+};
+
+export const CellSelected: Story = {
+  args: {
+    theme: theme,
+    data: testData,
+    width: 600,
+    height: 300,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = canvas.getByText("1899-12-22");
+    await userEvent.click(row);
+    const name = canvas.getByTitle("Name");
+    await expect(name).toHaveProperty('value', "C3");
+  }
 };
