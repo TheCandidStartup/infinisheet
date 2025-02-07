@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/react";
-
 import '@candidstartup/react-spreadsheet/VirtualSpreadsheet.css';
+import { extractArgTypes, extractComponentDescription } from '../src/extract';
 
 const preview: Preview = {
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
@@ -11,8 +11,8 @@ const preview: Preview = {
     layout: 'centered',
 
     docs: {
-      //extractComponentDescription: (component) => { console.log("extractComponentDescription ", component); return null },
-      //extractArgTypes: (component) => { console.log("extractArgTypes ", component); return null }
+      extractComponentDescription,
+      extractArgTypes,
     },
 
     controls: {
