@@ -2,9 +2,12 @@ import type { StrictArgTypes, SBType } from 'storybook/internal/types';
 import type { ArgTypesExtractor, Component } from 'storybook/internal/docs-tools';
 import { extractComponentProps, extractComponentDescription as baseExtractComponentDescription} from 'storybook/internal/docs-tools';
 
-export const extractComponentDescription = (component: Component) => { 
+export const extractComponentDescription = (component: Component): string => { 
   const description = baseExtractComponentDescription(component);
-  return description;
+
+  const noGroup = description.replace(/\n\s*@group\s+([^\n`]+)(\n|$)/, "");
+
+  return noGroup;
 };
 
 export const extractArgTypes: ArgTypesExtractor = (component) => {
@@ -21,10 +24,9 @@ export const extractArgTypes: ArgTypesExtractor = (component) => {
       type = { summary: sbType.name, detail: sbType.raw };
 
     const result = prop.docgenInfo.description.match(/\n\s*@defaultValue\s+`*([^\n`]+)`*(\n|$)/);
-    console.log("Result", result);
     if (result) {
       const value = result[1];
-      if (value.length > 10 && sbType.name) {
+      if (value.length > 15 && sbType.name) {
         defaultValue = { summary: sbType.name, detail: value }
       } else {
         defaultValue = { summary: value }
