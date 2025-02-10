@@ -39,10 +39,7 @@ export interface VirtualGridProps extends VirtualBaseProps {
 
   /**
    * Function that defines the key to use for each item given row and column index and value of {@link VirtualBaseProps.itemData}.
-   * @defaultValue
-   * ```ts
-   * (rowIndex, columnIndex, _data) => `${rowIndex}:${columnIndex}`
-   * ```
+   * @defaultValue `(rowIndex, columnIndex, _data) => '${rowIndex}:${columnIndex}'`
    */
   itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React.Key,
 
