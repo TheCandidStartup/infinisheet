@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "typecheck": "tsc -p tsconfig.json",
-    "build": "storybook build -o dist",
+    "build": "storybook build -o dist && storybook build -o dist/test --test",
     "preview": "vite preview --port 6006",
     "playwright": "npx playwright test",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
