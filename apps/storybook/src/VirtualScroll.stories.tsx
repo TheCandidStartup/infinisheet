@@ -100,8 +100,8 @@ export const Vertical: Story = {
     className: 'VirtualSpreadsheet_CornerHeader',
     scrollHeight: 10000,
     useIsScrolling: true,
-    width: 600,
-    height: 200
+    width: 200,
+    height: 300
   },
 };
 

@@ -134,8 +134,8 @@ export const Vertical: Story = {
     children: Row,
     itemCount: 100,
     itemOffsetMapping: mappingVariableVertical,
-    width: 600,
-    height: 240,
+    width: 150,
+    height: 300,
   },
 };
 

@@ -1,0 +1,15 @@
+import { Meta, Story, Canvas } from '@storybook/blocks';
+
+import * as Stories from './VirtualSpreadsheet.stories';
+
+<Meta title="react-spreadsheet"/>
+
+[The Candid Startup](https://thecandidstartup.org) > [Projects](https://www.thecandidstartup.org/projects.html) > [React Spreadsheet](https://www.thecandidstartup.org/topics/react-spreadsheet.html) > Storybook
+
+# React Spreadsheet
+
+[GitHub](https://github.com/TheCandidStartup/infinisheet/tree/main/packages/react-spreadsheet) | [API](https://www.thecandidstartup.org/infinisheet/modules/_candidstartup_react_spreadsheet.html)
+
+The Infinisheet apps all use react-spreadsheet for their main UI. This package contains the [VirtualSpreadsheet](?path=/docs/react-spreadsheet-virtualspreadsheet--docs) component built on [react-virtual-scroll](?path=/docs/react-virtual-scroll--docs). It implements the classic Spreadsheet UI we all know and love. The component retrieves the data needed to render the spreadsheet on demand, using the `SpreadsheetData` interface.
+
+<Canvas of={Stories.TestData}/>
