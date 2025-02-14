@@ -20,3 +20,5 @@ This documentation is [automatically generated](https://github.com/TheCandidStar
 # Packages
 
 * {@link @candidstartup/react-virtual-scroll! | react-virtual-scroll}: Modern React components for lists and grids that scale to trillions of rows and columns
+* {@link @candidstartup/react-spreadsheet! | react-spreadsheet}: Scalable spreadsheet frontend built on `react-virtual-scroll`
+* [storybook](/storybook/): Storybook showcasing `react-virtual-scroll` and `react-spreadsheet` components

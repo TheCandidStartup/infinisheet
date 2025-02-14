@@ -97,7 +97,7 @@ export interface SpreadsheetData<Snapshot> {
     subscribe(onDataChange: () => void): () => void;
 }
 
-// @public (undocumented)
+// @public
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>): react_jsx_runtime.JSX.Element;
 
 // @public (undocumented)

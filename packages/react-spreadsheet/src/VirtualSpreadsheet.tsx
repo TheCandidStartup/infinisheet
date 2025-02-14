@@ -158,6 +158,13 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
   return cellRender(rowIndex, columnIndex, style);
 }
 
+/**
+ * Virtual Spreadsheet
+ * 
+ * Accepts props defined by {@link VirtualSpreadsheetProps}. 
+ * You must pass an instance of {@link SpreadsheetData} using the `data` prop. 
+ * @group Components
+ */
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
   const { width, height, theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const scrollRef = React.useRef<VirtualScrollProxy>(null);

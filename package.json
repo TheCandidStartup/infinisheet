@@ -13,6 +13,8 @@
     "lerna-prodapi": "npx lerna run prodapi",
     "lerna-test": "npx lerna run test -- --run --coverage",
     "lerna-playwright": "PROD=true npx lerna run playwright",
+    "build-docs": "npx typedoc && npm run build-docs --workspace=@candidstartup/storybook",
+    "preview-docs": "vite preview --outDir temp",
     "prodbuild": "npm run lerna-typecheck && npm run lerna-build && npm run lerna-lint && npm run lerna-prodapi && npm run lerna-test && npm run lerna-playwright",
     "lerna-version": "npx lerna version --conventional-commits",
     "lerna-publish": "npx lerna publish from-package --yes",

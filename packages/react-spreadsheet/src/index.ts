@@ -1,7 +1,12 @@
 /**
- * Placeholder Stub Package Documentation
+ * Scalable Spreadsheet Frontend
  *
- * Cross Package Link to  {@link @candidstartup/react-virtual-scroll!VirtualList | VirtualList} in {@link @candidstartup/react-virtual-scroll!}
+ * @remarks
+ * Written in TypeScript using modern React. Scalable to trillions of rows and columns.
+ * 
+ * Defines the {@link VirtualSpreadsheet} component that displays data defined using the {@link SpreadsheetData} interface.
+ * Built using {@link @candidstartup/react-virtual-scroll! | react-virtual-scroll} components.
+ *
  * @packageDocumentation
  */
 export * from './SpreadsheetData'

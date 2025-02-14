@@ -10,6 +10,7 @@
     "dev": "storybook dev -p 6006",
     "typecheck": "tsc -p tsconfig.json",
     "build": "storybook build -o dist && storybook build -o dist/test --test",
+    "build-docs": "storybook build -o ../../temp/storybook",
     "preview": "vite preview --port 6006",
     "playwright": "npx playwright test",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
