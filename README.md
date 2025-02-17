@@ -17,10 +17,13 @@ This is a [Lerna](https://lerna.js.org/) based monorepo. The primary tooling is 
 ## Packages
 
 * [react-virtual-scroll](./packages/react-virtual-scroll): Modern React components for lists and grids that scale to trillions of rows and columns
+* [react-spreadsheet](./packages/react-spreadsheet): Scalable spreadsheet frontend built on `react-virtual-scroll`
 
 ## Apps
 
-* [virtual-scroll-samples](./apps/virtual-scroll-samples): Test app for react-virtual-scroll package
+* [virtual-scroll-samples](./apps/virtual-scroll-samples): Test app for `react-virtual-scroll` package
+* [spreadsheet-sample](./apps/virtual-scroll-samples): Test app for `react-spreadsheet` package
+* [storybook](./apps/storybook): Storybook showcasing `react-virtual-scroll` and `react-spreadsheet` components
 
 # Build
 

@@ -49,12 +49,12 @@ const list = React.useRef(null);
 </VirtualList>
 ```
 
-Check out the [full sample](https://github.com/TheCandidStartup/infinisheet/tree/main/packages/react-virtual-scroll/sandboxes/trillion-row-list) or [try it out on CodeSandbox](https://codesandbox.io/p/sandbox/github/TheCandidStartup/infinisheet/main/packages/react-virtual-scroll/sandboxes/trillion-row-list?file=%2Findex.js)
+Check out the [full sample](https://github.com/TheCandidStartup/infinisheet/tree/main/packages/react-virtual-scroll/sandboxes/trillion-row-list) or [try it out on Storybook](https://www.thecandidstartup.org/infinisheet/storybook/?path=/docs/react-virtual-scroll-virtuallist--docs)
 
 ## VirtualGrid Example
 
 ```jsx
-import { VirtualList, useVariableSizeItemOffsetMapping, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+import { VirtualGrid, useVariableSizeItemOffsetMapping, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 const rowMapping = useVariableSizeItemOffsetMapping(30, [50]);
 const columnMapping = useFixedSizeItemOffsetMapping(280);
@@ -74,7 +74,7 @@ const grid = React.useRef(null);
 </VirtualGrid> 
 ```
 
-Check out the [full sample](https://github.com/TheCandidStartup/infinisheet/tree/main/packages/react-virtual-scroll/sandboxes/trillion-square-grid) or [try it out on CodeSandbox](https://codesandbox.io/p/sandbox/github/TheCandidStartup/infinisheet/main/packages/react-virtual-scroll/sandboxes/trillion-square-grid?file=%2Findex.js)
+Check out the [full sample](https://github.com/TheCandidStartup/infinisheet/tree/main/packages/react-virtual-scroll/sandboxes/trillion-square-grid) or [try it out on Storybook](https://www.thecandidstartup.org/infinisheet/storybook/?path=/docs/react-virtual-scroll-virtualgrid--docs)
 
 # More
 
