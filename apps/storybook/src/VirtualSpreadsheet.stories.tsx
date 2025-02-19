@@ -48,8 +48,8 @@ export const Empty: Story = {
   args: {
     theme: theme,
     data: emptySpreadsheet,
-    width: 600,
-    height: 300,
+    width: 700,
+    height: 380,
   },
 };
 
@@ -57,8 +57,8 @@ export const BoringData: Story = {
   args: {
     theme: theme,
     data: boringData,
-    width: 600,
-    height: 300,
+    width: 700,
+    height: 380,
   },
 };
 
@@ -66,8 +66,8 @@ export const TestData: Story = {
   args: {
     theme: theme,
     data: testData,
-    width: 600,
-    height: 300,
+    width: 700,
+    height: 380,
   },
 };
 
@@ -75,8 +75,8 @@ export const CellNamesData: Story = {
   args: {
     theme: theme,
     data: cellNameData,
-    width: 600,
-    height: 300,
+    width: 700,
+    height: 380,
   },
 };
 
@@ -84,8 +84,8 @@ export const RowSelected: Story = {
   args: {
     theme: theme,
     data: testData,
-    width: 600,
-    height: 300,
+    width: 700,
+    height: 380,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -100,8 +100,8 @@ export const ColumnSelected: Story = {
   args: {
     theme: theme,
     data: testData,
-    width: 600,
-    height: 300,
+    width: 700,
+    height: 380,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -116,8 +116,8 @@ export const CellSelected: Story = {
   args: {
     theme: theme,
     data: testData,
-    width: 600,
-    height: 300,
+    width: 700,
+    height: 380,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

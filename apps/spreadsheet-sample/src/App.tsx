@@ -10,8 +10,8 @@ export function App() {
     <VirtualSpreadsheet
     data={data}
     theme={theme}
-    height={300}
-    width={600}>
+    height={380}
+    width={700}>
   </VirtualSpreadsheet>
   )
 }
