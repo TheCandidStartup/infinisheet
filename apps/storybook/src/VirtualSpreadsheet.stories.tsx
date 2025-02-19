@@ -152,7 +152,7 @@ export const FullWidth: Story = {
       },
     },
   },
-  render: ( {width, height, ...args} ) => (
+  render: ( {width: _width, height, ...args} ) => (
     <AutoSizer style={{ width: '100%', height }}>
       {({width}) => (
         <VirtualSpreadsheet width={width} height={height} {...args}/>
@@ -198,7 +198,7 @@ export const FullScreen: Story = {
       },
     }
   },
-  render: ( {width, height, ...args} ) => (
+  render: ( {width: _width, height: _height, ...args} ) => (
     <AutoSizer style={{ width: '100%', height: '100vh' }}>
       {({width, height}) => (
         <VirtualSpreadsheet width={width} height={height} {...args}/>
