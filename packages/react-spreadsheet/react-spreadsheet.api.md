@@ -106,14 +106,17 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
 // @public
 export interface VirtualSpreadsheetProps<Snapshot> {
     className?: string;
+    columnHeaderHeight?: number;
     data: ReactSpreadsheetData<Snapshot>;
     height: number;
+    inputBarHeight?: number;
     maxColumnCount?: number;
     maxCssSize?: number;
     maxRowCount?: number;
     minColumnCount?: number;
     minNumPages?: number;
     minRowCount?: number;
+    rowHeaderWidth?: number;
     // (undocumented)
     theme?: VirtualSpreadsheetTheme | Record<string, string>;
     width: number;
