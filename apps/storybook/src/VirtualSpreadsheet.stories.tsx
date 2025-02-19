@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { userEvent, within, expect } from '@storybook/test';
 
 import { VirtualSpreadsheet, VirtualSpreadsheetProps, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
+import { AutoSizer } from '@candidstartup/react-virtual-scroll';
+
 import { EmptySpreadsheetData } from '@candidstartup/react-spreadsheet';
 import { BoringData as BoringDataType } from '../../spreadsheet-sample/src/BoringData';
 import { TestData as TestDataType } from '../../spreadsheet-sample/src/TestData';
@@ -127,3 +129,91 @@ export const CellSelected: Story = {
     await expect(name).toHaveProperty('value', "C3");
   }
 };
+
+// Auto-generated code (based on rendered JSX) can't show how child render function is used
+const fullWidthCode = `
+<AutoSizer style={{ width: '100%', height }}>
+  {({width}) => (
+    <VirtualSpreadsheet width={width} height={height} {...rest} }/>
+  )}
+</AutoSizer>`
+
+export const FullWidth: Story = {
+  args: {
+    theme: theme,
+    data: testData,
+    width: 0,
+    height: 500,
+  },
+  argTypes:{
+    width: {
+      table: {
+        disable: true
+      },
+    },
+  },
+  render: ( {width, height, ...args} ) => (
+    <AutoSizer style={{ width: '100%', height }}>
+      {({width}) => (
+        <VirtualSpreadsheet width={width} height={height} {...args}/>
+      )}
+    </AutoSizer>
+  ),
+  parameters: {
+    // Needed so that AutoSizer can use full width
+    layout: 'fullscreen',
+    docs: {
+      source: {
+        type: 'code',
+        code: fullWidthCode
+      }
+    }
+  },
+};
+
+// Auto-generated code (based on rendered JSX) can't show how child render function is used
+const fullScreenCode = `
+<AutoSizer style={{ width: '100%', height: '100%' }}>
+  {({width, height}) => (
+    <VirtualSpreadsheet width={width} height={height} {...rest} }/>
+  )}
+</AutoSizer>`
+
+export const FullScreen: Story = {
+  args: {
+    theme: theme,
+    data: testData,
+    width: 0,
+    height: 0,
+  },
+  argTypes:{
+    width: {
+      table: {
+        disable: true
+      },
+    },
+    height: {
+      table: {
+        disable: true
+      },
+    }
+  },
+  render: ( {width, height, ...args} ) => (
+    <AutoSizer style={{ width: '100%', height: '100vh' }}>
+      {({width, height}) => (
+        <VirtualSpreadsheet width={width} height={height} {...args}/>
+      )}
+    </AutoSizer>
+  ),
+  parameters: {
+    // Needed so that AutoSizer can use full width
+    layout: 'fullscreen',
+    docs: {
+      source: {
+        type: 'code',
+        code: fullScreenCode
+      }
+    }
+  },
+};
+
