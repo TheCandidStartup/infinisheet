@@ -25,6 +25,21 @@ export interface VirtualSpreadsheetProps<Snapshot> {
    /** Component width */
   width: number,
 
+  /** Height of input bar
+   * @defaultValue 30
+   */
+  inputBarHeight: number,
+
+  /** Height of column header
+   * @defaultValue 50
+   */
+  columnHeaderHeight: number,
+
+  /** Width of row header
+   * @defaultValue 100
+   */
+  rowHeaderWidth: number,
+
   /** Data to display and edit */
   data: ReactSpreadsheetData<Snapshot>,
 
@@ -166,7 +181,8 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
  * @group Components
  */
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
-  const { width, height, theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
+  const { width, height, inputBarHeight=30, columnHeaderHeight=50, rowHeaderWidth=100,
+    theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const scrollRef = React.useRef<VirtualScrollProxy>(null);
   const focusSinkRef = React.useRef<HTMLInputElement>(null);
 
@@ -568,8 +584,11 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
     </div>
   };
 
+  const columnTemplate = `${rowHeaderWidth}px 1fr`;
+  const rowTemplate = `${inputBarHeight}px ${columnHeaderHeight}px 1fr`;
   return (
-    <div className={join(props.className, theme?.VirtualSpreadsheet)} style={{display: "grid", gridTemplateColumns: "100px 1fr", gridTemplateRows: "30px 50px 1fr"}}>
+    <div className={join(props.className, theme?.VirtualSpreadsheet)} 
+        style={{display: "grid", gridTemplateColumns: columnTemplate, gridTemplateRows: rowTemplate}}>
       <div className={theme?.VirtualSpreadsheet_InputBar} style={{display: "flex", gridColumnStart: 1, gridColumnEnd: 3}}>
         <input className={theme?.VirtualSpreadsheet_Name}
           type={"text"}
@@ -612,7 +631,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         className={theme?.VirtualSpreadsheet_ColumnHeader}
         itemData={colRender}
         outerRender={colHeaderRender}
-        height={50}
+        height={columnHeaderHeight}
         itemCount={columnCount}
         itemOffsetMapping={columnMapping}
         layout={'horizontal'}
@@ -628,7 +647,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         height={props.height}
         itemCount={rowCount}
         itemOffsetMapping={rowMapping}
-        width={100}>
+        width={rowHeaderWidth}>
         {HeaderItem}
       </DisplayList>
 
