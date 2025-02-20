@@ -1,30 +1,9 @@
-import { ItemOffsetMapping } from './VirtualBase';
-
-class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
-  constructor (itemSize: number) {
-    this.fixedItemSize = itemSize;
-  }
-
-  itemSize(_itemIndex: number): number {
-    return this.fixedItemSize;
-  }
-
-  itemOffset(itemIndex: number): number {
-    return itemIndex * this.fixedItemSize;
-  }
-
-  offsetToItem(offset: number): [itemIndex: number, startOffset: number] {
-    const itemIndex = Math.floor(offset / this.fixedItemSize);
-    const startOffset = itemIndex * this.fixedItemSize;
-
-    return [itemIndex, startOffset];
-  }
-
-  fixedItemSize: number;
-}
+import { ItemOffsetMapping, FixedSizeItemOffsetMapping } from '@candidstartup/infinisheet-types';
+export type { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 
 /**
- * Returns an instance of {@link ItemOffsetMapping} suitable for use when all items have a fixed size.
+ * Returns an instance of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping}
+ * suitable for use when all items have a fixed size.
  * 
  * @param itemSize - Size to use for all items
  */

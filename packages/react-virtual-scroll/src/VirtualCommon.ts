@@ -1,4 +1,4 @@
-import type { ItemOffsetMapping } from "./VirtualBase";
+import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
 
 type RangeToRender = [
   startIndex: number,

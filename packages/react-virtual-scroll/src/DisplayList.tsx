@@ -1,5 +1,6 @@
 import React from "react";
-import { ItemOffsetMapping, ScrollLayout, DisplayBaseItemProps, DisplayBaseProps } from './VirtualBase';
+import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
+import { ScrollLayout, DisplayBaseItemProps, DisplayBaseProps } from './VirtualBase';
 import { getRangeToRender, getGridTemplate } from './VirtualCommon';
 import { VirtualContainer } from './VirtualContainer';
 
@@ -43,7 +44,8 @@ export interface DisplayListProps extends DisplayBaseProps {
   offset: number,
 
   /** 
-   * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each item in the list
+   * Implementation of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping} interface that
+   * defines size and offset to each item in the list
    * 
    * Use {@link useFixedSizeItemOffsetMapping} or {@link useVariableSizeItemOffsetMapping} to create implementations
    * for common cases.

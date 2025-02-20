@@ -1,5 +1,5 @@
-import type { ItemOffsetMapping } from "@candidstartup/react-virtual-scroll";
-export type { ItemOffsetMapping } from "@candidstartup/react-virtual-scroll";
+import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
+export type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
 import { useFixedSizeItemOffsetMapping } from "@candidstartup/react-virtual-scroll";
 
 export type CellErrorValue = '#NULL!' | 

@@ -4,7 +4,7 @@
 
 ```ts
 
-import { ItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 // @public (undocumented)

@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
-import { ItemOffsetMapping, DisplayBaseItemProps, DisplayBaseProps } from './VirtualBase';
+import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
+import { DisplayBaseItemProps, DisplayBaseProps } from './VirtualBase';
 import { getRangeToRender, getGridTemplate } from './VirtualCommon';
 import { VirtualContainer } from './VirtualContainer';
 
@@ -43,7 +44,8 @@ export interface DisplayGridProps extends DisplayBaseProps {
   rowCount: number,
 
   /** 
-   * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each row in the grid
+   * Implementation of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping} interface that 
+   * defines size and offset to each row in the grid
    * 
    * Use {@link useFixedSizeItemOffsetMapping} or {@link useVariableSizeItemOffsetMapping} to create implementations
    * for common cases.
@@ -54,7 +56,8 @@ export interface DisplayGridProps extends DisplayBaseProps {
   columnCount: number,
 
   /** 
-   * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each column in the grid
+   * Implementation of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping} interface that
+   * defines size and offset to each column in the grid
    * 
    * Use {@link useFixedSizeItemOffsetMapping} or {@link useVariableSizeItemOffsetMapping} to create implementations
    * for common cases.

@@ -1,5 +1,6 @@
 import React from "react";
-import { ItemOffsetMapping, VirtualBaseProps, ScrollToOption, ScrollLayout } from './VirtualBase';
+import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
+import { VirtualBaseProps, ScrollToOption, ScrollLayout } from './VirtualBase';
 import { DisplayList, DisplayListItem } from './DisplayList';
 import { VirtualContainerRender } from './VirtualContainer';
 import { VirtualScroll } from './VirtualScroll';
@@ -19,7 +20,8 @@ export interface VirtualListProps extends VirtualBaseProps {
   itemCount: number,
 
   /** 
-   * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each item in the list
+   * Implementation of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping} interface that
+   * defines size and offset to each item in the list
    * 
    * Use {@link useFixedSizeItemOffsetMapping} or {@link useVariableSizeItemOffsetMapping} to create implementations
    * for common cases.
@@ -40,7 +42,7 @@ export interface VirtualListProps extends VirtualBaseProps {
 
   /**
    * Callback after a scroll event has been processed and state updated but before rendering
-   * @param offset - Resulting overall offset. Can be passed to {@link ItemOffsetMapping} to determine top item.
+   * @param offset - Resulting overall offset. Can be passed to `ItemOffsetMapping` to determine top item.
    * @param newScrollState - New {@link ScrollState} that will be used for rendering.
    */
   onScroll?: (offset: number, newScrollState: ScrollState) => void;

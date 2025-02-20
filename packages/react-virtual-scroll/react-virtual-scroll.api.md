@@ -4,6 +4,7 @@
 
 ```ts
 
+import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import React$1 from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
@@ -100,12 +101,7 @@ export function getOffsetToScrollRange(offset: number | undefined, size: number 
 // @public
 export function getRangeToScroll(index: number | undefined, mapping: ItemOffsetMapping): ScrollRange;
 
-// @public
-export interface ItemOffsetMapping {
-    itemOffset(itemIndex: number): number;
-    itemSize(itemIndex: number): number;
-    offsetToItem(offset: number): [itemIndex: number, startOffset: number];
-}
+export { ItemOffsetMapping }
 
 // @public
 export type ScrollDirection = "forward" | "backward";

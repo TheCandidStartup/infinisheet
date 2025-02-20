@@ -1,4 +1,5 @@
-import { ItemOffsetMapping, ScrollToOption } from './VirtualBase';
+import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
+import { ScrollToOption } from './VirtualBase';
 import { VirtualScrollProxy } from './VirtualScrollProxy';
 
 /**

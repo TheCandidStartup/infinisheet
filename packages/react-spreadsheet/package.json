@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@candidstartup/react-virtual-scroll": "^0.6.2",
+    "@candidstartup/infinisheet-types": "^0.6.2",
     "numfmt": "^3.1.2"
   }
 }
