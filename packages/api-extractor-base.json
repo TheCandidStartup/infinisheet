@@ -407,6 +407,13 @@
         "logLevel": "none"
       },
 
+      // Typedoc also reports unresolved links so this is redundant
+      // Typedoc and VS Code can also resolve links that API Extractor can't which
+      // results in false positives.
+      "ae-unresolved-link": {
+        "logLevel": "none"
+      },
+
       "ae-forgotten-export": {
         "logLevel": "error",
         "addToApiReportFile": false

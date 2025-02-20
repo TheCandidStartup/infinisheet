@@ -1,6 +1,5 @@
-import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
-export type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
-import { useFixedSizeItemOffsetMapping } from "@candidstartup/react-virtual-scroll";
+import type { ItemOffsetMapping } from "./ItemOffsetMapping";
+import { FixedSizeItemOffsetMapping } from "./FixedSizeItemOffsetMapping";
 
 export type CellErrorValue = '#NULL!' | 
   '#DIV/0!' |
@@ -35,8 +34,8 @@ export interface SpreadsheetData<Snapshot> {
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
 }
 
-const rowItemOffsetMapping = useFixedSizeItemOffsetMapping(30);
-const columnItemOffsetMapping = useFixedSizeItemOffsetMapping(100);
+const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
+const columnItemOffsetMapping = new FixedSizeItemOffsetMapping(100);
 
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
   subscribe(_onDataChange: () => void) { return () => {}; }

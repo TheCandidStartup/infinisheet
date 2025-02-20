@@ -4,7 +4,7 @@ import { userEvent, within, expect } from '@storybook/test';
 import { VirtualSpreadsheet, VirtualSpreadsheetProps, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
 import { AutoSizer } from '@candidstartup/react-virtual-scroll';
 
-import { EmptySpreadsheetData } from '@candidstartup/react-spreadsheet';
+import { EmptySpreadsheetData } from '@candidstartup/infinisheet-types';
 import { BoringData as BoringDataType } from '../../spreadsheet-sample/src/BoringData';
 import { TestData as TestDataType } from '../../spreadsheet-sample/src/TestData';
 import { CellRefData } from '../../spreadsheet-sample/src/CellRefData';

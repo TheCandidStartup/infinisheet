@@ -44,8 +44,7 @@ export interface DisplayListProps extends DisplayBaseProps {
   offset: number,
 
   /** 
-   * Implementation of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping} interface that
-   * defines size and offset to each item in the list
+   * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each item in the list
    * 
    * Use {@link useFixedSizeItemOffsetMapping} or {@link useVariableSizeItemOffsetMapping} to create implementations
    * for common cases.

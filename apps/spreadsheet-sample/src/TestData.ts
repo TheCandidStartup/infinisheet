@@ -1,4 +1,4 @@
-import { EmptySpreadsheetData, CellValue, rowColCoordsToRef } from '@candidstartup/react-spreadsheet';
+import { EmptySpreadsheetData, CellValue, rowColCoordsToRef } from '@candidstartup/infinisheet-types';
 
 export class TestData extends EmptySpreadsheetData {
   constructor() { super(); this.count = 100; }

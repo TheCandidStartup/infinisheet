@@ -2,8 +2,7 @@ import React from 'react';
 import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy,
   getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
-import { indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from './RowColRef'
-import type { SpreadsheetData, CellValue } from './SpreadsheetData'
+import { SpreadsheetData, CellValue, indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from '@candidstartup/infinisheet-types'
 import * as numfmt from 'numfmt'
 
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {

@@ -1,4 +1,4 @@
-import { EmptySpreadsheetData, CellValue, rowColCoordsToRef } from '@candidstartup/react-spreadsheet';
+import { EmptySpreadsheetData, CellValue, rowColCoordsToRef } from '@candidstartup/infinisheet-types';
 import { useFixedSizeItemOffsetMapping, ItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 const columnItemOffsetMapping = useFixedSizeItemOffsetMapping(160);

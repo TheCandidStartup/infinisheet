@@ -3,8 +3,7 @@ import { stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 
 import { VirtualSpreadsheet } from './VirtualSpreadsheet'
 import { VirtualSpreadsheetDefaultTheme } from './VirtualSpreadsheetTheme'
-import { EmptySpreadsheetData, CellValue } from './SpreadsheetData';
-import { rowColCoordsToRef } from './RowColRef';
+import { EmptySpreadsheetData, CellValue, rowColCoordsToRef } from '@candidstartup/infinisheet-types';
 
 class TestData extends EmptySpreadsheetData {
   getRowCount(_snapshot: number) { return 100; }

@@ -20,8 +20,7 @@ export interface VirtualGridProps extends VirtualBaseProps {
   rowCount: number,
 
   /** 
-   * Implementation of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping} interface that 
-   * defines size and offset to each row in the grid
+   * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each row in the grid
    * 
    * Use {@link useFixedSizeItemOffsetMapping} or {@link useVariableSizeItemOffsetMapping} to create implementations
    * for common cases.
@@ -32,8 +31,7 @@ export interface VirtualGridProps extends VirtualBaseProps {
   columnCount: number,
 
   /** 
-   * Implementation of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping} interface that defines
-   * size and offset to each column in the grid
+   * Implementation of {@link ItemOffsetMapping} interface that defines size and offset to each column in the grid
    * 
    * Use {@link useFixedSizeItemOffsetMapping} or {@link useVariableSizeItemOffsetMapping} to create implementations
    * for common cases.
@@ -48,8 +46,8 @@ export interface VirtualGridProps extends VirtualBaseProps {
 
   /**
    * Callback after a scroll event has been processed and state updated but before rendering
-   * @param rowOffset - Resulting overall row offset. Can be passed to `ItemOffsetMapping` to determine first row.
-   * @param columnOffset - Resulting overall column offset. Can be passed to `ItemOffsetMapping` to determine first column.
+   * @param rowOffset - Resulting overall row offset. Can be passed to {@link ItemOffsetMapping} to determine first row.
+   * @param columnOffset - Resulting overall column offset. Can be passed to {@link ItemOffsetMapping} to determine first column.
    * @param newRowScrollState - New {@link ScrollState} for rows that will be used for rendering.
    * @param newColumnScrollState - New {@link ScrollState} for columns that will be used for rendering.
    */

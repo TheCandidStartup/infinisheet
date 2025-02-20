@@ -4,6 +4,48 @@
 
 ```ts
 
+// @public (undocumented)
+export interface CellError {
+    // (undocumented)
+    type: 'CellError';
+    // (undocumented)
+    value: CellErrorValue;
+}
+
+// @public (undocumented)
+export type CellErrorValue = '#NULL!' | '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME?' | '#NUM!' | '#N/A' | '#GETTING_DATA' | '#SPILL!' | '#UNKNOWN!' | '#FIELD!' | '#CALC!';
+
+// @public (undocumented)
+export type CellValue = string | number | boolean | null | undefined | CellError;
+
+// @public
+export type ColRef = string;
+
+// @public
+export function colRefToIndex(col: ColRef): number;
+
+// @public (undocumented)
+export class EmptySpreadsheetData implements SpreadsheetData<number> {
+    // (undocumented)
+    getCellFormat(_snapshot: number, _row: number, _column: number): string | undefined;
+    // (undocumented)
+    getCellValue(_snapshot: number, _row: number, _column: number): CellValue;
+    // (undocumented)
+    getColumnCount(_snapshot: number): number;
+    // (undocumented)
+    getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping;
+    // (undocumented)
+    getRowCount(_snapshot: number): number;
+    // (undocumented)
+    getRowItemOffsetMapping(_snapshot: number): ItemOffsetMapping;
+    // (undocumented)
+    getSnapshot(): number;
+    // (undocumented)
+    setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): boolean;
+    // (undocumented)
+    subscribe(_onDataChange: () => void): () => void;
+}
+
 // @public
 export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
     constructor(itemSize: number);
@@ -18,10 +60,50 @@ export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
 }
 
 // @public
+export function indexToColRef(index: number): ColRef;
+
+// @public
 export interface ItemOffsetMapping {
     itemOffset(itemIndex: number): number;
     itemSize(itemIndex: number): number;
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
+}
+
+// @public
+export type RowColCoords = [row: number | undefined, col: number | undefined];
+
+// @public
+export function rowColCoordsToRef(row: number | undefined, col: number | undefined): RowColRef;
+
+// @public
+export type RowColRef = string;
+
+// @public
+export function rowColRefToCoords(ref: RowColRef): RowColCoords;
+
+// @public
+export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: ColRef | undefined];
+
+// @public (undocumented)
+export interface SpreadsheetData<Snapshot> {
+    // (undocumented)
+    getCellFormat(snapshot: Snapshot, row: number, column: number): string | undefined;
+    // (undocumented)
+    getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
+    // (undocumented)
+    getColumnCount(snapshot: Snapshot): number;
+    // (undocumented)
+    getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
+    // (undocumented)
+    getRowCount(snapshot: Snapshot): number;
+    // (undocumented)
+    getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
+    // (undocumented)
+    getSnapshot(): Snapshot;
+    // (undocumented)
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
+    // (undocumented)
+    subscribe(onDataChange: () => void): () => void;
 }
 
 // @public

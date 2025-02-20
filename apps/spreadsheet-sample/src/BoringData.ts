@@ -1,4 +1,4 @@
-import { EmptySpreadsheetData, CellValue } from '@candidstartup/react-spreadsheet';
+import { EmptySpreadsheetData, CellValue } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping, useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 import { dateToSerial } from 'numfmt'
 

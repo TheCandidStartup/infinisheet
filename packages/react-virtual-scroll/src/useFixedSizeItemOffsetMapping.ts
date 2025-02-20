@@ -2,8 +2,7 @@ import { ItemOffsetMapping, FixedSizeItemOffsetMapping } from '@candidstartup/in
 export type { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 
 /**
- * Returns an instance of {@link @candidstartup/infinisheet-types!ItemOffsetMapping | ItemOffsetMapping}
- * suitable for use when all items have a fixed size.
+ * Returns an instance of {@link ItemOffsetMapping} suitable for use when all items have a fixed size.
  * 
  * @param itemSize - Size to use for all items
  */

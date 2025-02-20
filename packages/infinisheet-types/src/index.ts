@@ -7,3 +7,5 @@
 export * from './ItemOffsetMapping'
 export * from './FixedSizeItemOffsetMapping'
 export * from './VariableSizeItemOffsetMapping'
+export * from './SpreadsheetData'
+export * from './RowColRef'
