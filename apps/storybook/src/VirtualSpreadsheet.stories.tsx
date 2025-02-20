@@ -82,6 +82,16 @@ export const CellNamesData: Story = {
   },
 };
 
+export const ReadOnly: Story = {
+  args: {
+    theme: theme,
+    data: testData,
+    width: 700,
+    height: 380,
+    readOnly: true
+  },
+};
+
 export const RowSelected: Story = {
   args: {
     theme: theme,

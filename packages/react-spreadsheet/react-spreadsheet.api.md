@@ -116,6 +116,7 @@ export interface VirtualSpreadsheetProps<Snapshot> {
     minColumnCount?: number;
     minNumPages?: number;
     minRowCount?: number;
+    readOnly?: boolean;
     rowHeaderWidth?: number;
     // (undocumented)
     theme?: VirtualSpreadsheetTheme | Record<string, string>;

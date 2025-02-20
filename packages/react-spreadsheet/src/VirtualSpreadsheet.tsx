@@ -43,6 +43,11 @@ export interface VirtualSpreadsheetProps<Snapshot> {
   /** Data to display and edit */
   data: ReactSpreadsheetData<Snapshot>,
 
+  /** Disables edit mode if true
+   * @defaultValue false
+  */
+  readOnly?: boolean, 
+
   /** Minimum number of rows in the spreadsheet 
    * @defaultValue 100
   */
@@ -182,7 +187,7 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
  */
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
   const { width, height, inputBarHeight=30, columnHeaderHeight=50, rowHeaderWidth=100,
-    theme, data, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
+    theme, data, readOnly=false, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const scrollRef = React.useRef<VirtualScrollProxy>(null);
   const focusSinkRef = React.useRef<HTMLInputElement>(null);
 
@@ -446,7 +451,10 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
             nextCell(row,col,true,event.shiftKey);
           } else {
             updateFormula(row, col, true); 
-            setEditMode(true);
+            if (readOnly)
+              nextCell(row,col,true,event.shiftKey);
+            else
+              setEditMode(true);
           }
         } 
         break;
@@ -532,10 +540,11 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={focusSinkRef}
         className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus)}
         type={"text"}
+        readOnly={readOnly}
         value={cellValue}
         onChange={(event) => {
           setCellValue(event.target?.value);
-          setEditMode(true);
+          setEditMode(!readOnly);
           setFormula(event.target?.value);
         }}
         onFocus={() => { ensureVisible(row,col) }}
@@ -555,7 +564,7 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
       }} 
       onDoubleClick={(_event) => {
         setCellValue(formula);
-        setEditMode(true);
+        setEditMode(!readOnly);
       }} 
       {...rest}>
       {children}
@@ -610,19 +619,20 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         <input className={theme?.VirtualSpreadsheet_Formula}
           style={{flexGrow: 1}}
           type={"text"}
+          readOnly={readOnly}
           name={"formula"}
           title={"Formula"}
           value={formula}
           onChange={(event) => {
             setFormula(event.target?.value);
-            setEditMode(true);
+            setEditMode(!readOnly);
             if (focusCell)
               setCellValue(event.target?.value);
           }}
           onFocus={() => {
               if (focusCell) {
                 setCellValue(formula);
-                setEditMode(true);
+                setEditMode(!readOnly);
               }
           }}
           onKeyDown={onEditValueKeyDown}
