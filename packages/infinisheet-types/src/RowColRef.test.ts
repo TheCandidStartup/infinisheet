@@ -58,4 +58,9 @@ describe('rowColRefToCoords', () => {
     expect(rowColRefToCoords('A')).toEqual([undefined,0]);
     expect(rowColRefToCoords('')).toEqual([undefined,undefined]);
   })
+
+  it('should return undefined for unknown values', () => {
+    expect(rowColRefToCoords('23A')).toEqual([undefined,undefined]);
+    expect(rowColRefToCoords('#')).toEqual([undefined,undefined]);
+  })
 })
