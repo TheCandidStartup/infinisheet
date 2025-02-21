@@ -4,18 +4,16 @@
 
 ```ts
 
-// @public (undocumented)
+// @public
 export interface CellError {
-    // (undocumented)
     type: 'CellError';
-    // (undocumented)
     value: CellErrorValue;
 }
 
-// @public (undocumented)
+// @public
 export type CellErrorValue = '#NULL!' | '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME?' | '#NUM!' | '#N/A' | '#GETTING_DATA' | '#SPILL!' | '#UNKNOWN!' | '#FIELD!' | '#CALC!';
 
-// @public (undocumented)
+// @public
 export type CellValue = string | number | boolean | null | undefined | CellError;
 
 // @public
@@ -50,8 +48,6 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
 export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
     constructor(itemSize: number);
     // (undocumented)
-    fixedItemSize: number;
-    // (undocumented)
     itemOffset(itemIndex: number): number;
     // (undocumented)
     itemSize(_itemIndex: number): number;
@@ -84,25 +80,16 @@ export function rowColRefToCoords(ref: RowColRef): RowColCoords;
 // @public
 export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: ColRef | undefined];
 
-// @public (undocumented)
+// @public
 export interface SpreadsheetData<Snapshot> {
-    // (undocumented)
     getCellFormat(snapshot: Snapshot, row: number, column: number): string | undefined;
-    // (undocumented)
     getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
-    // (undocumented)
     getColumnCount(snapshot: Snapshot): number;
-    // (undocumented)
     getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
-    // (undocumented)
     getRowCount(snapshot: Snapshot): number;
-    // (undocumented)
     getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
-    // (undocumented)
     getSnapshot(): Snapshot;
-    // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
-    // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }
 
@@ -110,15 +97,11 @@ export interface SpreadsheetData<Snapshot> {
 export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
     constructor(defaultItemSize: number, sizes: number[]);
     // (undocumented)
-    defaultItemSize: number;
-    // (undocumented)
     itemOffset(itemIndex: number): number;
     // (undocumented)
     itemSize(itemIndex: number): number;
     // (undocumented)
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
-    // (undocumented)
-    sizes: number[];
 }
 
 // (No @packageDocumentation comment for this package)
