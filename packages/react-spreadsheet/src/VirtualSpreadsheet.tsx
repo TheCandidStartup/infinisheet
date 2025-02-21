@@ -551,6 +551,8 @@ export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snap
         ref={focusSinkRef}
         className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus)}
         type={"text"}
+        name={"edit"}
+        title={"Edit"}
         readOnly={readOnly}
         value={cellValue}
         onChange={(event) => {
