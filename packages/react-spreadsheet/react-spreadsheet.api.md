@@ -7,16 +7,15 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 
-// @public (undocumented)
+// @public
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
-    // (undocumented)
     getServerSnapshot?: () => Snapshot;
 }
 
 // @public
 export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>): react_jsx_runtime.JSX.Element;
 
-// @public (undocumented)
+// @public
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
 
 // @public
@@ -34,62 +33,36 @@ export interface VirtualSpreadsheetProps<Snapshot> {
     minRowCount?: number;
     readOnly?: boolean;
     rowHeaderWidth?: number;
-    // (undocumented)
     theme?: VirtualSpreadsheetTheme | Record<string, string>;
     width: number;
 }
 
 // @public
 export interface VirtualSpreadsheetTheme {
-    // (undocumented)
     VirtualSpreadsheet: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__ColumnSelected: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__Focus: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__RowSelected: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__Type_boolean: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__Type_CellError: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__Type_null: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__Type_number: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__Type_string: string;
-    // (undocumented)
     VirtualSpreadsheet_Cell__Type_undefined: string;
-    // (undocumented)
     VirtualSpreadsheet_Column: string;
-    // (undocumented)
     VirtualSpreadsheet_Column__CellSelected: string;
-    // (undocumented)
     VirtualSpreadsheet_Column__Selected: string;
-    // (undocumented)
     VirtualSpreadsheet_ColumnHeader: string;
-    // (undocumented)
     VirtualSpreadsheet_CornerHeader: string;
-    // (undocumented)
     VirtualSpreadsheet_Formula: string;
-    // (undocumented)
     VirtualSpreadsheet_Fx: string;
-    // (undocumented)
     VirtualSpreadsheet_Grid: string;
-    // (undocumented)
     VirtualSpreadsheet_InputBar: string;
-    // (undocumented)
     VirtualSpreadsheet_Name: string;
-    // (undocumented)
     VirtualSpreadsheet_Row: string;
-    // (undocumented)
     VirtualSpreadsheet_Row__CellSelected: string;
-    // (undocumented)
     VirtualSpreadsheet_Row__Selected: string;
-    // (undocumented)
     VirtualSpreadsheet_RowHeader: string;
 }
 

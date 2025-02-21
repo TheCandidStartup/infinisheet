@@ -1,35 +1,87 @@
 /**
  * Theme that defines class names for all DOM elements within {@link VirtualSpreadsheet}. Provide an appropriate
  * theme to use VirtualSpreadsheet with whatever CSS management system you prefer.
+ * 
+ * Properties are named using a BEM style with the form `ComponentName_ElementName__modifierName_modifierValue`
  */
 export interface VirtualSpreadsheetTheme {
+  /** Class applied to the overall component */
   VirtualSpreadsheet: string,
+
+  /** Class applied to the input bar at the top of the component */
   VirtualSpreadsheet_InputBar: string,
+
+  /** Class applied to the Name input on the left end of the input bar */
   VirtualSpreadsheet_Name: string,
+
+  /** Class applied to the "fx" label in the input bar */
   VirtualSpreadsheet_Fx: string,
+
+  /** Class applied to the Formula input on the right end of the input bar */
   VirtualSpreadsheet_Formula: string,
+
+  /** Class applied to the grid of cells */
   VirtualSpreadsheet_Grid: string,
+
+  /** Class applied to the top left corner where the row and column headers meet */
   VirtualSpreadsheet_CornerHeader: string,
+
+  /** Class applied to the column header */
   VirtualSpreadsheet_ColumnHeader: string,
+
+  /** Class applied to an individual column within the column header */
   VirtualSpreadsheet_Column: string,
+
+  /** Modifier class applied to a column when it's selected */
   VirtualSpreadsheet_Column__Selected: string,
+
+  /** Modifier class applied to a column when a cell in that column is selected */
   VirtualSpreadsheet_Column__CellSelected: string,
+
+  /** Class applied to the row header */
   VirtualSpreadsheet_RowHeader: string,
+
+  /** Class applied to an individual row within the row header */
   VirtualSpreadsheet_Row: string,
+
+  /** Modifier class applied to a row when it's selected */
   VirtualSpreadsheet_Row__Selected: string,
+
+  /** Modifier class applied to a row when a cell in that row is selected */
   VirtualSpreadsheet_Row__CellSelected: string,
+
+  /** Class applied to a cell within the grid*/ 
   VirtualSpreadsheet_Cell: string,
+
+  /** Modifier class applied to a cell when it contains a string value */
   VirtualSpreadsheet_Cell__Type_string: string,
+
+  /** Modifier class applied to a cell when it contains a number value */
   VirtualSpreadsheet_Cell__Type_number: string,
+
+  /** Modifier class applied to a cell when it contains a boolean value */
   VirtualSpreadsheet_Cell__Type_boolean: string,
+
+  /** Modifier class applied to a cell when it contains a null value */
   VirtualSpreadsheet_Cell__Type_null: string,
+
+  /** Modifier class applied to a cell when it contains an undefined value */
   VirtualSpreadsheet_Cell__Type_undefined: string,
+
+  /** Modifier class applied to a cell when it contains an error value */
   VirtualSpreadsheet_Cell__Type_CellError: string,
+
+  /** Modifier class applied to a cell when it has the focus */
   VirtualSpreadsheet_Cell__Focus: string,
+
+  /** Modifier class applied to a cell when it's within a selected row */
   VirtualSpreadsheet_Cell__RowSelected: string,
+
+  /** Modifier class applied to a cell when it's within a selected column */
   VirtualSpreadsheet_Cell__ColumnSelected: string,
 }
 
+/** Default implementation of theme provided by `VirtualSpreadsheet.css` */
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
   VirtualSpreadsheet: "VirtualSpreadsheet",
   VirtualSpreadsheet_InputBar: "VirtualSpreadsheet_InputBar",

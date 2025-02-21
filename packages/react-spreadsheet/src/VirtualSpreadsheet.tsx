@@ -5,7 +5,13 @@ import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { SpreadsheetData, CellValue, indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from '@candidstartup/infinisheet-types'
 import * as numfmt from 'numfmt'
 
+/** Extension of {@link SpreadsheetData} interface so that it's compatible with React's `useSyncExternalStore` hook
+ * 
+ * Additional properties are optional, so anything that implements `SpreadsheetData` is compatible with something
+ * that accepts `ReactSpreadsheetData`.
+ */
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
+  /** Used by `useSyncExternalStore` to support server side rendering  */
   getServerSnapshot?: () => Snapshot
 }
 
@@ -16,6 +22,12 @@ export interface VirtualSpreadsheetProps<Snapshot> {
   /** The `className` applied to the spreadsheet as a whole */
   className?: string,
 
+  /** Spreadsheet theme which defines the CSS classes to apply
+   * 
+   * Defined as a union so that it supports both hand written themes
+   * defined as implementations of {@link VirtualSpreadsheetTheme} and themes
+   * implicitly defined by importing a CSS module. 
+   */
   theme?: VirtualSpreadsheetTheme | Record<string, string>,
 
   /** Component height */
