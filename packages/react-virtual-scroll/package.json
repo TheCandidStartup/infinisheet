@@ -26,7 +26,8 @@
     "table",
     "grid",
     "modern",
-    "scalable"
+    "scalable",
+    "infinisheet"
   ],
   "publishConfig": {
     "access": "public"

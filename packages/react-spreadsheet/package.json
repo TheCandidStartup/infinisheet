@@ -1,6 +1,6 @@
 {
   "name": "@candidstartup/react-spreadsheet",
-  "private": true,
+  "private": false,
   "version": "0.6.2",
   "description": "Modern React Spreadsheet Frontend",
   "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
@@ -18,7 +18,8 @@
     "spreadsheet",
     "virtualized",
     "modern",
-    "scalable"
+    "scalable",
+    "infinisheet"
   ],
   "publishConfig": {
     "access": "public"

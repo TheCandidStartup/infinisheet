@@ -16,7 +16,8 @@
   "homepage": "https://github.com/TheCandidStartup/infinisheet/blob/main/packages/infinisheet-types/README.md",
   "keywords": [
     "typescript",
-    "spreadsheet"
+    "spreadsheet",
+    "infinisheet"
   ],
   "publishConfig": {
     "access": "public"
