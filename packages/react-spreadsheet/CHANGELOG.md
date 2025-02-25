@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.2...v0.7.0) (2025-02-25)
+
+
+### Bug Fixes
+
+* **react-spreadsheet:** Mouse click handler now copes with bogus client XY coords ([c2b54a6](https://github.com/TheCandidStartup/infinisheet/commit/c2b54a65d46bf1318169227571793416bacc4bc8))
+
+
+### Build System
+
+* **infinisheet:** Preparing to publish react-spreadsheet, react-virtual-scroll and infinisheet-types packages ([9008fe5](https://github.com/TheCandidStartup/infinisheet/commit/9008fe56dc7e4a09b30048181300b33c7c45ed48))
+
+
+### Features
+
+* **react-spreadsheet:** Added edit mode ([83e3ed1](https://github.com/TheCandidStartup/infinisheet/commit/83e3ed1b7c9ea3e585b657a61bb04ff8a77c5675))
+* **react-spreadsheet:** Added formula input field ([7356cce](https://github.com/TheCandidStartup/infinisheet/commit/7356cce5a8c72ce5dbc6ba7aa3ed38bc5d910e45))
+* **react-spreadsheet:** Added inputBarHeight, columnHeaderHeight, rowHeaderWidth props ([676319b](https://github.com/TheCandidStartup/infinisheet/commit/676319bfcc3e30df5a1ec31bebecf9b815b67dd2))
+* **react-spreadsheet:** Added readOnly prop to VirtualSpreadsheet ([e731c93](https://github.com/TheCandidStartup/infinisheet/commit/e731c9332c9eab94b54a44384aa8701c218e609b))
+* **react-spreadsheet:** Added setCellValueAndFormat to SpreadsheetData interface ([ba96a9d](https://github.com/TheCandidStartup/infinisheet/commit/ba96a9d0cbb191d970bf0342142e7f2504c30d78))
+* **react-spreadsheet:** Cell width/height now specified via SpreadsheetData interface ([cf612f0](https://github.com/TheCandidStartup/infinisheet/commit/cf612f00cea0ab6fd5b5937b6853e67de4840470))
+* **react-spreadsheet:** Complete key handling for arrow keys, return, tab and escape ([70bea38](https://github.com/TheCandidStartup/infinisheet/commit/70bea38b65d7ca6c63d7c394191a0529a71ca133))
+* **react-spreadsheet:** Spreadsheet width and height props now apply to whole component rather than just the grid ([0a79402](https://github.com/TheCandidStartup/infinisheet/commit/0a7940211c5a725b9d5b1018ea931066472a98bc))
+* **storybook:** Added stories for useIsScrolling prop ([d859e17](https://github.com/TheCandidStartup/infinisheet/commit/d859e170e1029ec5646174ef8bd7f256b75b4e34))
+* **virtual-spreadsheet:** Cell content aligned depending on type ([65d9968](https://github.com/TheCandidStartup/infinisheet/commit/65d996800a4f85d76f56e950ccdacb8ce49558d7))
+
+
+### BREAKING CHANGES
+
+* **infinisheet:** Moved `ItemOffsetMapping` into new `infinisheet-types` package
+
+
+
+
+
 ## [0.6.2](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.1...v0.6.2) (2024-11-26)
 
 

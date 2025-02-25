@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.2...v0.7.0) (2025-02-25)
+
+
+### Build System
+
+* **infinisheet:** Preparing to publish react-spreadsheet, react-virtual-scroll and infinisheet-types packages ([9008fe5](https://github.com/TheCandidStartup/infinisheet/commit/9008fe56dc7e4a09b30048181300b33c7c45ed48))
+
+
+### Features
+
+* **storybook:** Added VirtualScroll stories ([faad3d6](https://github.com/TheCandidStartup/infinisheet/commit/faad3d65fc96b07ad12b38c964943e7a09187897))
+* **storybook:** Extracted default values from TSDoc comments ([48f182a](https://github.com/TheCandidStartup/infinisheet/commit/48f182ab0cea10047bdba53d1f26b3d719a5cf12))
+
+
+### BREAKING CHANGES
+
+* **infinisheet:** Moved `ItemOffsetMapping` into new `infinisheet-types` package
+
+
+
+
+
 ## [0.6.2](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.1...v0.6.2) (2024-11-26)
 
 

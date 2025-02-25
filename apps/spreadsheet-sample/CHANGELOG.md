@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.2...v0.7.0) (2025-02-25)
+
+
+### Features
+
+* **react-spreadsheet:** Added setCellValueAndFormat to SpreadsheetData interface ([ba96a9d](https://github.com/TheCandidStartup/infinisheet/commit/ba96a9d0cbb191d970bf0342142e7f2504c30d78))
+* **react-spreadsheet:** Cell width/height now specified via SpreadsheetData interface ([cf612f0](https://github.com/TheCandidStartup/infinisheet/commit/cf612f00cea0ab6fd5b5937b6853e67de4840470))
+* **react-spreadsheet:** Spreadsheet width and height props now apply to whole component rather than just the grid ([0a79402](https://github.com/TheCandidStartup/infinisheet/commit/0a7940211c5a725b9d5b1018ea931066472a98bc))
+* **storybook:** Added initial VirtualSpreadsheet stories ([382a934](https://github.com/TheCandidStartup/infinisheet/commit/382a934e2a3fdb2ea8ce8ef538abf7daff1a4f44))
+* **virtual-spreadsheet:** Cell content aligned depending on type ([65d9968](https://github.com/TheCandidStartup/infinisheet/commit/65d996800a4f85d76f56e950ccdacb8ce49558d7))
+
+
+
+
+
 ## [0.6.2](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.1...v0.6.2) (2024-11-26)
 
 **Note:** Version bump only for package spreadsheet-sample
