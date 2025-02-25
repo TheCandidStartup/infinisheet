@@ -9,6 +9,11 @@
  * 
  * Built using {@link @candidstartup/react-virtual-scroll! | react-virtual-scroll} components.
  *
+ * @see [InfiniSheet](/infinisheet/)
+ * @see [GitHub](https://github.com/TheCandidStartup/infinisheet/tree/main/packages/react-spreadsheet)
+ * @see [NPM](https://www.npmjs.com/package/@candidstartup/react-spreadsheet)
+ * @see [Storybook](/infinisheet/storybook/?path=/docs/react-spreadsheet--docs)
+ * 
  * @packageDocumentation
  */
 export * from './VirtualSpreadsheetTheme'
