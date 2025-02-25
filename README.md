@@ -6,6 +6,8 @@
 [![Istanbul Code Coverage](https://img.shields.io/badge/Code_Coverage-Istanbul-yellow)](https://istanbul.js.org/)
 [![Build Status](https://github.com/TheCandidStartup/infinisheet/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/TheCandidStartup/infinisheet/actions/workflows/build.yml)
 
+[GitHub](https://github.com/TheCandidStartup/infinisheet/) | [Storybook](https://www.thecandidstartup.org/infinisheet/storybook/) | [API](https://www.thecandidstartup.org/infinisheet/index.html) 
+
 # Building a Better Spreadsheet
 
 Infinisheet is a cloud based, open source, serverless, customer deployed, scalable spreadsheet. Or at least it will be when I've finished.
@@ -18,11 +20,12 @@ This is a [Lerna](https://lerna.js.org/) based monorepo. The primary tooling is 
 
 * [react-virtual-scroll](./packages/react-virtual-scroll): Modern React components for lists and grids that scale to trillions of rows and columns
 * [react-spreadsheet](./packages/react-spreadsheet): Scalable spreadsheet frontend built on `react-virtual-scroll`
+* [infinisheet-types](./packages/infinisheet-types): Common types shared by frontend and backend packages
 
 ## Apps
 
 * [virtual-scroll-samples](./apps/virtual-scroll-samples): Test app for `react-virtual-scroll` package
-* [spreadsheet-sample](./apps/virtual-scroll-samples): Test app for `react-spreadsheet` package
+* [spreadsheet-sample](./apps/spreadsheet-sample): Test app for `react-spreadsheet` package
 * [storybook](./apps/storybook): Storybook showcasing `react-virtual-scroll` and `react-spreadsheet` components
 
 # Build
@@ -51,4 +54,4 @@ npm run preview
 
 # Blog
 
-Follow the journey on [my blog](https://www.thecandidstartup.org/topics/spreadsheets.html).
+Follow the journey on [my blog](https://www.thecandidstartup.org/topics/infinisheet.html).
