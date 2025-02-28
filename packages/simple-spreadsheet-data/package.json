@@ -48,5 +48,7 @@
     "devbuild": "npm run build && npm run lint && npm run devapi",
     "test": "vitest"
   },
-  "main": "index.js"
+  "dependencies": {
+    "@candidstartup/infinisheet-types": "^0.7.1"
+  }
 }

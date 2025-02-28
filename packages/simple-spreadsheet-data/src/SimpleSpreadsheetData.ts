@@ -18,7 +18,7 @@ interface SimpleSnapshotContent {
  * is expected.
  * @internal
  */
-export enum SimpleSnapshotBrand { _DO_NOT_USE="" };
+export enum _SimpleSnapshotBrand { _DO_NOT_USE="" };
 
 /**
  * Opaque type representing a {@link SimpleSpreadsheetData} snapshot. All the
@@ -26,7 +26,7 @@ export enum SimpleSnapshotBrand { _DO_NOT_USE="" };
  */
 export interface SimpleSnapshot {
   /** @internal */
-  _brand: SimpleSnapshotBrand;
+  _brand: _SimpleSnapshotBrand;
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);

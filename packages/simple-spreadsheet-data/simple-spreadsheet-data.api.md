@@ -8,14 +8,14 @@ import { CellValue } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 
-// @public (undocumented)
+// @public
 export interface SimpleSnapshot {
-    // (undocumented)
-    _brand: SimpleSnapshotBrand;
+    // @internal (undocumented)
+    _brand: _SimpleSnapshotBrand;
 }
 
-// @public (undocumented)
-export enum SimpleSnapshotBrand {
+// @internal
+export enum _SimpleSnapshotBrand {
     // (undocumented)
     _DO_NOT_USE = ""
 }
