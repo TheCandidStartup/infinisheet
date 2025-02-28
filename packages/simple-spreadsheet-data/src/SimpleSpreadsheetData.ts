@@ -12,8 +12,20 @@ interface SimpleSnapshotContent {
   colCount: number;
 }
 
+/** 
+ * Branding Enum. Used by {@link SimpleSnapshot} to ensure that
+ * you'll get a type error if you pass some random object where a `SimpleSnapshot`
+ * is expected.
+ * @internal
+ */
 export enum SimpleSnapshotBrand { _DO_NOT_USE="" };
+
+/**
+ * Opaque type representing a {@link SimpleSpreadsheetData} snapshot. All the
+ * internal implementation details are hidden from the exported API.
+ */
 export interface SimpleSnapshot {
+  /** @internal */
   _brand: SimpleSnapshotBrand;
 }
 

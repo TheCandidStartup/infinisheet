@@ -32,7 +32,8 @@
       "SetSignature"
     ],
     "readme": "none",
-    "excludeExternals": true
+    "excludeExternals": true,
+    "excludeInternal": true
   },
   "markdownLinkExternal": false,
   "navigation": {
