@@ -16,9 +16,11 @@ export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot
 }
 
 /**
- * Props for {@link VirtualSpreadsheet}
+ * Props for {@link VirtualSpreadsheetGeneric}
+ * 
+ * @typeParam Snapshot - Type of snapshot for `SpreadsheetData`
  */
-export interface VirtualSpreadsheetProps<Snapshot> {
+export interface VirtualSpreadsheetGenericProps<Snapshot> {
   /** The `className` applied to the spreadsheet as a whole */
   className?: string,
 
@@ -94,6 +96,12 @@ export interface VirtualSpreadsheetProps<Snapshot> {
    * @defaultValue 100
    */
   minNumPages?: number
+}
+
+/**
+ * Props for {@link VirtualSpreadsheet}
+ */
+export interface VirtualSpreadsheetProps extends VirtualSpreadsheetGenericProps<unknown> {
 }
 
 function join(...v: (string|undefined)[]) {
@@ -193,10 +201,36 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
  * Virtual Spreadsheet
  * 
  * Accepts props defined by {@link VirtualSpreadsheetProps}. 
- * You must pass an instance of {@link SpreadsheetData} using the `data` prop. 
+ * You must pass an instance of {@link SpreadsheetData} using the `data` prop.
+ * 
+ * @remarks
+ * 
+ * For most cases use this rather than {@link VirtualSpreadsheetGeneric}.
+ * 
+ * Accepts all parameterizations of `SpreadsheetData`. Implemented as `VirtualSpreadsheetGeneric<unknown>`.
+ * 
  * @group Components
  */
-export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>) {
+export function VirtualSpreadsheet(props: VirtualSpreadsheetProps) {
+  return VirtualSpreadsheetGeneric(props);
+}
+
+/**
+ * Generic version of Virtual Spreadsheet
+ * 
+ * Accepts props defined by {@link VirtualSpreadsheetGenericProps}. 
+ * You must pass an instance of {@link SpreadsheetData} with a compatible `Snapshot` parameter using the `data` prop.
+ * 
+ * @remarks
+ * 
+ * In almost all cases use {@link VirtualSpreadsheet} instead. Only use this if you need to restrict the types of `SpreadsheetData`
+ * that can be used based on `Snapshot` type.
+ * 
+ * @typeParam Snapshot - Type of snapshot for `SpreadsheetData`
+ * 
+ * @group Components
+ */
+export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGenericProps<Snapshot>) {
   const { width, height, inputBarHeight=30, columnHeaderHeight=50, rowHeaderWidth=100,
     theme, data, readOnly=false, minRowCount=100, minColumnCount=26, maxRowCount=1000000000000, maxColumnCount=1000000000000 } = props;
   const scrollRef = React.useRef<VirtualScrollProxy>(null);

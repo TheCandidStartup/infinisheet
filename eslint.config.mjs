@@ -46,6 +46,10 @@ export default tseslint.config(
           varsIgnorePattern: "^_",
       }],
 
+      "@typescript-eslint/no-empty-object-type": ["error", {
+          allowInterfaces: 'with-single-extends'
+      }],
+
       "react-hooks/exhaustive-deps": "error"
     } 
   },

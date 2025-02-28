@@ -13,13 +13,16 @@ export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot
 }
 
 // @public
-export function VirtualSpreadsheet<Snapshot>(props: VirtualSpreadsheetProps<Snapshot>): react_jsx_runtime.JSX.Element;
+export function VirtualSpreadsheet(props: VirtualSpreadsheetProps): react_jsx_runtime.JSX.Element;
 
 // @public
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
 
 // @public
-export interface VirtualSpreadsheetProps<Snapshot> {
+export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGenericProps<Snapshot>): react_jsx_runtime.JSX.Element;
+
+// @public
+export interface VirtualSpreadsheetGenericProps<Snapshot> {
     className?: string;
     columnHeaderHeight?: number;
     data: ReactSpreadsheetData<Snapshot>;
@@ -35,6 +38,10 @@ export interface VirtualSpreadsheetProps<Snapshot> {
     rowHeaderWidth?: number;
     theme?: VirtualSpreadsheetTheme | Record<string, string>;
     width: number;
+}
+
+// @public
+export interface VirtualSpreadsheetProps extends VirtualSpreadsheetGenericProps<unknown> {
 }
 
 // @public

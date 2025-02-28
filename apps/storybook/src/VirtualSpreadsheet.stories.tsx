@@ -14,7 +14,7 @@ const boringData = new BoringDataType;
 const testData = new TestDataType;
 const cellNameData = new CellRefData;
 
-const meta: Meta<VirtualSpreadsheetProps<unknown>> = {
+const meta: Meta<VirtualSpreadsheetProps> = {
   title: 'react-spreadsheet/VirtualSpreadsheet',
   component: VirtualSpreadsheet,
   parameters: {
