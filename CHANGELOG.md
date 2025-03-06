@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.7.1...v0.8.0) (2025-03-06)
+
+
+### Build System
+
+* **infinisheet:** Target es2022 ([14555d9](https://github.com/TheCandidStartup/infinisheet/commit/14555d99f7f975aa976af86a28ffd2616349be1c))
+
+
+### Features
+
+* **react-spreadsheet:** VirtualSpreadsheet no longer needs a type parameter ([f53882c](https://github.com/TheCandidStartup/infinisheet/commit/f53882cd3c0f56737a8e6b10fed998d2979db5fb))
+* **simple-spreadsheet-data:** Added LayeredSpreadsheetData class ([eba3276](https://github.com/TheCandidStartup/infinisheet/commit/eba32765e7d7df95590278f62c434be80e22bc4a))
+* **storybook:** All data sources are now editable ([27982aa](https://github.com/TheCandidStartup/infinisheet/commit/27982aaa1c9b3bf35ec04f0ad928fa8ee394f67b))
+
+
+### BREAKING CHANGES
+
+* **react-spreadsheet:** Code that used VirtualSpreadsheet or VirtualSpreadsheetProps with a type parameter needs to either remove the parameter or switch to the generic version.
+* **infinisheet:** Requires native support for JavaScript private fields
+
+
+
+
+
 ## [0.7.1](https://github.com/TheCandidStartup/infinisheet/compare/v0.7.0...v0.7.1) (2025-02-25)
 
 **Note:** Version bump only for package root

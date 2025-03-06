@@ -1,7 +1,7 @@
 {
   "name": "@candidstartup/infinisheet-types",
   "private": false,
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Common types for the InfiniSheet packages",
   "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
   "license": "BSD-3-Clause",
