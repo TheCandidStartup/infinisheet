@@ -9,3 +9,4 @@
  */
 
 export * from './SimpleSpreadsheetData'
+export * from './LayeredSpreadsheetData'

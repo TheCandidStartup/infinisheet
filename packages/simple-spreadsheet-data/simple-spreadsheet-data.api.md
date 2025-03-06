@@ -9,6 +9,41 @@ import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 
 // @public
+export interface LayeredSnapshot<BaseSnapshot, EditSnapshot> {
+    // @internal (undocumented)
+    _brand: [_LayeredSnapshotBrand, BaseSnapshot, EditSnapshot];
+}
+
+// @internal
+export enum _LayeredSnapshotBrand {
+    // (undocumented)
+    _DO_NOT_USE = ""
+}
+
+// @public
+export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapshot>, EditData extends SpreadsheetData<EditSnapshot>, BaseSnapshot = SnapshotType<BaseData>, EditSnapshot = SnapshotType<EditData>> implements SpreadsheetData<LayeredSnapshot<BaseSnapshot, EditSnapshot>> {
+    constructor(base: BaseData, edit: EditData);
+    // (undocumented)
+    getCellFormat(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>, row: number, column: number): string | undefined;
+    // (undocumented)
+    getCellValue(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>, row: number, column: number): CellValue;
+    // (undocumented)
+    getColumnCount(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): number;
+    // (undocumented)
+    getColumnItemOffsetMapping(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): ItemOffsetMapping;
+    // (undocumented)
+    getRowCount(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): number;
+    // (undocumented)
+    getRowItemOffsetMapping(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): ItemOffsetMapping;
+    // (undocumented)
+    getSnapshot(): LayeredSnapshot<BaseSnapshot, EditSnapshot>;
+    // (undocumented)
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
+    // (undocumented)
+    subscribe(onDataChange: () => void): () => void;
+}
+
+// @public
 export interface SimpleSnapshot {
     // @internal (undocumented)
     _brand: _SimpleSnapshotBrand;
@@ -42,6 +77,9 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }
+
+// @public
+export type SnapshotType<T> = T extends SpreadsheetData<infer TResult> ? TResult : never;
 
 // (No @packageDocumentation comment for this package)
 
