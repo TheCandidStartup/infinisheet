@@ -7,7 +7,10 @@ export class CellRefData extends EmptySpreadsheetData {
   getRowCount(_snapshot: number) { return 1000000000; }
   getColumnCount(_snapshot: number) { return 1000000000; }
   getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return columnItemOffsetMapping; }
-  getCellValue(_snapshot: number, row: number, column: number): CellValue {
+  getCellValue(snapshot: number, row: number, column: number): CellValue {
+    if (row >= this.getRowCount(snapshot) || column >= this.getColumnCount(snapshot))
+      return undefined;
+
     return rowColCoordsToRef(row, column); 
   }
 }

@@ -4,15 +4,15 @@ import { userEvent, within, expect } from '@storybook/test';
 import { VirtualSpreadsheet, VirtualSpreadsheetProps, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
 import { AutoSizer } from '@candidstartup/react-virtual-scroll';
 
-import { SimpleSpreadsheetData } from '@candidstartup/simple-spreadsheet-data';
+import { SimpleSpreadsheetData, LayeredSpreadsheetData } from '@candidstartup/simple-spreadsheet-data';
 import { BoringData as BoringDataType } from '../../spreadsheet-sample/src/BoringData';
 import { TestData as TestDataType } from '../../spreadsheet-sample/src/TestData';
 import { CellRefData } from '../../spreadsheet-sample/src/CellRefData';
 
 const emptySpreadsheet = new SimpleSpreadsheetData;
-const boringData = new BoringDataType;
-const testData = new TestDataType;
-const cellNameData = new CellRefData;
+const boringData = new LayeredSpreadsheetData(new BoringDataType, new SimpleSpreadsheetData);
+const testData = new LayeredSpreadsheetData(new TestDataType, new SimpleSpreadsheetData);
+const cellNameData = new LayeredSpreadsheetData(new CellRefData, new SimpleSpreadsheetData);
 
 const meta: Meta<VirtualSpreadsheetProps> = {
   title: 'react-spreadsheet/VirtualSpreadsheet',

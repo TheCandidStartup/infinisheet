@@ -62,6 +62,9 @@ export class BoringData extends EmptySpreadsheetData {
     if (row == snapshot + 3)
       return this.totalRow(snapshot, column);
 
+    if (row > snapshot)
+      return undefined;
+
     const dateTime = this.dateTime(row);
     switch (column) { 
       case 0: return dateTime;

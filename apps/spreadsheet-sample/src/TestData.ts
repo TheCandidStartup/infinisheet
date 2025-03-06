@@ -15,7 +15,10 @@ export class TestData extends EmptySpreadsheetData {
   
   getRowCount(snapshot: number) { return snapshot; }
   getColumnCount(_snapshot: number) { return 26; }
-  getCellValue(_snapshot: number, row: number, column: number): CellValue {
+  getCellValue(snapshot: number, row: number, column: number): CellValue {
+    if (row >= snapshot)
+      return undefined;
+
     switch (column) { 
       case 1:
         return row-10;
