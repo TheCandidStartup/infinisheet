@@ -1,6 +1,5 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite'
-import { configDefaults } from 'vitest/config'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,9 +12,6 @@ export default defineConfig({
       provider: 'istanbul',
       include: ['src/**'],
       exclude: ['src/test/**','src/*.test.*'],
-    },
-    fakeTimers: {
-      toFake: [...(configDefaults.fakeTimers.toFake ?? []), 'performance'],
     },
   },
   define: { 
