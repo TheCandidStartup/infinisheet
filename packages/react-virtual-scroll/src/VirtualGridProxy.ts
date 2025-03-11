@@ -56,7 +56,7 @@ export function getRangeToScroll(index: number | undefined, mapping: ItemOffsetM
  * You're encouraged to put together your own combination of {@link VirtualScroll} and {@link DisplayGrid} for
  * advanced customization scenarios. This function provides `ScrollToItem` functionality for use with your own {@link VirtualScroll}.
  */
-export function virtualGridScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy>, rowOffsetMapping: ItemOffsetMapping, 
+export function virtualGridScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy|null>, rowOffsetMapping: ItemOffsetMapping, 
   columnOffsetMapping: ItemOffsetMapping, rowIndex?: number, columnIndex?: number, option?: ScrollToOption) {
 
   const scroll = scrollRef.current;

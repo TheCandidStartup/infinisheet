@@ -5,7 +5,7 @@ import { useAnimationTimeout } from './useAnimationTimeout';
 const DEBOUNCE_INTERVAL = 150;
 const FALLBACK_INTERVAL = 500;
 
-export function useIsScrolling(element: Window | HTMLElement | RefObject<HTMLElement> | null = window): boolean {
+export function useIsScrolling(element: Window | HTMLElement | RefObject<HTMLElement|null> | null = window): boolean {
   const [scrollCount, setScrollCount] = useState(0);
 
   // scrollend implementations in both Chrome and Firefox are buggy with missing scrollend events

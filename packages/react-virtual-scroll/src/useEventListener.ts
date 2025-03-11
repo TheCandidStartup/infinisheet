@@ -11,7 +11,7 @@ interface Options {
 
 type Listener = Window | Document | HTMLElement;
 
-function isListener(element: Listener | RefObject<HTMLElement>): element is Listener {
+function isListener(element: Listener | RefObject<HTMLElement|null>): element is Listener {
   return (element as Listener).addEventListener !== undefined;
 }
 
@@ -19,9 +19,9 @@ type EventHandler = (event: Event) => void;
 
 export function useEventListener (eventName: string, 
                                   handler: EventHandler, 
-                                  element: Listener | RefObject<HTMLElement> | null = window, 
+                                  element: Listener | RefObject<HTMLElement|null> | null = window, 
                                   options: Options = {}) {
-  const savedHandler = useRef<EventHandler>();
+  const savedHandler = useRef<EventHandler>(undefined);
   const { capture, passive, once } = options;
 
   useEffect(() => {

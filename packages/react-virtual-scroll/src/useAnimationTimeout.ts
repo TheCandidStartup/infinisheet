@@ -9,7 +9,7 @@ import { useEffect, useRef } from 'react';
 type Callback = () => void;
 
 export function useAnimationTimeout(callback: Callback, delay: number | null, key?: unknown) {
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number>(undefined);
   const savedCallback = useRef<Callback>(callback);
 
   // Remember the latest callback

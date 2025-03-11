@@ -19,7 +19,7 @@ export interface AutoSizerProps {
 }
 
 // @public
-export type AutoSizerRender = (props: AutoSizerRenderProps) => JSX.Element;
+export type AutoSizerRender = (props: AutoSizerRenderProps) => React$1.JSX.Element;
 
 // @public
 export interface AutoSizerRenderProps {
@@ -146,7 +146,7 @@ export interface VirtualContainerComponentProps extends VirtualContainerRenderPr
 }
 
 // @public
-export type VirtualContainerRender = (props: VirtualContainerRenderProps, ref?: React$1.ForwardedRef<HTMLDivElement>) => JSX.Element;
+export type VirtualContainerRender = (props: VirtualContainerRenderProps, ref?: React$1.ForwardedRef<HTMLDivElement>) => React$1.JSX.Element;
 
 // @public
 export type VirtualContainerRenderProps = React$1.ComponentPropsWithoutRef<'div'>;
@@ -159,7 +159,7 @@ export interface VirtualContentProps {
 }
 
 // @public
-export type VirtualContentRender = (props: VirtualContentProps, ref?: React$1.ForwardedRef<HTMLDivElement>) => JSX.Element;
+export type VirtualContentRender = (props: VirtualContentProps, ref?: React$1.ForwardedRef<HTMLDivElement>) => React$1.JSX.Element;
 
 // @public
 export const VirtualGrid: React$1.ForwardRefExoticComponent<VirtualGridProps & React$1.RefAttributes<VirtualGridProxy>>;
@@ -188,7 +188,7 @@ export interface VirtualGridProxy {
 }
 
 // @public
-export function virtualGridScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy>, rowOffsetMapping: ItemOffsetMapping, columnOffsetMapping: ItemOffsetMapping, rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void;
+export function virtualGridScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy | null>, rowOffsetMapping: ItemOffsetMapping, columnOffsetMapping: ItemOffsetMapping, rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void;
 
 // @public
 export const VirtualList: React$1.ForwardRefExoticComponent<VirtualListProps & React$1.RefAttributes<VirtualListProxy>>;
@@ -213,7 +213,7 @@ export interface VirtualListProxy {
 }
 
 // @public
-export function virtualListScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy>, itemOffsetMapping: ItemOffsetMapping, isVertical: boolean, index: number, option?: ScrollToOption): void;
+export function virtualListScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy | null>, itemOffsetMapping: ItemOffsetMapping, isVertical: boolean, index: number, option?: ScrollToOption): void;
 
 // @public
 export const VirtualScroll: React$1.ForwardRefExoticComponent<VirtualScrollProps & React$1.RefAttributes<VirtualScrollProxy>>;

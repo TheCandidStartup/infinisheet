@@ -31,7 +31,7 @@ export interface VirtualListProxy {
  * You're encouraged to put together your own combination of {@link VirtualScroll} and {@link DisplayList} for
  * advanced customization scenarios. This function provides `ScrollToItem` functionality for use with your own {@link VirtualScroll}.
  */
-export function virtualListScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy>, itemOffsetMapping: ItemOffsetMapping, isVertical: boolean,
+export function virtualListScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy|null>, itemOffsetMapping: ItemOffsetMapping, isVertical: boolean,
   index: number, option?: ScrollToOption) {
 
   const scroll = scrollRef.current;

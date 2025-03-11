@@ -21,7 +21,7 @@ export type VirtualContainerRenderProps = React.ComponentPropsWithoutRef<'div'>;
  * )
  * ```
  */
-export type VirtualContainerRender = (props: VirtualContainerRenderProps, ref?: React.ForwardedRef<HTMLDivElement>) => JSX.Element;
+export type VirtualContainerRender = (props: VirtualContainerRenderProps, ref?: React.ForwardedRef<HTMLDivElement>) => React.JSX.Element;
 
 /**
  * Props that {@link VirtualContainer} accepts.

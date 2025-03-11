@@ -40,7 +40,7 @@ export interface VirtualContentProps {
  * )
  * ```
  */
-export type VirtualContentRender = (props: VirtualContentProps, ref?: React.ForwardedRef<HTMLDivElement>) => JSX.Element;
+export type VirtualContentRender = (props: VirtualContentProps, ref?: React.ForwardedRef<HTMLDivElement>) => React.JSX.Element;
 
 /**
  * Props accepted by {@link VirtualScroll}

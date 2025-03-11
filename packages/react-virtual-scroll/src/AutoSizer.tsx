@@ -24,7 +24,7 @@ export interface AutoSizerRenderProps {
  * )
  * ```
  */
-export type AutoSizerRender = (props: AutoSizerRenderProps) => JSX.Element;
+export type AutoSizerRender = (props: AutoSizerRenderProps) => React.JSX.Element;
 
 /**
  * Props accepted by {@link AutoSizer}

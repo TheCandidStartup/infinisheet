@@ -185,13 +185,13 @@ function getCurrentTargetXY(event: React.MouseEvent<HTMLDivElement>): [number,nu
   return [clientX - currentRect.left, clientY - currentRect.top];
 }
 
-type HeaderItemRender = (index: number, style: React.CSSProperties) => JSX.Element;
+type HeaderItemRender = (index: number, style: React.CSSProperties) => React.JSX.Element;
 function HeaderItem({ index, data, style }: { index: number, data:unknown, style: React.CSSProperties }) {
   const itemRender = data as HeaderItemRender;
   return itemRender(index, style);
 }
 
-type CellRender = (rowIndex: number, columnIndex: number, style: React.CSSProperties) => JSX.Element;
+type CellRender = (rowIndex: number, columnIndex: number, style: React.CSSProperties) => React.JSX.Element;
 function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, columnIndex: number, data: unknown, style: React.CSSProperties }) {
   const cellRender = data as CellRender;
   return cellRender(rowIndex, columnIndex, style);

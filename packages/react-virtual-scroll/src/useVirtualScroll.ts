@@ -37,7 +37,9 @@ export interface VirtualScrollState {
   getCurrentOffset(this: void): number;
 
   // Internal scroll state. Most scenarios will never need to access this. Mainly here for unit test.
-  scrollState: RefObject<ScrollState>;
+  // scrollState.current is never null but needed to add "|null" to type to maintain backwards compatibility
+  // with React 18. Can remove when we drop React 18 support.
+  scrollState: RefObject<ScrollState|null>;
 }
 
 // Max size that is safe across all browsers (Firefox is the limiting factor)
