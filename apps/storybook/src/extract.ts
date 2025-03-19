@@ -1,4 +1,4 @@
-import type { StrictArgTypes, SBType } from 'storybook/internal/types';
+import type { StrictArgTypes, SBType, SBUnionType } from 'storybook/internal/types';
 import type { ArgTypesExtractor, Component } from 'storybook/internal/docs-tools';
 import { extractComponentProps, extractComponentDescription as baseExtractComponentDescription} from 'storybook/internal/docs-tools';
 
@@ -19,6 +19,29 @@ export const extractComponentDescription = (component: Component): string => {
   return fixedLinks;
 };
 
+function isUnionUndefined(sbType: SBType): sbType is SBUnionType {
+  if (sbType.name !== 'union')
+    return false;
+
+  const last = sbType.value.at(-1);
+  return last !== undefined && last.name === 'other' && last.value === 'undefined';
+}
+
+function stripUnionUndefinedRaw(raw: string | undefined): string | undefined {
+  return raw ? raw.replace(/\s*\|\s*undefined/, "") : undefined;
+}
+
+// Return [name, raw] after stripping "| undefined" from the type
+function stripUnionUndefined(sbType: SBUnionType): [string, string|undefined] {
+
+  const raw = stripUnionUndefinedRaw(sbType.raw);
+  if (sbType.value.length > 2)
+    return ['union', raw];
+
+  const first = sbType.value[0]!;
+  return [first.name, raw];
+}
+
 export const extractArgTypes: ArgTypesExtractor = (component) => {
   const props = extractComponentProps(component, 'props');
   if (!props)
@@ -29,18 +52,27 @@ export const extractArgTypes: ArgTypesExtractor = (component) => {
     const { name, jsDocTags, required } = prop.propDef;
     const sbType = prop.propDef.sbType as SBType; // Annoyingly sbType is typed as any rather than SBType
 
+    let sbName: string = sbType.name;
+    let sbRaw = sbType.raw;
+    if (!required && isUnionUndefined(sbType)) {
+      [sbName, sbRaw] = stripUnionUndefined(sbType);
+      type = { summary: sbRaw ? sbRaw : sbName };
+    }
+    
+
     // Default uses "union" as the type description for these cases. Provide something useful instead.
-    if (sbType.name === 'enum' || sbType.name === 'union')
-      type = { summary: sbType.name, detail: sbType.raw };
+    if (sbName === 'enum' || sbName === 'union') {
+      type = { summary: sbName, ...(sbRaw ? { detail: sbRaw } : {}) };
+    }
 
     // Default removes and ignores @defaultValue tags. Look them up in the original docgenInfo
     // and use them. There's limited space in "Default" column so use summary and detail if value
     // too large.
     const result = prop.docgenInfo.description.match(/\n\s*@defaultValue\s+`*([^\n`]+)`*(\n|$)/);
-    if (result) {
+    if (result && result[1] !== undefined) {
       const value = result[1];
-      if (value.length > 15 && sbType.name) {
-        defaultValue = { summary: sbType.name, detail: value }
+      if (value.length > 15 && sbName) {
+        defaultValue = { summary: sbName, detail: value }
       } else {
         defaultValue = { summary: value }
       }
@@ -55,12 +87,12 @@ export const extractArgTypes: ArgTypesExtractor = (component) => {
         param.description = replaceLinks(param.description);
     })
 
-    acc[name] = { name, description, 
+    acc[name] = { name, ...(description ? { description } : {}), 
       type: { required, ...sbType },
       table: { 
-        type: type ?? undefined,
-        jsDocTags,
-        defaultValue: defaultValue ?? undefined,
+        ...(type ? { type } : {}),
+        ...(jsDocTags ? { jsDocTags } : {}),
+        ...(defaultValue ? { defaultValue } : {}),
       }
     }
     return acc;

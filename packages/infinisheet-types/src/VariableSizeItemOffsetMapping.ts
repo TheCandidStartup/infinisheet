@@ -14,7 +14,7 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
   }
 
   itemSize(itemIndex: number): number {
-    return (itemIndex < this.#sizes.length) ? this.#sizes[itemIndex] : this.#defaultItemSize;
+    return (itemIndex < this.#sizes.length) ? this.#sizes[itemIndex]! : this.#defaultItemSize;
   }
 
   itemOffset(itemIndex: number): number {
@@ -29,7 +29,7 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
     
     for (let i = 0; i < length; i ++)
     {
-      offset += this.#sizes[i];
+      offset += this.#sizes[i]!;
     }
 
     return offset;
@@ -37,9 +37,7 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
 
   offsetToItem(offset: number): [itemIndex: number, startOffset: number] {
     let startOffset = 0;
-    const length = this.#sizes.length;
-    for (let i = 0; i < length; i ++) {
-      const size = this.#sizes[i];
+    for (const [i,size] of this.#sizes.entries()) {
       if (startOffset + size > offset) {
         return [i, startOffset];
       }
@@ -49,6 +47,7 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
     const itemIndex = Math.floor((offset - startOffset) / this.#defaultItemSize);
     startOffset += itemIndex * this.#defaultItemSize;
 
+    const length = this.#sizes.length;
     return [itemIndex+length, startOffset];
   }
 

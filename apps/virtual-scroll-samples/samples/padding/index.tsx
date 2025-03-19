@@ -1,12 +1,13 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { VirtualScroll, VirtualScrollProxy, DisplayList, AutoSizer, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+import { VirtualScroll, VirtualScrollProxy, DisplayList, DisplayListItemProps, 
+  AutoSizer, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
 const PADDING_SIZE = 10;
 
-const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+const Row = ({ index, isScrolling, style }: DisplayListItemProps) => (
   <div 
     className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
     { (index == 0) ? "Header" : "Item " + index }

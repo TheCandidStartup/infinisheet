@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useArgs } from '@storybook/preview-api';
 
-import { ScrollState, VirtualList, VirtualListProps, VirtualListProxy } from '@candidstartup/react-virtual-scroll';
+import { ScrollState, VirtualList, VirtualListProps, VirtualListProxy, DisplayListItemProps } from '@candidstartup/react-virtual-scroll';
 import { mappingVariableVertical, mappingFixedVertical, mappingFixedHorizontal, rewriteMapping } from './mapping';
 
 function rowClassName(rowIndex: number, isScrolling?: boolean): string {
@@ -12,7 +12,7 @@ function rowClassName(rowIndex: number, isScrolling?: boolean): string {
     ( isScrolling ? "VirtualSpreadsheet_Row VirtualSpreadsheet_Cell__Type_undefined" : "VirtualSpreadsheet_Row VirtualSpreadsheet_Cell__Type_boolean" );
 }
 
-const Row = ({ index, style, isScrolling }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+const Row = ({ index, style, isScrolling }: DisplayListItemProps) => (
   <div className={ rowClassName(index, isScrolling) } style={style}>
     { (index == 0) ? "Header" : "Item " + index }
   </div>
@@ -24,17 +24,17 @@ function colClassName(index: number, isScrolling?: boolean): string {
     ( isScrolling ? "VirtualSpreadsheet_Column VirtualSpreadsheet_Cell__Type_undefined" : "VirtualSpreadsheet_Column VirtualSpreadsheet_Cell__Type_boolean" );
 }
 
-const Column = ({ index, style, isScrolling }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+const Column = ({ index, style, isScrolling }: DisplayListItemProps) => (
   <div className={ colClassName(index, isScrolling) } style={style}>
     { (index == 0) ? "Header" : "Item " + index }
   </div>
 );
 
 type VirtualListPropsAndCustomArgs = VirtualListProps & { 
-  currentOffset?: number,
-  currentItem?: number,
-  scrollToOffset?: number,
-  scrollToItem?: number
+  currentOffset?: number | undefined,
+  currentItem?: number | undefined,
+  scrollToOffset?: number | undefined,
+  scrollToItem?: number | undefined
 };
 
 const meta: Meta<VirtualListPropsAndCustomArgs> = {

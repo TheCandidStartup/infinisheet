@@ -14,8 +14,8 @@ export function AutoSizer(props: AutoSizerProps): react_jsx_runtime.JSX.Element;
 // @public
 export interface AutoSizerProps {
     children: AutoSizerRender;
-    className?: string;
-    style?: React$1.CSSProperties;
+    className?: string | undefined;
+    style?: React$1.CSSProperties | undefined;
 }
 
 // @public
@@ -29,25 +29,25 @@ export interface AutoSizerRenderProps {
 
 // @public
 export interface ComponentProps {
-    className?: string;
+    className?: string | undefined;
     height: number;
-    innerClassName?: string;
+    innerClassName?: string | undefined;
     width: number;
 }
 
 // @public
 export interface DisplayBaseItemProps {
     data: unknown;
-    isScrolling?: boolean;
+    isScrolling?: boolean | undefined;
     style: React$1.CSSProperties;
 }
 
 // @public
 export interface DisplayBaseProps extends ComponentProps {
-    innerRender?: VirtualContainerRender;
-    isScrolling?: boolean;
+    innerRender?: VirtualContainerRender | undefined;
+    isScrolling?: boolean | undefined;
     itemData?: unknown;
-    outerRender?: VirtualContainerRender;
+    outerRender?: VirtualContainerRender | undefined;
 }
 
 // @public
@@ -68,7 +68,7 @@ export interface DisplayGridProps extends DisplayBaseProps {
     columnCount: number;
     columnOffset: number;
     columnOffsetMapping: ItemOffsetMapping;
-    itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React$1.Key;
+    itemKey?: GridItemKey | undefined;
     rowCount: number;
     rowOffset: number;
     rowOffsetMapping: ItemOffsetMapping;
@@ -89,9 +89,9 @@ export interface DisplayListItemProps extends DisplayBaseItemProps {
 export interface DisplayListProps extends DisplayBaseProps {
     children: DisplayListItem;
     itemCount: number;
-    itemKey?: (index: number, data: unknown) => React$1.Key;
+    itemKey?: ListItemKey | undefined;
     itemOffsetMapping: ItemOffsetMapping;
-    layout?: ScrollLayout;
+    layout?: ScrollLayout | undefined;
     offset: number;
 }
 
@@ -101,7 +101,13 @@ export function getOffsetToScrollRange(offset: number | undefined, size: number 
 // @public
 export function getRangeToScroll(index: number | undefined, mapping: ItemOffsetMapping): ScrollRange;
 
+// @public
+export type GridItemKey = (rowIndex: number, columnIndex: number, data: unknown) => React$1.Key;
+
 export { ItemOffsetMapping }
+
+// @public
+export type ListItemKey = (index: number, data: unknown) => React$1.Key;
 
 // @public
 export type ScrollDirection = "forward" | "backward";
@@ -142,7 +148,7 @@ export const VirtualContainer: React$1.ForwardRefExoticComponent<VirtualContaine
 
 // @public
 export interface VirtualContainerComponentProps extends VirtualContainerRenderProps {
-    render?: VirtualContainerRender;
+    render?: VirtualContainerRender | undefined;
 }
 
 // @public
@@ -154,7 +160,7 @@ export type VirtualContainerRenderProps = React$1.ComponentPropsWithoutRef<'div'
 // @public
 export interface VirtualContentProps {
     horizontalOffset: number;
-    isScrolling?: boolean;
+    isScrolling?: boolean | undefined;
     verticalOffset: number;
 }
 
@@ -169,10 +175,10 @@ export interface VirtualGridProps extends VirtualBaseProps {
     children: DisplayGridItem;
     columnCount: number;
     columnOffsetMapping: ItemOffsetMapping;
-    innerRender?: VirtualContainerRender;
-    itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React$1.Key;
-    onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
-    outerRender?: VirtualContainerRender;
+    innerRender?: VirtualContainerRender | undefined;
+    itemKey?: GridItemKey | undefined;
+    onScroll?: VirtualGridScrollHandler | undefined;
+    outerRender?: VirtualContainerRender | undefined;
     rowCount: number;
     rowOffsetMapping: ItemOffsetMapping;
 }
@@ -188,6 +194,9 @@ export interface VirtualGridProxy {
 }
 
 // @public
+export type VirtualGridScrollHandler = (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
+
+// @public
 export function virtualGridScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy | null>, rowOffsetMapping: ItemOffsetMapping, columnOffsetMapping: ItemOffsetMapping, rowIndex?: number, columnIndex?: number, option?: ScrollToOption): void;
 
 // @public
@@ -196,13 +205,13 @@ export const VirtualList: React$1.ForwardRefExoticComponent<VirtualListProps & R
 // @public
 export interface VirtualListProps extends VirtualBaseProps {
     children: DisplayListItem;
-    innerRender?: VirtualContainerRender;
+    innerRender?: VirtualContainerRender | undefined;
     itemCount: number;
-    itemKey?: (index: number, data: unknown) => React$1.Key;
+    itemKey?: ListItemKey | undefined;
     itemOffsetMapping: ItemOffsetMapping;
-    layout?: ScrollLayout;
-    onScroll?: (offset: number, newScrollState: ScrollState) => void;
-    outerRender?: VirtualContainerRender;
+    layout?: ScrollLayout | undefined;
+    onScroll?: VirtualListScrollHandler | undefined;
+    outerRender?: VirtualContainerRender | undefined;
 }
 
 // @public
@@ -213,6 +222,9 @@ export interface VirtualListProxy {
 }
 
 // @public
+export type VirtualListScrollHandler = (offset: number, newScrollState: ScrollState) => void;
+
+// @public
 export function virtualListScrollToItem(scrollRef: React.RefObject<VirtualScrollProxy | null>, itemOffsetMapping: ItemOffsetMapping, isVertical: boolean, index: number, option?: ScrollToOption): void;
 
 // @public
@@ -220,20 +232,23 @@ export const VirtualScroll: React$1.ForwardRefExoticComponent<VirtualScrollProps
 
 // @public
 export interface VirtualScrollableProps extends ComponentProps {
-    maxCssSize?: number;
-    minNumPages?: number;
-    useIsScrolling?: boolean;
+    maxCssSize?: number | undefined;
+    minNumPages?: number | undefined;
+    useIsScrolling?: boolean | undefined;
 }
+
+// @public
+export type VirtualScrollHandler = (verticalOffset: number, horizontalOffset: number, newVerticalScrollState: ScrollState, newHorizontalScrollState: ScrollState) => void;
 
 // @public
 export interface VirtualScrollProps extends VirtualScrollableProps {
     children: VirtualContentRender;
-    innerRender?: VirtualContainerRender;
-    onScroll?: (verticalOffset: number, horizontalOffset: number, newVerticalScrollState: ScrollState, newHorizontalScrollState: ScrollState) => void;
-    outerRender?: VirtualContainerRender;
-    scrollHeight?: number;
-    scrollWidth?: number;
-    useOffsets?: boolean;
+    innerRender?: VirtualContainerRender | undefined;
+    onScroll?: VirtualScrollHandler | undefined;
+    outerRender?: VirtualContainerRender | undefined;
+    scrollHeight?: number | undefined;
+    scrollWidth?: number | undefined;
+    useOffsets?: boolean | undefined;
 }
 
 // @public

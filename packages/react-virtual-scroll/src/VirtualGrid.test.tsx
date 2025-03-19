@@ -4,6 +4,7 @@ import { throwErr, overrideProp, fireEventScrollEnd, stubProperty, unstubAllProp
 import { VirtualContainerRender } from './VirtualContainer'
 import { VirtualGrid, VirtualGridProps } from './VirtualGrid'
 import { VirtualGridProxy } from './VirtualGridProxy'
+import type { DisplayGridItemProps } from "./DisplayGrid";
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
@@ -227,8 +228,7 @@ describe('VirtualGrid with useIsScrolling', () => {
     unstubAllProperties();
   })
 
-  const Cell = ({ rowIndex, columnIndex, isScrolling, style }: 
-                { rowIndex: number, columnIndex: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+  const Cell = ({ rowIndex, columnIndex, isScrolling, style }: DisplayGridItemProps) => (
     <div className={ rowIndex == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
       { (rowIndex == 0) ? `Header ${columnIndex}` : `Cell ${rowIndex}:${columnIndex}` }
     </div>

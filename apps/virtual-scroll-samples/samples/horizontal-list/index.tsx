@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, DisplayListItemProps } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
-const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+const Row = ({ index, isScrolling, style }: DisplayListItemProps) => (
   <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
     { (index == 0) ? "Header" : "Item " + index }
   </div>

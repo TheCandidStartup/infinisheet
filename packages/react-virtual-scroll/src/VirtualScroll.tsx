@@ -14,7 +14,7 @@ export interface VirtualContentProps {
    * 
    * Only defined if {@link VirtualScrollableProps.useIsScrolling} is true. 
    * */
-  isScrolling?: boolean,
+  isScrolling?: boolean | undefined,
 
   /** Current scroll position vertical offset */
   verticalOffset: number,
@@ -43,6 +43,16 @@ export interface VirtualContentProps {
 export type VirtualContentRender = (props: VirtualContentProps, ref?: React.ForwardedRef<HTMLDivElement>) => React.JSX.Element;
 
 /**
+ * Callback after a scroll event has been processed and state updated but before rendering
+ * @param verticalOffset - Resulting overall vertical offset. 
+ * @param horizontalOffset - Resulting overall horizontal offset.
+ * @param newVerticalScrollState - New vertical {@link ScrollState} that will be used for rendering.
+ * @param newHorizontalScrollState - New horizontal {@link ScrollState} that will be used for rendering.
+ */
+export type VirtualScrollHandler = (verticalOffset: number, horizontalOffset: number, 
+   newVerticalScrollState: ScrollState, newHorizontalScrollState: ScrollState) => void
+
+/**
  * Props accepted by {@link VirtualScroll}
  */
 export interface VirtualScrollProps extends VirtualScrollableProps {
@@ -54,14 +64,14 @@ export interface VirtualScrollProps extends VirtualScrollableProps {
    * 
    * @defaultValue 0
    */
-  scrollHeight?: number,
+  scrollHeight?: number | undefined,
 
   /** 
    * Width of area to scroll over 
    * 
    * @defaultValue 0
    */
-  scrollWidth?: number,
+  scrollWidth?: number | undefined,
 
   /** 
    * Determines whether the component should pass {@link VirtualContentProps.verticalOffset|verticalOffset} and 
@@ -71,22 +81,16 @@ export interface VirtualScrollProps extends VirtualScrollableProps {
    * 
    * @defaultValue true
    * */
-  useOffsets?: boolean,
+  useOffsets?: boolean | undefined,
 
-  /**
-   * Callback after a scroll event has been processed and state updated but before rendering
-   * @param verticalOffset - Resulting overall vertical offset. 
-   * @param horizontalOffset - Resulting overall horizontal offset.
-   * @param newVerticalScrollState - New vertical {@link ScrollState} that will be used for rendering.
-   * @param newHorizontalScrollState - New horizontal {@link ScrollState} that will be used for rendering.
-   */
-  onScroll?: (verticalOffset: number, horizontalOffset: number, newVerticalScrollState: ScrollState, newHorizontalScrollState: ScrollState) => void;
+  /** Scroll handler implementing {@link VirtualScrollHandler} called after a scroll event has been processed and state updated. */
+  onScroll?: VirtualScrollHandler | undefined;
 
   /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualScroll} outer container. */
-  outerRender?: VirtualContainerRender;
+  outerRender?: VirtualContainerRender | undefined;
 
   /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualScroll} inner container. */
-  innerRender?: VirtualContainerRender;
+  innerRender?: VirtualContainerRender | undefined;
 }
 
 // Using a named function rather than => so that the name shows up in React Developer Tools

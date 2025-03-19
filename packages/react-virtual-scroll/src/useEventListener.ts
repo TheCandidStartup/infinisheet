@@ -4,9 +4,9 @@
 import { useRef, useEffect, RefObject, createRef } from 'react';
 
 interface Options {
-  capture?: boolean
-  once?: boolean
-  passive?: boolean
+  capture?: boolean | undefined
+  once?: boolean | undefined
+  passive?: boolean | undefined
 }
 
 type Listener = Window | Document | HTMLElement;
@@ -37,7 +37,11 @@ export function useEventListener (eventName: string,
       return;
 
     const eventListener = (event: Event) => savedHandler.current?.(event);
-    const opts = { capture, passive, once };
+    const opts = { 
+      ...(capture !== undefined ? { capture } : {}), 
+      ...(passive !== undefined ? { passive } : {}), 
+      ...(once !== undefined ? { once } : {})
+    };
     el.addEventListener(eventName, eventListener, opts);
     return () => {
       el.removeEventListener(eventName, eventListener, opts);

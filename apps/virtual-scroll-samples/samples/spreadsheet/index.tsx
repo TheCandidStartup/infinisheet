@@ -1,22 +1,23 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { DisplayList, VirtualGrid, VirtualGridProxy, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+import { DisplayList, DisplayListItemProps, VirtualGrid, DisplayGridItemProps, 
+  VirtualGridProxy, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
-const Col = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+const Col = ({ index, style }: DisplayListItemProps) => (
   <div className="spreadsheetColumn" style={style}>
     { index }
   </div>
 );
 
-const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
+const Row = ({ index, style }: DisplayListItemProps) => (
   <div className="spreadsheetRow" style={style}>
     { index }
   </div>
 );
 
-const Cell = ({ rowIndex, columnIndex, style }: { rowIndex: number, columnIndex: number, style: React.CSSProperties }) => (
+const Cell = ({ rowIndex, columnIndex, style }: DisplayGridItemProps) => (
   <div className="spreadsheetCell" style={style}>
     { `${rowIndex}:${columnIndex}` }
   </div>

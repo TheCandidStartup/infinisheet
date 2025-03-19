@@ -28,7 +28,7 @@ export type VirtualContainerRender = (props: VirtualContainerRenderProps, ref?: 
  */
 export interface VirtualContainerComponentProps extends VirtualContainerRenderProps {
   /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualContainer}. */
-  render?: VirtualContainerRender;
+  render?: VirtualContainerRender | undefined;
 }
 
 const defaultContainerRender: VirtualContainerRender = ({...rest}, ref) => (

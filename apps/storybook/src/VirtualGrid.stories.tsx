@@ -3,7 +3,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useArgs } from '@storybook/preview-api';
 
-import { ScrollState, VirtualGrid, VirtualGridProps, VirtualGridProxy, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
+import { ScrollState, VirtualGrid, VirtualGridProps, VirtualGridProxy, 
+  useFixedSizeItemOffsetMapping, DisplayGridItemProps } from '@candidstartup/react-virtual-scroll';
 import { mappingVariableVertical, mappingVariableHorizontal, mappingFixedVertical, mappingFixedHorizontal } from './mapping';
 
 const mappingWideHorizontal = useFixedSizeItemOffsetMapping(160);
@@ -14,21 +15,21 @@ function cellClassName(rowIndex: number, isScrolling?: boolean): string {
     ( isScrolling ? "VirtualSpreadsheet_Cell VirtualSpreadsheet_Cell__Type_undefined" : "VirtualSpreadsheet_Cell VirtualSpreadsheet_Cell__Type_boolean" );
 }
 
-const Cell = ({ rowIndex, columnIndex, isScrolling, style }: { rowIndex: number, columnIndex: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+const Cell = ({ rowIndex, columnIndex, isScrolling, style }: DisplayGridItemProps) => (
   <div className={cellClassName(rowIndex,isScrolling)} style={style}>
     { (rowIndex == 0) ? `${columnIndex}` : `${rowIndex}:${columnIndex}` }
   </div>
 );
 
 type VirtualGridPropsAndCustomArgs = VirtualGridProps & { 
-  currentRowOffset?: number,
-  currentColumnOffset?: number,
-  currentRow?: number,
-  currentColumn?: number,
-  scrollToRowOffset?: number,
-  scrollToColumnOffset?: number,
-  scrollToRow?: number,
-  scrollToColumn?: number
+  currentRowOffset?: number | undefined,
+  currentColumnOffset?: number | undefined,
+  currentRow?: number | undefined,
+  currentColumn?: number | undefined,
+  scrollToRowOffset?: number | undefined,
+  scrollToColumnOffset?: number | undefined,
+  scrollToRow?: number | undefined,
+  scrollToColumn?: number | undefined
 };
 
 const meta: Meta<VirtualGridPropsAndCustomArgs> = {

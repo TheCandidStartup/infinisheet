@@ -4,6 +4,7 @@ import { throwErr, overrideProp, fireEventScrollEnd, stubProperty, unstubAllProp
 import { VirtualContainerRender } from './VirtualContainer'
 import { VirtualList, VirtualListProps } from './VirtualList'
 import { VirtualListProxy } from './VirtualListProxy'
+import type { DisplayListItemProps } from "./DisplayList";
 import { useFixedSizeItemOffsetMapping } from './useFixedSizeItemOffsetMapping';
 import { useVariableSizeItemOffsetMapping } from './useVariableSizeItemOffsetMapping';
 
@@ -318,7 +319,7 @@ describe('Variable Size VirtualList with useIsScrolling', () => {
     unstubAllProperties();
   })
 
-  const Cell = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+  const Cell = ({ index, isScrolling, style }: DisplayListItemProps) => (
     <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
       { (index == 0) ? "Header" : "Item " + index }
     </div>

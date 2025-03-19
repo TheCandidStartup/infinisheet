@@ -17,8 +17,8 @@ const displayCode = `
 </VirtualScroll>`
 
 type VirtualScrollPropsAndCustomArgs = VirtualScrollProps & { 
-  scrollToVerticalOffset?: number,
-  scrollToHorizontalOffset?: number
+  scrollToVerticalOffset?: number | undefined,
+  scrollToHorizontalOffset?: number | undefined
 };
 
 const meta: Meta<VirtualScrollPropsAndCustomArgs> = {

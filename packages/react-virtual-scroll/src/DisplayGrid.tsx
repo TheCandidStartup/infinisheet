@@ -34,6 +34,11 @@ export interface DisplayGridItemProps extends DisplayBaseItemProps {
 export type DisplayGridItem = React.ComponentType<DisplayGridItemProps>;
 
 /**
+ * Function that defines the key to use for each item given row and column index and value of {@link DisplayBaseProps.itemData}.
+ */
+export type GridItemKey = (rowIndex: number, columnIndex: number, data: unknown) => React.Key;
+
+/**
  * Props accepted by {@link DisplayGrid}
  */
 export interface DisplayGridProps extends DisplayBaseProps {
@@ -69,10 +74,10 @@ export interface DisplayGridProps extends DisplayBaseProps {
   columnOffset: number,
 
   /**
-   * Function that defines the key to use for each item given row and column index and value of {@link DisplayBaseProps.itemData}.
+   * Function implementing {@link GridItemKey} that defines the key to use for each item.
    * @defaultValue `(rowIndex, columnIndex, _data) => '${rowIndex}:${columnIndex}'`
    */
-  itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React.Key,
+  itemKey?: GridItemKey | undefined,
 }
 
 const defaultItemKey = (rowIndex: number, columnIndex: number, _data: unknown) => `${rowIndex}:${columnIndex}`;

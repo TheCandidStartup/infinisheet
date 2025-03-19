@@ -60,11 +60,11 @@ export function getGridTemplate(sizes: number[]): string | undefined {
     return undefined;
 
   let ret = undefined;
-  let lastSize = sizes[0];
+  let lastSize = sizes[0]!;
   let repeat = 1;
 
   for (let i = 1; i < count; i ++) {
-    const size = sizes[i];
+    const size = sizes[i]!;
     if (size == lastSize) {
       repeat ++;
     } else {

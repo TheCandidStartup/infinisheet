@@ -37,7 +37,7 @@ export function splitRowColRef(ref: RowColRef): [row: number|undefined, col: Col
     return [undefined,undefined];
 
   const col = found[1];
-  const row = parseInt(found[2]);
+  const row = found[2] ? parseInt(found[2]) : 0;
   return [(row>0) ? row-1 : undefined, col ? col : undefined];
 }
 

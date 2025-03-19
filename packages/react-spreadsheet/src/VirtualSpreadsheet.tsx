@@ -12,7 +12,7 @@ import * as numfmt from 'numfmt'
  */
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
   /** Used by `useSyncExternalStore` to support server side rendering  */
-  getServerSnapshot?: () => Snapshot
+getServerSnapshot?: (() => Snapshot) | undefined
 }
 
 /**
@@ -22,7 +22,7 @@ export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot
  */
 export interface VirtualSpreadsheetGenericProps<Snapshot> {
   /** The `className` applied to the spreadsheet as a whole */
-  className?: string,
+  className?: string | undefined,
 
   /** Spreadsheet theme which defines the CSS classes to apply
    * 
@@ -30,7 +30,7 @@ export interface VirtualSpreadsheetGenericProps<Snapshot> {
    * defined as implementations of {@link VirtualSpreadsheetTheme} and themes
    * implicitly defined by importing a CSS module. 
    */
-  theme?: VirtualSpreadsheetTheme | Record<string, string>,
+  theme?: VirtualSpreadsheetTheme | Record<string, string> | undefined,
 
   /** Component height */
   height: number,
@@ -41,17 +41,17 @@ export interface VirtualSpreadsheetGenericProps<Snapshot> {
   /** Height of input bar
    * @defaultValue 30
    */
-  inputBarHeight?: number,
+  inputBarHeight?: number | undefined,
 
   /** Height of column header
    * @defaultValue 50
    */
-  columnHeaderHeight?: number,
+  columnHeaderHeight?: number | undefined,
 
   /** Width of row header
    * @defaultValue 100
    */
-  rowHeaderWidth?: number,
+  rowHeaderWidth?: number | undefined,
 
   /** Data to display and edit */
   data: ReactSpreadsheetData<Snapshot>,
@@ -64,22 +64,22 @@ export interface VirtualSpreadsheetGenericProps<Snapshot> {
   /** Minimum number of rows in the spreadsheet 
    * @defaultValue 100
   */
-  minRowCount?: number,
+  minRowCount?: number | undefined,
 
   /** Maximum number of rows in the spreadsheet 
    * @defaultValue 1000000000000
   */
-  maxRowCount?: number,
+  maxRowCount?: number | undefined,
 
   /** Minimum number of columns in the grid 
    * @defaultValue 26
   */
-  minColumnCount?: number,
+  minColumnCount?: number | undefined,
 
   /** Maximum umber of columns in the grid 
    * @defaultValue 1000000000000
   */
-  maxColumnCount?: number,
+  maxColumnCount?: number | undefined,
 
   /** 
    * Maximum size for CSS element beyond which layout breaks. You should never normally need to change this. 
@@ -87,7 +87,7 @@ export interface VirtualSpreadsheetGenericProps<Snapshot> {
    * 
    * @defaultValue 6000000
    * */
-  maxCssSize?: number,
+  maxCssSize?: number | undefined,
 
   /**
    * The minimum number of virtual pages to use when inner container would otherwise be more than {@link VirtualSpreadsheetProps.maxCssSize} big.
@@ -95,7 +95,7 @@ export interface VirtualSpreadsheetGenericProps<Snapshot> {
    * 
    * @defaultValue 100
    */
-  minNumPages?: number
+  minNumPages?: number | undefined
 }
 
 /**

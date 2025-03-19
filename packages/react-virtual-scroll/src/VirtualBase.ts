@@ -13,7 +13,7 @@ export interface DisplayBaseItemProps {
    * 
    * Value passed through from {@link DisplayBaseProps.isScrolling}.
    * */
-  isScrolling?: boolean,
+  isScrolling?: boolean | undefined,
 
   /** Style that should be applied to each item rendered. Positions the item within the inner container. */
   style: React.CSSProperties,
@@ -24,10 +24,10 @@ export interface DisplayBaseItemProps {
  */
 export interface ComponentProps {
   /** The `className` applied to the outer container element. Use when styling the entire component. */
-  className?: string,
+  className?: string | undefined,
 
   /** The `className` applied to the inner container element. Use for special cases when styling only the inner container and items. */
-  innerClassName?: string,
+  innerClassName?: string | undefined,
 
   /** Component height */
   height: number,
@@ -48,21 +48,21 @@ export interface  DisplayBaseProps extends ComponentProps {
    * Provided as a convenience when combining display components with {@link VirtualScroll}
    * Not interpreted by the display component itself
    */
-  isScrolling?: boolean,
+  isScrolling?: boolean | undefined,
 
   /** 
    * Renders the outer viewport div which provides a window onto the inner grid div
    * 
    * Render prop implementing {@link VirtualContainerRender}. Used to customize display component outer container.
    */
-  outerRender?: VirtualContainerRender;
+  outerRender?: VirtualContainerRender | undefined;
 
   /** 
    * Renders the inner grid div containing all the list items
    * 
    * Render prop implementing {@link VirtualContainerRender}. Used to customize display component inner container.
    */
-  innerRender?: VirtualContainerRender;
+  innerRender?: VirtualContainerRender | undefined;
 }
 
 /**
@@ -75,7 +75,7 @@ export interface VirtualScrollableProps extends ComponentProps {
    * 
    * @defaultValue false
    * */
-  useIsScrolling?: boolean,
+  useIsScrolling?: boolean | undefined,
 
   /** 
    * Maximum size for CSS element beyond which layout breaks. You should never normally need to change this. 
@@ -83,7 +83,7 @@ export interface VirtualScrollableProps extends ComponentProps {
    * 
    * @defaultValue 6000000
    * */
-  maxCssSize?: number,
+  maxCssSize?: number | undefined,
 
   /**
    * The minimum number of virtual pages to use when inner container would otherwise be more than {@link VirtualScrollableProps.maxCssSize} big.
@@ -91,7 +91,7 @@ export interface VirtualScrollableProps extends ComponentProps {
    * 
    * @defaultValue 100
    */
-  minNumPages?: number
+  minNumPages?: number | undefined
 }
 
 /**

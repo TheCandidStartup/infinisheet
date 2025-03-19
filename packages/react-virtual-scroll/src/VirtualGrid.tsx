@@ -1,13 +1,23 @@
 import React from "react";
 import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
 import { VirtualBaseProps, ScrollToOption } from './VirtualBase';
-import { DisplayGrid, DisplayGridItem } from './DisplayGrid';
+import { DisplayGrid, DisplayGridItem, GridItemKey } from './DisplayGrid';
 import { VirtualContainerRender } from './VirtualContainer';
 import { VirtualScroll } from './VirtualScroll';
 import { VirtualScrollProxy } from './VirtualScrollProxy';
 import { virtualGridScrollToItem, VirtualGridProxy } from './VirtualGridProxy';
 import { AutoSizer } from './AutoSizer';
 import { ScrollState } from './useVirtualScroll';
+
+/**
+ * Callback after a scroll event has been processed and state updated but before rendering
+ * @param rowOffset - Resulting overall row offset. Can be passed to {@link ItemOffsetMapping} to determine first row.
+ * @param columnOffset - Resulting overall column offset. Can be passed to {@link ItemOffsetMapping} to determine first column.
+ * @param newRowScrollState - New {@link ScrollState} for rows that will be used for rendering.
+ * @param newColumnScrollState - New {@link ScrollState} for columns that will be used for rendering.
+ */
+export type VirtualGridScrollHandler = (rowOffset: number, columnOffset: number, 
+  newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
 
 /**
  * Props accepted by {@link VirtualGrid}
@@ -39,25 +49,19 @@ export interface VirtualGridProps extends VirtualBaseProps {
   columnOffsetMapping: ItemOffsetMapping,
 
   /**
-   * Function that defines the key to use for each item given row and column index and value of {@link VirtualBaseProps.itemData}.
+   * Function implementing {@link GridItemKey} that defines the key to use for each item.
    * @defaultValue `(rowIndex, columnIndex, _data) => '${rowIndex}:${columnIndex}'`
    */
-  itemKey?: (rowIndex: number, columnIndex: number, data: unknown) => React.Key,
+  itemKey?: GridItemKey | undefined,
 
-  /**
-   * Callback after a scroll event has been processed and state updated but before rendering
-   * @param rowOffset - Resulting overall row offset. Can be passed to {@link ItemOffsetMapping} to determine first row.
-   * @param columnOffset - Resulting overall column offset. Can be passed to {@link ItemOffsetMapping} to determine first column.
-   * @param newRowScrollState - New {@link ScrollState} for rows that will be used for rendering.
-   * @param newColumnScrollState - New {@link ScrollState} for columns that will be used for rendering.
-   */
-  onScroll?: (rowOffset: number, columnOffset: number, newRowScrollState: ScrollState, newColumnScrollState: ScrollState) => void;
+  /** Scroll handler implementing {@link VirtualGridScrollHandler} called after a scroll event has been processed and state updated. */
+  onScroll?: VirtualGridScrollHandler | undefined;
 
   /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualGrid} outer container. */
-  outerRender?: VirtualContainerRender;
+  outerRender?: VirtualContainerRender | undefined;
 
   /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayGrid} within {@link VirtualGrid} inner container. */
-  innerRender?: VirtualContainerRender;
+  innerRender?: VirtualContainerRender | undefined;
 }
 
 // Using a named function rather than => so that the name shows up in React Developer Tools

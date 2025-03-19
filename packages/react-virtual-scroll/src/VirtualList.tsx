@@ -1,13 +1,20 @@
 import React from "react";
 import type { ItemOffsetMapping } from "@candidstartup/infinisheet-types";
 import { VirtualBaseProps, ScrollToOption, ScrollLayout } from './VirtualBase';
-import { DisplayList, DisplayListItem } from './DisplayList';
+import { DisplayList, DisplayListItem, ListItemKey } from './DisplayList';
 import { VirtualContainerRender } from './VirtualContainer';
 import { VirtualScroll } from './VirtualScroll';
 import { VirtualScrollProxy } from './VirtualScrollProxy';
 import { virtualListScrollToItem, VirtualListProxy } from './VirtualListProxy';
 import { AutoSizer } from './AutoSizer';
 import { ScrollState } from './useVirtualScroll';
+
+/**
+ * Callback after a scroll event has been processed and state updated but before rendering
+ * @param offset - Resulting overall offset. Can be passed to {@link ItemOffsetMapping} to determine top item.
+ * @param newScrollState - New {@link ScrollState} that will be used for rendering.
+ */
+export type VirtualListScrollHandler = (offset: number, newScrollState: ScrollState) => void;
 
 /**
  * Props accepted by {@link VirtualList}
@@ -28,29 +35,25 @@ export interface VirtualListProps extends VirtualBaseProps {
   itemOffsetMapping: ItemOffsetMapping,
 
   /**
-   * Function that defines the key to use for each item given item index and value of {@link VirtualBaseProps.itemData}.
+   * Function implementing {@link ListItemKey} that defines the key to use for each item.
    * @defaultValue `(index, _data) => index`
    */
-  itemKey?: (index: number, data: unknown) => React.Key,
+  itemKey?: ListItemKey | undefined,
 
   /**
    * Choice of 'vertical' or 'horizontal' layouts
    * @defaultValue 'vertical'
    */
-  layout?: ScrollLayout,
+  layout?: ScrollLayout | undefined,
 
-  /**
-   * Callback after a scroll event has been processed and state updated but before rendering
-   * @param offset - Resulting overall offset. Can be passed to {@link ItemOffsetMapping} to determine top item.
-   * @param newScrollState - New {@link ScrollState} that will be used for rendering.
-   */
-  onScroll?: (offset: number, newScrollState: ScrollState) => void;
+  /** Scroll handler implementing {@link VirtualListScrollHandler} called after a scroll event has been processed and state updated. */
+  onScroll?: VirtualListScrollHandler | undefined;
 
   /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link VirtualList} outer container. */
-  outerRender?: VirtualContainerRender;
+  outerRender?: VirtualContainerRender | undefined;
 
   /** Render prop implementing {@link VirtualContainerRender}. Used to customize {@link DisplayList} within {@link VirtualList} inner container. */
-  innerRender?: VirtualContainerRender;
+  innerRender?: VirtualContainerRender | undefined;
 }
 
 

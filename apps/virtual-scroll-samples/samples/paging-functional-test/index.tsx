@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { VirtualList, VirtualListProxy, useFixedSizeItemOffsetMapping, ScrollState } from '@candidstartup/react-virtual-scroll';
+import { VirtualList, DisplayListItemProps, VirtualListProxy, useFixedSizeItemOffsetMapping, ScrollState } from '@candidstartup/react-virtual-scroll';
 
 import '../styles.css';
 
-const Row = ({ index, style } : {index: number, style: React.CSSProperties }) => (
+const Row = ({ index, style } : DisplayListItemProps) => (
   <div className={ index == 0 ? "header" : "cell" } style={style}>
     { (index == 0) ? "Header" : "Item " + index }
   </div>

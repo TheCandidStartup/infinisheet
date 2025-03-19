@@ -26,9 +26,9 @@ function updateLayout(header: HTMLElement, barWidth: number, barHeight: number) 
 interface TestProps {
   height: number,
   width: number,
-  scrollHeight?: number,
-  scrollWidth?: number,
-  useIsScrolling?: boolean
+  scrollHeight?: number | undefined,
+  scrollWidth?: number | undefined,
+  useIsScrolling?: boolean | undefined
 }
 
 interface TestState {

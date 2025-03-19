@@ -34,10 +34,10 @@ export interface AutoSizerProps {
   children: AutoSizerRender
 
   /** The `className` applied to the container element */
-  className?: string,
+  className?: string | undefined,
 
   /** Inline style to apply to the container element */
-  style?: React.CSSProperties;
+  style?: React.CSSProperties | undefined;
 }
 
 /**
@@ -62,13 +62,15 @@ export function AutoSizer(props: AutoSizerProps) {
   // creating and disconnecting resize observers.
   const resizeCallback: ResizeObserverCallback = React.useCallback((entries) => {
     entries.forEach(entry => {
-      // Context box sizes can contain fractional values while clientWidth
-      // and clientHeight properties are always rounded to nearest integer.
-      // Always use integer values to avoid confusion.
-      const newWidth = Math.round(entry.contentBoxSize[0].inlineSize);
-      setWidth(newWidth);
-      const newHeight = Math.round(entry.borderBoxSize[0].blockSize);
-      setHeight(newHeight);
+      if (entry?.contentBoxSize[0]) {
+        // Context box sizes can contain fractional values while clientWidth
+        // and clientHeight properties are always rounded to nearest integer.
+        // Always use integer values to avoid confusion.
+        const newWidth = Math.round(entry.contentBoxSize[0].inlineSize);
+        setWidth(newWidth);
+        const newHeight = Math.round(entry.contentBoxSize[0].blockSize);
+        setHeight(newHeight);
+      }
     })
   }, []);
 

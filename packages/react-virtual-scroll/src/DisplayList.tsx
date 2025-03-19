@@ -30,6 +30,11 @@ export interface DisplayListItemProps extends DisplayBaseItemProps {
  */
 export type DisplayListItem = React.ComponentType<DisplayListItemProps>;
 
+/** 
+ * Function that defines the key to use for each item given item index and value of {@link DisplayBaseProps.itemData}.
+ */
+export type ListItemKey = (index: number, data: unknown) => React.Key;
+
 /**
  * Props accepted by {@link DisplayList}
  */
@@ -52,16 +57,16 @@ export interface DisplayListProps extends DisplayBaseProps {
   itemOffsetMapping: ItemOffsetMapping,
 
   /**
-   * Function that defines the key to use for each item given item index and value of {@link DisplayBaseProps.itemData}.
+   * Function implementing {@link ListItemKey} that defines the key to use for each item.
    * @defaultValue `(index, _data) => index`
    */
-  itemKey?: (index: number, data: unknown) => React.Key,
+  itemKey?: ListItemKey | undefined,
 
   /**
    * Choice of 'vertical' or 'horizontal' layouts
    * @defaultValue 'vertical'
    */
-  layout?: ScrollLayout,
+  layout?: ScrollLayout | undefined,
 }
 
 const defaultItemKey = (index: number, _data: unknown) => index;

@@ -9,7 +9,7 @@ import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 
 // @public
 export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot> {
-    getServerSnapshot?: () => Snapshot;
+    getServerSnapshot?: (() => Snapshot) | undefined;
 }
 
 // @public
@@ -23,20 +23,20 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
 
 // @public
 export interface VirtualSpreadsheetGenericProps<Snapshot> {
-    className?: string;
-    columnHeaderHeight?: number;
+    className?: string | undefined;
+    columnHeaderHeight?: number | undefined;
     data: ReactSpreadsheetData<Snapshot>;
     height: number;
-    inputBarHeight?: number;
-    maxColumnCount?: number;
-    maxCssSize?: number;
-    maxRowCount?: number;
-    minColumnCount?: number;
-    minNumPages?: number;
-    minRowCount?: number;
+    inputBarHeight?: number | undefined;
+    maxColumnCount?: number | undefined;
+    maxCssSize?: number | undefined;
+    maxRowCount?: number | undefined;
+    minColumnCount?: number | undefined;
+    minNumPages?: number | undefined;
+    minRowCount?: number | undefined;
     readOnly?: boolean;
-    rowHeaderWidth?: number;
-    theme?: VirtualSpreadsheetTheme | Record<string, string>;
+    rowHeaderWidth?: number | undefined;
+    theme?: VirtualSpreadsheetTheme | Record<string, string> | undefined;
     width: number;
 }
 

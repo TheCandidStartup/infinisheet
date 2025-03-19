@@ -1,14 +1,14 @@
 import React from "react";
-import { VirtualGrid, VirtualList, VirtualListProxy, VirtualGridProxy,
+import { VirtualGrid, VirtualList, VirtualListProxy, VirtualGridProxy, DisplayListItemProps, DisplayGridItemProps,
   useVariableSizeItemOffsetMapping, useFixedSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 
-const Row = ({ index, isScrolling, style }: { index: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+const Row = ({ index, isScrolling, style }: DisplayListItemProps) => (
   <div className={ index == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
     { (index == 0) ? "Header" : "Item " + index }
   </div>
 );
 
-const Cell = ({ rowIndex, columnIndex, isScrolling, style }: { rowIndex: number, columnIndex: number, isScrolling?: boolean, style: React.CSSProperties }) => (
+const Cell = ({ rowIndex, columnIndex, isScrolling, style }: DisplayGridItemProps) => (
   <div className={ rowIndex == 0 ? "header" : ( isScrolling ? "cellScroll" : "cell") } style={style}>
     { (rowIndex == 0) ? `${columnIndex}` : `${rowIndex}:${columnIndex}` }
   </div>
