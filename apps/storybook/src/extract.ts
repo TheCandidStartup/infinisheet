@@ -31,15 +31,15 @@ function stripUnionUndefinedRaw(raw: string | undefined): string | undefined {
   return raw ? raw.replace(/\s*\|\s*undefined/, "") : undefined;
 }
 
-// Return [name, raw] after stripping "| undefined" from the type
-function stripUnionUndefined(sbType: SBUnionType): [string, string|undefined] {
+// Return [sub-SBType, name, raw] after stripping "| undefined" from the type
+function stripUnionUndefined(sbType: SBUnionType): [SBType, string, string|undefined] {
 
   const raw = stripUnionUndefinedRaw(sbType.raw);
   if (sbType.value.length > 2)
-    return ['union', raw];
+    return [sbType, 'union', raw];
 
   const first = sbType.value[0]!;
-  return [first.name, raw];
+  return [first, first.name, raw];
 }
 
 export const extractArgTypes: ArgTypesExtractor = (component) => {
@@ -50,12 +50,12 @@ export const extractArgTypes: ArgTypesExtractor = (component) => {
   return props.reduce((acc: StrictArgTypes, prop) => {
     let { type, defaultValue, description } = prop.propDef;
     const { name, jsDocTags, required } = prop.propDef;
-    const sbType = prop.propDef.sbType as SBType; // Annoyingly sbType is typed as any rather than SBType
+    let sbType = prop.propDef.sbType as SBType; // Annoyingly sbType is typed as any rather than SBType
 
     let sbName: string = sbType.name;
     let sbRaw = sbType.raw;
     if (!required && isUnionUndefined(sbType)) {
-      [sbName, sbRaw] = stripUnionUndefined(sbType);
+      [sbType, sbName, sbRaw] = stripUnionUndefined(sbType);
       type = { summary: sbRaw ? sbRaw : sbName };
     }
     
