@@ -1,4 +1,5 @@
-[![NPM Type Definitions](https://img.shields.io/npm/types/@candidstartup/react-spreadsheet)](https://www.npmjs.com/package/@candidstartup/react-spreadsheet)
+![React](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FTheCandidStartup%2Finfinisheet%2Fmain%2Fpackages%2Freact-spreadsheet%2Fpackage.json&query=%24.peerDependencies.react&label=React&color=blue)
+[![TypeScript](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FTheCandidStartup%2Finfinisheet%2Fmain%2Fpackage.json&query=%24.devDependencies.typescript&label=TypeScript&color=blue)](https://github.com/TheCandidStartup/infinisheet/blob/main/README.md#typescript-semantic-versioning)
 [![NPM Version](https://img.shields.io/npm/v/@candidstartup/react-spreadsheet)](https://www.npmjs.com/package/@candidstartup/react-spreadsheet)
 [![NPM bundle size](https://img.shields.io/bundlephobia/minzip/@candidstartup/react-spreadsheet)](https://www.npmjs.com/package/@candidstartup/react-spreadsheet)
 [![Build Status](https://github.com/TheCandidStartup/infinisheet/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/TheCandidStartup/infinisheet/actions/workflows/build.yml)
@@ -10,7 +11,6 @@
 React based spreadsheet frontend. Written in TypeScript using modern React. Scalable to trillions of rows and columns. 
 
 ## Interface
-
 The package provides a combined `VirtualSpreadsheet` component that includes a spreadsheet grid, row and column headers and input bar. The component is virtualized with data retrieved on demand via a `SpreadsheetData` interface. The component supports data sources that change independently.
 
 The package includes `VirtualSpreadsheet.css` which provides basic styling using the BEM convention. The stylesheet can be imported directly or as a CSS module for isolation. Use your own CSS if you prefer.
