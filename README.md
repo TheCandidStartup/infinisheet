@@ -21,7 +21,7 @@ This is a [Lerna](https://lerna.js.org/) based monorepo. The primary tooling is 
 * [react-virtual-scroll](./packages/react-virtual-scroll): Modern React components for lists and grids that scale to trillions of rows and columns
 * [react-spreadsheet](./packages/react-spreadsheet): Scalable spreadsheet frontend built on `react-virtual-scroll`
 * [infinisheet-types](./packages/infinisheet-types): Common types shared by frontend and backend packages
-* [simple-spreadsheet-data]](./packages/simple-spreadsheet-data): Reference implementations of `SpreadsheetData`
+* [simple-spreadsheet-data](./packages/simple-spreadsheet-data): Reference implementations of `SpreadsheetData`
 
 ## Apps
 
