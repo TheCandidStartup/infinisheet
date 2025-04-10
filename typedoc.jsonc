@@ -32,6 +32,7 @@
       "SetSignature"
     ],
     "readme": "none",
+    "externalPattern": ["**/node_modules/react/**"],
     "excludeExternals": true,
     "excludeInternal": true
   },

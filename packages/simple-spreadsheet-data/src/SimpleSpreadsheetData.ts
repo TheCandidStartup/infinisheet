@@ -1,5 +1,5 @@
-import type { CellValue, SpreadsheetData, RowColRef, ItemOffsetMapping } from "@candidstartup/infinisheet-types";
-import { FixedSizeItemOffsetMapping, rowColCoordsToRef } from "@candidstartup/infinisheet-types";
+import type { CellValue, SpreadsheetData, RowColRef, ItemOffsetMapping, Result, SpreadsheetDataError } from "@candidstartup/infinisheet-types";
+import { FixedSizeItemOffsetMapping, rowColCoordsToRef, ok } from "@candidstartup/infinisheet-types";
 
 interface CellContent {
   value: CellValue;
@@ -96,7 +96,7 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     return asContent(snapshot).values[ref]?.format;
   }
 
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean {
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError> {
     const curr = this.#content;
     const ref = rowColCoordsToRef(row, column);
 
@@ -111,7 +111,7 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     }
     this.#notifyListeners();
 
-    return true;
+    return ok();
   }
 
   #notifyListeners() {

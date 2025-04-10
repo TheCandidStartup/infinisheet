@@ -8,7 +8,7 @@ describe('EmptySpreadsheetData', () => {
     expect(data.getColumnCount(0)).toEqual(0);
     expect(data.getCellValue(0, 0, 0)).toEqual(null);
     expect(data.getCellFormat(0, 0, 0)).toEqual(undefined);
-    expect(data.setCellValueAndFormat(0, 0, null, undefined)).toEqual(false);
+    expect(data.setCellValueAndFormat(0, 0, null, undefined).isOk()).toEqual(false);
 
     const rowMapping = data.getRowItemOffsetMapping(0);
     expect(rowMapping.itemOffset(0)).toEqual(0);

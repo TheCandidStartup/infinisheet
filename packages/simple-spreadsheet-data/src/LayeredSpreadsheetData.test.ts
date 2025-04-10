@@ -39,8 +39,8 @@ describe('LayeredSpreadsheetData', () => {
 
   it('should implement SetCellValueAndFormat', () => {
     const data = new TestData;
-    expect(data.setCellValueAndFormat(0, 0, "In A1", undefined)).toEqual(true);
-    expect(data.setCellValueAndFormat(0, 1, 42, "YYYY-MM-DD")).toEqual(true);
+    expect(data.setCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
+    expect(data.setCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(true);
     const snapshot = data.getSnapshot();
     expect(data.getRowCount(snapshot)).toEqual(100);
     expect(data.getColumnCount(snapshot)).toEqual(26);
@@ -59,7 +59,7 @@ describe('LayeredSpreadsheetData', () => {
     expect(Object.is(snapshot1, snapshot2)).toEqual(true);
     expect(data.getRowCount(snapshot1)).toEqual(100);
 
-    expect(data.setCellValueAndFormat(200, 0, "In A1", undefined)).toEqual(true);
+    expect(data.setCellValueAndFormat(200, 0, "In A1", undefined).isOk()).toEqual(true);
     const snapshot3 = data.getSnapshot();
     expect(Object.is(snapshot2, snapshot3)).toEqual(false);
     expect(data.getRowCount(snapshot1)).toEqual(100);

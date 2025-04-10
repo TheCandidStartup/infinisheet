@@ -6,7 +6,9 @@
 
 import { CellValue } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
+import { Result } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
+import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
 
 // @public
 export interface LayeredSnapshot<BaseSnapshot, EditSnapshot> {
@@ -38,7 +40,7 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     // (undocumented)
     getSnapshot(): LayeredSnapshot<BaseSnapshot, EditSnapshot>;
     // (undocumented)
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }
@@ -73,7 +75,7 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     // (undocumented)
     getSnapshot(): SimpleSnapshot;
     // (undocumented)
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }

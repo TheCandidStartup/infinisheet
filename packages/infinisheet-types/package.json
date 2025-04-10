@@ -48,5 +48,8 @@
     "devbuild": "npm run build && npm run lint && npm run devapi",
     "test": "vitest"
   },
-  "main": "index.js"
+  "main": "index.js",
+  "dependencies": {
+    "neverthrow": "^8.2.0"
+  }
 }

@@ -1,4 +1,4 @@
-import type { CellValue, SpreadsheetData, ItemOffsetMapping } from "@candidstartup/infinisheet-types";
+import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, SpreadsheetDataError } from "@candidstartup/infinisheet-types";
 
 interface LayeredSnapshotContent<BaseSnapshot, EditSnapshot> {
   base: BaseSnapshot,
@@ -118,7 +118,7 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     return (editValue === undefined) ? this.#base.getCellFormat(content.base, row, column) : this.#edit.getCellFormat(content.edit, row, column);
   }
 
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean {
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError> {
     return this.#edit.setCellValueAndFormat(row, column, value, format);
   }
 

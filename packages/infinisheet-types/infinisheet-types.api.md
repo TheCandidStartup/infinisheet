@@ -4,6 +4,9 @@
 
 ```ts
 
+import { Err as Err_2 } from 'neverthrow';
+import { Ok as Ok_2 } from 'neverthrow';
+
 // @public
 export interface CellError {
     type: 'CellError';
@@ -39,10 +42,23 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
     getSnapshot(): number;
     // (undocumented)
-    setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): boolean;
+    setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(_onDataChange: () => void): () => void;
 }
+
+// @public
+export interface Err<T, E> extends Err_2<T, E> {
+}
+
+// @public
+export function err<T = never, E extends string = string>(err: E): Err<T, E>;
+
+// @public (undocumented)
+export function err<T = never, E = unknown>(err: E): Err<T, E>;
+
+// @public (undocumented)
+export function err<T = never, _E extends void = void>(err: void): Err<T, void>;
 
 // @public
 export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
@@ -64,6 +80,19 @@ export interface ItemOffsetMapping {
     itemSize(itemIndex: number): number;
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 }
+
+// @public
+export interface Ok<T, E> extends Ok_2<T, E> {
+}
+
+// @public
+export function ok<T, E = never>(value: T): Ok<T, E>;
+
+// @public (undocumented)
+export function ok<_T extends void = void, E = never>(value: void): Ok<void, E>;
+
+// @public
+export type Result<T, E> = Ok<T, E> | Err<T, E>;
 
 // @public
 export type RowColCoords = [row: number | undefined, col: number | undefined];
@@ -89,9 +118,31 @@ export interface SpreadsheetData<Snapshot> {
     getRowCount(snapshot: Snapshot): number;
     getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
     getSnapshot(): Snapshot;
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
     subscribe(onDataChange: () => void): () => void;
 }
+
+// @public
+export type SpreadsheetDataError = ValidationError | StorageError;
+
+// @public
+export interface StorageError {
+    message: string;
+    statusCode?: number | undefined;
+    type: 'StorageError';
+}
+
+// @public
+export function storageError(message: string, statusCode?: number): StorageError;
+
+// @public
+export interface ValidationError {
+    message: string;
+    type: 'ValidationError';
+}
+
+// @public
+export function validationError(message: string): ValidationError;
 
 // @public
 export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {

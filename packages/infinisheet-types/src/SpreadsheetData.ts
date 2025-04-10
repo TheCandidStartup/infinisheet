@@ -1,5 +1,6 @@
 import type { ItemOffsetMapping } from "./ItemOffsetMapping";
 import { FixedSizeItemOffsetMapping } from "./FixedSizeItemOffsetMapping";
+import { Result, err } from "./Result";
 
 /** Possible spreadsheet error values
  * 
@@ -42,6 +43,43 @@ export interface CellError {
 */
 export type CellValue = string | number | boolean | null | undefined | CellError;
 
+/** Type that represents an error when validating data to be stored in a cell */
+export interface ValidationError {
+  /** Discriminated union tag */
+  type: 'ValidationError',
+
+  /** End user message describing the problem */
+  message: string,
+};
+
+/** Convenience method that creates a {@link ValidationError} */
+export function validationError(message: string): ValidationError {
+  return { type: 'ValidationError', message };
+}
+
+/** Type that represents an error when storing data in a cell */
+export interface StorageError {
+  /** Discriminated union tag */
+  type: 'StorageError',
+
+  /** End user message describing the problem */
+  message: string,
+
+  /** HTTP style status code
+   * 
+   * Describes the type of problem encountered. Expected to be a 4XX or 5XX code.
+   */
+  statusCode?: number | undefined,
+};
+
+/** Convenience method that creates a {@link StorageError} */
+export function storageError(message: string, statusCode?: number): StorageError {
+  return { type: 'StorageError', message, statusCode };
+}
+
+/** Types of error that can be returned by {@link SpreadsheetData} methods */
+export type SpreadsheetDataError = ValidationError | StorageError;
+
 /**
  * Interface used to access the data in a spreadsheet
  * 
@@ -79,9 +117,9 @@ export interface SpreadsheetData<Snapshot> {
 
   /** Set value and format of specified cell
    * 
-   * @returns True if the change was successfully applied
+   * @returns `Ok` if the change was successfully applied
    */
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): boolean;
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError>
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
@@ -97,6 +135,7 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
   getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return columnItemOffsetMapping; }
   getCellValue(_snapshot: number, _row: number, _column: number): CellValue { return null; }
   getCellFormat(_snapshot: number, _row: number, _column: number): string|undefined { return undefined; }
-  setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): boolean { return false; }
+  setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,SpreadsheetDataError> 
+  { return err(storageError("Not implemented", 501)); }
 }
 

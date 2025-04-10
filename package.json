@@ -54,6 +54,7 @@
     "jsdom": "^26.0.0",
     "jsdom-testing-mocks": "^1.13.1",
     "lerna": "^8.1.2",
+    "neverthrow": "^8.2.0",
     "path": "^0.12.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

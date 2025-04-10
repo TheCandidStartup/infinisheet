@@ -8,6 +8,7 @@
  * @packageDocumentation
  */
 
+export * from './Result'
 export * from './ItemOffsetMapping'
 export * from './FixedSizeItemOffsetMapping'
 export * from './VariableSizeItemOffsetMapping'
