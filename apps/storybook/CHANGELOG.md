@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.9.0...v0.10.0) (2025-04-17)
+
+
+### Features
+
+* **storybook:** Added Data Error story ([aa0859b](https://github.com/TheCandidStartup/infinisheet/commit/aa0859b6e9b3724da156c942265889c18b80bc11))
+
+
+
+
+
 # [0.9.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.8.0...v0.9.0) (2025-03-20)
 
 

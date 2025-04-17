@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.9.0...v0.10.0) (2025-04-17)
+
+
+### Features
+
+* **infinisheet:** Added neverthrow Result type for clean error handling ([baf5390](https://github.com/TheCandidStartup/infinisheet/commit/baf539097e6ad38f94bf89b0f580e0a67ab5a023))
+* **react-spreadsheet:** Added error handling when SpreadsheetData setCellValueAndFormat method fails ([2e33d05](https://github.com/TheCandidStartup/infinisheet/commit/2e33d05044e95cf4c9b9dbc28f119d797e3b5de8))
+
+
+### BREAKING CHANGES
+
+* **infinisheet:** Return type of SpreadsheetData.setCellValueAndFormat changed from `boolean` to `Result<void,SpreadsheetDataError>`
+
+
+
+
+
 # [0.9.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.8.0...v0.9.0) (2025-03-20)
 
 **Note:** Version bump only for package @candidstartup/simple-spreadsheet-data
