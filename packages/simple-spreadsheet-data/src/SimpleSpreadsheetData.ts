@@ -1,4 +1,5 @@
-import type { CellValue, SpreadsheetData, RowColRef, ItemOffsetMapping, Result, SpreadsheetDataError } from "@candidstartup/infinisheet-types";
+import type { CellValue, SpreadsheetData, RowColRef, ItemOffsetMapping, Result, 
+  SpreadsheetDataError, ValidationError } from "@candidstartup/infinisheet-types";
 import { FixedSizeItemOffsetMapping, rowColCoordsToRef, ok } from "@candidstartup/infinisheet-types";
 
 interface CellContent {
@@ -112,6 +113,10 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     this.#notifyListeners();
 
     return ok();
+  }
+
+  isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {
+    return ok(); 
   }
 
   #notifyListeners() {

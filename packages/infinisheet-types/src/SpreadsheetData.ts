@@ -1,6 +1,6 @@
 import type { ItemOffsetMapping } from "./ItemOffsetMapping";
 import { FixedSizeItemOffsetMapping } from "./FixedSizeItemOffsetMapping";
-import { Result, err } from "./Result";
+import { Result, err, ok } from "./Result";
 
 /** Possible spreadsheet error values
  * 
@@ -120,6 +120,12 @@ export interface SpreadsheetData<Snapshot> {
    * @returns `Ok` if the change was successfully applied
    */
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError>
+
+  /** Check whether value and format are valid to set for specified cell
+   * 
+   * @returns `Ok` if the value and format are valid
+   */
+  isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,ValidationError>
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
@@ -137,5 +143,7 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
   getCellFormat(_snapshot: number, _row: number, _column: number): string|undefined { return undefined; }
   setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,SpreadsheetDataError> 
   { return err(storageError("Not implemented", 501)); }
+  isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> 
+  { return ok(); }
 }
 

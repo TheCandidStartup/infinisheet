@@ -122,3 +122,18 @@
 .VirtualSpreadsheet_Cell__Focus:focus {
   outline: none;
 }
+
+.VirtualSpreadsheet_Cell__DataError {
+  background-color: lightpink;
+}
+
+.VirtualSpreadsheet_Formula__DataError {
+  background-color: lightpink;
+}
+
+.VirtualSpreadsheet_ErrorTag {
+  background-color: lightsalmon;
+  border: 2px solid black;
+  padding: 5px;
+  margin: 10px;
+}

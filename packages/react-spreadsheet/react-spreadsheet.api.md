@@ -49,6 +49,7 @@ export interface VirtualSpreadsheetTheme {
     VirtualSpreadsheet: string;
     VirtualSpreadsheet_Cell: string;
     VirtualSpreadsheet_Cell__ColumnSelected: string;
+    VirtualSpreadsheet_Cell__DataError: string;
     VirtualSpreadsheet_Cell__Focus: string;
     VirtualSpreadsheet_Cell__RowSelected: string;
     VirtualSpreadsheet_Cell__Type_boolean: string;
@@ -62,7 +63,9 @@ export interface VirtualSpreadsheetTheme {
     VirtualSpreadsheet_Column__Selected: string;
     VirtualSpreadsheet_ColumnHeader: string;
     VirtualSpreadsheet_CornerHeader: string;
+    VirtualSpreadsheet_ErrorTag: string;
     VirtualSpreadsheet_Formula: string;
+    VirtualSpreadsheet_Formula__DataError: string;
     VirtualSpreadsheet_Fx: string;
     VirtualSpreadsheet_Grid: string;
     VirtualSpreadsheet_InputBar: string;

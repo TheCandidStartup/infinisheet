@@ -1,4 +1,5 @@
-import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, SpreadsheetDataError } from "@candidstartup/infinisheet-types";
+import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, 
+  SpreadsheetDataError, ValidationError } from "@candidstartup/infinisheet-types";
 
 interface LayeredSnapshotContent<BaseSnapshot, EditSnapshot> {
   base: BaseSnapshot,
@@ -119,7 +120,14 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
   }
 
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError> {
-    return this.#edit.setCellValueAndFormat(row, column, value, format);
+    const result = this.#base.isValidCellValueAndFormat(row, column, value, format);
+    return result.andThen(() => this.#edit.setCellValueAndFormat(row, column, value, format));
+  }
+
+  // Must be valid for both layers
+  isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,ValidationError> {
+    const result = this.#base.isValidCellValueAndFormat(row, column, value, format);
+    return result.andThen(() => this.#edit.isValidCellValueAndFormat(row,column,value,format));
   }
 
   #base: BaseData;

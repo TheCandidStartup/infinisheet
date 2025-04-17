@@ -1,4 +1,5 @@
-import { EmptySpreadsheetData, rowColCoordsToRef, CellValue } from '@candidstartup/infinisheet-types';
+import { EmptySpreadsheetData, rowColCoordsToRef, CellValue, 
+  validationError, Result, ValidationError, err, ok } from '@candidstartup/infinisheet-types';
 import { SimpleSpreadsheetData } from './SimpleSpreadsheetData'
 import { LayeredSpreadsheetData } from './LayeredSpreadsheetData'
 
@@ -10,6 +11,10 @@ class BaseTestData extends EmptySpreadsheetData {
   }
   getCellFormat(_snapshot: number, row: number, column: number) { 
     return `Format ${row} ${column}`
+  }
+
+  isValidCellValueAndFormat(_row: number, column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {
+    return column ? err(validationError("Only first column is editable")) : ok();
   }
 }
 
@@ -40,16 +45,25 @@ describe('LayeredSpreadsheetData', () => {
   it('should implement SetCellValueAndFormat', () => {
     const data = new TestData;
     expect(data.setCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
-    expect(data.setCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(true);
+    expect(data.setCellValueAndFormat(1, 0, 42, "YYYY-MM-DD").isOk()).toEqual(true);
     const snapshot = data.getSnapshot();
     expect(data.getRowCount(snapshot)).toEqual(100);
     expect(data.getColumnCount(snapshot)).toEqual(26);
     expect(data.getCellValue(snapshot, 0, 0)).toEqual("In A1");
     expect(data.getCellFormat(snapshot, 0, 0)).toEqual(undefined);
-    expect(data.getCellValue(snapshot, 0, 1)).toEqual(42);
-    expect(data.getCellFormat(snapshot, 0, 1)).toEqual("YYYY-MM-DD");
+    expect(data.getCellValue(snapshot, 1, 0)).toEqual(42);
+    expect(data.getCellFormat(snapshot, 1, 0)).toEqual("YYYY-MM-DD");
     expect(data.getCellValue(snapshot, 2, 3)).toEqual("D3");
     expect(data.getCellFormat(snapshot, 2, 3)).toEqual("Format 2 3");
+  })
+
+  it('should implement isValidCellValueAndFormat', () => {
+    const data = new TestData;
+    expect(data.isValidCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
+    expect(data.isValidCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(false);
+    const snapshot = data.getSnapshot();
+    expect(data.getCellValue(snapshot, 0, 0)).toEqual("A1");
+    expect(data.getCellValue(snapshot, 0, 1)).toEqual("B1");
   })
 
   it('should support snapshot semantics', () => {

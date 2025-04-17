@@ -29,6 +29,12 @@ describe('SimpleSpreadsheetData', () => {
     expect(data.getCellFormat(snapshot, 0, 1)).toEqual("YYYY-MM-DD");
   })
 
+  it('should implement isValidCellValueAndFormat', () => {
+    const data = new SimpleSpreadsheetData;
+    expect(data.isValidCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
+    expect(data.isValidCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(true);
+  })
+
   it('should support snapshot semantics', () => {
     const data = new SimpleSpreadsheetData;
     const snapshot1 = data.getSnapshot();

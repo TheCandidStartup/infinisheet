@@ -42,6 +42,8 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
     getSnapshot(): number;
     // (undocumented)
+    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
+    // (undocumented)
     setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(_onDataChange: () => void): () => void;
@@ -118,6 +120,7 @@ export interface SpreadsheetData<Snapshot> {
     getRowCount(snapshot: Snapshot): number;
     getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
     getSnapshot(): Snapshot;
+    isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, ValidationError>;
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
     subscribe(onDataChange: () => void): () => void;
 }

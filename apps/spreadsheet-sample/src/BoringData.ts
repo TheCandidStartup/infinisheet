@@ -1,6 +1,6 @@
-import { EmptySpreadsheetData, CellValue } from '@candidstartup/infinisheet-types';
+import { EmptySpreadsheetData, CellValue, Result, ValidationError, ok, err, validationError } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping, useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
-import { dateToSerial } from 'numfmt'
+import { dateToSerial, isDateFormat } from 'numfmt'
 
 const headerRow = [ "Date", "Time", "Item", "Price", "Quantity", "Cost", "Tax Rate", "Tax", "Subtotal", "Transaction Fee", "Total", "Running Total"];
 const totalHeaderRow = [ "First", "Last", "Count", "Average", "Max", "Total", "Min", "Total", "Total", "Total", "Total", "Running Total"]
@@ -103,6 +103,19 @@ export class BoringData extends EmptySpreadsheetData {
       default:
         return undefined; 
     }
+  }
+
+  isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,ValidationError> {
+    if (row == 0)
+      return ok();
+
+    if (column == 0 || column == 1) {
+      return (typeof(value) === 'number' && format && isDateFormat(format)) ? ok() : err(validationError("Expected a date or time"))
+    } if (column >= 3 && column <= 11) {
+      return (typeof(value) === 'number' ) ? ok() : err(validationError("Expected a number"))
+    }
+
+    return ok();
   }
 
   count: number;

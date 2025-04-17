@@ -1,4 +1,4 @@
-import { EmptySpreadsheetData } from './SpreadsheetData'
+import { EmptySpreadsheetData, validationError } from './SpreadsheetData'
 
 describe('EmptySpreadsheetData', () => {
   it('should have hardcoded values', () => {
@@ -9,6 +9,7 @@ describe('EmptySpreadsheetData', () => {
     expect(data.getCellValue(0, 0, 0)).toEqual(null);
     expect(data.getCellFormat(0, 0, 0)).toEqual(undefined);
     expect(data.setCellValueAndFormat(0, 0, null, undefined).isOk()).toEqual(false);
+    expect(data.isValidCellValueAndFormat(0, 0, null, undefined).isOk()).toEqual(true);
 
     const rowMapping = data.getRowItemOffsetMapping(0);
     expect(rowMapping.itemOffset(0)).toEqual(0);
@@ -17,6 +18,15 @@ describe('EmptySpreadsheetData', () => {
     expect(columnMapping.itemOffset(0)).toEqual(0);
 
     // Callback function will never be called. Hard and pointless to test
-    data.subscribe(() => {});
+    const unsubscribe = data.subscribe(() => {});
+    unsubscribe();
+  })
+})
+
+describe('validationError', () => {
+  it('should construct', () => {
+    const error = validationError("test");
+    expect(error.type).toEqual('ValidationError');
+    expect(error.message).toEqual("test");
   })
 })

@@ -20,6 +20,9 @@ export interface VirtualSpreadsheetTheme {
   /** Class applied to the Formula input on the right end of the input bar */
   VirtualSpreadsheet_Formula: string,
 
+  /** Modifier class applied to the Formula input when the user has entered invalid data */
+  VirtualSpreadsheet_Formula__DataError: string,
+
   /** Class applied to the grid of cells */
   VirtualSpreadsheet_Grid: string,
 
@@ -79,6 +82,12 @@ export interface VirtualSpreadsheetTheme {
 
   /** Modifier class applied to a cell when it's within a selected column */
   VirtualSpreadsheet_Cell__ColumnSelected: string,
+
+  /** Modifier class applied to a cell when the user has entered invalid data */
+  VirtualSpreadsheet_Cell__DataError: string,
+
+  /** Class applied to an in grid error tag */
+  VirtualSpreadsheet_ErrorTag: string,
 }
 
 /** Default implementation of theme provided by `VirtualSpreadsheet.css` */
@@ -88,6 +97,7 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
   VirtualSpreadsheet_Name: "VirtualSpreadsheet_Name",
   VirtualSpreadsheet_Fx: "VirtualSpreadsheet_Fx",
   VirtualSpreadsheet_Formula: "VirtualSpreadsheet_Formula",
+  VirtualSpreadsheet_Formula__DataError: "VirtualSpreadsheet_Formula__DataError",
   VirtualSpreadsheet_Grid: "VirtualSpreadsheet_Grid",
   VirtualSpreadsheet_CornerHeader: "VirtualSpreadsheet_CornerHeader",
   VirtualSpreadsheet_ColumnHeader: "VirtualSpreadsheet_ColumnHeader",
@@ -107,5 +117,7 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
   VirtualSpreadsheet_Cell__Type_CellError: "VirtualSpreadsheet_Cell__Type_CellError",
   VirtualSpreadsheet_Cell__Focus: "VirtualSpreadsheet_Cell__Focus",
   VirtualSpreadsheet_Cell__RowSelected: "VirtualSpreadsheet_Cell__RowSelected",
-  VirtualSpreadsheet_Cell__ColumnSelected: "VirtualSpreadsheet_Cell__ColumnSelected"
+  VirtualSpreadsheet_Cell__ColumnSelected: "VirtualSpreadsheet_Cell__ColumnSelected",
+  VirtualSpreadsheet_Cell__DataError: "VirtualSpreadsheet_Cell__DataError",
+  VirtualSpreadsheet_ErrorTag: "VirtualSpreadsheet_ErrorTag"
 }

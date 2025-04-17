@@ -2,7 +2,8 @@ import React from 'react';
 import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy,
   getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
-import { SpreadsheetData, CellValue, indexToColRef, RowColCoords, rowColRefToCoords, rowColCoordsToRef } from '@candidstartup/infinisheet-types'
+import { SpreadsheetData, SpreadsheetDataError, CellValue, indexToColRef, RowColCoords, 
+  rowColRefToCoords, rowColCoordsToRef } from '@candidstartup/infinisheet-types'
 import * as numfmt from 'numfmt'
 
 /** Extension of {@link SpreadsheetData} interface so that it's compatible with React's `useSyncExternalStore` hook
@@ -115,7 +116,7 @@ function join(...v: (string|undefined)[]) {
   return s;
 }
 
-function ifdef(b: boolean|null, s: string|undefined) { return (b) ? s : undefined }
+function ifdef(b: boolean|object|null, s: string|undefined) { return (b) ? s : undefined }
 
 // Options for numfmt that match Google Sheets and ECMA-376 behavior. This is compatible with supported dates in Excel apart from Jan/Feb 1900. 
 // This is due to Excel's backwards compatibility support for the Lotus 1-2-3 leap year bug that incorrectly thinks 1900 is a leap year.
@@ -249,6 +250,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
   const [hwmColumnIndex, setHwmColumnIndex] = React.useState(0);
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
   const [focusCell, setFocusCell] = React.useState<[number,number]|null>(null);
+  const [dataError, setDataError] = React.useState<SpreadsheetDataError|null>(null);
   const [[gridRowOffset, gridColumnOffset], setGridScrollState] = React.useState<[number,number]>([0, 0]);
 
   const dataRowCount = data.getRowCount(snapshot);
@@ -309,6 +311,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
       // Reset formula and edit mode only if the focus cell is changing
       updateFormula(rowIndex, colIndex, false);
       setEditMode(false);
+      setDataError(null);
     }
 
     // We use change of focusCell state to trigger effect that gives focus to the focus sink
@@ -325,6 +328,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
       setFormula("");
       setCellValue("");
       setEditMode(false);
+      setDataError(null);
       return;
     }
 
@@ -434,7 +438,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
     selectItem(row,col);
   }
 
-  function CommitFormulaChange(rowIndex: number, colIndex: number) {
+  function parseFormula(formula: string): [CellValue, string|undefined] {
     let value: CellValue = undefined;
     let format: string | undefined = undefined;
     const parseData =  numfmt.parseValue(formula);
@@ -447,7 +451,27 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
       value = formula;
     }
 
-    data.setCellValueAndFormat(rowIndex, colIndex, value, format);
+    return [value, format];
+  }
+
+  function commitFormulaChange(rowIndex: number, colIndex: number): boolean {
+    const [value, format] = parseFormula(formula);
+    const result = data.setCellValueAndFormat(rowIndex, colIndex, value, format);
+    setDataError(result.isOk() ? null : result.error);
+    return result.isOk();
+  }
+
+  function validateFocusFormula(formula: string) {
+    if (!focusCell)
+      return;
+
+    const row = focusCell[0];
+    const col = focusCell[1];
+
+    const [value, format] = parseFormula(formula);
+    const result = data.isValidCellValueAndFormat(row, col, value, format);
+    setDataError(result.isOk() ? null : result.error);
+    return result.isOk();
   }
 
   // Used by both formula and focus sink input fields
@@ -462,24 +486,27 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
       switch (event.key) {
         case "Escape": { 
           updateFormula(row, col, false); 
-          setEditMode(false); 
+          setEditMode(false);
+          setDataError(null);
           setFocusCell([row, col]); 
         } 
         break;
 
         case "Enter": { 
-          CommitFormulaChange(row, col); 
-          updateFormula(row, col, false); 
-          setEditMode(false);
-          nextCell(row,col,true,event.shiftKey);
+          if (commitFormulaChange(row, col)) {
+            updateFormula(row, col, false); 
+            setEditMode(false);
+            nextCell(row,col,true,event.shiftKey);
+          }
         } 
         break;
 
         case "Tab": { 
-          CommitFormulaChange(row, col); 
-          updateFormula(row, col, false); 
-          setEditMode(false);
-          nextCell(row,col,false,event.shiftKey);
+          if (commitFormulaChange(row, col)) {
+            updateFormula(row, col, false); 
+            setEditMode(false);
+            nextCell(row,col,false,event.shiftKey);
+          }
           event.preventDefault();
         } 
         break;
@@ -556,8 +583,8 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
     </div>
   );
   
-  const outerGridRender: VirtualContainerRender = ({children, ...rest}, ref) => {
-    let focusSink;
+  const outerGridRender: VirtualContainerRender = ({children, style, ...rest}, ref) => {
+    let focusSink, errorTag, errorTagAlign;
     if (focusCell) {
       const row = focusCell[0];
       const col = focusCell[1];
@@ -583,24 +610,35 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
       // due to the sticky positioning. Need to use my own ensureVisible method to clean up.
       focusSink = <input
         ref={focusSinkRef}
-        className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus)}
+        className={join(theme?.VirtualSpreadsheet_Cell, theme?.VirtualSpreadsheet_Cell__Focus, 
+          ifdef(dataError, theme?.VirtualSpreadsheet_Cell__DataError)) }
         type={"text"}
         name={"edit"}
         title={"Edit"}
         readOnly={readOnly}
         value={cellValue}
         onChange={(event) => {
-          setCellValue(event.target?.value);
+          const value = event.target?.value;
+          setCellValue(value);
           setEditMode(!readOnly);
-          setFormula(event.target?.value);
+          setFormula(value);
+          validateFocusFormula(value);
         }}
         onFocus={() => { ensureVisible(row,col) }}
         onBeforeInput={() => { ensureVisible(row,col) }}
         onKeyDown={onEditValueKeyDown}
         style={{ zIndex: editMode ? 1 : -1, position: "absolute", top: focusTop, height: focusHeight, left: focusLeft, width: focusWidth }}
       />
+
+      if (dataError) {
+        errorTagAlign = (focusTop > height/2) ? "start" : "end";
+        errorTag = <div className={theme?.VirtualSpreadsheet_ErrorTag} style={{ zIndex: 2 }}>
+          {dataError.message}
+        </div>
+      }
     }
     return <div ref={ref}
+      style={{...style, display: "flex", alignItems: errorTagAlign, justifyContent: "center"}}
       onClick={(event) => {
         const [x,y] = getCurrentTargetXY(event);
         const colOffset = x + gridColumnOffset;
@@ -616,6 +654,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
       {...rest}>
       {children}
       {focusSink}
+      {errorTag}
     </div>
   }
 
@@ -663,7 +702,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
           onKeyUp={onNameKeyUp}
         />
         <label className={theme?.VirtualSpreadsheet_Fx}>fx</label>
-        <input className={theme?.VirtualSpreadsheet_Formula}
+        <input className={join(theme?.VirtualSpreadsheet_Formula, ifdef(dataError, theme?.VirtualSpreadsheet_Formula__DataError))}
           style={{flexGrow: 1}}
           type={"text"}
           readOnly={readOnly}
@@ -671,10 +710,12 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
           title={"Formula"}
           value={formula}
           onChange={(event) => {
-            setFormula(event.target?.value);
+            const value = event.target?.value;
+            setFormula(value);
             setEditMode(!readOnly);
             if (focusCell)
-              setCellValue(event.target?.value);
+              setCellValue(value);
+            validateFocusFormula(value);
           }}
           onFocus={() => {
               if (focusCell) {

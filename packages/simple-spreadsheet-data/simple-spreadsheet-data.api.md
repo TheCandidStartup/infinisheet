@@ -9,6 +9,7 @@ import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
+import { ValidationError } from '@candidstartup/infinisheet-types';
 
 // @public
 export interface LayeredSnapshot<BaseSnapshot, EditSnapshot> {
@@ -39,6 +40,8 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     getRowItemOffsetMapping(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): ItemOffsetMapping;
     // (undocumented)
     getSnapshot(): LayeredSnapshot<BaseSnapshot, EditSnapshot>;
+    // (undocumented)
+    isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, ValidationError>;
     // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
     // (undocumented)
@@ -74,6 +77,8 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     getRowItemOffsetMapping(_snapshot: SimpleSnapshot): ItemOffsetMapping;
     // (undocumented)
     getSnapshot(): SimpleSnapshot;
+    // (undocumented)
+    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
     // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
     // (undocumented)
