@@ -140,6 +140,29 @@ export const CellSelected: Story = {
   }
 };
 
+export const DataError: Story = {
+  args: {
+    theme: theme,
+    data: boringData,
+    width: 700,
+    height: 380,
+  },
+  // Exclude from autodocs as it doesn't play well with other stories
+  // * Error state needs a control to have focus which means Docs page gets scrolled to this story rather than the top
+  // * Use keyboard to type into control with focus but if multiple stories running can end up with input going
+  //   to the wrong place
+  tags: ['!autodocs'],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const name = canvas.getByTitle("Name");
+    await userEvent.type(name, "A2");
+    await userEvent.keyboard("{Enter}{Enter}9");
+
+    const tag = canvas.getByText("Expected a date or time");
+    await expect(tag).toBeInTheDocument();
+  }
+};
+
 // Auto-generated code (based on rendered JSX) can't show how child render function is used
 const fullWidthCode = `
 <AutoSizer style={{ width: '100%', height }}>
