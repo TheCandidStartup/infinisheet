@@ -57,7 +57,7 @@ export function validationError(message: string): ValidationError {
   return { type: 'ValidationError', message };
 }
 
-/** Type that represents an error when storing data in a cell */
+/** Type that represents an error when accessing data in persistent storage */
 export interface StorageError {
   /** Discriminated union tag */
   type: 'StorageError',

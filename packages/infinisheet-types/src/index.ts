@@ -9,6 +9,7 @@
  */
 
 export * from './Result'
+export * from './EventLog'
 export * from './ItemOffsetMapping'
 export * from './FixedSizeItemOffsetMapping'
 export * from './VariableSizeItemOffsetMapping'

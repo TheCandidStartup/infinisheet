@@ -8,6 +8,12 @@ import { Err as Err_2 } from 'neverthrow';
 import { Ok as Ok_2 } from 'neverthrow';
 
 // @public
+export type AddEntryError = ConflictError | StorageError;
+
+// @public (undocumented)
+export type BlobId = string;
+
+// @public
 export interface CellError {
     type: 'CellError';
     value: CellErrorValue;
@@ -24,6 +30,16 @@ export type ColRef = string;
 
 // @public
 export function colRefToIndex(col: ColRef): number;
+
+// @public
+export interface ConflictError {
+    message: string;
+    nextSequenceId: SequenceId;
+    type: 'ConflictError';
+}
+
+// @public
+export function conflictError(message: string, nextSequenceId: SequenceId): ConflictError;
 
 // @public (undocumented)
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
@@ -63,6 +79,22 @@ export function err<T = never, E = unknown>(err: E): Err<T, E>;
 export function err<T = never, _E extends void = void>(err: void): Err<T, void>;
 
 // @public
+export interface EventLog {
+    addEntry(entry: LogEntry, sequenceId: SequenceId): Result<void, AddEntryError>;
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue, QueryError>;
+    truncate(start: SequenceId): Result<void, TruncateError>;
+}
+
+// @public
+export interface EventLogRangeError {
+    message: string;
+    type: 'EventLogRangeError';
+}
+
+// @public
+export function eventLogRangeError(message: string): EventLogRangeError;
+
+// @public
 export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
     constructor(itemSize: number);
     // (undocumented)
@@ -84,6 +116,14 @@ export interface ItemOffsetMapping {
 }
 
 // @public
+export interface LogEntry {
+    history?: BlobId | undefined;
+    pending?: WorkflowId | undefined;
+    snapshot?: BlobId | undefined;
+    type: string;
+}
+
+// @public
 export interface Ok<T, E> extends Ok_2<T, E> {
 }
 
@@ -92,6 +132,17 @@ export function ok<T, E = never>(value: T): Ok<T, E>;
 
 // @public (undocumented)
 export function ok<_T extends void = void, E = never>(value: void): Ok<void, E>;
+
+// @public
+export type QueryError = EventLogRangeError | StorageError;
+
+// @public
+export interface QueryValue {
+    endSequenceId: SequenceId;
+    entries: LogEntry[];
+    isComplete: boolean;
+    startSequenceId: SequenceId;
+}
 
 // @public
 export type Result<T, E> = Ok<T, E> | Err<T, E>;
@@ -107,6 +158,9 @@ export type RowColRef = string;
 
 // @public
 export function rowColRefToCoords(ref: RowColRef): RowColCoords;
+
+// @public (undocumented)
+export type SequenceId = bigint;
 
 // @public
 export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: ColRef | undefined];
@@ -139,6 +193,9 @@ export interface StorageError {
 export function storageError(message: string, statusCode?: number): StorageError;
 
 // @public
+export type TruncateError = EventLogRangeError | StorageError;
+
+// @public
 export interface ValidationError {
     message: string;
     type: 'ValidationError';
@@ -157,6 +214,9 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
     // (undocumented)
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 }
+
+// @public (undocumented)
+export type WorkflowId = string;
 
 // (No @packageDocumentation comment for this package)
 

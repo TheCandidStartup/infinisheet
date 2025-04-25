@@ -4,11 +4,18 @@
 
 ```ts
 
+import { AddEntryError } from '@candidstartup/infinisheet-types';
 import { CellValue } from '@candidstartup/infinisheet-types';
+import { EventLog } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
+import { LogEntry } from '@candidstartup/infinisheet-types';
+import { QueryError } from '@candidstartup/infinisheet-types';
+import { QueryValue } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
+import { SequenceId } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
+import { StorageError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
 
 // @public
@@ -46,6 +53,17 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
+}
+
+// @public (undocumented)
+export class SimpleEventLog implements EventLog {
+    constructor();
+    // (undocumented)
+    addEntry(entry: LogEntry, sequenceId: SequenceId): Result<void, AddEntryError>;
+    // (undocumented)
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue, QueryError>;
+    // (undocumented)
+    truncate(start: SequenceId): Result<void, StorageError>;
 }
 
 // @public
