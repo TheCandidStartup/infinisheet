@@ -9,13 +9,15 @@ import { CellValue } from '@candidstartup/infinisheet-types';
 import { EventLog } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { LogEntry } from '@candidstartup/infinisheet-types';
+import { LogMetadata } from '@candidstartup/infinisheet-types';
+import { MetadataError } from '@candidstartup/infinisheet-types';
 import { QueryError } from '@candidstartup/infinisheet-types';
 import { QueryValue } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
 import { SequenceId } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
-import { StorageError } from '@candidstartup/infinisheet-types';
+import { TruncateError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
 
 // @public
@@ -63,7 +65,9 @@ export class SimpleEventLog implements EventLog {
     // (undocumented)
     query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue, QueryError>;
     // (undocumented)
-    truncate(start: SequenceId): Result<void, StorageError>;
+    setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void, MetadataError>;
+    // (undocumented)
+    truncate(start: SequenceId): Result<void, TruncateError>;
 }
 
 // @public

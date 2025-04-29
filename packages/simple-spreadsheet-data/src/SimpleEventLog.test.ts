@@ -1,14 +1,5 @@
 import { SimpleEventLog } from './SimpleEventLog';
-import type { LogEntry } from '@candidstartup/infinisheet-types';
-
-interface TestEntry extends LogEntry {
-  type: 'test',
-  index: number
-}
-
-function testEntry(index: number): TestEntry {
-  return { type: 'test', index }
-}
+import { testLogEntry } from '../../../shared/test/TestLogEntry';
 
 describe('SimpleEventLog', () => {
   it('should start out empty', () => {
@@ -36,19 +27,19 @@ describe('SimpleEventLog', () => {
   it('should support addEntry', () => {
     const data = new SimpleEventLog;
 
-    let addResult = data.addEntry(testEntry(0), 0n)
+    let addResult = data.addEntry(testLogEntry(0), 0n)
     expect(addResult.isOk()).toEqual(true);
 
     let result = data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 1]);
 
-    addResult = data.addEntry(testEntry(1), 0n);
+    addResult = data.addEntry(testLogEntry(1), 0n);
     expect(addResult.isErr()).toEqual(true);
 
-    addResult = data.addEntry(testEntry(1), 2n);
+    addResult = data.addEntry(testLogEntry(1), 2n);
     expect(addResult.isErr()).toEqual(true);
 
-    addResult = data.addEntry(testEntry(1), 1n)
+    addResult = data.addEntry(testLogEntry(1), 1n)
     expect(addResult.isOk()).toEqual(true);
 
     result = data.query('start', 'end');

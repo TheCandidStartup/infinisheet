@@ -1,5 +1,5 @@
-import type { EventLog, LogEntry, SequenceId, Result, QueryValue, 
-  AddEntryError, QueryError, StorageError } from "@candidstartup/infinisheet-types";
+import type { EventLog, LogEntry, LogMetadata, SequenceId, Result, QueryValue, 
+  AddEntryError, QueryError, TruncateError, MetadataError } from "@candidstartup/infinisheet-types";
 import { ok, err, conflictError, eventLogRangeError } from "@candidstartup/infinisheet-types";
 
 const QUERY_PAGE_SIZE = 10;
@@ -17,6 +17,19 @@ export class SimpleEventLog implements EventLog {
 
     this.#entries.push(entry);
     this.#endSequenceId ++;
+    return ok();
+  }
+
+  setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void,MetadataError> {
+    if (sequenceId < this.#startSequenceId || sequenceId >= this.#endSequenceId)
+      return err(eventLogRangeError(`Log entry with sequenceId ${sequenceId} does not exist`));
+
+    const index = Number(sequenceId - this.#startSequenceId);
+    const entry = this.#entries[index]!;
+    let key: keyof LogMetadata;
+    for (key in metaData)
+      entry[key] = metaData[key];
+
     return ok();
   }
 
@@ -48,7 +61,7 @@ export class SimpleEventLog implements EventLog {
     return ok(value);
   }
 
-  truncate(start: SequenceId): Result<void,StorageError> {
+  truncate(start: SequenceId): Result<void,TruncateError> {
     if (start <= this.#startSequenceId)
       return ok();
     

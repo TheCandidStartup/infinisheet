@@ -5,6 +5,20 @@ export type BlobId = string;
 export type WorkflowId = string;
 export type SequenceId = bigint;
 
+/**
+ * Metadata stored in an {@link EventLog} entry
+ */
+export interface LogMetadata {
+  /** Stores a reference to a snapshot of the complete log up to and including this entry */
+  snapshot?: BlobId | undefined;
+
+  /** Stores a reference to an external history of the event log up to and including the previous entry */
+  history?: BlobId | undefined;
+
+  /** Indicates that a background workflow is pending */
+  pending?: WorkflowId | undefined;
+}
+
 /** 
  * Type that represents an entry in an {@link EventLog}
  * 
@@ -18,18 +32,9 @@ export type SequenceId = bigint;
  * All data properties are immutable once an entry has been added to the log. Metadata
  * properties (apart from `type`) may change over time.
  */
-export interface LogEntry {
+export interface LogEntry extends LogMetadata {
   /** Used as a discriminated union tag by implementations */
   type: string;
-
-  /** Stores a reference to a snapshot of the complete log up to and including this entry */
-  snapshot?: BlobId | undefined;
-
-  /** Stores a reference to an external history of the event log up to and including the previous entry */
-  history?: BlobId | undefined;
-
-  /** Indicates that a background workflow is pending */
-  pending?: WorkflowId | undefined;
 };
 
 /** 
@@ -74,7 +79,7 @@ export interface EventLogRangeError {
   message: string,
 };
 
-/** Convenience method that creates a {@link RangeError} */
+/** Convenience method that creates an {@link EventLogRangeError} */
 export function eventLogRangeError(message: string): EventLogRangeError {
   return { type: 'EventLogRangeError', message };
 }
@@ -84,6 +89,9 @@ export type QueryError = EventLogRangeError | StorageError;
 
 /** Errors that can be returned by {@link EventLog} `truncate` method */
 export type TruncateError = EventLogRangeError | StorageError;
+
+/** Errors that can be returned by {@link EventLog} `setMetadata` method */
+export type MetadataError = EventLogRangeError | StorageError;
 
 /** A range of {@link LogEntry} values returned by querying an {@link EventLog} */
 export interface QueryValue {
@@ -127,6 +135,13 @@ export interface EventLog {
    * Any other problem with serializing the entry will return a {@link StorageError}.
    */
   addEntry(entry: LogEntry, sequenceId: SequenceId): Result<void,AddEntryError>;
+
+  /**
+   * Set some or all of a log entry's metadata fields
+   *
+   * Changes are atomic. Either all of the specified fields are updated or none are.
+   */
+  setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void,MetadataError>;
 
   /** Return a range of entries from `first` to `last` inclusive 
    * 

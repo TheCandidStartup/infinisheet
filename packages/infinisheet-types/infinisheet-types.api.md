@@ -82,6 +82,7 @@ export function err<T = never, _E extends void = void>(err: void): Err<T, void>;
 export interface EventLog {
     addEntry(entry: LogEntry, sequenceId: SequenceId): Result<void, AddEntryError>;
     query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue, QueryError>;
+    setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void, MetadataError>;
     truncate(start: SequenceId): Result<void, TruncateError>;
 }
 
@@ -116,12 +117,19 @@ export interface ItemOffsetMapping {
 }
 
 // @public
-export interface LogEntry {
+export interface LogEntry extends LogMetadata {
+    type: string;
+}
+
+// @public
+export interface LogMetadata {
     history?: BlobId | undefined;
     pending?: WorkflowId | undefined;
     snapshot?: BlobId | undefined;
-    type: string;
 }
+
+// @public
+export type MetadataError = EventLogRangeError | StorageError;
 
 // @public
 export interface Ok<T, E> extends Ok_2<T, E> {
