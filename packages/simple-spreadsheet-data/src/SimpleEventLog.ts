@@ -4,14 +4,14 @@ import { ok, err, conflictError, eventLogRangeError } from "@candidstartup/infin
 
 const QUERY_PAGE_SIZE = 10;
 
-export class SimpleEventLog implements EventLog {
+export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
   constructor() {
     this.#startSequenceId = 0n;
     this.#endSequenceId = 0n;
     this.#entries = [];
   }
 
-  addEntry(entry: LogEntry, sequenceId: SequenceId): Result<void,AddEntryError> {
+  addEntry(entry: T, sequenceId: SequenceId): Result<void,AddEntryError> {
     if (sequenceId !== this.#endSequenceId)
       return err(conflictError("sequenceId is not next sequence id", this.#endSequenceId));
 
@@ -20,20 +20,23 @@ export class SimpleEventLog implements EventLog {
     return ok();
   }
 
-  setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void,MetadataError> {
+  setMetadata(sequenceId: SequenceId, metadata: LogMetadata): Result<void,MetadataError> {
     if (sequenceId < this.#startSequenceId || sequenceId >= this.#endSequenceId)
       return err(eventLogRangeError(`Log entry with sequenceId ${sequenceId} does not exist`));
 
     const index = Number(sequenceId - this.#startSequenceId);
     const entry = this.#entries[index]!;
-    let key: keyof LogMetadata;
-    for (key in metaData)
-      entry[key] = metaData[key];
+    if ("snapshot" in metadata)
+      entry.snapshot = metadata.snapshot;
+    if ("history" in metadata)
+      entry.history = metadata.history;
+    if ("pending" in metadata)
+      entry.pending = metadata.pending;
 
     return ok();
   }
 
-  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue,QueryError> {
+  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue<T>,QueryError> {
     if (start === 'start')
       start = this.#startSequenceId;
     else if (start === 'snapshot')
@@ -51,7 +54,7 @@ export class SimpleEventLog implements EventLog {
     if (firstIndex + numToReturn > this.#entries.length)
       numToReturn = this.#entries.length - firstIndex;
 
-    const value: QueryValue = {
+    const value: QueryValue<T> = {
       startSequenceId: start,
       endSequenceId: start + BigInt(numToReturn),
       isComplete,
@@ -92,5 +95,5 @@ export class SimpleEventLog implements EventLog {
 
   #startSequenceId: SequenceId;
   #endSequenceId: SequenceId;
-  #entries: LogEntry[];
+  #entries: T[];
 }

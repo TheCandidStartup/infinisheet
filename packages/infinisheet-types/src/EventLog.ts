@@ -94,7 +94,7 @@ export type TruncateError = EventLogRangeError | StorageError;
 export type MetadataError = EventLogRangeError | StorageError;
 
 /** A range of {@link LogEntry} values returned by querying an {@link EventLog} */
-export interface QueryValue {
+export interface QueryValue<T extends LogEntry> {
   /**  Sequence id corresponding to the first entry in `entries`
    * 
    * All other entries have consecutive ascending sequence ids
@@ -119,14 +119,14 @@ export interface QueryValue {
   isComplete: boolean;
 
   /** The {@link LogEntry} records returned by the query */
-  entries: LogEntry[];
+  entries: T[];
 }
 
 /** Abstract interface representing an event log
  * 
  * 
  */
-export interface EventLog {
+export interface EventLog<T extends LogEntry> {
   /** 
    * Add an entry to the log with the given sequence id
    * 
@@ -134,7 +134,7 @@ export interface EventLog {
    * making a query for the `last` entry in the log. Returns a {@link ConflictError} if not the next available id.
    * Any other problem with serializing the entry will return a {@link StorageError}.
    */
-  addEntry(entry: LogEntry, sequenceId: SequenceId): Result<void,AddEntryError>;
+  addEntry(entry: T, sequenceId: SequenceId): Result<void,AddEntryError>;
 
   /**
    * Set some or all of a log entry's metadata fields
@@ -154,7 +154,7 @@ export interface EventLog {
    * @param end - `SequenceId` one after the last entry to return.
    * Use `'end'` to query everything to the end of the log.
    */
-  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue,QueryError>;
+  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue<T>,QueryError>;
 
   /** All entries prior to `start` are removed from the log. */
   truncate(start: SequenceId): Result<void,TruncateError>

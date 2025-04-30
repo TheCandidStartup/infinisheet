@@ -58,14 +58,14 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
 }
 
 // @public (undocumented)
-export class SimpleEventLog implements EventLog {
+export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     constructor();
     // (undocumented)
-    addEntry(entry: LogEntry, sequenceId: SequenceId): Result<void, AddEntryError>;
+    addEntry(entry: T, sequenceId: SequenceId): Result<void, AddEntryError>;
     // (undocumented)
-    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue, QueryError>;
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue<T>, QueryError>;
     // (undocumented)
-    setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void, MetadataError>;
+    setMetadata(sequenceId: SequenceId, metadata: LogMetadata): Result<void, MetadataError>;
     // (undocumented)
     truncate(start: SequenceId): Result<void, TruncateError>;
 }

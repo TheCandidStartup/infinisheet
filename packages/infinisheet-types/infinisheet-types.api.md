@@ -79,9 +79,9 @@ export function err<T = never, E = unknown>(err: E): Err<T, E>;
 export function err<T = never, _E extends void = void>(err: void): Err<T, void>;
 
 // @public
-export interface EventLog {
-    addEntry(entry: LogEntry, sequenceId: SequenceId): Result<void, AddEntryError>;
-    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue, QueryError>;
+export interface EventLog<T extends LogEntry> {
+    addEntry(entry: T, sequenceId: SequenceId): Result<void, AddEntryError>;
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue<T>, QueryError>;
     setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void, MetadataError>;
     truncate(start: SequenceId): Result<void, TruncateError>;
 }
@@ -145,9 +145,9 @@ export function ok<_T extends void = void, E = never>(value: void): Ok<void, E>;
 export type QueryError = EventLogRangeError | StorageError;
 
 // @public
-export interface QueryValue {
+export interface QueryValue<T extends LogEntry> {
     endSequenceId: SequenceId;
-    entries: LogEntry[];
+    entries: T[];
     isComplete: boolean;
     startSequenceId: SequenceId;
 }
