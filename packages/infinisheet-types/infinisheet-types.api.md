@@ -32,8 +32,7 @@ export type ColRef = string;
 export function colRefToIndex(col: ColRef): number;
 
 // @public
-export interface ConflictError {
-    message: string;
+export interface ConflictError extends InfinisheetError {
     nextSequenceId: SequenceId;
     type: 'ConflictError';
 }
@@ -87,15 +86,6 @@ export interface EventLog<T extends LogEntry> {
 }
 
 // @public
-export interface EventLogRangeError {
-    message: string;
-    type: 'EventLogRangeError';
-}
-
-// @public
-export function eventLogRangeError(message: string): EventLogRangeError;
-
-// @public
 export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
     constructor(itemSize: number);
     // (undocumented)
@@ -108,6 +98,20 @@ export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
 
 // @public
 export function indexToColRef(index: number): ColRef;
+
+// @public
+export interface InfinisheetError {
+    message: string;
+    type: string;
+}
+
+// @public
+export interface InfinisheetRangeError extends InfinisheetError {
+    type: 'InfinisheetRangeError';
+}
+
+// @public
+export function infinisheetRangeError(message: string): InfinisheetRangeError;
 
 // @public
 export interface ItemOffsetMapping {
@@ -129,7 +133,7 @@ export interface LogMetadata {
 }
 
 // @public
-export type MetadataError = EventLogRangeError | StorageError;
+export type MetadataError = InfinisheetRangeError | StorageError;
 
 // @public
 export interface Ok<T, E> extends Ok_2<T, E> {
@@ -142,7 +146,7 @@ export function ok<T, E = never>(value: T): Ok<T, E>;
 export function ok<_T extends void = void, E = never>(value: void): Ok<void, E>;
 
 // @public
-export type QueryError = EventLogRangeError | StorageError;
+export type QueryError = InfinisheetRangeError | StorageError;
 
 // @public
 export interface QueryValue<T extends LogEntry> {
@@ -191,8 +195,7 @@ export interface SpreadsheetData<Snapshot> {
 export type SpreadsheetDataError = ValidationError | StorageError;
 
 // @public
-export interface StorageError {
-    message: string;
+export interface StorageError extends InfinisheetError {
     statusCode?: number | undefined;
     type: 'StorageError';
 }
@@ -201,11 +204,10 @@ export interface StorageError {
 export function storageError(message: string, statusCode?: number): StorageError;
 
 // @public
-export type TruncateError = EventLogRangeError | StorageError;
+export type TruncateError = InfinisheetRangeError | StorageError;
 
 // @public
-export interface ValidationError {
-    message: string;
+export interface ValidationError extends InfinisheetError {
     type: 'ValidationError';
 }
 

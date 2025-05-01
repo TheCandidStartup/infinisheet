@@ -4,7 +4,7 @@ import type { SequenceId } from '@candidstartup/infinisheet-types';
 // Implementation and registration of custom matchers in setup-jsdom.ts
 interface CustomMatchers<R = unknown> {
   toBeQueryValue: (expected: [SequenceId, boolean, number]) => R
-  toBeQueryError: (expectedType: string) => R
+  toBeInfinisheetError: (expectedType: string) => R
 }
 
 declare module 'vitest' {

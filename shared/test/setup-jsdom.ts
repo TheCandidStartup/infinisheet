@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
 
-import type { Result, QueryValue, QueryError, SequenceId } from '@candidstartup/infinisheet-types';
+import type { Result, QueryValue, InfinisheetError, SequenceId } from '@candidstartup/infinisheet-types';
 import { testQueryResult, type TestLogEntry } from './TestLogEntry';
 
 function fail(message: () => string, actual: unknown, expected: [SequenceId, boolean, number]) {
@@ -9,7 +9,7 @@ function fail(message: () => string, actual: unknown, expected: [SequenceId, boo
 }
 
 expect.extend({
-  toBeQueryValue(received: Result<QueryValue<TestLogEntry>,QueryError>, expected: [SequenceId, boolean, number]) {
+  toBeQueryValue(received: Result<QueryValue<TestLogEntry>,unknown>, expected: [SequenceId, boolean, number]) {
     const [startSequenceId, isComplete, length] = expected;
     if (!received.isOk())
       return fail(() => "Should be Ok", received, expected);
@@ -32,7 +32,7 @@ expect.extend({
 
     return { pass: true, message: () => "" }
   },
-  toBeQueryError(received: Result<QueryValue<TestLogEntry>,QueryError>, expectedType: string) {
+  toBeInfinisheetError(received: Result<unknown,InfinisheetError>, expectedType: string) {
     if (!received.isErr())
       return { pass: false, message: () => "Should be Err" }
     const actualType = received.error.type

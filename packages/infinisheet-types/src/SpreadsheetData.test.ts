@@ -1,4 +1,4 @@
-import { EmptySpreadsheetData, validationError } from './SpreadsheetData'
+import { EmptySpreadsheetData } from './SpreadsheetData'
 
 describe('EmptySpreadsheetData', () => {
   it('should have hardcoded values', () => {
@@ -20,13 +20,5 @@ describe('EmptySpreadsheetData', () => {
     // Callback function will never be called. Hard and pointless to test
     const unsubscribe = data.subscribe(() => {});
     unsubscribe();
-  })
-})
-
-describe('validationError', () => {
-  it('should construct', () => {
-    const error = validationError("test");
-    expect(error.type).toEqual('ValidationError');
-    expect(error.message).toEqual("test");
   })
 })

@@ -1,6 +1,7 @@
 import type { ItemOffsetMapping } from "./ItemOffsetMapping";
 import { FixedSizeItemOffsetMapping } from "./FixedSizeItemOffsetMapping";
 import { Result, err, ok } from "./Result";
+import { ValidationError, StorageError, storageError } from "./Error";
 
 /** Possible spreadsheet error values
  * 
@@ -41,41 +42,7 @@ export interface CellError {
  * Undefined is used to represent a cell with no defined value. Null represents a cell that has been
  * explicitly marked as empty. 
 */
-export type CellValue = string | number | boolean | null | undefined | CellError;
-
-/** Type that represents an error when validating data to be stored in a cell */
-export interface ValidationError {
-  /** Discriminated union tag */
-  type: 'ValidationError',
-
-  /** End user message describing the problem */
-  message: string,
-};
-
-/** Convenience method that creates a {@link ValidationError} */
-export function validationError(message: string): ValidationError {
-  return { type: 'ValidationError', message };
-}
-
-/** Type that represents an error when accessing data in persistent storage */
-export interface StorageError {
-  /** Discriminated union tag */
-  type: 'StorageError',
-
-  /** End user message describing the problem */
-  message: string,
-
-  /** HTTP style status code
-   * 
-   * Describes the type of problem encountered. Expected to be a 4XX or 5XX code.
-   */
-  statusCode?: number | undefined,
-};
-
-/** Convenience method that creates a {@link StorageError} */
-export function storageError(message: string, statusCode?: number): StorageError {
-  return { type: 'StorageError', message, statusCode };
-}
+export type CellValue = string | number | boolean | null | undefined | CellError
 
 /** Types of error that can be returned by {@link SpreadsheetData} methods */
 export type SpreadsheetDataError = ValidationError | StorageError;

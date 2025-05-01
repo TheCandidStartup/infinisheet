@@ -14,7 +14,7 @@ export function testQueryResult(startSequenceId: SequenceId, isComplete: boolean
   const value:QueryValue<TestLogEntry> = { startSequenceId, endSequenceId, isComplete, entries: [] };
 
   for  (let i = 0; i < length; i ++) {
-    value.entries.push(testLogEntry(i));
+    value.entries.push(testLogEntry(Number(startSequenceId)+i));
   }
 
   return ok(value);

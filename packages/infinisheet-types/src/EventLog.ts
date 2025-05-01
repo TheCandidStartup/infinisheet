@@ -1,5 +1,5 @@
 import { Result } from "./Result";
-import { StorageError } from "./SpreadsheetData"
+import { StorageError, InfinisheetError, InfinisheetRangeError } from "./Error"
 
 export type BlobId = string;
 export type WorkflowId = string;
@@ -46,12 +46,9 @@ export interface LogEntry extends LogMetadata {
  * Typically happens when another client makes a change since you last read the log.
  * Sync with the additional log entries and then try again.
  */
-export interface ConflictError {
+export interface ConflictError extends InfinisheetError {
   /** Discriminated union tag */
   type: 'ConflictError',
-
-  /** End user message describing the problem */
-  message: string,
 
   /** Next available sequence id */
   nextSequenceId: SequenceId;
@@ -65,33 +62,14 @@ export function conflictError(message: string, nextSequenceId: SequenceId): Conf
 /** Errors that can be returned by {@link EventLog} `addEntry` method */
 export type AddEntryError = ConflictError | StorageError;
 
-/** 
- * Attempt to access an {@link EventLog} with an out of range `SequenceId`
- * 
- * Occurs when trying to query or truncate with a start `SequenceId` outside the range of entries in the log.
- * 
- */
-export interface EventLogRangeError {
-  /** Discriminated union tag */
-  type: 'EventLogRangeError',
-
-  /** End user message describing the problem */
-  message: string,
-};
-
-/** Convenience method that creates an {@link EventLogRangeError} */
-export function eventLogRangeError(message: string): EventLogRangeError {
-  return { type: 'EventLogRangeError', message };
-}
-
 /** Errors that can be returned by {@link EventLog} `query` method */
-export type QueryError = EventLogRangeError | StorageError;
+export type QueryError = InfinisheetRangeError | StorageError;
 
 /** Errors that can be returned by {@link EventLog} `truncate` method */
-export type TruncateError = EventLogRangeError | StorageError;
+export type TruncateError = InfinisheetRangeError | StorageError;
 
 /** Errors that can be returned by {@link EventLog} `setMetadata` method */
-export type MetadataError = EventLogRangeError | StorageError;
+export type MetadataError = InfinisheetRangeError | StorageError;
 
 /** A range of {@link LogEntry} values returned by querying an {@link EventLog} */
 export interface QueryValue<T extends LogEntry> {
@@ -130,7 +108,7 @@ export interface EventLog<T extends LogEntry> {
   /** 
    * Add an entry to the log with the given sequence id
    * 
-   * The `sequenceId` must be the next available sequence id in the log. This is returned as `nextSequenceId` when
+   * The `sequenceId` must be the next available sequence id in the log. This is returned as `endSequenceId` when
    * making a query for the `last` entry in the log. Returns a {@link ConflictError} if not the next available id.
    * Any other problem with serializing the entry will return a {@link StorageError}.
    */

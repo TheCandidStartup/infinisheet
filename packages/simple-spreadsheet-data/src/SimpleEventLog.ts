@@ -1,6 +1,6 @@
 import type { EventLog, LogEntry, LogMetadata, SequenceId, Result, QueryValue, 
   AddEntryError, QueryError, TruncateError, MetadataError } from "@candidstartup/infinisheet-types";
-import { ok, err, conflictError, eventLogRangeError } from "@candidstartup/infinisheet-types";
+import { ok, err, conflictError, infinisheetRangeError } from "@candidstartup/infinisheet-types";
 
 const QUERY_PAGE_SIZE = 10;
 
@@ -22,7 +22,7 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
 
   setMetadata(sequenceId: SequenceId, metadata: LogMetadata): Result<void,MetadataError> {
     if (sequenceId < this.#startSequenceId || sequenceId >= this.#endSequenceId)
-      return err(eventLogRangeError(`Log entry with sequenceId ${sequenceId} does not exist`));
+      return err(infinisheetRangeError(`Log entry with sequenceId ${sequenceId} does not exist`));
 
     const index = Number(sequenceId - this.#startSequenceId);
     const entry = this.#entries[index]!;
@@ -42,7 +42,7 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     else if (start === 'snapshot')
       start = this.#startSequenceId + BigInt(this.findSnapshotIndex());
     else if (start < this.#startSequenceId || start > this.#endSequenceId)
-      return err(eventLogRangeError("start index out of range"));
+      return err(infinisheetRangeError("start index out of range"));
 
     if (end === 'end')
       end = this.#endSequenceId;
@@ -65,19 +65,24 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
   }
 
   truncate(start: SequenceId): Result<void,TruncateError> {
-    if (start <= this.#startSequenceId)
+    if (start < this.#startSequenceId)
+      return err(infinisheetRangeError("start before start entry in the log"));
+
+    if (start === this.#startSequenceId)
       return ok();
     
-    if (start >= this.#startSequenceId) {
+    if (start === this.#endSequenceId) {
       this.#startSequenceId = start;
       this.#endSequenceId = start;
       this.#entries = [];
       return ok();
     }
 
+    if (start > this.#endSequenceId)
+      return err(infinisheetRangeError("start after end entry in the log"));
+
     const numToRemove = start - this.#startSequenceId;
     this.#startSequenceId = start;
-    this.#endSequenceId -= numToRemove;
     this.#entries.splice(0, Number(numToRemove));
     return ok();
   }
