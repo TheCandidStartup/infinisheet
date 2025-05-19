@@ -9,6 +9,7 @@
  */
 
 export * from './Result'
+export * from './ResultAsync'
 export * from './Error'
 export * from './EventLog'
 export * from './ItemOffsetMapping'

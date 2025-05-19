@@ -1,6 +1,6 @@
-import type { EventLog, LogEntry, LogMetadata, SequenceId, Result, QueryValue, 
+import type { EventLog, LogEntry, LogMetadata, SequenceId, ResultAsync, QueryValue, 
   AddEntryError, QueryError, TruncateError, MetadataError } from "@candidstartup/infinisheet-types";
-import { ok, err, conflictError, infinisheetRangeError } from "@candidstartup/infinisheet-types";
+import { okAsync, errAsync, conflictError, infinisheetRangeError } from "@candidstartup/infinisheet-types";
 
 const QUERY_PAGE_SIZE = 10;
 
@@ -11,18 +11,18 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     this.#entries = [];
   }
 
-  addEntry(entry: T, sequenceId: SequenceId): Result<void,AddEntryError> {
+  addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void,AddEntryError> {
     if (sequenceId !== this.#endSequenceId)
-      return err(conflictError("sequenceId is not next sequence id", this.#endSequenceId));
+      return errAsync(conflictError("sequenceId is not next sequence id", this.#endSequenceId));
 
     this.#entries.push(entry);
     this.#endSequenceId ++;
-    return ok();
+    return okAsync();
   }
 
-  setMetadata(sequenceId: SequenceId, metadata: LogMetadata): Result<void,MetadataError> {
+  setMetadata(sequenceId: SequenceId, metadata: LogMetadata): ResultAsync<void,MetadataError> {
     if (sequenceId < this.#startSequenceId || sequenceId >= this.#endSequenceId)
-      return err(infinisheetRangeError(`Log entry with sequenceId ${sequenceId} does not exist`));
+      return errAsync(infinisheetRangeError(`Log entry with sequenceId ${sequenceId} does not exist`));
 
     const index = Number(sequenceId - this.#startSequenceId);
     const entry = this.#entries[index]!;
@@ -33,16 +33,16 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     if ("pending" in metadata)
       entry.pending = metadata.pending;
 
-    return ok();
+    return okAsync();
   }
 
-  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue<T>,QueryError> {
+  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>,QueryError> {
     if (start === 'start')
       start = this.#startSequenceId;
     else if (start === 'snapshot')
       start = this.#startSequenceId + BigInt(this.findSnapshotIndex());
     else if (start < this.#startSequenceId || start > this.#endSequenceId)
-      return err(infinisheetRangeError("start index out of range"));
+      return errAsync(infinisheetRangeError("start index out of range"));
 
     if (end === 'end')
       end = this.#endSequenceId;
@@ -61,30 +61,30 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
       entries: this.#entries.slice(firstIndex, firstIndex + numToReturn)
     }
 
-    return ok(value);
+    return okAsync(value);
   }
 
-  truncate(start: SequenceId): Result<void,TruncateError> {
+  truncate(start: SequenceId): ResultAsync<void,TruncateError> {
     if (start < this.#startSequenceId)
-      return err(infinisheetRangeError("start before start entry in the log"));
+      return errAsync(infinisheetRangeError("start before start entry in the log"));
 
     if (start === this.#startSequenceId)
-      return ok();
+      return okAsync();
     
     if (start === this.#endSequenceId) {
       this.#startSequenceId = start;
       this.#endSequenceId = start;
       this.#entries = [];
-      return ok();
+      return okAsync();
     }
 
     if (start > this.#endSequenceId)
-      return err(infinisheetRangeError("start after end entry in the log"));
+      return errAsync(infinisheetRangeError("start after end entry in the log"));
 
     const numToRemove = start - this.#startSequenceId;
     this.#startSequenceId = start;
     this.#entries.splice(0, Number(numToRemove));
-    return ok();
+    return okAsync();
   }
 
   private findSnapshotIndex(): number {

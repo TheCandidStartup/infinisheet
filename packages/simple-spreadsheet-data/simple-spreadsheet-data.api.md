@@ -14,6 +14,7 @@ import { MetadataError } from '@candidstartup/infinisheet-types';
 import { QueryError } from '@candidstartup/infinisheet-types';
 import { QueryValue } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
+import { ResultAsync } from '@candidstartup/infinisheet-types';
 import { SequenceId } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
@@ -61,13 +62,13 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
 export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     constructor();
     // (undocumented)
-    addEntry(entry: T, sequenceId: SequenceId): Result<void, AddEntryError>;
+    addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void, AddEntryError>;
     // (undocumented)
-    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue<T>, QueryError>;
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>, QueryError>;
     // (undocumented)
-    setMetadata(sequenceId: SequenceId, metadata: LogMetadata): Result<void, MetadataError>;
+    setMetadata(sequenceId: SequenceId, metadata: LogMetadata): ResultAsync<void, MetadataError>;
     // (undocumented)
-    truncate(start: SequenceId): Result<void, TruncateError>;
+    truncate(start: SequenceId): ResultAsync<void, TruncateError>;
 }
 
 // @public

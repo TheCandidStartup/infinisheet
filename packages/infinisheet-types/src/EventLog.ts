@@ -1,4 +1,4 @@
-import { Result } from "./Result";
+import { ResultAsync } from "./ResultAsync";
 import { StorageError, InfinisheetError, InfinisheetRangeError } from "./Error"
 
 export type BlobId = string;
@@ -112,14 +112,14 @@ export interface EventLog<T extends LogEntry> {
    * making a query for the `last` entry in the log. Returns a {@link ConflictError} if not the next available id.
    * Any other problem with serializing the entry will return a {@link StorageError}.
    */
-  addEntry(entry: T, sequenceId: SequenceId): Result<void,AddEntryError>;
+  addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void,AddEntryError>;
 
   /**
    * Set some or all of a log entry's metadata fields
    *
    * Changes are atomic. Either all of the specified fields are updated or none are.
    */
-  setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void,MetadataError>;
+  setMetadata(sequenceId: SequenceId, metaData: LogMetadata): ResultAsync<void,MetadataError>;
 
   /** Return a range of entries from `first` to `last` inclusive 
    * 
@@ -132,8 +132,8 @@ export interface EventLog<T extends LogEntry> {
    * @param end - `SequenceId` one after the last entry to return.
    * Use `'end'` to query everything to the end of the log.
    */
-  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue<T>,QueryError>;
+  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>,QueryError>;
 
   /** All entries prior to `start` are removed from the log. */
-  truncate(start: SequenceId): Result<void,TruncateError>
+  truncate(start: SequenceId): ResultAsync<void,TruncateError>
 }

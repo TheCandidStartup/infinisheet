@@ -4,51 +4,51 @@ import type { LogMetadata } from '@candidstartup/infinisheet-types';
 
 
 describe('SimpleEventLog', () => {
-  it('should start out empty', () => {
+  it('should start out empty', async () => {
     const data = new SimpleEventLog<TestLogEntry>;
 
-    let result = data.query('start', 'end');
+    let result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 0]);
 
-    result = data.query('snapshot', 'end');
+    result = await data.query('snapshot', 'end');
     expect(result).toBeQueryValue([0n, true, 0]);
 
-    result = data.query(0n, 0n);
+    result = await data.query(0n, 0n);
     expect(result).toBeQueryValue([0n, true, 0]);
 
-    result = data.query(0n, 5n);
+    result = await data.query(0n, 5n);
     expect(result).toBeQueryValue([0n, true, 0]);
 
-    result = data.query(5n, 30n);
+    result = await data.query(5n, 30n);
     expect(result).toBeInfinisheetError("InfinisheetRangeError");
 
-    result = data.query(-5n, 0n);
+    result = await data.query(-5n, 0n);
     expect(result).toBeInfinisheetError("InfinisheetRangeError");
   })
 
-  it('should support addEntry', () => {
+  it('should support addEntry', async () => {
     const data = new SimpleEventLog<TestLogEntry>;
 
-    let addResult = data.addEntry(testLogEntry(0), 0n)
+    let addResult = await data.addEntry(testLogEntry(0), 0n)
     expect(addResult.isOk()).toEqual(true);
 
-    let result = data.query('start', 'end');
+    let result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 1]);
 
-    addResult = data.addEntry(testLogEntry(1), 0n);
+    addResult = await data.addEntry(testLogEntry(1), 0n);
     expect(addResult.isErr()).toEqual(true);
 
-    addResult = data.addEntry(testLogEntry(1), 2n);
+    addResult = await data.addEntry(testLogEntry(1), 2n);
     expect(addResult.isErr()).toEqual(true);
 
-    addResult = data.addEntry(testLogEntry(1), 1n)
+    addResult = await data.addEntry(testLogEntry(1), 1n)
     expect(addResult.isOk()).toEqual(true);
 
-    result = data.query('start', 'end');
+    result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 2]);
   })
 
-  // Not that declaring snapshot property in this way results i
+  // Note that declaring snapshot property in this way results in
   // constructor implicitly creating this.snapshot with value undefined.
   class ExtraPropsMetaData implements LogMetadata {
     constructor() { this.index = 42; }
@@ -56,103 +56,103 @@ describe('SimpleEventLog', () => {
     snapshot?: string | undefined;
   }
 
-  it('should support setMetadata', () => {
+  it('should support setMetadata', async () => {
     const data = new SimpleEventLog<TestLogEntry>;
-    data.addEntry(testLogEntry(0), 0n)
+    await data.addEntry(testLogEntry(0), 0n);
     
-    expect(data.setMetadata(-1n, {})).toBeInfinisheetError("InfinisheetRangeError");
-    expect(data.setMetadata(1n, {})).toBeInfinisheetError("InfinisheetRangeError");
+    expect(await data.setMetadata(-1n, {})).toBeInfinisheetError("InfinisheetRangeError");
+    expect(await data.setMetadata(1n, {})).toBeInfinisheetError("InfinisheetRangeError");
 
-    data.setMetadata(0n, {});
-    let result = data.query('start', 'end');
+    await data.setMetadata(0n, {});
+    let result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 1]);
     expect(result._unsafeUnwrap().entries[0]).not.toHaveProperty("snapshot");
     expect(result._unsafeUnwrap().entries[0]).not.toHaveProperty("history");
     expect(result._unsafeUnwrap().entries[0]).not.toHaveProperty("pending");
 
-    data.setMetadata(0n, { snapshot: "snap" });
-    result = data.query('start', 'end');
+    await data.setMetadata(0n, { snapshot: "snap" });
+    result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 1]);
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("snapshot", "snap");
 
     // Check that setting one property has no effect on others
-    data.setMetadata(0n, { history: "hist" });
-    result = data.query('start', 'end');
+    await data.setMetadata(0n, { history: "hist" });
+    result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 1]);
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("snapshot", "snap");
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("history", "hist");
 
     // Set multiple properties
-    data.setMetadata(0n, { history: "hist2", pending: "pend" });
-    result = data.query('start', 'end');
+    await data.setMetadata(0n, { history: "hist2", pending: "pend" });
+    result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 1]);
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("snapshot", "snap");
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("history", "hist2");
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("pending", "pend");
 
     // Extra non-metadata properties should be ignored
-    data.setMetadata(0n, new ExtraPropsMetaData);
-    result = data.query('start', 'end');
+    await data.setMetadata(0n, new ExtraPropsMetaData);
+    result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 1]);
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("snapshot", undefined);
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("history", "hist2");
   })
 
-  it('should support truncate', () => {
+  it('should support truncate', async () => {
     const data = new SimpleEventLog<TestLogEntry>;
     for (let i = 0; i < 10; i ++)
-      data.addEntry(testLogEntry(i), BigInt(i))
-    expect(data.query('start', 'end')).toBeQueryValue([0n, true, 10]);
+      await data.addEntry(testLogEntry(i), BigInt(i))
+    expect(await data.query('start', 'end')).toBeQueryValue([0n, true, 10]);
 
-    let result = data.truncate(BigInt(-1));
+    let result = await data.truncate(BigInt(-1));
     expect(result).toBeInfinisheetError("InfinisheetRangeError")
 
-    result = data.truncate(BigInt(11));
+    result = await data.truncate(BigInt(11));
     expect(result).toBeInfinisheetError("InfinisheetRangeError")
 
-    result = data.truncate(BigInt(0));
+    result = await data.truncate(BigInt(0));
     expect(result.isOk()).toEqual(true);
-    expect(data.query('start', 'end')).toBeQueryValue([0n, true, 10]);
+    expect(await data.query('start', 'end')).toBeQueryValue([0n, true, 10]);
 
-    result = data.truncate(BigInt(4));
+    result = await data.truncate(BigInt(4));
     expect(result.isOk()).toEqual(true);
-    expect(data.query('start', 'end')).toBeQueryValue([4n, true, 6]);
+    expect(await data.query('start', 'end')).toBeQueryValue([4n, true, 6]);
 
-    result = data.truncate(BigInt(3));
+    result = await data.truncate(BigInt(3));
     expect(result).toBeInfinisheetError("InfinisheetRangeError")
 
-    result = data.truncate(BigInt(6));
+    result = await data.truncate(BigInt(6));
     expect(result.isOk()).toEqual(true);
-    expect(data.query('start', 'end')).toBeQueryValue([6n, true, 4]);
+    expect(await data.query('start', 'end')).toBeQueryValue([6n, true, 4]);
 
-    result = data.truncate(BigInt(10));
+    result = await data.truncate(BigInt(10));
     expect(result.isOk()).toEqual(true);
-    expect(data.query('start', 'end')).toBeQueryValue([10n, true, 0]);
+    expect(await data.query('start', 'end')).toBeQueryValue([10n, true, 0]);
 
-    result = data.truncate(BigInt(10));
+    result = await data.truncate(BigInt(10));
     expect(result.isOk()).toEqual(true);
-    expect(data.query('start', 'end')).toBeQueryValue([10n, true, 0]);
+    expect(await data.query('start', 'end')).toBeQueryValue([10n, true, 0]);
   })
 
-  it('should support paged query', () => {
+  it('should support paged query', async () => {
     const data = new SimpleEventLog<TestLogEntry>;
     for (let i = 0; i < 15; i ++)
-      data.addEntry(testLogEntry(i), BigInt(i))
+      await data.addEntry(testLogEntry(i), BigInt(i))
 
-    expect(data.query('start', 'end')).toBeQueryValue([0n, false, 10]);
-    expect(data.query(10n, 'end')).toBeQueryValue([10n, true, 5]);
+    expect(await data.query('start', 'end')).toBeQueryValue([0n, false, 10]);
+    expect(await data.query(10n, 'end')).toBeQueryValue([10n, true, 5]);
 
-    expect(data.query('start', 10n)).toBeQueryValue([0n, true, 10]);
-    expect(data.query(10n, 20n)).toBeQueryValue([10n, true, 5]);
+    expect(await data.query('start', 10n)).toBeQueryValue([0n, true, 10]);
+    expect(await data.query(10n, 20n)).toBeQueryValue([10n, true, 5]);
   })
 
-  it('should support snapshot query', () => {
+  it('should support snapshot query', async () => {
     const data = new SimpleEventLog<TestLogEntry>;
     for (let i = 0; i < 10; i ++)
-      data.addEntry(testLogEntry(i), BigInt(i))
+      await data.addEntry(testLogEntry(i), BigInt(i))
 
-    data.setMetadata(4n, { snapshot: "snap" });
+    await data.setMetadata(4n, { snapshot: "snap" });
 
-    expect(data.query('snapshot', 'end')).toBeQueryValue([4n, true, 6]);
+    expect(await data.query('snapshot', 'end')).toBeQueryValue([4n, true, 6]);
   })
 })

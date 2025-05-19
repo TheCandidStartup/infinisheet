@@ -6,6 +6,7 @@
 
 import { Err as Err_2 } from 'neverthrow';
 import { Ok as Ok_2 } from 'neverthrow';
+import { ResultAsync as ResultAsync_2 } from 'neverthrow';
 
 // @public
 export type AddEntryError = ConflictError | StorageError;
@@ -78,11 +79,17 @@ export function err<T = never, E = unknown>(err: E): Err<T, E>;
 export function err<T = never, _E extends void = void>(err: void): Err<T, void>;
 
 // @public
+export function errAsync<T = never, E = unknown>(err: E): ResultAsync<T, E>;
+
+// @public (undocumented)
+export function errAsync<T = never, _E extends void = void>(err: void): ResultAsync<T, void>;
+
+// @public
 export interface EventLog<T extends LogEntry> {
-    addEntry(entry: T, sequenceId: SequenceId): Result<void, AddEntryError>;
-    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): Result<QueryValue<T>, QueryError>;
-    setMetadata(sequenceId: SequenceId, metaData: LogMetadata): Result<void, MetadataError>;
-    truncate(start: SequenceId): Result<void, TruncateError>;
+    addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void, AddEntryError>;
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>, QueryError>;
+    setMetadata(sequenceId: SequenceId, metaData: LogMetadata): ResultAsync<void, MetadataError>;
+    truncate(start: SequenceId): ResultAsync<void, TruncateError>;
 }
 
 // @public
@@ -146,6 +153,12 @@ export function ok<T, E = never>(value: T): Ok<T, E>;
 export function ok<_T extends void = void, E = never>(value: void): Ok<void, E>;
 
 // @public
+export function okAsync<T, E = never>(value: T): ResultAsync<T, E>;
+
+// @public (undocumented)
+export function okAsync<_T extends void = void, E = never>(value: void): ResultAsync<void, E>;
+
+// @public
 export type QueryError = InfinisheetRangeError | StorageError;
 
 // @public
@@ -158,6 +171,10 @@ export interface QueryValue<T extends LogEntry> {
 
 // @public
 export type Result<T, E> = Ok<T, E> | Err<T, E>;
+
+// @public
+export class ResultAsync<T, E> extends ResultAsync_2<T, E> {
+}
 
 // @public
 export type RowColCoords = [row: number | undefined, col: number | undefined];
