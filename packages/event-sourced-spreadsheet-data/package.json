@@ -1,0 +1,54 @@
+{
+  "name": "@candidstartup/event-sourced-spreadsheet-data",
+  "private": false,
+  "version": "0.10.0",
+  "description": "Reference implementations of SpreadsheetData",
+  "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheCandidStartup/infinisheet.git",
+    "directory": "packages/event-sourced-spreadsheet-data"
+  },
+  "bugs": {
+    "url": "https://github.com/TheCandidStartup/infinisheet/issues"
+  },
+  "homepage": "https://github.com/TheCandidStartup/infinisheet/blob/main/packages/event-sourced-spreadsheet-data/README.md",
+  "keywords": [
+    "typescript",
+    "spreadsheet",
+    "infinisheet"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "clean": "rimraf {dist,temp}",
+    "prebuild": "npm run clean",
+    "typecheck": "tsc -p tsconfig.json",
+    "build-tsc": "tsc -p tsconfig.build.json",
+    "build-rollup": "rollup -c ../rollup.config.mjs",
+    "build": "npm run build-rollup",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "devapi": "api-extractor run --local",
+    "prodapi": "api-extractor run",
+    "devbuild": "npm run build && npm run lint && npm run devapi",
+    "notest": "vitest"
+  },
+  "dependencies": {
+    "@candidstartup/infinisheet-types": "^0.10.0"
+  }
+}
