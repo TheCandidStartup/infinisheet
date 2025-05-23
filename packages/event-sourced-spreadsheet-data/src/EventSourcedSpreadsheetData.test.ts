@@ -3,12 +3,6 @@ import { SpreadsheetData } from '@candidstartup/infinisheet-types'
 import { SimpleEventLog } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
 
-function microtasksProcessed(): Promise<void> {
-  return new Promise((resolve) => {
-    queueMicrotask(resolve);
-  })
-}
-
 function tasksProcessed(): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve);
