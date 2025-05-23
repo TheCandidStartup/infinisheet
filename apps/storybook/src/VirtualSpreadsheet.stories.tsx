@@ -4,7 +4,8 @@ import { userEvent, within, expect } from '@storybook/test';
 import { VirtualSpreadsheet, VirtualSpreadsheetProps, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
 import { AutoSizer } from '@candidstartup/react-virtual-scroll';
 
-import { SimpleSpreadsheetData, LayeredSpreadsheetData } from '@candidstartup/simple-spreadsheet-data';
+import { SimpleSpreadsheetData, LayeredSpreadsheetData,  SimpleEventLog } from '@candidstartup/simple-spreadsheet-data';
+import { EventSourcedSpreadsheetData, SpreadsheetLogEntry } from '@candidstartup/event-sourced-spreadsheet-data';
 import { BoringData as BoringDataType } from '../../spreadsheet-sample/src/BoringData';
 import { TestData as TestDataType } from '../../spreadsheet-sample/src/TestData';
 import { CellRefData } from '../../spreadsheet-sample/src/CellRefData';
@@ -13,6 +14,9 @@ const emptySpreadsheet = new SimpleSpreadsheetData;
 const boringData = new LayeredSpreadsheetData(new BoringDataType, new SimpleSpreadsheetData);
 const testData = new LayeredSpreadsheetData(new TestDataType, new SimpleSpreadsheetData);
 const cellNameData = new LayeredSpreadsheetData(new CellRefData, new SimpleSpreadsheetData);
+const eventLog = new SimpleEventLog<SpreadsheetLogEntry>;
+const eventSourcedDataA = new EventSourcedSpreadsheetData(eventLog);
+const eventSourcedDataB = new EventSourcedSpreadsheetData(eventLog);
 
 const meta: Meta<VirtualSpreadsheetProps> = {
   title: 'react-spreadsheet/VirtualSpreadsheet',
@@ -20,7 +24,14 @@ const meta: Meta<VirtualSpreadsheetProps> = {
   parameters: {
     docs: {
       story: {
-        autoplay: true
+        // Not safe to automatically run play functions for stories included in "Docs" page.
+        // * If focus given to input, Docs page gets scrolled to story rather than the top
+        // * Stories are rendered concurrently which means generated keyboard input can go to wrong place
+        // * Stories rendered concurrently can confuse the dev version of React
+        //   into triggering its "you haven't wrapped state updates in tests with act() warning".
+        // Most stories with play functions are pointless without playing them so in most cases they're also
+        // removed from the Docs page entirely using tags: ['!autodocs']
+        autoplay: false
       }
     }
   },
@@ -37,7 +48,7 @@ const meta: Meta<VirtualSpreadsheetProps> = {
         Empty: emptySpreadsheet,
         Test: testData,
         Boring: boringData,
-        "Cell Names": cellNameData,
+        "Cell Names": cellNameData
       }
     }
   }
@@ -99,6 +110,7 @@ export const RowSelected: Story = {
     width: 700,
     height: 380,
   },
+  tags: ['!autodocs'],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const row = canvas.getByText("3");
@@ -115,6 +127,7 @@ export const ColumnSelected: Story = {
     width: 700,
     height: 380,
   },
+  tags: ['!autodocs'],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const row = canvas.getByText("C");
@@ -131,6 +144,7 @@ export const CellSelected: Story = {
     width: 700,
     height: 380,
   },
+  tags: ['!autodocs'],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const row = canvas.getByText("1899-12-22");
@@ -147,10 +161,6 @@ export const DataError: Story = {
     width: 700,
     height: 380,
   },
-  // Exclude from autodocs as it doesn't play well with other stories
-  // * Error state needs a control to have focus which means Docs page gets scrolled to this story rather than the top
-  // * Use keyboard to type into control with focus but if multiple stories running can end up with input going
-  //   to the wrong place
   tags: ['!autodocs'],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -250,3 +260,27 @@ export const FullScreen: Story = {
   },
 };
 
+export const EventSourceSync: Story = {
+  args: {
+    theme: theme,
+    width: 700,
+    height: 380,
+  },
+  argTypes:{
+    data: {
+      table: {
+        disable: true
+      },
+    },
+  },
+  tags: ['!autodocs'],
+  render: ( {width: width, height: height, data: _data, ...args} ) => (
+    <div>
+      <VirtualSpreadsheet width={width} height={height} data={eventSourcedDataA} {...args}/>
+      <div style={{ marginTop: 10, marginBottom: 10 }}>
+        Shared Event Log, Sync every 10 seconds
+      </div>
+      <VirtualSpreadsheet width={width} height={height} data={eventSourcedDataB} {...args}/>
+    </div>
+  ),
+};

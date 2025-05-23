@@ -7,3 +7,6 @@
  * 
  * @packageDocumentation
  */
+
+export * from './SpreadsheetLogEntry'
+export * from './EventSourcedSpreadsheetData'

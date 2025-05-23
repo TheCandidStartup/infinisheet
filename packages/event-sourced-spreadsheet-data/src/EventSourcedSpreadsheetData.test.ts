@@ -34,10 +34,12 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(columnMapping.itemOffset(0)).toEqual(0);
   })
 
-  it('should implement SetCellValueAndFormat', () => {
+  it('should implement SetCellValueAndFormat', async () => {
     const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
     expect(data.setCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
+    await tasksProcessed();
     expect(data.setCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(true);
+    await tasksProcessed();
     const snapshot = data.getSnapshot();
     expect(data.getRowCount(snapshot)).toEqual(1);
     expect(data.getColumnCount(snapshot)).toEqual(2);
@@ -53,7 +55,7 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(data.isValidCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(true);
   })
 
-  it('should support snapshot semantics', () => {
+  it('should support snapshot semantics', async () => {
     const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
     const snapshot1 = data.getSnapshot();
     const snapshot2 = data.getSnapshot();
@@ -61,6 +63,7 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(data.getRowCount(snapshot1)).toEqual(0);
 
     expect(data.setCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
+    await tasksProcessed();
     const snapshot3 = data.getSnapshot();
     expect(Object.is(snapshot2, snapshot3)).toEqual(false);
     expect(data.getRowCount(snapshot1)).toEqual(0);

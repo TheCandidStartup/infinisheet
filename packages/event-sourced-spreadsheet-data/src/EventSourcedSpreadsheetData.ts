@@ -4,6 +4,7 @@ import { FixedSizeItemOffsetMapping, ok } from "@candidstartup/infinisheet-types
 
 import type { SpreadsheetLogEntry, SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
 
+const EVENT_LOG_CHECK_DELAY = 10000;
 
 interface LogSegment {
   startSequenceId: SequenceId;
@@ -53,6 +54,7 @@ function asSnapshot(snapshot: EventSourcedSnapshotContent) {
  */
 export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourcedSnapshot> {
   constructor (eventLog: EventLog<SpreadsheetLogEntry>) {
+    this.#intervalId = undefined;
     this.#isInSyncLogs = false;
     this.#eventLog = eventLog;
     this.#listeners = [];
@@ -68,9 +70,15 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
   }
 
   subscribe(onDataChange: () => void): () => void {
+    if (!this.#intervalId)
+      this.#intervalId = setInterval(() => { this.#syncLogs() }, EVENT_LOG_CHECK_DELAY);
     this.#listeners = [...this.#listeners, onDataChange];
     return () => {
       this.#listeners = this.#listeners.filter(l => l !== onDataChange);
+      if (this.#listeners.length == 0 && this.#intervalId !== undefined) {
+        clearInterval(this.#intervalId);
+        this.#intervalId = undefined;
+      }
     }
   }
 
@@ -107,24 +115,11 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError> {
     const curr = this.#content;
 
-    // Futile attempt to preserve sync semantics by updating locally first then event log to match
-    curr.logSegment.entries.push({ type: 'SetCellValueAndFormat', row, column, value, format});
-
-    // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
-    // replaced with a modified copy on every update.
-    this.#content = {
-      endSequenceId: curr.endSequenceId + 1n,
-      logSegment: curr.logSegment,
-      isComplete: true,
-      rowCount: Math.max(curr.rowCount, row+1),
-      colCount: Math.max(curr.colCount, column+1)
-    }
-
     const result = this.#eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format}, curr.endSequenceId);
-    result.andThen(() => {
-      /*if (this.#content.endSequenceId == curr.endSequenceId && this.#logSegment == curr.logSegment) {
+    result.andTee(() => {
+      if (this.#content == curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
-        this.#logSegment.entries.push({ type: 'SetCellValueAndFormat', row, column, value, format});
+        curr.logSegment.entries.push({ type: 'SetCellValueAndFormat', row, column, value, format});
 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
@@ -137,10 +132,8 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
         }
 
         this.#notifyListeners();
-      }*/
-      this.#notifyListeners();
-      return ok();
-    }).orElse(() => { throw Error("unhandled error")});
+      }
+    }).orElse((err) => { throw Error(err.message); });
 
     // Oh no, this method needs to become async ...
     return ok();
@@ -223,6 +216,7 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     this.#isInSyncLogs = false;
   }
 
+  #intervalId: ReturnType<typeof setInterval> | undefined;
   #isInSyncLogs: boolean;
   #eventLog: EventLog<SpreadsheetLogEntry>;
   #listeners: (() => void)[];

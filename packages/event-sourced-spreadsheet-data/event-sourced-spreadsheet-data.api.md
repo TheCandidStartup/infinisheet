@@ -4,6 +4,69 @@
 
 ```ts
 
+import { CellValue } from '@candidstartup/infinisheet-types';
+import { EventLog } from '@candidstartup/infinisheet-types';
+import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
+import { LogEntry } from '@candidstartup/infinisheet-types';
+import { Result } from '@candidstartup/infinisheet-types';
+import { SpreadsheetData } from '@candidstartup/infinisheet-types';
+import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
+import { ValidationError } from '@candidstartup/infinisheet-types';
+
+// @public
+export interface EventSourcedSnapshot {
+    // @internal (undocumented)
+    _brand: _EventSourcedSnapshotBrand;
+}
+
+// @internal
+export enum _EventSourcedSnapshotBrand {
+    // (undocumented)
+    _DO_NOT_USE = ""
+}
+
+// @public
+export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourcedSnapshot> {
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>);
+    // (undocumented)
+    getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): string | undefined;
+    // (undocumented)
+    getCellValue(snapshot: EventSourcedSnapshot, row: number, column: number): CellValue;
+    // (undocumented)
+    getColumnCount(snapshot: EventSourcedSnapshot): number;
+    // (undocumented)
+    getColumnItemOffsetMapping(_snapshot: EventSourcedSnapshot): ItemOffsetMapping;
+    // (undocumented)
+    getRowCount(snapshot: EventSourcedSnapshot): number;
+    // (undocumented)
+    getRowItemOffsetMapping(_snapshot: EventSourcedSnapshot): ItemOffsetMapping;
+    // (undocumented)
+    getSnapshot(): EventSourcedSnapshot;
+    // (undocumented)
+    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
+    // (undocumented)
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
+    // (undocumented)
+    subscribe(onDataChange: () => void): () => void;
+}
+
+// @public (undocumented)
+export interface SetCellValueAndFormatLogEntry extends LogEntry {
+    // (undocumented)
+    column: number;
+    // (undocumented)
+    format?: string | undefined;
+    // (undocumented)
+    row: number;
+    // (undocumented)
+    type: 'SetCellValueAndFormat';
+    // (undocumented)
+    value: CellValue;
+}
+
+// @public (undocumented)
+export type SpreadsheetLogEntry = SetCellValueAndFormatLogEntry;
+
 // (No @packageDocumentation comment for this package)
 
 ```
