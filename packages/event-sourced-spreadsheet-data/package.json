@@ -2,7 +2,7 @@
   "name": "@candidstartup/event-sourced-spreadsheet-data",
   "private": false,
   "version": "0.10.0",
-  "description": "Reference implementations of SpreadsheetData",
+  "description": "Event sourced implementation of SpreadsheetData",
   "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
   "license": "BSD-3-Clause",
   "repository": {
