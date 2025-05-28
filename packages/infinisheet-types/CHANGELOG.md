@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.10.0...v0.11.0) (2025-05-28)
+
+
+### Features
+
+* **infinisheet:** Added InfinisheetError base interface ([ce28da5](https://github.com/TheCandidStartup/infinisheet/commit/ce28da53a9c3ed61ecaa995168c173f783090e71))
+* **infinisheet:** Added setMetadata method to EventLog interface ([800586e](https://github.com/TheCandidStartup/infinisheet/commit/800586e05760a5f82db40d76991bd180ede70d55))
+* **infinisheet:** Initial work on EventLog type and SimpleEventLog reference implementation ([2e1aa3e](https://github.com/TheCandidStartup/infinisheet/commit/2e1aa3e23e7df45bf7272603a0909074a0029bd9))
+* **infinisheet:** Made EventLog API asynchronous with ResultAsync ([b2fcbbf](https://github.com/TheCandidStartup/infinisheet/commit/b2fcbbf5406fbbe9281cd19956fe4eadb1f27fc4))
+* **infinisheet:** Made EventLog generic on LogEntry type ([e40ee1f](https://github.com/TheCandidStartup/infinisheet/commit/e40ee1f1c6646ff3f99071b732ebc96d9ff21489))
+
+
+
+
+
 # [0.10.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.9.0...v0.10.0) (2025-04-17)
 
 

@@ -1,7 +1,7 @@
 {
   "name": "@candidstartup/event-sourced-spreadsheet-data",
   "private": false,
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Event sourced implementation of SpreadsheetData",
   "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
   "license": "BSD-3-Clause",
@@ -49,6 +49,6 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@candidstartup/infinisheet-types": "^0.10.0"
+    "@candidstartup/infinisheet-types": "^0.11.0"
   }
 }
