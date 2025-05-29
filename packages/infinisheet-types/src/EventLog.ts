@@ -1,8 +1,17 @@
 import { ResultAsync } from "./ResultAsync";
 import { StorageError, InfinisheetError, InfinisheetRangeError } from "./Error"
 
+/** Identifier for a blob of data in a blob store */
 export type BlobId = string;
+
+/** Identifier for a workflow triggered writing to {@link LogMetadata.pending} */
 export type WorkflowId = string;
+
+/** 
+ * Identifier for an entry in an {@link EventLog}.
+ * 
+ * Incrementing integer.
+*/
 export type SequenceId = bigint;
 
 /**

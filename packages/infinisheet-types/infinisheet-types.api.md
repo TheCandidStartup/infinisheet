@@ -11,7 +11,7 @@ import { ResultAsync as ResultAsync_2 } from 'neverthrow';
 // @public
 export type AddEntryError = ConflictError | StorageError;
 
-// @public (undocumented)
+// @public
 export type BlobId = string;
 
 // @public
@@ -188,7 +188,7 @@ export type RowColRef = string;
 // @public
 export function rowColRefToCoords(ref: RowColRef): RowColCoords;
 
-// @public (undocumented)
+// @public
 export type SequenceId = bigint;
 
 // @public
@@ -242,7 +242,7 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 }
 
-// @public (undocumented)
+// @public
 export type WorkflowId = string;
 
 // (No @packageDocumentation comment for this package)

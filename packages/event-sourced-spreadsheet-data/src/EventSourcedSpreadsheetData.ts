@@ -29,7 +29,7 @@ interface EventSourcedSnapshotContent {
 export enum _EventSourcedSnapshotBrand { _DO_NOT_USE="" };
 
 /**
- * Opaque type representing a {@link SimpleSpreadsheetData} snapshot. All the
+ * Opaque type representing an {@link EventSourcedSpreadsheetData} snapshot. All the
  * internal implementation details are hidden from the exported API.
  */
 export interface EventSourcedSnapshot {

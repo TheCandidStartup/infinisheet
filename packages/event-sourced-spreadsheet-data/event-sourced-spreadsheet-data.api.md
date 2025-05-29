@@ -50,21 +50,17 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     subscribe(onDataChange: () => void): () => void;
 }
 
-// @public (undocumented)
+// @public
 export interface SetCellValueAndFormatLogEntry extends LogEntry {
-    // (undocumented)
     column: number;
-    // (undocumented)
     format?: string | undefined;
-    // (undocumented)
     row: number;
     // (undocumented)
     type: 'SetCellValueAndFormat';
-    // (undocumented)
     value: CellValue;
 }
 
-// @public (undocumented)
+// @public
 export type SpreadsheetLogEntry = SetCellValueAndFormatLogEntry;
 
 // (No @packageDocumentation comment for this package)
