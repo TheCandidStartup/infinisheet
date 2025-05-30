@@ -1,6 +1,6 @@
-import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, 
+import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, 
   SpreadsheetDataError, ValidationError, SequenceId, BlobId, EventLog } from "@candidstartup/infinisheet-types";
-import { FixedSizeItemOffsetMapping, ok } from "@candidstartup/infinisheet-types";
+import { FixedSizeItemOffsetMapping, ok, err, storageError } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry, SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
 
@@ -15,7 +15,7 @@ interface LogSegment {
 interface EventSourcedSnapshotContent {
   endSequenceId: SequenceId;
   logSegment: LogSegment;
-  isComplete: boolean;
+  loadStatus: Result<boolean,StorageError>;
   rowCount: number;
   colCount: number;
 }
@@ -61,7 +61,7 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     this.#content = {
       endSequenceId: 0n,
       logSegment: { startSequenceId: 0n, entries: [] },
-      isComplete: false,
+      loadStatus: ok(false),
       rowCount: 0,
       colCount: 0
     }
@@ -84,6 +84,10 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
 
   getSnapshot(): EventSourcedSnapshot {
     return asSnapshot(this.#content);
+  }
+
+  getLoadStatus(snapshot: EventSourcedSnapshot): Result<boolean,StorageError> {
+    return asContent(snapshot).loadStatus;
   }
 
   getRowCount(snapshot: EventSourcedSnapshot): number {
@@ -112,11 +116,11 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     return entry?.format;
   }
 
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError> {
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
     const curr = this.#content;
 
     const result = this.#eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format}, curr.endSequenceId);
-    result.andTee(() => {
+    return result.andTee(() => {
       if (this.#content == curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
         curr.logSegment.entries.push({ type: 'SetCellValueAndFormat', row, column, value, format});
@@ -126,17 +130,19 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
         this.#content = {
           endSequenceId: curr.endSequenceId + 1n,
           logSegment: curr.logSegment,
-          isComplete: true,
+          loadStatus: ok(true),
           rowCount: Math.max(curr.rowCount, row+1),
           colCount: Math.max(curr.colCount, column+1)
         }
 
         this.#notifyListeners();
       }
-    }).orElse((err) => { throw Error(err.message); });
-
-    // Oh no, this method needs to become async ...
-    return ok();
+    }).mapErr((err): SpreadsheetDataError => {
+      switch (err.type) {
+        case 'ConflictError': return storageError(err.message, 409);
+        case 'StorageError': return err;
+      }
+    });
   }
 
   isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {
@@ -179,8 +185,19 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
       const result = await this.#eventLog.query(start, 'end');
 
       if (!result.isOk()) {
-        // Depending on error may need to retry (limited times, jitter and backoff), reload from scratch or panic
-        throw Error("Error querying log entries");
+        if (result.error.type == 'InfinisheetRangeError') {
+          // Once we have proper snapshot system would expect this if client gets too far behind, for
+          // now shouldn't happen.
+          throw Error("Query resulted in range error, reload from scratch?", { cause: result.error });
+        }
+
+        // Could do some immediate retries of intermittent errors (limited times, jitter and backoff).
+        // For now wait for interval timer to try another sync
+        // For persistent failures should stop interval timer and have some mechanism for user to trigger
+        // manual retry. 
+        this.#content = { ...curr, loadStatus: err(result.error)};
+        this.#notifyListeners();
+        break;
       }
 
       // Extend the current loaded segment.
@@ -188,8 +205,10 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
       const value = result.value;
       if (segment.entries.length == 0)
         segment.startSequenceId = value.startSequenceId;
-      else if (curr.endSequenceId != value.startSequenceId)
+      else if (curr.endSequenceId != value.startSequenceId) {
+        // Shouldn't happen unless we have buggy event log implementation
         throw Error(`Query returned start ${value.startSequenceId}, expected ${curr.endSequenceId}`);
+      }
       isComplete = value.isComplete;
 
       if (value.entries.length > 0) {
@@ -206,7 +225,8 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
         this.#content = {
           endSequenceId: value.endSequenceId,
           logSegment: segment,
-          isComplete, rowCount, colCount
+          loadStatus: ok(isComplete),
+          rowCount, colCount
         }
 
         this.#notifyListeners();

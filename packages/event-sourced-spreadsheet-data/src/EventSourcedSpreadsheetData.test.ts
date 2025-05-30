@@ -3,12 +3,6 @@ import { SpreadsheetData } from '@candidstartup/infinisheet-types'
 import { SimpleEventLog } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
 
-function tasksProcessed(): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve);
-  })
-}
-
 function subscribeFired(data: SpreadsheetData<unknown>): Promise<void> {
   return new Promise((resolve) => {
     const unsubscribe = data.subscribe(() => {
@@ -36,10 +30,8 @@ describe('EventSourcedSpreadsheetData', () => {
 
   it('should implement SetCellValueAndFormat', async () => {
     const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
-    expect(data.setCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
-    await tasksProcessed();
-    expect(data.setCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(true);
-    await tasksProcessed();
+    expect((await data.setCellValueAndFormat(0, 0, "In A1", undefined)).isOk()).toEqual(true);
+    expect((await data.setCellValueAndFormat(0, 1, 42, "YYYY-MM-DD")).isOk()).toEqual(true);
     const snapshot = data.getSnapshot();
     expect(data.getRowCount(snapshot)).toEqual(1);
     expect(data.getColumnCount(snapshot)).toEqual(2);
@@ -62,8 +54,7 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(Object.is(snapshot1, snapshot2)).toEqual(true);
     expect(data.getRowCount(snapshot1)).toEqual(0);
 
-    expect(data.setCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
-    await tasksProcessed();
+    expect((await data.setCellValueAndFormat(0, 0, "In A1", undefined)).isOk()).toEqual(true);
     const snapshot3 = data.getSnapshot();
     expect(Object.is(snapshot2, snapshot3)).toEqual(false);
     expect(data.getRowCount(snapshot1)).toEqual(0);
@@ -76,17 +67,14 @@ describe('EventSourcedSpreadsheetData', () => {
     const mock = vi.fn();
     const unsubscribe = data.subscribe(mock);
 
-    data.setCellValueAndFormat(0, 0, "In A1", undefined);
-    await tasksProcessed();
+    await data.setCellValueAndFormat(0, 0, "In A1", undefined);
     expect(mock).toBeCalledTimes(1);
 
-    data.setCellValueAndFormat(0, 0, 42, undefined);
-    await tasksProcessed();
+    await data.setCellValueAndFormat(0, 0, 42, undefined);
     expect(mock).toBeCalledTimes(2);
 
     unsubscribe();
-    data.setCellValueAndFormat(0, 0, false, undefined);
-    await tasksProcessed();
+    await data.setCellValueAndFormat(0, 0, false, undefined);
     expect(mock).toBeCalledTimes(2);
   })
 
@@ -108,7 +96,7 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(data.getCellValue(snapshot1, 9, 0)).toEqual(undefined);
     expect(data.getCellValue(snapshot2, 9, 0)).toEqual(9);
 
-    await tasksProcessed();
+    await subscribeFired(data);
     const snapshot3 = data.getSnapshot();
     expect(data.getRowCount(snapshot1)).toEqual(0);
     expect(data.getCellValue(snapshot1, 9, 0)).toEqual(undefined);

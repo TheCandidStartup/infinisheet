@@ -454,9 +454,9 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
     return [value, format];
   }
 
-  function commitFormulaChange(rowIndex: number, colIndex: number): boolean {
+  async function commitFormulaChange(rowIndex: number, colIndex: number): Promise<boolean> {
     const [value, format] = parseFormula(formula);
-    const result = data.setCellValueAndFormat(rowIndex, colIndex, value, format);
+    const result = await data.setCellValueAndFormat(rowIndex, colIndex, value, format);
     setDataError(result.isOk() ? null : result.error);
     return result.isOk();
   }
@@ -493,22 +493,26 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
         break;
 
         case "Enter": { 
-          if (commitFormulaChange(row, col)) {
-            updateFormula(row, col, false); 
-            setEditMode(false);
-            nextCell(row,col,true,event.shiftKey);
-          }
+          void commitFormulaChange(row, col).then((ok) => {
+            if (ok) {
+              updateFormula(row, col, false); 
+              setEditMode(false);
+              nextCell(row,col,true,event.shiftKey);
+            }
+          })
         } 
         break;
 
         case "Tab": { 
-          if (commitFormulaChange(row, col)) {
-            updateFormula(row, col, false); 
-            setEditMode(false);
-            nextCell(row,col,false,event.shiftKey);
-          }
+          void commitFormulaChange(row, col).then((ok) => {
+            if (ok) {
+              updateFormula(row, col, false); 
+              setEditMode(false);
+              nextCell(row,col,false,event.shiftKey);
+            }
+          })
           event.preventDefault();
-        } 
+        }
         break;
       }
     } else {

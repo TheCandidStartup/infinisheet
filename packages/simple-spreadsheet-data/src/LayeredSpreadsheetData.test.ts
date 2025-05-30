@@ -28,6 +28,9 @@ describe('LayeredSpreadsheetData', () => {
   it('should start out identical to base data', () => {
     const data = new TestData;
     const snapshot = data.getSnapshot();
+    const loadStatus = data.getLoadStatus(snapshot);
+    expect(loadStatus.isOk()).toEqual(true);
+    expect(loadStatus._unsafeUnwrap()).toEqual(true);
     expect(data.getRowCount(snapshot)).toEqual(100);
     expect(data.getColumnCount(snapshot)).toEqual(26);
     expect(data.getCellValue(snapshot, 0, 0)).toEqual("A1");
@@ -42,10 +45,10 @@ describe('LayeredSpreadsheetData', () => {
     expect(columnMapping.itemOffset(0)).toEqual(0);
   })
 
-  it('should implement SetCellValueAndFormat', () => {
+  it('should implement SetCellValueAndFormat', async () => {
     const data = new TestData;
-    expect(data.setCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
-    expect(data.setCellValueAndFormat(1, 0, 42, "YYYY-MM-DD").isOk()).toEqual(true);
+    expect((await data.setCellValueAndFormat(0, 0, "In A1", undefined)).isOk()).toEqual(true);
+    expect((await data.setCellValueAndFormat(1, 0, 42, "YYYY-MM-DD")).isOk()).toEqual(true);
     const snapshot = data.getSnapshot();
     expect(data.getRowCount(snapshot)).toEqual(100);
     expect(data.getColumnCount(snapshot)).toEqual(26);
@@ -66,34 +69,34 @@ describe('LayeredSpreadsheetData', () => {
     expect(data.getCellValue(snapshot, 0, 1)).toEqual("B1");
   })
 
-  it('should support snapshot semantics', () => {
+  it('should support snapshot semantics', async () => {
     const data = new TestData;
     const snapshot1 = data.getSnapshot();
     const snapshot2 = data.getSnapshot();
     expect(Object.is(snapshot1, snapshot2)).toEqual(true);
     expect(data.getRowCount(snapshot1)).toEqual(100);
 
-    expect(data.setCellValueAndFormat(200, 0, "In A1", undefined).isOk()).toEqual(true);
+    expect((await data.setCellValueAndFormat(200, 0, "In A1", undefined)).isOk()).toEqual(true);
     const snapshot3 = data.getSnapshot();
     expect(Object.is(snapshot2, snapshot3)).toEqual(false);
     expect(data.getRowCount(snapshot1)).toEqual(100);
     expect(data.getRowCount(snapshot3)).toEqual(201);
   })
 
-  it('should support subscribe semantics', () => {
+  it('should support subscribe semantics', async () => {
     const data = new TestData;
 
     const mock = vi.fn();
     const unsubscribe = data.subscribe(mock);
 
-    data.setCellValueAndFormat(0, 0, "In A1", undefined);
+    await data.setCellValueAndFormat(0, 0, "In A1", undefined);
     expect(mock).toBeCalledTimes(1);
 
-    data.setCellValueAndFormat(0, 0, 42, undefined);
+    await data.setCellValueAndFormat(0, 0, 42, undefined);
     expect(mock).toBeCalledTimes(2);
 
     unsubscribe();
-    data.setCellValueAndFormat(0, 0, false, undefined);
+    await data.setCellValueAndFormat(0, 0, false, undefined);
     expect(mock).toBeCalledTimes(2);
   })
 })

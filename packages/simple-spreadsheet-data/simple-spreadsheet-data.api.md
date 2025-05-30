@@ -18,6 +18,7 @@ import { ResultAsync } from '@candidstartup/infinisheet-types';
 import { SequenceId } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
+import { StorageError } from '@candidstartup/infinisheet-types';
 import { TruncateError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
 
@@ -45,6 +46,8 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     // (undocumented)
     getColumnItemOffsetMapping(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): ItemOffsetMapping;
     // (undocumented)
+    getLoadStatus(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): Result<boolean, StorageError>;
+    // (undocumented)
     getRowCount(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): number;
     // (undocumented)
     getRowItemOffsetMapping(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): ItemOffsetMapping;
@@ -53,7 +56,7 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     // (undocumented)
     isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, ValidationError>;
     // (undocumented)
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }
@@ -95,6 +98,8 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     // (undocumented)
     getColumnItemOffsetMapping(_snapshot: SimpleSnapshot): ItemOffsetMapping;
     // (undocumented)
+    getLoadStatus(_snapshot: SimpleSnapshot): Result<boolean, StorageError>;
+    // (undocumented)
     getRowCount(snapshot: SimpleSnapshot): number;
     // (undocumented)
     getRowItemOffsetMapping(_snapshot: SimpleSnapshot): ItemOffsetMapping;
@@ -103,7 +108,7 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     // (undocumented)
     isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
     // (undocumented)
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }

@@ -9,8 +9,10 @@ import { EventLog } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { LogEntry } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
+import { ResultAsync } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
+import { StorageError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
 
 // @public
@@ -37,6 +39,8 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     // (undocumented)
     getColumnItemOffsetMapping(_snapshot: EventSourcedSnapshot): ItemOffsetMapping;
     // (undocumented)
+    getLoadStatus(snapshot: EventSourcedSnapshot): Result<boolean, StorageError>;
+    // (undocumented)
     getRowCount(snapshot: EventSourcedSnapshot): number;
     // (undocumented)
     getRowItemOffsetMapping(_snapshot: EventSourcedSnapshot): ItemOffsetMapping;
@@ -45,7 +49,7 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     // (undocumented)
     isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
     // (undocumented)
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }

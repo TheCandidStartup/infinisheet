@@ -1,6 +1,7 @@
 import type { ItemOffsetMapping } from "./ItemOffsetMapping";
 import { FixedSizeItemOffsetMapping } from "./FixedSizeItemOffsetMapping";
-import { Result, err, ok } from "./Result";
+import { Result, ok } from "./Result";
+import { ResultAsync, errAsync } from "./ResultAsync";
 import { ValidationError, StorageError, storageError } from "./Error";
 
 /** Possible spreadsheet error values
@@ -64,6 +65,14 @@ export interface SpreadsheetData<Snapshot> {
   /** Return a snapshot to use when accessing values at a consistent point in time */
   getSnapshot(): Snapshot,
 
+  /** 
+   * Return load status at the time the snapshot was created 
+   * 
+   * On Success returns true if load has completed, false if still in progress
+   * On Err returns most recent error reported by the storage system
+   */
+  getLoadStatus(snapshot: Snapshot): Result<boolean,StorageError>,
+
   /** Number of rows in the spreadsheet */
   getRowCount(snapshot: Snapshot): number,
 
@@ -86,7 +95,7 @@ export interface SpreadsheetData<Snapshot> {
    * 
    * @returns `Ok` if the change was successfully applied
    */
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError>
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError>
 
   /** Check whether value and format are valid to set for specified cell
    * 
@@ -102,14 +111,15 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
   subscribe(_onDataChange: () => void) { return () => {}; }
   getSnapshot() { return 0; }
   
+  getLoadStatus(_snapshot: number): Result<boolean,StorageError> { return ok(true); }
   getRowCount(_snapshot: number) { return 0; }
   getRowItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return rowItemOffsetMapping; }
   getColumnCount(_snapshot: number) { return 0; }
   getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return columnItemOffsetMapping; }
   getCellValue(_snapshot: number, _row: number, _column: number): CellValue { return null; }
   getCellFormat(_snapshot: number, _row: number, _column: number): string|undefined { return undefined; }
-  setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,SpreadsheetDataError> 
-  { return err(storageError("Not implemented", 501)); }
+  setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): ResultAsync<void,SpreadsheetDataError> 
+  { return errAsync(storageError("Not implemented", 501)); }
   isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> 
   { return ok(); }
 }

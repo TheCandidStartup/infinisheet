@@ -1,6 +1,6 @@
-import type { CellValue, SpreadsheetData, RowColRef, ItemOffsetMapping, Result, 
-  SpreadsheetDataError, ValidationError } from "@candidstartup/infinisheet-types";
-import { FixedSizeItemOffsetMapping, rowColCoordsToRef, ok } from "@candidstartup/infinisheet-types";
+import type { CellValue, SpreadsheetData, RowColRef, ItemOffsetMapping, Result, ResultAsync,
+  SpreadsheetDataError, ValidationError, StorageError } from "@candidstartup/infinisheet-types";
+import { FixedSizeItemOffsetMapping, rowColCoordsToRef, ok, okAsync } from "@candidstartup/infinisheet-types";
 
 interface CellContent {
   value: CellValue;
@@ -71,6 +71,10 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     return asSnapshot(this.#content);
   }
 
+  getLoadStatus(_snapshot: SimpleSnapshot): Result<boolean,StorageError> {
+    return ok(true);
+  }
+
   getRowCount(snapshot: SimpleSnapshot): number {
     return asContent(snapshot).rowCount;
   }
@@ -97,7 +101,7 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     return asContent(snapshot).values[ref]?.format;
   }
 
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError> {
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
     const curr = this.#content;
     const ref = rowColCoordsToRef(row, column);
 
@@ -110,9 +114,8 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
       rowCount: Math.max(curr.rowCount, row+1),
       colCount: Math.max(curr.colCount, column+1)
     }
-    this.#notifyListeners();
 
-    return ok();
+    return okAsync().andTee(() => this.#notifyListeners());
   }
 
   isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {

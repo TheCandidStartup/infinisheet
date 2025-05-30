@@ -3,7 +3,7 @@ import { stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 
 import { VirtualSpreadsheet } from './VirtualSpreadsheet'
 import { VirtualSpreadsheetDefaultTheme } from './VirtualSpreadsheetTheme'
-import { EmptySpreadsheetData, CellValue, Result, SpreadsheetDataError, ValidationError,
+import { EmptySpreadsheetData, CellValue, Result, ResultAsync, SpreadsheetDataError, ValidationError,
   rowColCoordsToRef, ok, err, validationError } from '@candidstartup/infinisheet-types';
 
 class TestData extends EmptySpreadsheetData {
@@ -35,8 +35,8 @@ class TestData extends EmptySpreadsheetData {
         return undefined; 
     }
   }
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError> 
-  { return this.isValidCellValueAndFormat(row, column, value, format); }
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> 
+  { return new ResultAsync(Promise.resolve(this.isValidCellValueAndFormat(row, column, value, format))); }
   isValidCellValueAndFormat(_row: number, column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> 
   { return (column < 25) ? ok() : err(validationError("Column Z is read only")); }
 }
@@ -378,7 +378,7 @@ describe('VirtualSpreadsheet', () => {
     expect(name).toHaveProperty("value", "AA200");
   })
 
-  it('should support keyboard edit', () => {
+  it('should support keyboard edit', async () => {
     stubProperty(HTMLElement.prototype, "clientWidth", 585);
     stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
@@ -418,7 +418,8 @@ describe('VirtualSpreadsheet', () => {
     expect(focusSink).toHaveProperty("value", "");
 
     // Enter tries to commit changes, moves to next cell down and leaves edit mode
-    {act(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    {await act(async () => {
       fireEvent.change(focusSink, { target: { value: "changed" }})
       fireEvent.keyDown(focusSink, { key: 'Enter' })
     })}
@@ -428,7 +429,8 @@ describe('VirtualSpreadsheet', () => {
     expect(formula).toHaveProperty("value", "A3");
 
     // Tab tries to commit changes, moves to next cell right and leaves edit mode
-    {act(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    {await act(async () => {
       fireEvent.change(focusSink, { target: { value: "changed2" }})
       fireEvent.keyDown(focusSink, { key: 'Tab' })
     })}
@@ -438,7 +440,8 @@ describe('VirtualSpreadsheet', () => {
     expect(formula).toHaveProperty("value", "B3");
 
     // Edit cell to value with format
-    {act(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    {await act(async () => {
       fireEvent.change(focusSink, { target: { value: "12 June 1984" }})
       fireEvent.keyDown(focusSink, { key: 'Enter' })
     })}
@@ -448,7 +451,7 @@ describe('VirtualSpreadsheet', () => {
     expect(formula).toHaveProperty("value", "B4");
   })
 
-  it('should handle data errors', () => {
+  it('should handle data errors', async () => {
     stubProperty(HTMLElement.prototype, "clientWidth", 585);
     stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
@@ -492,7 +495,8 @@ describe('VirtualSpreadsheet', () => {
     expect(focusSink.className).not.toMatch("VirtualSpreadsheet_Cell__DataError");
 
     // Enter tries to commit changes, stays on same cell if error
-    {act(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    {await act(async () => {
       fireEvent.change(focusSink, { target: { value: "changed3" }})
       fireEvent.keyDown(focusSink, { key: 'Enter' })
     })}
@@ -504,7 +508,8 @@ describe('VirtualSpreadsheet', () => {
     expect(formula.className).toMatch("VirtualSpreadsheet_Formula__DataError");
 
     //  tries to commit changes, stays on same cell if error
-    {act(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    {await act(async () => {
       fireEvent.change(focusSink, { target: { value: "changed4" }})
       fireEvent.keyDown(focusSink, { key: 'Tab' })
     })}
@@ -548,7 +553,7 @@ describe('VirtualSpreadsheet', () => {
     expect(focusSink).toHaveProperty("value", "A2");
   })
 
-  it('should support formula edit', () => {
+  it('should support formula edit', async () => {
     stubProperty(HTMLElement.prototype, "clientWidth", 585);
     stubProperty(HTMLElement.prototype, "clientHeight", 225);
     render(
@@ -603,7 +608,8 @@ describe('VirtualSpreadsheet', () => {
     expect(focusSink).toHaveProperty("value", "changed3");
 
     // Commit change
-    {act(() => { 
+    // eslint-disable-next-line @typescript-eslint/require-await
+    {await act(async () => { 
       fireEvent.keyDown(formula, { key: 'Enter'})
     })}
     expect(setCellValueAndFormatMock).lastCalledWith(1, 0, "changed3", undefined)

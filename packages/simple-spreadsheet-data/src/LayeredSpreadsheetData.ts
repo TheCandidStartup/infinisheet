@@ -1,5 +1,5 @@
-import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, 
-  SpreadsheetDataError, ValidationError } from "@candidstartup/infinisheet-types";
+import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync,
+  SpreadsheetDataError, ValidationError, StorageError } from "@candidstartup/infinisheet-types";
 
 interface LayeredSnapshotContent<BaseSnapshot, EditSnapshot> {
   base: BaseSnapshot,
@@ -86,6 +86,11 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     return asSnapshot(this.#content);
   }
 
+  getLoadStatus(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): Result<boolean,StorageError> {
+    const content = asContent(snapshot);
+    return this.#base.getLoadStatus(content.base).andThen((t1) => this.#edit.getLoadStatus(content.edit).map((t2) => t1 && t2));
+  }
+
   getRowCount(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): number {
     const content = asContent(snapshot);
     return Math.max(this.#base.getRowCount(content.base), this.#edit.getRowCount(content.edit));
@@ -119,9 +124,9 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     return (editValue === undefined) ? this.#base.getCellFormat(content.base, row, column) : this.#edit.getCellFormat(content.edit, row, column);
   }
 
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,SpreadsheetDataError> {
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
     const result = this.#base.isValidCellValueAndFormat(row, column, value, format);
-    return result.andThen(() => this.#edit.setCellValueAndFormat(row, column, value, format));
+    return result.asyncAndThen(() => this.#edit.setCellValueAndFormat(row, column, value, format));
   }
 
   // Must be valid for both layers

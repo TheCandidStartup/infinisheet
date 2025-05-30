@@ -52,6 +52,8 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
     getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping;
     // (undocumented)
+    getLoadStatus(_snapshot: number): Result<boolean, StorageError>;
+    // (undocumented)
     getRowCount(_snapshot: number): number;
     // (undocumented)
     getRowItemOffsetMapping(_snapshot: number): ItemOffsetMapping;
@@ -60,7 +62,7 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
     isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
     // (undocumented)
-    setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, SpreadsheetDataError>;
+    setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(_onDataChange: () => void): () => void;
 }
@@ -200,11 +202,12 @@ export interface SpreadsheetData<Snapshot> {
     getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
     getColumnCount(snapshot: Snapshot): number;
     getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
+    getLoadStatus(snapshot: Snapshot): Result<boolean, StorageError>;
     getRowCount(snapshot: Snapshot): number;
     getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
     getSnapshot(): Snapshot;
     isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, ValidationError>;
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, SpreadsheetDataError>;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     subscribe(onDataChange: () => void): () => void;
 }
 
