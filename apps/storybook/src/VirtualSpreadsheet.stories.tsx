@@ -4,7 +4,7 @@ import { userEvent, within, expect } from '@storybook/test';
 import { VirtualSpreadsheet, VirtualSpreadsheetProps, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
 import { AutoSizer } from '@candidstartup/react-virtual-scroll';
 
-import { SimpleSpreadsheetData, LayeredSpreadsheetData,  SimpleEventLog } from '@candidstartup/simple-spreadsheet-data';
+import { SimpleSpreadsheetData, LayeredSpreadsheetData, SimpleEventLog, DelayEventLog } from '@candidstartup/simple-spreadsheet-data';
 import { EventSourcedSpreadsheetData, SpreadsheetLogEntry } from '@candidstartup/event-sourced-spreadsheet-data';
 import { BoringData as BoringDataType } from '../../spreadsheet-sample/src/BoringData';
 import { TestData as TestDataType } from '../../spreadsheet-sample/src/TestData';
@@ -15,8 +15,10 @@ const boringData = new LayeredSpreadsheetData(new BoringDataType, new SimpleSpre
 const testData = new LayeredSpreadsheetData(new TestDataType, new SimpleSpreadsheetData);
 const cellNameData = new LayeredSpreadsheetData(new CellRefData, new SimpleSpreadsheetData);
 const eventLog = new SimpleEventLog<SpreadsheetLogEntry>;
-const eventSourcedDataA = new EventSourcedSpreadsheetData(eventLog);
-const eventSourcedDataB = new EventSourcedSpreadsheetData(eventLog);
+const delayEventLogA = new DelayEventLog(eventLog, 5000);
+const delayEventLogB = new DelayEventLog(eventLog, 50);
+const eventSourcedDataA = new EventSourcedSpreadsheetData(delayEventLogA);
+const eventSourcedDataB = new EventSourcedSpreadsheetData(delayEventLogB);
 
 const meta: Meta<VirtualSpreadsheetProps> = {
   title: 'react-spreadsheet/VirtualSpreadsheet',
