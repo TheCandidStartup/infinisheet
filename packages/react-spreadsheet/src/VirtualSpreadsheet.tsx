@@ -3,7 +3,7 @@ import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScr
   getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
 import { SpreadsheetData, SpreadsheetDataError, CellValue, indexToColRef, RowColCoords, 
-  rowColRefToCoords, rowColCoordsToRef } from '@candidstartup/infinisheet-types'
+  rowColRefToCoords, rowColCoordsToRef, storageError} from '@candidstartup/infinisheet-types'
 import * as numfmt from 'numfmt'
 
 /** Extension of {@link SpreadsheetData} interface so that it's compatible with React's `useSyncExternalStore` hook
@@ -198,6 +198,13 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
   return cellRender(rowIndex, columnIndex, style);
 }
 
+interface PendingCellValueAndFormat {
+  row: number, 
+  column: number,
+  value: CellValue,
+  format?: string | undefined
+};
+
 /**
  * Virtual Spreadsheet
  * 
@@ -251,6 +258,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
   const [selection, setSelection] = React.useState<RowColCoords>([undefined,undefined]);
   const [focusCell, setFocusCell] = React.useState<[number,number]|null>(null);
   const [dataError, setDataError] = React.useState<SpreadsheetDataError|null>(null);
+  const [pendingCellValueAndFormat, setPendingCellValueAndFormat] = React.useState<PendingCellValueAndFormat|null>(null);
   const [[gridRowOffset, gridColumnOffset], setGridScrollState] = React.useState<[number,number]>([0, 0]);
 
   const dataRowCount = data.getRowCount(snapshot);
@@ -454,11 +462,35 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
     return [value, format];
   }
 
-  async function commitFormulaChange(rowIndex: number, colIndex: number): Promise<boolean> {
+  async function commitFormulaChange(row: number, column: number, isVertical: boolean, nextCellBackwards: boolean): Promise<void> {
+    if (pendingCellValueAndFormat) {
+      setDataError(storageError("Waiting for previous update to complete ..."));
+      return;
+    }
+
+    // Optimistic update
     const [value, format] = parseFormula(formula);
-    const result = await data.setCellValueAndFormat(rowIndex, colIndex, value, format);
-    setDataError(result.isOk() ? null : result.error);
-    return result.isOk();
+    setEditMode(false);
+    setDataError(null);
+    nextCell(row, column, isVertical, nextCellBackwards);
+
+    setPendingCellValueAndFormat({ row, column, value, format })
+    const result = await data.setCellValueAndFormat(row, column, value, format);
+    setPendingCellValueAndFormat(null);
+
+    if (result.isOk()) {
+      // In case we tried to commit while pending
+      setDataError(null);
+    } else  {
+      // Update failed so put things back how they were at point of save
+      setSelection(selection);
+      setFocusCell(focusCell);
+      setName(name);
+      setEditMode(editMode);
+      setFormula(formula);
+      setCellValue(cellValue);
+      setDataError(result.error);
+    }
   }
 
   function validateFocusFormula(formula: string) {
@@ -493,24 +525,12 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
         break;
 
         case "Enter": { 
-          void commitFormulaChange(row, col).then((ok) => {
-            if (ok) {
-              updateFormula(row, col, false); 
-              setEditMode(false);
-              nextCell(row,col,true,event.shiftKey);
-            }
-          })
+          void commitFormulaChange(row, col, true, event.shiftKey);
         } 
         break;
 
         case "Tab": { 
-          void commitFormulaChange(row, col).then((ok) => {
-            if (ok) {
-              updateFormula(row, col, false); 
-              setEditMode(false);
-              nextCell(row,col,false,event.shiftKey);
-            }
-          })
+          void commitFormulaChange(row, col, false, event.shiftKey);
           event.preventDefault();
         }
         break;
@@ -665,7 +685,13 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
   const cellRender: CellRender = (rowIndex, columnIndex, style) => {
     let dataValue: CellValue = undefined;
     let value:string = "";
-    if (rowIndex < dataRowCount && columnIndex < dataColumnCount) {
+    let isPending = false;
+
+    if (pendingCellValueAndFormat && pendingCellValueAndFormat.row == rowIndex && pendingCellValueAndFormat.column == columnIndex) {
+      dataValue = pendingCellValueAndFormat.value
+      value = formatContent(dataValue, pendingCellValueAndFormat.format);
+      isPending = true;
+    } else if (rowIndex < dataRowCount && columnIndex < dataColumnCount) {
       dataValue = data.getCellValue(snapshot, rowIndex, columnIndex);
       const format = data.getCellFormat(snapshot, rowIndex, columnIndex);
       value = formatContent(dataValue, format);
@@ -675,6 +701,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
     const classNames = join(theme?.VirtualSpreadsheet_Cell,
       ifdef(rowSelected(rowIndex), theme?.VirtualSpreadsheet_Cell__RowSelected),
       ifdef(colSelected(columnIndex), theme?.VirtualSpreadsheet_Cell__ColumnSelected),
+      ifdef(isPending, theme?.VirtualSpreadsheet_Cell__UpdatePending),
       classForType(dataValue),
       ifdef(focused, theme?.VirtualSpreadsheet_Cell__Focus));
 

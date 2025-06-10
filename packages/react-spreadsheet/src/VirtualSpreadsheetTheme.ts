@@ -83,6 +83,9 @@ export interface VirtualSpreadsheetTheme {
   /** Modifier class applied to a cell when it's within a selected column */
   VirtualSpreadsheet_Cell__ColumnSelected: string,
 
+    /** Modifier class applied to a cell when an update is pending */
+  VirtualSpreadsheet_Cell__UpdatePending: string,
+
   /** Modifier class applied to a cell when the user has entered invalid data */
   VirtualSpreadsheet_Cell__DataError: string,
 
@@ -108,6 +111,7 @@ export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme = {
   VirtualSpreadsheet_Row: "VirtualSpreadsheet_Row",
   VirtualSpreadsheet_Row__Selected: "VirtualSpreadsheet_Row__Selected",
   VirtualSpreadsheet_Row__CellSelected: "VirtualSpreadsheet_Row__CellSelected",
+  VirtualSpreadsheet_Cell__UpdatePending: "VirtualSpreadsheet_Cell__UpdatePending",
   VirtualSpreadsheet_Cell: "VirtualSpreadsheet_Cell",
   VirtualSpreadsheet_Cell__Type_string: "VirtualSpreadsheet_Cell__Type_string",
   VirtualSpreadsheet_Cell__Type_number: "VirtualSpreadsheet_Cell__Type_number",

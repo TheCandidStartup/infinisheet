@@ -58,6 +58,7 @@ export interface VirtualSpreadsheetTheme {
     VirtualSpreadsheet_Cell__Type_number: string;
     VirtualSpreadsheet_Cell__Type_string: string;
     VirtualSpreadsheet_Cell__Type_undefined: string;
+    VirtualSpreadsheet_Cell__UpdatePending: string;
     VirtualSpreadsheet_Column: string;
     VirtualSpreadsheet_Column__CellSelected: string;
     VirtualSpreadsheet_Column__Selected: string;

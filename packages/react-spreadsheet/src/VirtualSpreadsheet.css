@@ -115,6 +115,10 @@
   background-color: lightblue;
 }
 
+.VirtualSpreadsheet_Cell__UpdatePending {
+  background-color: lightyellow;
+}
+
 .VirtualSpreadsheet_Cell__Focus {
   border: 2px solid darkblue;
 }
