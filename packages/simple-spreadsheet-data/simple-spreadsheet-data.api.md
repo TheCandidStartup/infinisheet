@@ -23,6 +23,21 @@ import { TruncateError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
 
 // @public
+export class DelayEventLog<T extends LogEntry> implements EventLog<T> {
+    constructor(base: EventLog<T>, delay?: number);
+    // (undocumented)
+    addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void, AddEntryError>;
+    // (undocumented)
+    delay: number;
+    // (undocumented)
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>, QueryError>;
+    // (undocumented)
+    setMetadata(sequenceId: SequenceId, metadata: LogMetadata): ResultAsync<void, MetadataError>;
+    // (undocumented)
+    truncate(start: SequenceId): ResultAsync<void, TruncateError>;
+}
+
+// @public
 export interface LayeredSnapshot<BaseSnapshot, EditSnapshot> {
     // @internal (undocumented)
     _brand: [_LayeredSnapshotBrand, BaseSnapshot, EditSnapshot];
@@ -61,7 +76,7 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     subscribe(onDataChange: () => void): () => void;
 }
 
-// @public (undocumented)
+// @public
 export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     constructor();
     // (undocumented)

@@ -11,3 +11,4 @@
 export * from './SimpleSpreadsheetData'
 export * from './LayeredSpreadsheetData'
 export * from './SimpleEventLog'
+export * from './DelayEventLog'

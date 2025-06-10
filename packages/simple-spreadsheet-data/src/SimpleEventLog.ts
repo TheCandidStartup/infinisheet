@@ -4,6 +4,14 @@ import { okAsync, errAsync, conflictError, infinisheetRangeError } from "@candid
 
 const QUERY_PAGE_SIZE = 10;
 
+/**
+ * Reference implementation of {@link EventLog}
+ * 
+ * In-memory event log
+ * 
+ * Intended for use as a mock, to compare with an optimized implementation when testing and
+ * for simple sample apps. Simplest possible implementation, no attempt at optimization.
+ */
 export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
   constructor() {
     this.#startSequenceId = 0n;
