@@ -15,12 +15,17 @@ const boringData = new LayeredSpreadsheetData(new BoringDataType, new SimpleSpre
 const testData = new LayeredSpreadsheetData(new TestDataType, new SimpleSpreadsheetData);
 const cellNameData = new LayeredSpreadsheetData(new CellRefData, new SimpleSpreadsheetData);
 const eventLog = new SimpleEventLog<SpreadsheetLogEntry>;
-const delayEventLogA = new DelayEventLog(eventLog, 5000);
-const delayEventLogB = new DelayEventLog(eventLog, 50);
+const delayEventLogA = new DelayEventLog(eventLog);
+const delayEventLogB = new DelayEventLog(eventLog);
 const eventSourcedDataA = new EventSourcedSpreadsheetData(delayEventLogA);
 const eventSourcedDataB = new EventSourcedSpreadsheetData(delayEventLogB);
 
-const meta: Meta<VirtualSpreadsheetProps> = {
+type VirtualSpreadsheetPropsAndCustomArgs = VirtualSpreadsheetProps & { 
+  eventSourceLatencyA?: number | undefined,
+  eventSourceLatencyB?: number | undefined
+};
+
+const meta: Meta<VirtualSpreadsheetPropsAndCustomArgs> = {
   title: 'react-spreadsheet/VirtualSpreadsheet',
   component: VirtualSpreadsheet,
   parameters: {
@@ -52,7 +57,7 @@ const meta: Meta<VirtualSpreadsheetProps> = {
         Boring: boringData,
         "Cell Names": cellNameData
       }
-    }
+    },
   }
 };
 
@@ -274,15 +279,37 @@ export const EventSourceSync: Story = {
         disable: true
       },
     },
+    eventSourceLatencyA: {
+      description: "Latency (ms) when accessing data source for top spreadsheet",
+      table: {
+        category: "Network Simulation",
+        disable: false,
+      },
+      control: {
+        type: 'number'
+      }
+    },
+    eventSourceLatencyB: {
+      description: "Latency (ms) when accessing data source for bottom spreadsheet",
+      table: {
+        category: "Network Simulation",
+        disable: false,
+      },
+      control: {
+        type: 'number'
+      }
+    },
   },
   tags: ['!autodocs'],
-  render: ( {width: width, height: height, data: _data, ...args} ) => (
-    <div>
+  render: ( {width: width, height: height, eventSourceLatencyA, eventSourceLatencyB, data: _data, ...args} ) => {
+    delayEventLogA.delay = eventSourceLatencyA || 0;
+    delayEventLogB.delay = eventSourceLatencyB || 0;
+    return <div>
       <VirtualSpreadsheet width={width} height={height} data={eventSourcedDataA} {...args}/>
       <div style={{ marginTop: 10, marginBottom: 10 }}>
         Shared Event Log, Sync every 10 seconds
       </div>
       <VirtualSpreadsheet width={width} height={height} data={eventSourcedDataB} {...args}/>
     </div>
-  ),
+  },
 };
