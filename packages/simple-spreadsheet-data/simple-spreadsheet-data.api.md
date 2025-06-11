@@ -27,7 +27,6 @@ export class DelayEventLog<T extends LogEntry> implements EventLog<T> {
     constructor(base: EventLog<T>, delay?: number);
     // (undocumented)
     addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void, AddEntryError>;
-    // (undocumented)
     delay: number;
     // (undocumented)
     query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>, QueryError>;

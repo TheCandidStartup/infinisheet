@@ -62,13 +62,13 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
    * @param edit - `SpreadsheetData` instance to use for the edit layer
    */
   constructor(base: BaseData, edit: EditData) {
-    this.#base = base;
-    this.#edit = edit;
+    this.base = base;
+    this.edit = edit;
   }
 
   subscribe(onDataChange: () => void): () => void {
-    const unsubscribeBase = this.#base.subscribe(onDataChange);
-    const unsubscribeEdit = this.#edit.subscribe(onDataChange);
+    const unsubscribeBase = this.base.subscribe(onDataChange);
+    const unsubscribeEdit = this.edit.subscribe(onDataChange);
     return () => {
       unsubscribeBase();
       unsubscribeEdit();
@@ -76,66 +76,66 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
   }
 
   getSnapshot(): LayeredSnapshot<BaseSnapshot, EditSnapshot> {
-    const baseSnapshot = this.#base.getSnapshot();
-    const editSnapshot = this.#edit.getSnapshot();
+    const baseSnapshot = this.base.getSnapshot();
+    const editSnapshot = this.edit.getSnapshot();
 
-    if (!this.#content || this.#content.base != baseSnapshot || this.#content.edit != editSnapshot) {
-      this.#content = { base: baseSnapshot, edit: editSnapshot } ;
+    if (!this.content || this.content.base != baseSnapshot || this.content.edit != editSnapshot) {
+      this.content = { base: baseSnapshot, edit: editSnapshot } ;
     }
 
-    return asSnapshot(this.#content);
+    return asSnapshot(this.content);
   }
 
   getLoadStatus(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): Result<boolean,StorageError> {
     const content = asContent(snapshot);
-    return this.#base.getLoadStatus(content.base).andThen((t1) => this.#edit.getLoadStatus(content.edit).map((t2) => t1 && t2));
+    return this.base.getLoadStatus(content.base).andThen((t1) => this.edit.getLoadStatus(content.edit).map((t2) => t1 && t2));
   }
 
   getRowCount(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): number {
     const content = asContent(snapshot);
-    return Math.max(this.#base.getRowCount(content.base), this.#edit.getRowCount(content.edit));
+    return Math.max(this.base.getRowCount(content.base), this.edit.getRowCount(content.edit));
   }
 
   getRowItemOffsetMapping(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): ItemOffsetMapping {
-    return this.#base.getRowItemOffsetMapping(asContent(snapshot).base);
+    return this.base.getRowItemOffsetMapping(asContent(snapshot).base);
   }
 
   getColumnCount(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): number {
     const content = asContent(snapshot);
-    return Math.max(this.#base.getColumnCount(content.base), this.#edit.getColumnCount(content.edit));
+    return Math.max(this.base.getColumnCount(content.base), this.edit.getColumnCount(content.edit));
   }
 
   getColumnItemOffsetMapping(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): ItemOffsetMapping {
-    return this.#base.getColumnItemOffsetMapping(asContent(snapshot).base);
+    return this.base.getColumnItemOffsetMapping(asContent(snapshot).base);
   }
 
   getCellValue(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>, row: number, column: number): CellValue {
     const content = asContent(snapshot);
-    const editValue = this.#edit.getCellValue(content.edit, row, column);
+    const editValue = this.edit.getCellValue(content.edit, row, column);
     if (editValue !== undefined)
       return editValue;
 
-    return this.#base.getCellValue(content.base, row, column);
+    return this.base.getCellValue(content.base, row, column);
   }
 
   getCellFormat(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>, row: number, column: number): string | undefined {
     const content = asContent(snapshot);
-    const editValue = this.#edit.getCellValue(content.edit, row, column);
-    return (editValue === undefined) ? this.#base.getCellFormat(content.base, row, column) : this.#edit.getCellFormat(content.edit, row, column);
+    const editValue = this.edit.getCellValue(content.edit, row, column);
+    return (editValue === undefined) ? this.base.getCellFormat(content.base, row, column) : this.edit.getCellFormat(content.edit, row, column);
   }
 
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
-    const result = this.#base.isValidCellValueAndFormat(row, column, value, format);
-    return result.asyncAndThen(() => this.#edit.setCellValueAndFormat(row, column, value, format));
+    const result = this.base.isValidCellValueAndFormat(row, column, value, format);
+    return result.asyncAndThen(() => this.edit.setCellValueAndFormat(row, column, value, format));
   }
 
   // Must be valid for both layers
   isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,ValidationError> {
-    const result = this.#base.isValidCellValueAndFormat(row, column, value, format);
-    return result.andThen(() => this.#edit.isValidCellValueAndFormat(row,column,value,format));
+    const result = this.base.isValidCellValueAndFormat(row, column, value, format);
+    return result.andThen(() => this.edit.isValidCellValueAndFormat(row,column,value,format));
   }
 
-  #base: BaseData;
-  #edit: EditData;
-  #content: LayeredSnapshotContent<BaseSnapshot, EditSnapshot> | undefined;
+  private base: BaseData;
+  private edit: EditData;
+  private content: LayeredSnapshotContent<BaseSnapshot, EditSnapshot> | undefined;
 }

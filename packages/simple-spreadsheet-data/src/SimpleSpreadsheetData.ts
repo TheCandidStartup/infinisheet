@@ -52,8 +52,8 @@ function asSnapshot(snapshot: SimpleSnapshotContent) {
  */
 export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
   constructor () {
-    this.#listeners = [];
-    this.#content = {
+    this.listeners = [];
+    this.content = {
       values: {},
       rowCount: 0,
       colCount: 0
@@ -61,14 +61,14 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
   }
 
   subscribe(onDataChange: () => void): () => void {
-    this.#listeners = [...this.#listeners, onDataChange];
+    this.listeners = [...this.listeners, onDataChange];
     return () => {
-      this.#listeners = this.#listeners.filter(l => l !== onDataChange);
+      this.listeners = this.listeners.filter(l => l !== onDataChange);
     }
   }
 
   getSnapshot(): SimpleSnapshot {
-    return asSnapshot(this.#content);
+    return asSnapshot(this.content);
   }
 
   getLoadStatus(_snapshot: SimpleSnapshot): Result<boolean,StorageError> {
@@ -102,31 +102,31 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
   }
 
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
-    const curr = this.#content;
+    const curr = this.content;
     const ref = rowColCoordsToRef(row, column);
 
     // Snapshot semantics preserved by treating SimpleSnapshot as an immutable data structure which is 
     // replaced with a modified copy on every update. Yes, this is horribly inefficient. 
     // For simplicity, setting a value to undefined stores it explicitly rather than removing it. Functional
     // behavior is the same.
-    this.#content = {
+    this.content = {
       values: { ...curr.values, [ref]: { value, format }},
       rowCount: Math.max(curr.rowCount, row+1),
       colCount: Math.max(curr.colCount, column+1)
     }
 
-    return okAsync().andTee(() => this.#notifyListeners());
+    return okAsync().andTee(() => this.notifyListeners());
   }
 
   isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {
     return ok(); 
   }
 
-  #notifyListeners() {
-    for (const listener of this.#listeners)
+  private notifyListeners() {
+    for (const listener of this.listeners)
       listener();
   }
 
-  #listeners: (() => void)[];
-  #content: SimpleSnapshotContent;
+  private listeners: (() => void)[];
+  private content: SimpleSnapshotContent;
 }

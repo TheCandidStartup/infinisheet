@@ -9,27 +9,27 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
    * @param sizes - Array of sizes to use for the initial items, one size per item
    */
   constructor (defaultItemSize: number, sizes: number[]) {
-    this.#defaultItemSize = defaultItemSize;
-    this.#sizes = sizes;
+    this.defaultItemSize = defaultItemSize;
+    this.sizes = sizes;
   }
 
   itemSize(itemIndex: number): number {
-    return (itemIndex < this.#sizes.length) ? this.#sizes[itemIndex]! : this.#defaultItemSize;
+    return (itemIndex < this.sizes.length) ? this.sizes[itemIndex]! : this.defaultItemSize;
   }
 
   itemOffset(itemIndex: number): number {
     let offset = 0;
-    let length = this.#sizes.length;
+    let length = this.sizes.length;
     if (itemIndex > length) {
       const numDefaultSize = itemIndex - length;
-      offset = numDefaultSize * this.#defaultItemSize;
+      offset = numDefaultSize * this.defaultItemSize;
     } else {
       length = itemIndex;
     }
     
     for (let i = 0; i < length; i ++)
     {
-      offset += this.#sizes[i]!;
+      offset += this.sizes[i]!;
     }
 
     return offset;
@@ -37,20 +37,20 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
 
   offsetToItem(offset: number): [itemIndex: number, startOffset: number] {
     let startOffset = 0;
-    for (const [i,size] of this.#sizes.entries()) {
+    for (const [i,size] of this.sizes.entries()) {
       if (startOffset + size > offset) {
         return [i, startOffset];
       }
       startOffset += size;
     }
 
-    const itemIndex = Math.floor((offset - startOffset) / this.#defaultItemSize);
-    startOffset += itemIndex * this.#defaultItemSize;
+    const itemIndex = Math.floor((offset - startOffset) / this.defaultItemSize);
+    startOffset += itemIndex * this.defaultItemSize;
 
-    const length = this.#sizes.length;
+    const length = this.sizes.length;
     return [itemIndex+length, startOffset];
   }
 
-  #defaultItemSize: number;
-  #sizes: number[];
+  private defaultItemSize: number;
+  private sizes: number[];
 }

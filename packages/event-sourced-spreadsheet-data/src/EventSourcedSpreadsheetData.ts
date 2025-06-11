@@ -54,11 +54,11 @@ function asSnapshot(snapshot: EventSourcedSnapshotContent) {
  */
 export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourcedSnapshot> {
   constructor (eventLog: EventLog<SpreadsheetLogEntry>) {
-    this.#intervalId = undefined;
-    this.#isInSyncLogs = false;
-    this.#eventLog = eventLog;
-    this.#listeners = [];
-    this.#content = {
+    this.intervalId = undefined;
+    this.isInSyncLogs = false;
+    this.eventLog = eventLog;
+    this.listeners = [];
+    this.content = {
       endSequenceId: 0n,
       logSegment: { startSequenceId: 0n, entries: [] },
       loadStatus: ok(false),
@@ -66,24 +66,24 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
       colCount: 0
     }
 
-    this.#syncLogs();
+    this.syncLogs();
   }
 
   subscribe(onDataChange: () => void): () => void {
-    if (!this.#intervalId)
-      this.#intervalId = setInterval(() => { this.#syncLogs() }, EVENT_LOG_CHECK_DELAY);
-    this.#listeners = [...this.#listeners, onDataChange];
+    if (!this.intervalId)
+      this.intervalId = setInterval(() => { this.syncLogs() }, EVENT_LOG_CHECK_DELAY);
+    this.listeners = [...this.listeners, onDataChange];
     return () => {
-      this.#listeners = this.#listeners.filter(l => l !== onDataChange);
-      if (this.#listeners.length == 0 && this.#intervalId !== undefined) {
-        clearInterval(this.#intervalId);
-        this.#intervalId = undefined;
+      this.listeners = this.listeners.filter(l => l !== onDataChange);
+      if (this.listeners.length == 0 && this.intervalId !== undefined) {
+        clearInterval(this.intervalId);
+        this.intervalId = undefined;
       }
     }
   }
 
   getSnapshot(): EventSourcedSnapshot {
-    return asSnapshot(this.#content);
+    return asSnapshot(this.content);
   }
 
   getLoadStatus(snapshot: EventSourcedSnapshot): Result<boolean,StorageError> {
@@ -107,27 +107,27 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
   }
 
   getCellValue(snapshot: EventSourcedSnapshot, row: number, column: number): CellValue {
-    const entry = this.#getCellValueAndFormatEntry(snapshot, row, column);
+    const entry = this.getCellValueAndFormatEntry(snapshot, row, column);
     return entry?.value;
   }
 
   getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): string | undefined {
-    const entry = this.#getCellValueAndFormatEntry(snapshot, row, column);
+    const entry = this.getCellValueAndFormatEntry(snapshot, row, column);
     return entry?.format;
   }
 
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
-    const curr = this.#content;
+    const curr = this.content;
 
-    const result = this.#eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format}, curr.endSequenceId);
+    const result = this.eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format}, curr.endSequenceId);
     return result.andTee(() => {
-      if (this.#content == curr) {
+      if (this.content == curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
         curr.logSegment.entries.push({ type: 'SetCellValueAndFormat', row, column, value, format});
 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
-        this.#content = {
+        this.content = {
           endSequenceId: curr.endSequenceId + 1n,
           logSegment: curr.logSegment,
           loadStatus: ok(true),
@@ -135,7 +135,7 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
           colCount: Math.max(curr.colCount, column+1)
         }
 
-        this.#notifyListeners();
+        this.notifyListeners();
       }
     }).mapErr((err): SpreadsheetDataError => {
       switch (err.type) {
@@ -149,12 +149,12 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     return ok(); 
   }
 
-  #notifyListeners() {
-    for (const listener of this.#listeners)
+  private notifyListeners() {
+    for (const listener of this.listeners)
       listener();
   }
 
-  #getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): SetCellValueAndFormatLogEntry | undefined {
+  private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): SetCellValueAndFormatLogEntry | undefined {
     const content = asContent(snapshot);
     const endIndex = Number(content.endSequenceId-content.logSegment.startSequenceId);
     for (let i = endIndex-1; i >= 0; i --) {
@@ -165,24 +165,24 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     return undefined;
   }
 
-  #syncLogs(): void {
-    if (this.#isInSyncLogs)
+  private syncLogs(): void {
+    if (this.isInSyncLogs)
       return;
 
-    this.#syncLogsAsync().catch((reason) => { throw Error("Rejected promise from #syncLogsAsync", { cause: reason }) });
+    this.syncLogsAsync().catch((reason) => { throw Error("Rejected promise from #syncLogsAsync", { cause: reason }) });
   }
 
-  async #syncLogsAsync(): Promise<void> {
-    this.#isInSyncLogs = true;
+  private async syncLogsAsync(): Promise<void> {
+    this.isInSyncLogs = true;
 
     // Set up load of first batch of entries
-    const segment = this.#content.logSegment;
+    const segment = this.content.logSegment;
     let isComplete = false;
 
     while (!isComplete) {
-      const curr = this.#content;
+      const curr = this.content;
       const start = (segment.entries.length == 0) ? 'snapshot' : curr.endSequenceId;
-      const result = await this.#eventLog.query(start, 'end');
+      const result = await this.eventLog.query(start, 'end');
 
       if (!result.isOk()) {
         if (result.error.type == 'InfinisheetRangeError') {
@@ -195,8 +195,8 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
         // For now wait for interval timer to try another sync
         // For persistent failures should stop interval timer and have some mechanism for user to trigger
         // manual retry. 
-        this.#content = { ...curr, loadStatus: err(result.error)};
-        this.#notifyListeners();
+        this.content = { ...curr, loadStatus: err(result.error)};
+        this.notifyListeners();
         break;
       }
 
@@ -222,23 +222,23 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
           colCount = Math.max(colCount, entry.column+1);
         }
 
-        this.#content = {
+        this.content = {
           endSequenceId: value.endSequenceId,
           logSegment: segment,
           loadStatus: ok(isComplete),
           rowCount, colCount
         }
 
-        this.#notifyListeners();
+        this.notifyListeners();
       }
     }
 
-    this.#isInSyncLogs = false;
+    this.isInSyncLogs = false;
   }
 
-  #intervalId: ReturnType<typeof setInterval> | undefined;
-  #isInSyncLogs: boolean;
-  #eventLog: EventLog<SpreadsheetLogEntry>;
-  #listeners: (() => void)[];
-  #content: EventSourcedSnapshotContent;
+  private intervalId: ReturnType<typeof setInterval> | undefined;
+  private isInSyncLogs: boolean;
+  private eventLog: EventLog<SpreadsheetLogEntry>;
+  private listeners: (() => void)[];
+  private content: EventSourcedSnapshotContent;
 }
