@@ -169,7 +169,7 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     if (this.isInSyncLogs)
       return;
 
-    this.syncLogsAsync().catch((reason) => { throw Error("Rejected promise from #syncLogsAsync", { cause: reason }) });
+    this.syncLogsAsync().catch((reason) => { throw Error("Rejected promise from syncLogsAsync", { cause: reason }) });
   }
 
   private async syncLogsAsync(): Promise<void> {
@@ -183,6 +183,12 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
       const curr = this.content;
       const start = (segment.entries.length == 0) ? 'snapshot' : curr.endSequenceId;
       const result = await this.eventLog.query(start, 'end');
+
+      if (curr != this.content) {
+        // Must have had setCellValueAndFormat complete successfully and update content to match
+        // Query result no longer relevant
+        break;
+      }
 
       if (!result.isOk()) {
         if (result.error.type == 'InfinisheetRangeError') {
@@ -211,6 +217,7 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
       }
       isComplete = value.isComplete;
 
+      // Don't create new snapshot if nothing has changed
       if (value.entries.length > 0) {
         segment.entries.push(...value.entries);
 
@@ -229,6 +236,10 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
           rowCount, colCount
         }
 
+        this.notifyListeners();
+      } else if (curr.loadStatus.isErr() || curr.loadStatus.value != isComplete) {
+        // Careful, even if no entries returned, loadStatus may have changed
+        this.content = { ...curr, loadStatus: ok(isComplete) }
         this.notifyListeners();
       }
     }
