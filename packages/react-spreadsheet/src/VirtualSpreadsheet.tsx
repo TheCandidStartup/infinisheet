@@ -661,6 +661,22 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
         </div>
       }
     }
+
+    if (!dataError) {
+      const status = data.getLoadStatus(snapshot);
+      if (status.isErr()) {
+        errorTagAlign = "end";
+        errorTag = <div className={theme?.VirtualSpreadsheet_ErrorTag} style={{ zIndex: 2 }}>
+          {status.error.message}
+        </div>
+      } else if (!status.value) {
+        errorTagAlign = "end";
+        errorTag = <div className={theme?.VirtualSpreadsheet_ErrorTag} style={{ zIndex: 2 }}>
+          {"Loading ..."}
+        </div>
+      }
+    }
+
     return <div ref={ref}
       style={{...style, display: "flex", alignItems: errorTagAlign, justifyContent: "center"}}
       onClick={(event) => {
