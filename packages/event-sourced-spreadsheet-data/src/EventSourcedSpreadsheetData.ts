@@ -139,8 +139,16 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
       }
     }).mapErr((err): SpreadsheetDataError => {
       switch (err.type) {
-        case 'ConflictError': return storageError(err.message, 409);
-        case 'StorageError': return err;
+        case 'ConflictError':
+          if (this.content == curr) {
+            // Out of date wrt to event log, nothing else has updated content since then, so set
+            // status for in progress load and trigger sync.
+            this.content = { ...curr, loadStatus: ok(false) }
+            this.syncLogs();
+          }
+          return storageError("Client out of sync", 409);
+        case 'StorageError': 
+          return err;
       }
     });
   }

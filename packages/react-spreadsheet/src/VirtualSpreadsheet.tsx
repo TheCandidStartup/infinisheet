@@ -655,9 +655,19 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
       />
 
       if (dataError) {
+        let message = dataError.message;
+        if (dataError.type == 'StorageError' && dataError.statusCode == 409) {
+          const status = data.getLoadStatus(snapshot);
+          if (status.isOk()) {
+            if (status.value)
+              message = "Client was out of sync, review changes and try again";
+            else
+              message = "Client out of sync, loading ..."
+          }
+        }
         errorTagAlign = (focusTop > height/2) ? "start" : "end";
         errorTag = <div className={theme?.VirtualSpreadsheet_ErrorTag} style={{ zIndex: 2 }}>
-          {dataError.message}
+          {message}
         </div>
       }
     }
