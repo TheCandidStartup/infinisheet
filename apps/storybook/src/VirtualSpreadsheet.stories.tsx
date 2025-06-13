@@ -307,7 +307,7 @@ export const EventSourceSync: Story = {
     return <div>
       <VirtualSpreadsheet width={width} height={height} data={eventSourcedDataA} {...args}/>
       <div style={{ marginTop: 10, marginBottom: 10 }}>
-        Shared Event Log, Sync every 10 seconds
+        Shared Event Log, ↑ {delayEventLogA.delay} ms latency,  ↓ {delayEventLogB.delay} ms latency, Sync every 10 seconds
       </div>
       <VirtualSpreadsheet width={width} height={height} data={eventSourcedDataB} {...args}/>
     </div>
