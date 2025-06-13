@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.11.0...v0.12.0) (2025-06-13)
+
+**Note:** Version bump only for package @candidstartup/react-virtual-scroll
+
+
+
+
+
 # [0.11.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.10.0...v0.11.0) (2025-05-28)
 
 **Note:** Version bump only for package @candidstartup/react-virtual-scroll

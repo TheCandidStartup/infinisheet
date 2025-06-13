@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.11.0...v0.12.0) (2025-06-13)
+
+
+### Features
+
+* **infinisheet:** First attempt at making SpreadsheetData.setCellValueAndFormat async ([b0f55f0](https://github.com/TheCandidStartup/infinisheet/commit/b0f55f0eae1f0c0b817a77b13347b99fc7185046))
+* **react-spreadsheet:** Added display of load status ([513eee7](https://github.com/TheCandidStartup/infinisheet/commit/513eee7e4b2363f7a0018f463a164422620cf9b9))
+* **react-spreadsheet:** Improved UX for conflict errors ([f411f24](https://github.com/TheCandidStartup/infinisheet/commit/f411f24f207c559d511b29d828aeebb24843fe7d))
+* **react-spreadsheet:** Using optimistic update pattern when editing cells ([d98429d](https://github.com/TheCandidStartup/infinisheet/commit/d98429d7dede531b1c76a79f9ee77bf9bc0a9325))
+
+
+### BREAKING CHANGES
+
+* **infinisheet:** setCellValueAndFormat return type changed from Result to ResultAsync
+
+
+
+
+
 # [0.11.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.10.0...v0.11.0) (2025-05-28)
 
 **Note:** Version bump only for package @candidstartup/react-spreadsheet

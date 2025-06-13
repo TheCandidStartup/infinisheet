@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.11.0...v0.12.0) (2025-06-13)
+
+
+### Features
+
+* **storybook:** Added latency controls for EventSourceSync story ([8c7a81a](https://github.com/TheCandidStartup/infinisheet/commit/8c7a81aef5d9b9312fd6af5d82eb02ee1c9e3775))
+* **storybook:** Added latency to EventSourceSync story ([1c32bbb](https://github.com/TheCandidStartup/infinisheet/commit/1c32bbbeee8fe56427c3dff36afc65eb2bf6a5cf))
+* **storybook:** Added on screen description of latency setttings to EventSourceSync story ([dd9b208](https://github.com/TheCandidStartup/infinisheet/commit/dd9b208dbe3eaec86fadc169031f38671a239eb2))
+
+
+
+
+
 # [0.11.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.10.0...v0.11.0) (2025-05-28)
 
 

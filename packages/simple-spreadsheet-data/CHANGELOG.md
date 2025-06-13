@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.11.0...v0.12.0) (2025-06-13)
+
+
+### Features
+
+* **infinisheet:** First attempt at making SpreadsheetData.setCellValueAndFormat async ([b0f55f0](https://github.com/TheCandidStartup/infinisheet/commit/b0f55f0eae1f0c0b817a77b13347b99fc7185046))
+* **simple-spreadsheet-data:** Added DelayEventLog for simulating latency ([9b5872d](https://github.com/TheCandidStartup/infinisheet/commit/9b5872d2abf6b68bb580433f7a85b310bbb59a0d))
+
+
+### BREAKING CHANGES
+
+* **infinisheet:** setCellValueAndFormat return type changed from Result to ResultAsync
+
+
+
+
+
 # [0.11.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.10.0...v0.11.0) (2025-05-28)
 
 
