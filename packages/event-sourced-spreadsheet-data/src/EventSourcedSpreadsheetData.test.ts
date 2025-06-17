@@ -2,6 +2,8 @@ import { EventSourcedSpreadsheetData } from './EventSourcedSpreadsheetData'
 import { SpreadsheetData } from '@candidstartup/infinisheet-types'
 import { DelayEventLog, SimpleEventLog } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
+import { spreadsheetDataInterfaceTests } from '../../infinisheet-types/src/SpreadsheetData.interface-test'
+
 
 function subscribeFired(data: SpreadsheetData<unknown>): Promise<void> {
   return new Promise((resolve) => {
@@ -17,7 +19,9 @@ describe('EventSourcedSpreadsheetData', () => {
     vi.useRealTimers();
   })
 
-  it('should start out empty', async () => {
+  spreadsheetDataInterfaceTests(() => new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>));
+
+  it('should complete load from empty log', async () => {
     const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
     const snapshot = data.getSnapshot();
     const status = data.getLoadStatus(snapshot);
@@ -39,40 +43,7 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(status2.isOk() && status2.value).toBe(true);
   })
 
-  it('should implement SetCellValueAndFormat', async () => {
-    const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
-    expect((await data.setCellValueAndFormat(0, 0, "In A1", undefined)).isOk()).toEqual(true);
-    expect((await data.setCellValueAndFormat(0, 1, 42, "YYYY-MM-DD")).isOk()).toEqual(true);
-    const snapshot = data.getSnapshot();
-    expect(data.getRowCount(snapshot)).toEqual(1);
-    expect(data.getColumnCount(snapshot)).toEqual(2);
-    expect(data.getCellValue(snapshot, 0, 0)).toEqual("In A1");
-    expect(data.getCellFormat(snapshot, 0, 0)).toEqual(undefined);
-    expect(data.getCellValue(snapshot, 0, 1)).toEqual(42);
-    expect(data.getCellFormat(snapshot, 0, 1)).toEqual("YYYY-MM-DD");
-  })
-
-  it('should implement isValidCellValueAndFormat', () => {
-    const data = new EventSourcedSpreadsheetData(new SimpleEventLog);
-    expect(data.isValidCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
-    expect(data.isValidCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(true);
-  })
-
-  it('should support snapshot semantics', async () => {
-    const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
-    const snapshot1 = data.getSnapshot();
-    const snapshot2 = data.getSnapshot();
-    expect(Object.is(snapshot1, snapshot2)).toEqual(true);
-    expect(data.getRowCount(snapshot1)).toEqual(0);
-
-    expect((await data.setCellValueAndFormat(0, 0, "In A1", undefined)).isOk()).toEqual(true);
-    const snapshot3 = data.getSnapshot();
-    expect(Object.is(snapshot2, snapshot3)).toEqual(false);
-    expect(data.getRowCount(snapshot1)).toEqual(0);
-    expect(data.getRowCount(snapshot3)).toEqual(1);
-  })
-
-  it('should support subscribe semantics', async () => {
+  it('subscribe should fire after initial load', async () => {
     const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
 
     const mock = vi.fn();

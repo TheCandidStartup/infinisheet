@@ -2,6 +2,7 @@ import { EmptySpreadsheetData, rowColCoordsToRef, CellValue,
   validationError, Result, ValidationError, err, ok } from '@candidstartup/infinisheet-types';
 import { SimpleSpreadsheetData } from './SimpleSpreadsheetData'
 import { LayeredSpreadsheetData } from './LayeredSpreadsheetData'
+import { spreadsheetDataInterfaceTests } from '../../infinisheet-types/src/SpreadsheetData.interface-test'
 
 class BaseTestData extends EmptySpreadsheetData {
   getRowCount(_snapshot: number) { return 100; }
@@ -14,7 +15,7 @@ class BaseTestData extends EmptySpreadsheetData {
   }
 
   isValidCellValueAndFormat(_row: number, column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {
-    return column ? err(validationError("Only first column is editable")) : ok();
+    return (column > 1) ? err(validationError("Only first two columns are editable")) : ok();
   }
 }
 
@@ -25,6 +26,8 @@ class TestData extends LayeredSpreadsheetData<BaseTestData, SimpleSpreadsheetDat
 }
 
 describe('LayeredSpreadsheetData', () => {
+  spreadsheetDataInterfaceTests(() => new TestData, false);
+
   it('should start out identical to base data', () => {
     const data = new TestData;
     const snapshot = data.getSnapshot();
@@ -45,7 +48,7 @@ describe('LayeredSpreadsheetData', () => {
     expect(columnMapping.itemOffset(0)).toEqual(0);
   })
 
-  it('should implement SetCellValueAndFormat', async () => {
+  it('should override base with SetCellValueAndFormat', async () => {
     const data = new TestData;
     expect((await data.setCellValueAndFormat(0, 0, "In A1", undefined)).isOk()).toEqual(true);
     expect((await data.setCellValueAndFormat(1, 0, 42, "YYYY-MM-DD")).isOk()).toEqual(true);
@@ -60,16 +63,16 @@ describe('LayeredSpreadsheetData', () => {
     expect(data.getCellFormat(snapshot, 2, 3)).toEqual("Format 2 3");
   })
 
-  it('should implement isValidCellValueAndFormat', () => {
+  it('should only be valid if base.isValidCellValueAndFormat', () => {
     const data = new TestData;
     expect(data.isValidCellValueAndFormat(0, 0, "In A1", undefined).isOk()).toEqual(true);
-    expect(data.isValidCellValueAndFormat(0, 1, 42, "YYYY-MM-DD").isOk()).toEqual(false);
+    expect(data.isValidCellValueAndFormat(0, 2, 42, "YYYY-MM-DD").isOk()).toEqual(false);
     const snapshot = data.getSnapshot();
     expect(data.getCellValue(snapshot, 0, 0)).toEqual("A1");
     expect(data.getCellValue(snapshot, 0, 1)).toEqual("B1");
   })
 
-  it('should support snapshot semantics', async () => {
+  it('should support layered snapshot semantics', async () => {
     const data = new TestData;
     const snapshot1 = data.getSnapshot();
     const snapshot2 = data.getSnapshot();
@@ -81,22 +84,5 @@ describe('LayeredSpreadsheetData', () => {
     expect(Object.is(snapshot2, snapshot3)).toEqual(false);
     expect(data.getRowCount(snapshot1)).toEqual(100);
     expect(data.getRowCount(snapshot3)).toEqual(201);
-  })
-
-  it('should support subscribe semantics', async () => {
-    const data = new TestData;
-
-    const mock = vi.fn();
-    const unsubscribe = data.subscribe(mock);
-
-    await data.setCellValueAndFormat(0, 0, "In A1", undefined);
-    expect(mock).toBeCalledTimes(1);
-
-    await data.setCellValueAndFormat(0, 0, 42, undefined);
-    expect(mock).toBeCalledTimes(2);
-
-    unsubscribe();
-    await data.setCellValueAndFormat(0, 0, false, undefined);
-    expect(mock).toBeCalledTimes(2);
   })
 })

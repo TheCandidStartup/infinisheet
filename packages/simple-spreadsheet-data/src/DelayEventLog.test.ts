@@ -1,10 +1,11 @@
+import { DelayEventLog } from './DelayEventLog';
 import { SimpleEventLog } from './SimpleEventLog';
 import type { TestLogEntry } from '../../../shared/test/TestLogEntry';
 import { eventLogInterfaceTests } from '../../infinisheet-types/src/EventLog.interface-test'
 
 
-describe('SimpleEventLog', () => {
-  eventLogInterfaceTests(() => new SimpleEventLog<TestLogEntry>);
+describe('DelayEventLog', () => {
+  eventLogInterfaceTests(() => new DelayEventLog(new SimpleEventLog<TestLogEntry>));
 
-  // SimplEventLog specific tests go here
+  // DelayEventLog specific tests go here
 })
