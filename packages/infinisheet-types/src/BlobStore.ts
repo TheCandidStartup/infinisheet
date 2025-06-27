@@ -31,6 +31,9 @@ export interface BlobWrongKindError extends InfinisheetError {
 
 export function notBlobError(): BlobWrongKindError { return { type: 'BlobWrongKindError', message: "Not a blob"} }
 export function notBlobDirError(): BlobWrongKindError { return { type: 'BlobWrongKindError', message: "Not a blob dir"} }
+export function invalidBlobNameError(message?: string): InvalidBlobNameError { 
+  return { type: 'InvalidBlobNameError', message: message ? message : "Invalid Blob Name" }; 
+}
 
 /** Errors that can be returned by {@link BlobDir.readBlob}  */
 export type ReadBlobError = BlobWrongKindError | InvalidBlobNameError | StorageError;

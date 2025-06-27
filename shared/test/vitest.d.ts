@@ -3,8 +3,11 @@ import type { SequenceId } from '@candidstartup/infinisheet-types';
 
 // Implementation and registration of custom matchers in setup-jsdom.ts
 interface CustomMatchers<R = unknown> {
-  toBeQueryValue: (expected: [SequenceId, boolean, number]) => R
-  toBeInfinisheetError: (expectedType: string) => R
+  toBeOk: () => void
+  toBeInfinisheetError: (expectedType: string) => void
+  toBeStorageError: (expectedStatusCode?: number) => void
+  toBeQueryValue: (expected: [SequenceId, boolean, number]) => void
+  toBeBlobDirEntries: (expectedBlobs: string[], expectedDirs: string[], expectedContinuation?: boolean) => void
 }
 
 declare module 'vitest' {

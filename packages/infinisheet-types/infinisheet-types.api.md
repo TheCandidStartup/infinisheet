@@ -166,6 +166,9 @@ export interface InvalidBlobNameError extends InfinisheetError {
     type: 'InvalidBlobNameError';
 }
 
+// @public (undocumented)
+export function invalidBlobNameError(message?: string): InvalidBlobNameError;
+
 // @public
 export interface ItemOffsetMapping {
     itemOffset(itemIndex: number): number;

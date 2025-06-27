@@ -1,7 +1,7 @@
 import type { BlobStore, BlobDir, BlobName, ResultAsync, 
   GetRootDirError, ReadBlobError, WriteBlobError, RemoveBlobError, BlobDirEntries, 
   GetDirError, DirQueryError, RemoveAllBlobDirError } from "@candidstartup/infinisheet-types";
-import { errAsync, okAsync, storageError, notBlobError, notBlobDirError } from "@candidstartup/infinisheet-types";
+import { errAsync, okAsync, storageError, notBlobError, notBlobDirError, invalidBlobNameError } from "@candidstartup/infinisheet-types";
 
 const QUERY_PAGE_SIZE = 10;
 
@@ -47,6 +47,8 @@ export class SimpleBlobDir implements BlobDir<SimpleBlobStoreContinuation> {
   // create on demand and treat empty dir the same as non-existent dir.
 
   readBlob(name: BlobName): ResultAsync<Uint8Array,ReadBlobError> {
+    if (!name)
+      return errAsync(invalidBlobNameError());
     const value = this.map.get(name);
     if (!value || (value instanceof SimpleBlobDir && value.map.size == 0))
       return errAsync(storageError("Blob does not exist", 404));
@@ -59,6 +61,8 @@ export class SimpleBlobDir implements BlobDir<SimpleBlobStoreContinuation> {
   }
 
   writeBlob(name: BlobName, content: Uint8Array): ResultAsync<void,WriteBlobError> {
+    if (!name)
+      return errAsync(invalidBlobNameError());
     const value = this.map.get(name);
     if (value instanceof SimpleBlobDir && value.map.size > 0)
       return errAsync(notBlobError());
@@ -68,6 +72,8 @@ export class SimpleBlobDir implements BlobDir<SimpleBlobStoreContinuation> {
   }
 
   removeBlob(name: BlobName): ResultAsync<void,RemoveBlobError> {
+    if (!name)
+      return errAsync(invalidBlobNameError());
     const value = this.map.get(name);
     if (value instanceof SimpleBlobDir && value.map.size > 0)
       return errAsync(notBlobError());
@@ -77,6 +83,9 @@ export class SimpleBlobDir implements BlobDir<SimpleBlobStoreContinuation> {
   }
 
   getDir(name: BlobName): ResultAsync<BlobDir<SimpleBlobStoreContinuation>,GetDirError> {
+    if (!name)
+      return errAsync(invalidBlobNameError());
+
     const value = this.map.get(name);
     if (!value) {
       const dir = new SimpleBlobDir();

@@ -1,4 +1,5 @@
 import { fireEvent } from '@testing-library/react'
+import type { Result } from '@candidstartup/infinisheet-types'
 
 // Function wrapper around throw so that it can be used in an expression like
 //    const value = somethingThatIsValueOrNull || throwErr("Shouldn't be null")
@@ -54,4 +55,9 @@ export function unstubAllProperties() {
       Object.defineProperty(object, name, original);
   });
   _stubsProperty.clear();
+}
+
+export function expectUnwrap<T,E>(result: Result<T,E>): T {
+  expect(result).toBeOk();
+  return result._unsafeUnwrap();
 }
