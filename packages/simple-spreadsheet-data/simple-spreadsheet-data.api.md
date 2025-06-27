@@ -5,14 +5,24 @@
 ```ts
 
 import { AddEntryError } from '@candidstartup/infinisheet-types';
+import { BlobDir } from '@candidstartup/infinisheet-types';
+import { BlobDirEntries } from '@candidstartup/infinisheet-types';
+import { BlobName } from '@candidstartup/infinisheet-types';
+import { BlobStore } from '@candidstartup/infinisheet-types';
 import { CellValue } from '@candidstartup/infinisheet-types';
+import { DirQueryError } from '@candidstartup/infinisheet-types';
 import { EventLog } from '@candidstartup/infinisheet-types';
+import { GetDirError } from '@candidstartup/infinisheet-types';
+import { GetRootDirError } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { LogEntry } from '@candidstartup/infinisheet-types';
 import { LogMetadata } from '@candidstartup/infinisheet-types';
 import { MetadataError } from '@candidstartup/infinisheet-types';
 import { QueryError } from '@candidstartup/infinisheet-types';
 import { QueryValue } from '@candidstartup/infinisheet-types';
+import { ReadBlobError } from '@candidstartup/infinisheet-types';
+import { RemoveAllBlobDirError } from '@candidstartup/infinisheet-types';
+import { RemoveBlobError } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
 import { ResultAsync } from '@candidstartup/infinisheet-types';
 import { SequenceId } from '@candidstartup/infinisheet-types';
@@ -21,6 +31,7 @@ import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
 import { StorageError } from '@candidstartup/infinisheet-types';
 import { TruncateError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
+import { WriteBlobError } from '@candidstartup/infinisheet-types';
 
 // @public
 export class DelayEventLog<T extends LogEntry> implements EventLog<T> {
@@ -73,6 +84,42 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
+}
+
+// @public
+export class SimpleBlobDir implements BlobDir<SimpleBlobStoreContinuation> {
+    constructor();
+    // (undocumented)
+    getDir(name: BlobName): ResultAsync<BlobDir<SimpleBlobStoreContinuation>, GetDirError>;
+    // (undocumented)
+    query(continuation?: SimpleBlobStoreContinuation): ResultAsync<BlobDirEntries<SimpleBlobStoreContinuation>, DirQueryError>;
+    // (undocumented)
+    readBlob(name: BlobName): ResultAsync<Uint8Array, ReadBlobError>;
+    // (undocumented)
+    removeAll(): ResultAsync<void, RemoveAllBlobDirError>;
+    // (undocumented)
+    removeBlob(name: BlobName): ResultAsync<void, RemoveBlobError>;
+    // (undocumented)
+    writeBlob(name: BlobName, content: Uint8Array): ResultAsync<void, WriteBlobError>;
+}
+
+// @public
+export class SimpleBlobStore implements BlobStore<SimpleBlobStoreContinuation> {
+    constructor();
+    // (undocumented)
+    getRootDir(): ResultAsync<SimpleBlobDir, GetRootDirError>;
+}
+
+// @internal
+export enum _SimpleBlobStoreBrand {
+    // (undocumented)
+    _DO_NOT_USE = ""
+}
+
+// @public
+export interface SimpleBlobStoreContinuation {
+    // @internal (undocumented)
+    _brand: _SimpleBlobStoreBrand;
 }
 
 // @public

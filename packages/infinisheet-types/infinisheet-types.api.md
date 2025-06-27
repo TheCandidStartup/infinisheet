@@ -12,7 +12,37 @@ import { ResultAsync as ResultAsync_2 } from 'neverthrow';
 export type AddEntryError = ConflictError | StorageError;
 
 // @public
+export interface BlobDir<ContinuationT> {
+    getDir(name: BlobName): ResultAsync<BlobDir<ContinuationT>, GetDirError>;
+    query(continuation?: ContinuationT): ResultAsync<BlobDirEntries<ContinuationT>, DirQueryError>;
+    readBlob(name: BlobName): ResultAsync<Uint8Array, ReadBlobError>;
+    removeAll(): ResultAsync<void, RemoveAllBlobDirError>;
+    removeBlob(name: BlobName): ResultAsync<void, RemoveBlobError>;
+    writeBlob(name: BlobName, content: Uint8Array): ResultAsync<void, WriteBlobError>;
+}
+
+// @public (undocumented)
+export interface BlobDirEntries<ContinuationT> {
+    blobs: BlobName[];
+    continuation?: ContinuationT | undefined;
+    dirs: BlobName[];
+}
+
+// @public
 export type BlobId = string;
+
+// @public
+export type BlobName = string;
+
+// @public
+export interface BlobStore<ContinuationT> {
+    getRootDir(): ResultAsync<BlobDir<ContinuationT>, GetRootDirError>;
+}
+
+// @public
+export interface BlobWrongKindError extends InfinisheetError {
+    type: 'BlobWrongKindError';
+}
 
 // @public
 export interface CellError {
@@ -40,6 +70,9 @@ export interface ConflictError extends InfinisheetError {
 
 // @public
 export function conflictError(message: string, nextSequenceId: SequenceId): ConflictError;
+
+// @public
+export type DirQueryError = StorageError;
 
 // @public (undocumented)
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
@@ -106,6 +139,12 @@ export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
 }
 
 // @public
+export type GetDirError = BlobWrongKindError | InvalidBlobNameError | StorageError;
+
+// @public
+export type GetRootDirError = StorageError;
+
+// @public
 export function indexToColRef(index: number): ColRef;
 
 // @public
@@ -121,6 +160,11 @@ export interface InfinisheetRangeError extends InfinisheetError {
 
 // @public
 export function infinisheetRangeError(message: string): InfinisheetRangeError;
+
+// @public
+export interface InvalidBlobNameError extends InfinisheetError {
+    type: 'InvalidBlobNameError';
+}
 
 // @public
 export interface ItemOffsetMapping {
@@ -143,6 +187,12 @@ export interface LogMetadata {
 
 // @public
 export type MetadataError = InfinisheetRangeError | StorageError;
+
+// @public (undocumented)
+export function notBlobDirError(): BlobWrongKindError;
+
+// @public (undocumented)
+export function notBlobError(): BlobWrongKindError;
 
 // @public
 export interface Ok<T, E> extends Ok_2<T, E> {
@@ -170,6 +220,15 @@ export interface QueryValue<T extends LogEntry> {
     isComplete: boolean;
     startSequenceId: SequenceId;
 }
+
+// @public
+export type ReadBlobError = BlobWrongKindError | InvalidBlobNameError | StorageError;
+
+// @public
+export type RemoveAllBlobDirError = StorageError;
+
+// @public
+export type RemoveBlobError = BlobWrongKindError | InvalidBlobNameError | StorageError;
 
 // @public
 export type Result<T, E> = Ok<T, E> | Err<T, E>;
@@ -247,6 +306,9 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
 
 // @public
 export type WorkflowId = string;
+
+// @public
+export type WriteBlobError = BlobWrongKindError | InvalidBlobNameError | StorageError;
 
 // (No @packageDocumentation comment for this package)
 
