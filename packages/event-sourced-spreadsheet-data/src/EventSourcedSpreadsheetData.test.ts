@@ -67,7 +67,7 @@ describe('EventSourcedSpreadsheetData', () => {
     const log = new  SimpleEventLog<SpreadsheetLogEntry>;
     for (let i = 0; i < 20; i ++) {
       const result = await log.addEntry({ type: 'SetCellValueAndFormat', row: i, column: 0, value: i}, BigInt(i));
-      expect(result.isOk()).toEqual(true);
+      expect(result).toBeOk();
     }
     const data = new EventSourcedSpreadsheetData(log);
 
@@ -129,7 +129,7 @@ describe('EventSourcedSpreadsheetData', () => {
     await subscribePromise;
 
     const result = await promise;
-    expect(result.isOk()).toBe(true);
+    expect(result).toBeOk();
     const snapshot = data.getSnapshot();
     expect(data.getRowCount(snapshot)).toEqual(1);
     expect(data.getCellValue(snapshot, 0, 0)).toEqual(42);

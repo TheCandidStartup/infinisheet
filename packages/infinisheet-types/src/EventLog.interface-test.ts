@@ -104,33 +104,25 @@ describe('EventLog Interface', () => {
       await data.addEntry(testLogEntry(i), BigInt(i))
     expect(await data.query('start', 'end')).toBeQueryValue([0n, true, 10]);
 
-    let result = await data.truncate(BigInt(-1));
-    expect(result).toBeInfinisheetError("InfinisheetRangeError")
+    expect(await data.truncate(BigInt(-1))).toBeInfinisheetError("InfinisheetRangeError")
 
-    result = await data.truncate(BigInt(11));
-    expect(result).toBeInfinisheetError("InfinisheetRangeError")
+    expect(await data.truncate(BigInt(11))).toBeInfinisheetError("InfinisheetRangeError")
 
-    result = await data.truncate(BigInt(0));
-    expect(result.isOk()).toEqual(true);
+    expect(await data.truncate(BigInt(0))).toBeOk();
     expect(await data.query('start', 'end')).toBeQueryValue([0n, true, 10]);
 
-    result = await data.truncate(BigInt(4));
-    expect(result.isOk()).toEqual(true);
+    expect(await data.truncate(BigInt(4))).toBeOk();
     expect(await data.query('start', 'end')).toBeQueryValue([4n, true, 6]);
 
-    result = await data.truncate(BigInt(3));
-    expect(result).toBeInfinisheetError("InfinisheetRangeError")
+    expect(await data.truncate(BigInt(3))).toBeInfinisheetError("InfinisheetRangeError")
 
-    result = await data.truncate(BigInt(6));
-    expect(result.isOk()).toEqual(true);
+    expect(await data.truncate(BigInt(6))).toBeOk();
     expect(await data.query('start', 'end')).toBeQueryValue([6n, true, 4]);
 
-    result = await data.truncate(BigInt(10));
-    expect(result.isOk()).toEqual(true);
+    expect(await data.truncate(BigInt(10))).toBeOk();
     expect(await data.query('start', 'end')).toBeQueryValue([10n, true, 0]);
 
-    result = await data.truncate(BigInt(10));
-    expect(result.isOk()).toEqual(true);
+    expect(await data.truncate(BigInt(10))).toBeOk();
     expect(await data.query('start', 'end')).toBeQueryValue([10n, true, 0]);
   })
 
