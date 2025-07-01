@@ -112,5 +112,59 @@ describe('BlobStore Interface', () => {
       expect(allEntries[i]).toEqual(i);
     }
   })
+
+  it('continuation should be repeatable or return NoContinuationError', async () => {
+    const data = creator();
+    const root = expectUnwrap(await data.getRootDir()); 
+
+    const NUM_BLOBS = pageSize*2+1;
+    for (let i = 0; i < NUM_BLOBS; i ++) {
+      const content = new Uint8Array([i]);
+      const result = await root.writeBlob(i.toString(), content);
+      expect(result).toBeOk();
+    }
+
+    const continuation = expectUnwrap(await root.query()).continuation;
+    expect(continuation).toBeDefined();
+
+    const entries1 = expectUnwrap(await root.query(continuation));
+    const result2 = await root.query(continuation);
+    if (result2.isOk()) {
+      const entries2 = result2.value;
+      expect(entries2.blobs).toEqual(entries1.blobs);
+      expect(entries2.dirs).toEqual(entries1.dirs);
+    } else {
+      expect(result2).toBeInfinisheetError("NoContinuationError");
+    }
+  })
+
+  it('should return NoContinuationError if continuation used with wrong dir', async () => {
+    const data = creator();
+    const root = expectUnwrap(await data.getRootDir()); 
+
+    const NUM_BLOBS = pageSize*2+1;
+    const dirA = expectUnwrap(await root.getDir("a"));
+    for (let i = 0; i < NUM_BLOBS; i ++) {
+      const content = new Uint8Array([i]);
+      const result = await dirA.writeBlob(i.toString(), content);
+      expect(result).toBeOk();
+    }
+
+    const dirB = expectUnwrap(await root.getDir("b"));
+    for (let i = 0; i < NUM_BLOBS; i ++) {
+      const content = new Uint8Array([i]);
+      const result = await dirB.writeBlob(i.toString(), content);
+      expect(result).toBeOk();
+    }
+
+    const continuationA = expectUnwrap(await dirA.query()).continuation;
+    expect(continuationA).toBeDefined();
+
+    const continuationB = expectUnwrap(await dirB.query()).continuation;
+    expect(continuationB).toBeDefined();
+
+    expect(await dirA.query(continuationB)).toBeInfinisheetError("NoContinuationError");
+    expect(await dirB.query(continuationA)).toBeInfinisheetError("NoContinuationError");
+  })
 })
 }

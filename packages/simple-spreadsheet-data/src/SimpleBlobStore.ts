@@ -1,11 +1,14 @@
 import type { BlobStore, BlobDir, BlobName, ResultAsync, 
   GetRootDirError, ReadBlobError, WriteBlobError, RemoveBlobError, BlobDirEntries, 
   GetDirError, DirQueryError, RemoveAllBlobDirError } from "@candidstartup/infinisheet-types";
-import { errAsync, okAsync, storageError, notBlobError, notBlobDirError, invalidBlobNameError } from "@candidstartup/infinisheet-types";
+import { errAsync, okAsync, storageError, notBlobError, notBlobDirError, invalidBlobNameError, noContinuationError } from "@candidstartup/infinisheet-types";
 
 const QUERY_PAGE_SIZE = 10;
 
-type SimpleBlobStoreIter = MapIterator<[BlobName, BlobDir<SimpleBlobStoreContinuation>|Uint8Array]>;
+interface SimpleBlobStoreIter {
+  dir: SimpleBlobDir;
+  iter: MapIterator<[BlobName, BlobDir<SimpleBlobStoreContinuation>|Uint8Array]> | undefined;
+}
 
 /** 
  * Branding Enum. Used by {@link SimpleBlobStore} to ensure that
@@ -100,7 +103,20 @@ export class SimpleBlobDir implements BlobDir<SimpleBlobStoreContinuation> {
   }
 
   query(continuation?: SimpleBlobStoreContinuation): ResultAsync<BlobDirEntries<SimpleBlobStoreContinuation>,DirQueryError> {
-    const iter = continuation ? asIter(continuation) : this.map.entries();
+    let iter;
+    if (continuation) {
+      const sbsIter = asIter(continuation);
+      if (sbsIter.dir !== this)
+        return errAsync(noContinuationError("Invalid continuation"));
+      iter = sbsIter.iter;
+      if (!iter)
+        return errAsync(noContinuationError("Can't reuse continuation"));
+
+      // Iterator is mutated so can't reuse continuation to retry query
+      sbsIter.iter = undefined;
+    } else {
+      iter = this.map.entries();
+    }
     const entries: BlobDirEntries<SimpleBlobStoreContinuation> = { blobs: [], dirs: [] }
 
     for (let i = 0; i < QUERY_PAGE_SIZE; i ++) {
@@ -117,7 +133,7 @@ export class SimpleBlobDir implements BlobDir<SimpleBlobStoreContinuation> {
       }
     }
 
-    entries.continuation = asContinuation(iter);
+    entries.continuation = asContinuation({ dir: this, iter });
     return okAsync(entries);
   }
 

@@ -1,4 +1,4 @@
-import { notBlobError, notBlobDirError, invalidBlobNameError } from "./BlobStore";
+import { notBlobError, notBlobDirError, invalidBlobNameError, noContinuationError } from "./BlobStore";
 
 describe('notBlobError', () => {
   it('should construct', () => {
@@ -22,5 +22,16 @@ describe('invalidBlobNameError', () => {
 
     const error2 = invalidBlobNameError();
     expect(error2.type).toEqual('InvalidBlobNameError')
+  })
+})
+
+describe('noContinuationError', () => {
+  it('should construct', () => {
+    const error = noContinuationError("test");
+    expect(error.type).toEqual('NoContinuationError')
+    expect(error.message).toEqual("test")
+
+    const error2 = noContinuationError();
+    expect(error2.type).toEqual('NoContinuationError')
   })
 })

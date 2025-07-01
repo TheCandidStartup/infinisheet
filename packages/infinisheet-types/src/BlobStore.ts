@@ -18,6 +18,10 @@ export interface InvalidBlobNameError extends InfinisheetError {
   type: 'InvalidBlobNameError',
 };
 
+export function invalidBlobNameError(message?: string): InvalidBlobNameError { 
+  return { type: 'InvalidBlobNameError', message: message ? message : "Invalid Blob Name" }; 
+}
+
 /** 
  * Error when trying to access a blob as a directory or vice versa
  * 
@@ -31,8 +35,19 @@ export interface BlobWrongKindError extends InfinisheetError {
 
 export function notBlobError(): BlobWrongKindError { return { type: 'BlobWrongKindError', message: "Not a blob"} }
 export function notBlobDirError(): BlobWrongKindError { return { type: 'BlobWrongKindError', message: "Not a blob dir"} }
-export function invalidBlobNameError(message?: string): InvalidBlobNameError { 
-  return { type: 'InvalidBlobNameError', message: message ? message : "Invalid Blob Name" }; 
+
+/** 
+ * Invalid {@link BlobName} error
+ * 
+ * Occurs when trying to pass a `BlobName` that is too long or contains invalid characters
+ */
+export interface NoContinuationError extends InfinisheetError {
+  /** Discriminated union tag */
+  type: 'NoContinuationError',
+};
+
+export function noContinuationError(message?: string): NoContinuationError { 
+  return { type: 'NoContinuationError', message: message ? message : "Can't continue query, start again" }; 
 }
 
 /** Errors that can be returned by {@link BlobDir.readBlob}  */
@@ -48,7 +63,7 @@ export type RemoveBlobError = BlobWrongKindError | InvalidBlobNameError | Storag
 export type GetDirError = BlobWrongKindError | InvalidBlobNameError | StorageError;
 
 /** Errors that can be returned by {@link BlobDir.query} */
-export type DirQueryError = StorageError;
+export type DirQueryError = StorageError | NoContinuationError;
 
 /** Errors that can be returned by {@link BlobDir.removeAll} */
 export type RemoveAllBlobDirError = StorageError;

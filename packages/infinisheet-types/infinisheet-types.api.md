@@ -72,7 +72,7 @@ export interface ConflictError extends InfinisheetError {
 export function conflictError(message: string, nextSequenceId: SequenceId): ConflictError;
 
 // @public
-export type DirQueryError = StorageError;
+export type DirQueryError = StorageError | NoContinuationError;
 
 // @public (undocumented)
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
@@ -190,6 +190,14 @@ export interface LogMetadata {
 
 // @public
 export type MetadataError = InfinisheetRangeError | StorageError;
+
+// @public
+export interface NoContinuationError extends InfinisheetError {
+    type: 'NoContinuationError';
+}
+
+// @public (undocumented)
+export function noContinuationError(message?: string): NoContinuationError;
 
 // @public (undocumented)
 export function notBlobDirError(): BlobWrongKindError;
