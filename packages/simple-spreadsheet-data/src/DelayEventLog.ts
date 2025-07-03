@@ -2,13 +2,15 @@ import type { EventLog, LogEntry, LogMetadata, SequenceId, Result, QueryValue,
   AddEntryError, QueryError, TruncateError, MetadataError } from "@candidstartup/infinisheet-types";
 import { ResultAsync } from "@candidstartup/infinisheet-types";
 
-function delayPromise<T>(value: T, delay: number): Promise<T> {
+/** Creates a promise that provides value after a delay (in ms) */
+export function delayPromise<T>(value: T, delay: number): Promise<T> {
   return new Promise<T>((resolve) => {
     setTimeout(() => resolve(value), delay);
   })
 }
 
-function delayResult<T,E>(result: ResultAsync<T,E>, delay: number): ResultAsync<T,E> {
+// Utility method that completes a `ResultAsync` after a delay (in ms)
+export function delayResult<T,E>(result: ResultAsync<T,E>, delay: number): ResultAsync<T,E> {
   const promiseLike = result.then<Result<T,E>,never>((r) => delayPromise(r, delay));
   return new ResultAsync(Promise.resolve(promiseLike));
 }

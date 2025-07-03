@@ -161,6 +161,12 @@ export interface InfinisheetRangeError extends InfinisheetError {
 // @public
 export function infinisheetRangeError(message: string): InfinisheetRangeError;
 
+// @public (undocumented)
+export interface InfiniSheetWorker<MessageT extends WorkerMessage> extends WorkerBase<MessageT> {
+    // (undocumented)
+    onReceiveMessage: MessageHandler<MessageT> | undefined;
+}
+
 // @public
 export interface InvalidBlobNameError extends InfinisheetError {
     type: 'InvalidBlobNameError';
@@ -187,6 +193,12 @@ export interface LogMetadata {
     pending?: WorkflowId | undefined;
     snapshot?: BlobId | undefined;
 }
+
+// @public
+export type MessageError = StorageError;
+
+// @public
+export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT) => ResultAsync<void, MessageError>;
 
 // @public
 export type MetadataError = InfinisheetRangeError | StorageError;
@@ -220,6 +232,12 @@ export function okAsync<T, E = never>(value: T): ResultAsync<T, E>;
 
 // @public (undocumented)
 export function okAsync<_T extends void = void, E = never>(value: void): ResultAsync<void, E>;
+
+// @public (undocumented)
+export interface PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
+    // (undocumented)
+    postMessage(message: MessageT): ResultAsync<void, MessageError>;
+}
 
 // @public
 export type QueryError = InfinisheetRangeError | StorageError;
@@ -313,6 +331,23 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
     itemSize(itemIndex: number): number;
     // (undocumented)
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
+}
+
+// @public
+export interface WorkerBase<MessageT extends WorkerMessage> {
+    // (undocumented)
+    hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
+    // (undocumented)
+    isWorker(): this is InfiniSheetWorker<MessageT>;
+}
+
+// @public (undocumented)
+export interface WorkerHost<MessageT extends WorkerMessage> extends WorkerBase<MessageT> {
+}
+
+// @public (undocumented)
+export interface WorkerMessage {
+    type: string;
 }
 
 // @public

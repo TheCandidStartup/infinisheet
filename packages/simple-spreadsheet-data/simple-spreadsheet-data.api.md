@@ -48,6 +48,12 @@ export class DelayEventLog<T extends LogEntry> implements EventLog<T> {
 }
 
 // @public
+export function delayPromise<T>(value: T, delay: number): Promise<T>;
+
+// @public (undocumented)
+export function delayResult<T, E>(result: ResultAsync<T, E>, delay: number): ResultAsync<T, E>;
+
+// @public
 export interface LayeredSnapshot<BaseSnapshot, EditSnapshot> {
     // @internal (undocumented)
     _brand: [_LayeredSnapshotBrand, BaseSnapshot, EditSnapshot];
