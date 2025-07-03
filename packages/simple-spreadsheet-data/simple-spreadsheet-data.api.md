@@ -14,10 +14,14 @@ import { DirQueryError } from '@candidstartup/infinisheet-types';
 import { EventLog } from '@candidstartup/infinisheet-types';
 import { GetDirError } from '@candidstartup/infinisheet-types';
 import { GetRootDirError } from '@candidstartup/infinisheet-types';
+import { InfiniSheetWorker } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { LogEntry } from '@candidstartup/infinisheet-types';
 import { LogMetadata } from '@candidstartup/infinisheet-types';
+import { MessageError } from '@candidstartup/infinisheet-types';
+import { MessageHandler } from '@candidstartup/infinisheet-types';
 import { MetadataError } from '@candidstartup/infinisheet-types';
+import { PostMessageWorkerHost } from '@candidstartup/infinisheet-types';
 import { QueryError } from '@candidstartup/infinisheet-types';
 import { QueryValue } from '@candidstartup/infinisheet-types';
 import { ReadBlobError } from '@candidstartup/infinisheet-types';
@@ -31,6 +35,7 @@ import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
 import { StorageError } from '@candidstartup/infinisheet-types';
 import { TruncateError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
+import { WorkerMessage } from '@candidstartup/infinisheet-types';
 import { WriteBlobError } from '@candidstartup/infinisheet-types';
 
 // @public
@@ -178,6 +183,20 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
+}
+
+// @public
+export class SimpleWorker<T extends WorkerMessage> extends InfiniSheetWorker<T> {
+    constructor();
+    // (undocumented)
+    onReceiveMessage: MessageHandler<T> | undefined;
+}
+
+// @public
+export class SimpleWorkerHost<T extends WorkerMessage> extends PostMessageWorkerHost<T> {
+    constructor(worker: SimpleWorker<T>);
+    // (undocumented)
+    postMessage(message: T): ResultAsync<void, MessageError>;
 }
 
 // @public

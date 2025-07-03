@@ -22,13 +22,18 @@ export interface WorkerBase<MessageT extends WorkerMessage> {
   hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
 }
 
-export interface WorkerHost<MessageT extends WorkerMessage> extends WorkerBase<MessageT> { 
+export abstract class WorkerHost<MessageT extends WorkerMessage> implements WorkerBase<MessageT> { 
+  isWorker(): this is InfiniSheetWorker<MessageT> { return false }
+  abstract hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
 }
 
-export interface PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
-  postMessage(message: MessageT): ResultAsync<void,MessageError>
+export abstract class PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
+  hasPostMessage(): this is PostMessageWorkerHost<MessageT> { return true }
+  abstract postMessage(message: MessageT): ResultAsync<void,MessageError>
 }
 
-export interface InfiniSheetWorker<MessageT extends WorkerMessage> extends WorkerBase<MessageT> {
-  onReceiveMessage: MessageHandler<MessageT> | undefined;
+export abstract class InfiniSheetWorker<MessageT extends WorkerMessage> implements WorkerBase<MessageT> {
+  isWorker(): this is InfiniSheetWorker<MessageT> { return true }
+  hasPostMessage(): this is PostMessageWorkerHost<MessageT> { return false }
+  abstract onReceiveMessage: MessageHandler<MessageT> | undefined;
 }
