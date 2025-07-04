@@ -164,8 +164,6 @@ export function infinisheetRangeError(message: string): InfinisheetRangeError;
 // @public (undocumented)
 export abstract class InfiniSheetWorker<MessageT extends WorkerMessage> implements WorkerBase<MessageT> {
     // (undocumented)
-    hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
-    // (undocumented)
     isWorker(): this is InfiniSheetWorker<MessageT>;
     // (undocumented)
     abstract onReceiveMessage: MessageHandler<MessageT> | undefined;
@@ -239,8 +237,6 @@ export function okAsync<_T extends void = void, E = never>(value: void): ResultA
 
 // @public (undocumented)
 export abstract class PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
-    // (undocumented)
-    hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
     // (undocumented)
     abstract postMessage(message: MessageT): ResultAsync<void, MessageError>;
 }
@@ -342,15 +338,11 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
 // @public
 export interface WorkerBase<MessageT extends WorkerMessage> {
     // (undocumented)
-    hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
-    // (undocumented)
     isWorker(): this is InfiniSheetWorker<MessageT>;
 }
 
 // @public (undocumented)
 export abstract class WorkerHost<MessageT extends WorkerMessage> implements WorkerBase<MessageT> {
-    // (undocumented)
-    abstract hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
     // (undocumented)
     isWorker(): this is InfiniSheetWorker<MessageT>;
 }

@@ -14,26 +14,21 @@ export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT)
 
 /** Base interface for all workers interfaces
  * 
- * Use `isWorker` and `hasPostMessage` to determine whether this is a worker, an implicit worker host or 
- * a worker host with an explicit `postMessage` method.
+ * Use `isWorker` to determine whether this is a worker, or a worker host.
  */
 export interface WorkerBase<MessageT extends WorkerMessage> {
   isWorker(): this is InfiniSheetWorker<MessageT>;
-  hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
 }
 
 export abstract class WorkerHost<MessageT extends WorkerMessage> implements WorkerBase<MessageT> { 
   isWorker(): this is InfiniSheetWorker<MessageT> { return false }
-  abstract hasPostMessage(): this is PostMessageWorkerHost<MessageT>;
 }
 
 export abstract class PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
-  hasPostMessage(): this is PostMessageWorkerHost<MessageT> { return true }
   abstract postMessage(message: MessageT): ResultAsync<void,MessageError>
 }
 
 export abstract class InfiniSheetWorker<MessageT extends WorkerMessage> implements WorkerBase<MessageT> {
   isWorker(): this is InfiniSheetWorker<MessageT> { return true }
-  hasPostMessage(): this is PostMessageWorkerHost<MessageT> { return false }
   abstract onReceiveMessage: MessageHandler<MessageT> | undefined;
 }
