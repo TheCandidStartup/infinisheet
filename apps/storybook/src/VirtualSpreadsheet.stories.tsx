@@ -4,7 +4,8 @@ import { userEvent, within, expect } from '@storybook/test';
 import { VirtualSpreadsheet, VirtualSpreadsheetProps, VirtualSpreadsheetDefaultTheme as theme } from '@candidstartup/react-spreadsheet';
 import { AutoSizer } from '@candidstartup/react-virtual-scroll';
 
-import { SimpleSpreadsheetData, LayeredSpreadsheetData, SimpleEventLog, DelayEventLog } from '@candidstartup/simple-spreadsheet-data';
+import { SimpleSpreadsheetData, LayeredSpreadsheetData, SimpleEventLog, DelayEventLog, SimpleBlobStore, 
+  SimpleWorkerHost, SimpleWorker } from '@candidstartup/simple-spreadsheet-data';
 import { EventSourcedSpreadsheetData, SpreadsheetLogEntry } from '@candidstartup/event-sourced-spreadsheet-data';
 import { BoringData as BoringDataType } from '../../spreadsheet-sample/src/BoringData';
 import { TestData as TestDataType } from '../../spreadsheet-sample/src/TestData';
@@ -14,11 +15,16 @@ const emptySpreadsheet = new SimpleSpreadsheetData;
 const boringData = new LayeredSpreadsheetData(new BoringDataType, new SimpleSpreadsheetData);
 const testData = new LayeredSpreadsheetData(new TestDataType, new SimpleSpreadsheetData);
 const cellNameData = new LayeredSpreadsheetData(new CellRefData, new SimpleSpreadsheetData);
-const eventLog = new SimpleEventLog<SpreadsheetLogEntry>;
+const blobStore = new SimpleBlobStore;
+const worker = new SimpleWorker;
+const workerHost = new SimpleWorkerHost(worker);
+const eventLog = new SimpleEventLog<SpreadsheetLogEntry>(workerHost);
+new EventSourcedSpreadsheetData(eventLog, blobStore, worker);
 const delayEventLogA = new DelayEventLog(eventLog);
 const delayEventLogB = new DelayEventLog(eventLog);
-const eventSourcedDataA = new EventSourcedSpreadsheetData(delayEventLogA);
-const eventSourcedDataB = new EventSourcedSpreadsheetData(delayEventLogB);
+
+const eventSourcedDataA = new EventSourcedSpreadsheetData(delayEventLogA, blobStore);
+const eventSourcedDataB = new EventSourcedSpreadsheetData(delayEventLogB, blobStore);
 
 type VirtualSpreadsheetPropsAndCustomArgs = VirtualSpreadsheetProps & { 
   eventSourceLatencyA?: number | undefined,

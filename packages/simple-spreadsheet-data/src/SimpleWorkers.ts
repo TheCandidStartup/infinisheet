@@ -1,6 +1,5 @@
-import type { ResultAsync, WorkerMessage, MessageError, MessageHandler } from "@candidstartup/infinisheet-types";
-import { errAsync, storageError, InfiniSheetWorker, PostMessageWorkerHost } from "@candidstartup/infinisheet-types";
-import { delayResult } from "./DelayEventLog"
+import type { WorkerMessage, MessageHandler } from "@candidstartup/infinisheet-types";
+import { InfiniSheetWorker, PostMessageWorkerHost } from "@candidstartup/infinisheet-types";
 
 /**
  * Reference implementation of {@link InfiniSheetWorker}
@@ -32,12 +31,14 @@ export class SimpleWorkerHost<T extends WorkerMessage> extends PostMessageWorker
     this.worker = worker;
   }
 
-  postMessage(message: T): ResultAsync<void,MessageError> {
-    if (this.worker.onReceiveMessage) {
-      // Using delayResult (wrapper around setTimeout) ensures message is delivered via the event loop
-      return delayResult(this.worker.onReceiveMessage(message), 0);
-    } else
-      return errAsync(storageError("Worker has no message handler", 501));
+  postMessage(message: T): void {
+    const handler = this.worker.onReceiveMessage;
+    if (handler) {
+      // Using setTimeout ensures message is delivered via the event loop
+      setTimeout(() => { handler(message) }, 0);
+    } else {
+      throw new Error("Worker has no message handler");
+    }
   }
 
   private worker: SimpleWorker<T>;

@@ -1,6 +1,6 @@
-import type { EventLog, LogEntry, LogMetadata, SequenceId, ResultAsync, QueryValue, 
-  AddEntryError, QueryError, TruncateError, MetadataError } from "@candidstartup/infinisheet-types";
-import { okAsync, errAsync, conflictError, infinisheetRangeError } from "@candidstartup/infinisheet-types";
+import type { EventLog, LogEntry, LogMetadata, SequenceId, ResultAsync, QueryValue, WorkflowId, 
+  AddEntryError, QueryError, TruncateError, MetadataError, PendingWorkflowMessage } from "@candidstartup/infinisheet-types";
+import { okAsync, errAsync, conflictError, infinisheetRangeError, PostMessageWorkerHost } from "@candidstartup/infinisheet-types";
 
 const QUERY_PAGE_SIZE = 10;
 
@@ -13,11 +13,15 @@ const QUERY_PAGE_SIZE = 10;
  * for simple sample apps. Simplest possible implementation, no attempt at optimization.
  */
 export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
-  constructor() {
+  constructor(workerHost?: PostMessageWorkerHost<PendingWorkflowMessage>) {
+    this.workerHost = workerHost;
     this.startSequenceId = 0n;
     this.endSequenceId = 0n;
     this.entries = [];
   }
+
+  /** Worker host used to process pending workflows */
+  workerHost?: PostMessageWorkerHost<PendingWorkflowMessage> | undefined;
 
   addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void,AddEntryError> {
     if (sequenceId !== this.endSequenceId)
@@ -25,6 +29,10 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
 
     this.entries.push(entry);
     this.endSequenceId ++;
+
+    if (entry.pending)
+      this.sendPendingWorkflowMessage(entry.pending, sequenceId);
+
     return okAsync();
   }
 
@@ -38,8 +46,11 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
       entry.snapshot = metadata.snapshot;
     if ("history" in metadata)
       entry.history = metadata.history;
-    if ("pending" in metadata)
+    if ("pending" in metadata) {
       entry.pending = metadata.pending;
+      if (entry.pending)
+        this.sendPendingWorkflowMessage(entry.pending, sequenceId);
+    }
 
     return okAsync();
   }
@@ -93,6 +104,13 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     this.startSequenceId = start;
     this.entries.splice(0, Number(numToRemove));
     return okAsync();
+  }
+
+  private sendPendingWorkflowMessage(workflow: WorkflowId, sequenceId: SequenceId) {
+    if (this.workerHost) {
+      const message: PendingWorkflowMessage = { type: 'PendingWorkflowMessage', sequenceId, workflow }
+      this.workerHost.postMessage(message);
+    }
   }
 
   private findSnapshotIndex(): number {

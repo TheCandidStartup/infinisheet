@@ -1,5 +1,6 @@
 import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, 
-  SpreadsheetDataError, ValidationError, SequenceId, BlobId, EventLog } from "@candidstartup/infinisheet-types";
+  SpreadsheetDataError, ValidationError, SequenceId, BlobId, EventLog, 
+  BlobStore, WorkerBase, PendingWorkflowMessage } from "@candidstartup/infinisheet-types";
 import { FixedSizeItemOffsetMapping, ok, err, storageError } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry, SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
@@ -53,10 +54,12 @@ function asSnapshot(snapshot: EventSourcedSnapshotContent) {
  *
  */
 export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourcedSnapshot> {
-  constructor (eventLog: EventLog<SpreadsheetLogEntry>) {
+  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerOrHost?: WorkerBase<PendingWorkflowMessage>) {
     this.intervalId = undefined;
     this.isInSyncLogs = false;
     this.eventLog = eventLog;
+    this.blobStore = blobStore;
+    this.workerOrHost = workerOrHost;
     this.listeners = [];
     this.content = {
       endSequenceId: 0n,
@@ -66,7 +69,11 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
       colCount: 0
     }
 
-    this.syncLogs();
+    if (workerOrHost?.isWorker()) {
+      workerOrHost.onReceiveMessage = (message: PendingWorkflowMessage) => { this.onReceiveMessage(message); }
+    } else {
+      this.syncLogs();
+    }
   }
 
   subscribe(onDataChange: () => void): () => void {
@@ -119,7 +126,7 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
     const curr = this.content;
 
-    const result = this.eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format}, curr.endSequenceId);
+    const result = this.eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format }, curr.endSequenceId);
     return result.andTee(() => {
       if (this.content == curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
@@ -255,9 +262,15 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     this.isInSyncLogs = false;
   }
 
+  private onReceiveMessage(_message: PendingWorkflowMessage): void {
+  }
+
+  protected eventLog: EventLog<SpreadsheetLogEntry>;
+  protected blobStore: BlobStore<unknown>;
+  protected workerOrHost?: WorkerBase<PendingWorkflowMessage> | undefined;
+
   private intervalId: ReturnType<typeof setInterval> | undefined;
   private isInSyncLogs: boolean;
-  private eventLog: EventLog<SpreadsheetLogEntry>;
   private listeners: (() => void)[];
   private content: EventSourcedSnapshotContent;
 }

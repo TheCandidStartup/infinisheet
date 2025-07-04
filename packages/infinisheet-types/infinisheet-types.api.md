@@ -197,10 +197,7 @@ export interface LogMetadata {
 }
 
 // @public
-export type MessageError = StorageError;
-
-// @public
-export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT) => ResultAsync<void, MessageError>;
+export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT) => void;
 
 // @public
 export type MetadataError = InfinisheetRangeError | StorageError;
@@ -236,9 +233,17 @@ export function okAsync<T, E = never>(value: T): ResultAsync<T, E>;
 export function okAsync<_T extends void = void, E = never>(value: void): ResultAsync<void, E>;
 
 // @public (undocumented)
+export interface PendingWorkflowMessage {
+    sequenceId: SequenceId;
+    // (undocumented)
+    type: "PendingWorkflowMessage";
+    workflow: WorkflowId;
+}
+
+// @public (undocumented)
 export abstract class PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
     // (undocumented)
-    abstract postMessage(message: MessageT): ResultAsync<void, MessageError>;
+    abstract postMessage(message: MessageT): void;
 }
 
 // @public

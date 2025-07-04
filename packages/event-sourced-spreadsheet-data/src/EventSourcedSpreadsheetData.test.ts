@@ -1,6 +1,6 @@
 import { EventSourcedSpreadsheetData } from './EventSourcedSpreadsheetData'
-import { SpreadsheetData } from '@candidstartup/infinisheet-types'
-import { DelayEventLog, SimpleEventLog } from '@candidstartup/simple-spreadsheet-data'
+import { SpreadsheetData, EventLog } from '@candidstartup/infinisheet-types'
+import { DelayEventLog, SimpleEventLog, SimpleBlobStore, SimpleWorkerHost, SimpleWorker } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
 import { spreadsheetDataInterfaceTests } from '../../infinisheet-types/src/SpreadsheetData.interface-test'
 
@@ -14,15 +14,28 @@ function subscribeFired(data: SpreadsheetData<unknown>): Promise<void> {
   })
 }
 
+function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEventLog<SpreadsheetLogEntry>, 
+                 wrapperLog: EventLog<SpreadsheetLogEntry> = eventLog) {
+  const worker = new SimpleWorker;
+  const host = new SimpleWorkerHost(worker);
+  const blobStore = new SimpleBlobStore;
+  eventLog.workerHost = host;
+  
+  // Constructor subscribes to worker's onReceiveMessage which keeps it alive
+  new EventSourcedSpreadsheetData(wrapperLog, blobStore, worker);
+
+  return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host);
+}
+
 describe('EventSourcedSpreadsheetData', () => {
   afterEach(() => {
     vi.useRealTimers();
   })
 
-  spreadsheetDataInterfaceTests(() => new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>));
+  spreadsheetDataInterfaceTests(creator);
 
   it('should complete load from empty log', async () => {
-    const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
+    const data = creator();
     const snapshot = data.getSnapshot();
     const status = data.getLoadStatus(snapshot);
     expect(status.isOk() && !status.value).toBe(true);
@@ -44,7 +57,7 @@ describe('EventSourcedSpreadsheetData', () => {
   })
 
   it('subscribe should fire after initial load', async () => {
-    const data = new EventSourcedSpreadsheetData(new SimpleEventLog<SpreadsheetLogEntry>);
+    const data = creator();
 
     const mock = vi.fn();
     const unsubscribe = data.subscribe(mock);
@@ -69,7 +82,7 @@ describe('EventSourcedSpreadsheetData', () => {
       const result = await log.addEntry({ type: 'SetCellValueAndFormat', row: i, column: 0, value: i}, BigInt(i));
       expect(result).toBeOk();
     }
-    const data = new EventSourcedSpreadsheetData(log);
+    const data = creator(log);
 
     const snapshot1 = data.getSnapshot();
     const status1 = data.getLoadStatus(snapshot1);
@@ -102,7 +115,7 @@ describe('EventSourcedSpreadsheetData', () => {
 
     const baseLog = new  SimpleEventLog<SpreadsheetLogEntry>;
     const log = new DelayEventLog(baseLog, 50000);
-    const data = new EventSourcedSpreadsheetData(log);
+    const data = creator(baseLog, log);
     let subscribePromise = subscribeFired(data);
 
     // Subscribe should trigger new call to sync after 10 seconds while

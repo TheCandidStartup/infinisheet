@@ -4,16 +4,19 @@
 
 ```ts
 
+import { BlobStore } from '@candidstartup/infinisheet-types';
 import { CellValue } from '@candidstartup/infinisheet-types';
 import { EventLog } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { LogEntry } from '@candidstartup/infinisheet-types';
+import { PendingWorkflowMessage } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
 import { ResultAsync } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
 import { StorageError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
+import { WorkerBase } from '@candidstartup/infinisheet-types';
 
 // @public
 export interface EventSourcedSnapshot {
@@ -29,7 +32,11 @@ export enum _EventSourcedSnapshotBrand {
 
 // @public
 export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourcedSnapshot> {
-    constructor(eventLog: EventLog<SpreadsheetLogEntry>);
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerOrHost?: WorkerBase<PendingWorkflowMessage>);
+    // (undocumented)
+    protected blobStore: BlobStore<unknown>;
+    // (undocumented)
+    protected eventLog: EventLog<SpreadsheetLogEntry>;
     // (undocumented)
     getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): string | undefined;
     // (undocumented)
@@ -52,6 +59,8 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
+    // (undocumented)
+    protected workerOrHost?: WorkerBase<PendingWorkflowMessage> | undefined;
 }
 
 // @public

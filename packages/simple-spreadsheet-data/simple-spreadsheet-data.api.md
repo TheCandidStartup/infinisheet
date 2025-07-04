@@ -18,9 +18,9 @@ import { InfiniSheetWorker } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { LogEntry } from '@candidstartup/infinisheet-types';
 import { LogMetadata } from '@candidstartup/infinisheet-types';
-import { MessageError } from '@candidstartup/infinisheet-types';
 import { MessageHandler } from '@candidstartup/infinisheet-types';
 import { MetadataError } from '@candidstartup/infinisheet-types';
+import { PendingWorkflowMessage } from '@candidstartup/infinisheet-types';
 import { PostMessageWorkerHost } from '@candidstartup/infinisheet-types';
 import { QueryError } from '@candidstartup/infinisheet-types';
 import { QueryValue } from '@candidstartup/infinisheet-types';
@@ -135,7 +135,7 @@ export interface SimpleBlobStoreContinuation {
 
 // @public
 export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
-    constructor();
+    constructor(workerHost?: PostMessageWorkerHost<PendingWorkflowMessage>);
     // (undocumented)
     addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void, AddEntryError>;
     // (undocumented)
@@ -144,6 +144,7 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     setMetadata(sequenceId: SequenceId, metadata: LogMetadata): ResultAsync<void, MetadataError>;
     // (undocumented)
     truncate(start: SequenceId): ResultAsync<void, TruncateError>;
+    workerHost?: PostMessageWorkerHost<PendingWorkflowMessage> | undefined;
 }
 
 // @public
@@ -196,7 +197,7 @@ export class SimpleWorker<T extends WorkerMessage> extends InfiniSheetWorker<T> 
 export class SimpleWorkerHost<T extends WorkerMessage> extends PostMessageWorkerHost<T> {
     constructor(worker: SimpleWorker<T>);
     // (undocumented)
-    postMessage(message: T): ResultAsync<void, MessageError>;
+    postMessage(message: T): void;
 }
 
 // @public
