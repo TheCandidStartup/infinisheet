@@ -1,5 +1,6 @@
 import { EventSourcedSpreadsheetData } from './EventSourcedSpreadsheetData'
-import { SpreadsheetData, EventLog } from '@candidstartup/infinisheet-types'
+import { EventSourcedSpreadsheetWorkflow } from './EventSourcedSpreadsheetWorkflow'
+import { SpreadsheetData, EventLog, PendingWorkflowMessage } from '@candidstartup/infinisheet-types'
 import { DelayEventLog, SimpleEventLog, SimpleBlobStore, SimpleWorkerHost, SimpleWorker } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
 import { spreadsheetDataInterfaceTests } from '../../infinisheet-types/src/SpreadsheetData.interface-test'
@@ -16,13 +17,13 @@ function subscribeFired(data: SpreadsheetData<unknown>): Promise<void> {
 
 function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEventLog<SpreadsheetLogEntry>, 
                  wrapperLog: EventLog<SpreadsheetLogEntry> = eventLog) {
-  const worker = new SimpleWorker;
+  const worker = new SimpleWorker<PendingWorkflowMessage>;
   const host = new SimpleWorkerHost(worker);
   const blobStore = new SimpleBlobStore;
   eventLog.workerHost = host;
   
   // Constructor subscribes to worker's onReceiveMessage which keeps it alive
-  new EventSourcedSpreadsheetData(wrapperLog, blobStore, worker);
+  new EventSourcedSpreadsheetWorkflow(wrapperLog, blobStore, worker);
 
   return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host);
 }

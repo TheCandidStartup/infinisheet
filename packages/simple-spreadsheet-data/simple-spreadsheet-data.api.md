@@ -187,15 +187,17 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
 }
 
 // @public
-export class SimpleWorker<T extends WorkerMessage> extends InfiniSheetWorker<T> {
+export class SimpleWorker<T extends WorkerMessage> implements InfiniSheetWorker<T> {
     constructor();
     // (undocumented)
     onReceiveMessage: MessageHandler<T> | undefined;
 }
 
 // @public
-export class SimpleWorkerHost<T extends WorkerMessage> extends PostMessageWorkerHost<T> {
+export class SimpleWorkerHost<T extends WorkerMessage> implements PostMessageWorkerHost<T> {
     constructor(worker: SimpleWorker<T>);
+    // @internal (undocumented)
+    isHost(): this is PostMessageWorkerHost<T>;
     // (undocumented)
     postMessage(message: T): void;
 }

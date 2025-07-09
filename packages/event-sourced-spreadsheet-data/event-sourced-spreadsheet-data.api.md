@@ -4,19 +4,22 @@
 
 ```ts
 
+import { BlobId } from '@candidstartup/infinisheet-types';
 import { BlobStore } from '@candidstartup/infinisheet-types';
 import { CellValue } from '@candidstartup/infinisheet-types';
 import { EventLog } from '@candidstartup/infinisheet-types';
+import { InfiniSheetWorker } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import { LogEntry } from '@candidstartup/infinisheet-types';
 import { PendingWorkflowMessage } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
 import { ResultAsync } from '@candidstartup/infinisheet-types';
+import { SequenceId } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
 import { StorageError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
-import { WorkerBase } from '@candidstartup/infinisheet-types';
+import { WorkerHost } from '@candidstartup/infinisheet-types';
 
 // @public
 export interface EventSourcedSnapshot {
@@ -30,13 +33,27 @@ export enum _EventSourcedSnapshotBrand {
     _DO_NOT_USE = ""
 }
 
+// Warning: (ae-internal-missing-underscore) The name "EventSourcedSnapshotContent" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface EventSourcedSnapshotContent {
+    // (undocumented)
+    colCount: number;
+    // (undocumented)
+    endSequenceId: SequenceId;
+    // (undocumented)
+    loadStatus: Result<boolean, StorageError>;
+    // (undocumented)
+    logSegment: LogSegment;
+    // (undocumented)
+    rowCount: number;
+}
+
+// Warning: (ae-incompatible-release-tags) The symbol "EventSourcedSpreadsheetData" is marked as @public, but its signature references "EventSourcedSpreadsheetEngine" which is marked as @internal
+//
 // @public
-export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourcedSnapshot> {
-    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerOrHost?: WorkerBase<PendingWorkflowMessage>);
-    // (undocumented)
-    protected blobStore: BlobStore<unknown>;
-    // (undocumented)
-    protected eventLog: EventLog<SpreadsheetLogEntry>;
+export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>);
     // (undocumented)
     getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): string | undefined;
     // (undocumented)
@@ -56,11 +73,53 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     // (undocumented)
     isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
     // (undocumented)
+    protected notifyListeners(): void;
+    // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
     // (undocumented)
-    protected workerOrHost?: WorkerBase<PendingWorkflowMessage> | undefined;
+    protected workerHost?: WorkerHost<PendingWorkflowMessage> | undefined;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "EventSourcedSpreadsheetEngine" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export abstract class EventSourcedSpreadsheetEngine {
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>);
+    // (undocumented)
+    protected blobStore: BlobStore<unknown>;
+    // (undocumented)
+    protected content: EventSourcedSnapshotContent;
+    // (undocumented)
+    protected eventLog: EventLog<SpreadsheetLogEntry>;
+    // (undocumented)
+    protected abstract notifyListeners(): void;
+    // (undocumented)
+    protected syncLogs(): void;
+}
+
+// Warning: (ae-incompatible-release-tags) The symbol "EventSourcedSpreadsheetWorkflow" is marked as @public, but its signature references "EventSourcedSpreadsheetEngine" which is marked as @internal
+//
+// @public
+export class EventSourcedSpreadsheetWorkflow extends EventSourcedSpreadsheetEngine {
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, worker: InfiniSheetWorker<PendingWorkflowMessage>);
+    // (undocumented)
+    protected notifyListeners(): void;
+    // (undocumented)
+    protected worker: InfiniSheetWorker<PendingWorkflowMessage>;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "LogSegment" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface LogSegment {
+    // (undocumented)
+    entries: SpreadsheetLogEntry[];
+    // (undocumented)
+    snapshot?: BlobId | undefined;
+    // (undocumented)
+    startSequenceId: SequenceId;
 }
 
 // @public

@@ -18,23 +18,20 @@ export interface PendingWorkflowMessage {
 /** Type of handler function for {@link InfiniSheetWorker.onReceiveMessage} */
 export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT) => void;
 
-/** Base interface for all workers interfaces
- * 
- * Use `isWorker` to determine whether this is a worker, or a worker host.
- */
-export interface WorkerBase<MessageT extends WorkerMessage> {
-  isWorker(): this is InfiniSheetWorker<MessageT>;
+export interface WorkerHost<MessageT extends WorkerMessage> { 
+  /** 
+   * Place holder until we have some real implementation. Need something concrete
+   * to stop TypeScript moaning about the unused generic parameter and implementations
+   * without any properties in common with the interface they're implementing. 
+   * @internal 
+   */
+  isHost(): this is WorkerHost<MessageT>
 }
 
-export abstract class WorkerHost<MessageT extends WorkerMessage> implements WorkerBase<MessageT> { 
-  isWorker(): this is InfiniSheetWorker<MessageT> { return false }
+export interface PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
+  postMessage(message: MessageT): void
 }
 
-export abstract class PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
-  abstract postMessage(message: MessageT): void
-}
-
-export abstract class InfiniSheetWorker<MessageT extends WorkerMessage> implements WorkerBase<MessageT> {
-  isWorker(): this is InfiniSheetWorker<MessageT> { return true }
-  abstract onReceiveMessage: MessageHandler<MessageT> | undefined;
+export interface InfiniSheetWorker<MessageT extends WorkerMessage> {
+  onReceiveMessage: MessageHandler<MessageT> | undefined;
 }

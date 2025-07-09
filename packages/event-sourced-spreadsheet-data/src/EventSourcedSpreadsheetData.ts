@@ -1,25 +1,11 @@
 import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, 
-  SpreadsheetDataError, ValidationError, SequenceId, BlobId, EventLog, 
-  BlobStore, WorkerBase, PendingWorkflowMessage } from "@candidstartup/infinisheet-types";
-import { FixedSizeItemOffsetMapping, ok, err, storageError } from "@candidstartup/infinisheet-types";
+  SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage, } from "@candidstartup/infinisheet-types";
+import { FixedSizeItemOffsetMapping, ok, storageError } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry, SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
+import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
 
 const EVENT_LOG_CHECK_DELAY = 10000;
-
-interface LogSegment {
-  startSequenceId: SequenceId;
-  entries: SpreadsheetLogEntry[];
-  snapshot?: BlobId | undefined;
-}
-
-interface EventSourcedSnapshotContent {
-  endSequenceId: SequenceId;
-  logSegment: LogSegment;
-  loadStatus: Result<boolean,StorageError>;
-  rowCount: number;
-  colCount: number;
-}
 
 /** 
  * Branding Enum. Used by {@link EventSourcedSnapshot} to ensure that
@@ -53,27 +39,15 @@ function asSnapshot(snapshot: EventSourcedSnapshotContent) {
  * Event sourced implementation of {@link SpreadsheetData}
  *
  */
-export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourcedSnapshot> {
-  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerOrHost?: WorkerBase<PendingWorkflowMessage>) {
-    this.intervalId = undefined;
-    this.isInSyncLogs = false;
-    this.eventLog = eventLog;
-    this.blobStore = blobStore;
-    this.workerOrHost = workerOrHost;
-    this.listeners = [];
-    this.content = {
-      endSequenceId: 0n,
-      logSegment: { startSequenceId: 0n, entries: [] },
-      loadStatus: ok(false),
-      rowCount: 0,
-      colCount: 0
-    }
+export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
+  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>) {
+    super(eventLog, blobStore);
 
-    if (workerOrHost?.isWorker()) {
-      workerOrHost.onReceiveMessage = (message: PendingWorkflowMessage) => { this.onReceiveMessage(message); }
-    } else {
-      this.syncLogs();
-    }
+    this.intervalId = undefined;
+    this.workerHost = workerHost;
+    this.listeners = [];
+
+    this.syncLogs();
   }
 
   subscribe(onDataChange: () => void): () => void {
@@ -164,7 +138,7 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     return ok(); 
   }
 
-  private notifyListeners() {
+  protected notifyListeners() {
     for (const listener of this.listeners)
       listener();
   }
@@ -180,97 +154,8 @@ export class EventSourcedSpreadsheetData implements SpreadsheetData<EventSourced
     return undefined;
   }
 
-  private syncLogs(): void {
-    if (this.isInSyncLogs)
-      return;
 
-    this.syncLogsAsync().catch((reason) => { throw Error("Rejected promise from syncLogsAsync", { cause: reason }) });
-  }
-
-  private async syncLogsAsync(): Promise<void> {
-    this.isInSyncLogs = true;
-
-    // Set up load of first batch of entries
-    const segment = this.content.logSegment;
-    let isComplete = false;
-
-    while (!isComplete) {
-      const curr = this.content;
-      const start = (segment.entries.length == 0) ? 'snapshot' : curr.endSequenceId;
-      const result = await this.eventLog.query(start, 'end');
-
-      if (curr != this.content) {
-        // Must have had setCellValueAndFormat complete successfully and update content to match
-        // Query result no longer relevant
-        break;
-      }
-
-      if (!result.isOk()) {
-        if (result.error.type == 'InfinisheetRangeError') {
-          // Once we have proper snapshot system would expect this if client gets too far behind, for
-          // now shouldn't happen.
-          throw Error("Query resulted in range error, reload from scratch?", { cause: result.error });
-        }
-
-        // Could do some immediate retries of intermittent errors (limited times, jitter and backoff).
-        // For now wait for interval timer to try another sync
-        // For persistent failures should stop interval timer and have some mechanism for user to trigger
-        // manual retry. 
-        this.content = { ...curr, loadStatus: err(result.error)};
-        this.notifyListeners();
-        break;
-      }
-
-      // Extend the current loaded segment.
-      // Once snapshots supported need to look out for new snapshot and start new segment
-      const value = result.value;
-      if (segment.entries.length == 0)
-        segment.startSequenceId = value.startSequenceId;
-      else if (curr.endSequenceId != value.startSequenceId) {
-        // Shouldn't happen unless we have buggy event log implementation
-        throw Error(`Query returned start ${value.startSequenceId}, expected ${curr.endSequenceId}`);
-      }
-      isComplete = value.isComplete;
-
-      // Don't create new snapshot if nothing has changed
-      if (value.entries.length > 0) {
-        segment.entries.push(...value.entries);
-
-        // Create a new snapshot based on the new data
-        let rowCount = curr.rowCount;
-        let colCount = curr.colCount;
-        for (const entry of value.entries) {
-          rowCount = Math.max(rowCount, entry.row+1);
-          colCount = Math.max(colCount, entry.column+1);
-        }
-
-        this.content = {
-          endSequenceId: value.endSequenceId,
-          logSegment: segment,
-          loadStatus: ok(isComplete),
-          rowCount, colCount
-        }
-
-        this.notifyListeners();
-      } else if (curr.loadStatus.isErr() || curr.loadStatus.value != isComplete) {
-        // Careful, even if no entries returned, loadStatus may have changed
-        this.content = { ...curr, loadStatus: ok(isComplete) }
-        this.notifyListeners();
-      }
-    }
-
-    this.isInSyncLogs = false;
-  }
-
-  private onReceiveMessage(_message: PendingWorkflowMessage): void {
-  }
-
-  protected eventLog: EventLog<SpreadsheetLogEntry>;
-  protected blobStore: BlobStore<unknown>;
-  protected workerOrHost?: WorkerBase<PendingWorkflowMessage> | undefined;
-
+  protected workerHost?: WorkerHost<PendingWorkflowMessage> | undefined;
   private intervalId: ReturnType<typeof setInterval> | undefined;
-  private isInSyncLogs: boolean;
   private listeners: (() => void)[];
-  private content: EventSourcedSnapshotContent;
 }

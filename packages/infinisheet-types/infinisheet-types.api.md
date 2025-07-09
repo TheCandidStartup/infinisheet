@@ -162,11 +162,9 @@ export interface InfinisheetRangeError extends InfinisheetError {
 export function infinisheetRangeError(message: string): InfinisheetRangeError;
 
 // @public (undocumented)
-export abstract class InfiniSheetWorker<MessageT extends WorkerMessage> implements WorkerBase<MessageT> {
+export interface InfiniSheetWorker<MessageT extends WorkerMessage> {
     // (undocumented)
-    isWorker(): this is InfiniSheetWorker<MessageT>;
-    // (undocumented)
-    abstract onReceiveMessage: MessageHandler<MessageT> | undefined;
+    onReceiveMessage: MessageHandler<MessageT> | undefined;
 }
 
 // @public
@@ -241,9 +239,9 @@ export interface PendingWorkflowMessage {
 }
 
 // @public (undocumented)
-export abstract class PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
+export interface PostMessageWorkerHost<MessageT extends WorkerMessage> extends WorkerHost<MessageT> {
     // (undocumented)
-    abstract postMessage(message: MessageT): void;
+    postMessage(message: MessageT): void;
 }
 
 // @public
@@ -340,16 +338,10 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 }
 
-// @public
-export interface WorkerBase<MessageT extends WorkerMessage> {
-    // (undocumented)
-    isWorker(): this is InfiniSheetWorker<MessageT>;
-}
-
 // @public (undocumented)
-export abstract class WorkerHost<MessageT extends WorkerMessage> implements WorkerBase<MessageT> {
-    // (undocumented)
-    isWorker(): this is InfiniSheetWorker<MessageT>;
+export interface WorkerHost<MessageT extends WorkerMessage> {
+    // @internal
+    isHost(): this is WorkerHost<MessageT>;
 }
 
 // @public (undocumented)

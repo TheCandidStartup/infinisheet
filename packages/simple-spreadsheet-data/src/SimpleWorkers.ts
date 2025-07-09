@@ -9,9 +9,8 @@ import { InfiniSheetWorker, PostMessageWorkerHost } from "@candidstartup/infinis
  * Intended for use as a mock, to compare with an optimized implementation when testing and
  * for simple sample apps. Simplest possible implementation, no attempt at optimization.
  */
-export class SimpleWorker<T extends WorkerMessage> extends InfiniSheetWorker<T> {
+export class SimpleWorker<T extends WorkerMessage> implements InfiniSheetWorker<T> {
   constructor() {
-    super();
   }
 
   onReceiveMessage: MessageHandler<T> | undefined;
@@ -25,11 +24,13 @@ export class SimpleWorker<T extends WorkerMessage> extends InfiniSheetWorker<T> 
  * Intended for use as a mock, to compare with an optimized implementation when testing and
  * for simple sample apps. Simplest possible implementation, no attempt at optimization.
  */
-export class SimpleWorkerHost<T extends WorkerMessage> extends PostMessageWorkerHost<T> {
+export class SimpleWorkerHost<T extends WorkerMessage> implements PostMessageWorkerHost<T> {
   constructor(worker: SimpleWorker<T>) {
-    super();
     this.worker = worker;
   }
+
+  /** @internal */
+  isHost(): this is PostMessageWorkerHost<T> { return true; }
 
   postMessage(message: T): void {
     const handler = this.worker.onReceiveMessage;
