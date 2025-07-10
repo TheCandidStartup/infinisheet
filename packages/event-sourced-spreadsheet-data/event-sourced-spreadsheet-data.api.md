@@ -21,6 +21,15 @@ import { StorageError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
 import { WorkerHost } from '@candidstartup/infinisheet-types';
 
+// Warning: (ae-internal-missing-underscore) The name "CellMapEntry" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface CellMapEntry {
+    format?: string | undefined;
+    logIndex: number;
+    value: CellValue;
+}
+
 // @public
 export interface EventSourcedSnapshot {
     // @internal (undocumented)
@@ -115,6 +124,8 @@ export class EventSourcedSpreadsheetWorkflow extends EventSourcedSpreadsheetEngi
 // @internal (undocumented)
 export interface LogSegment {
     // (undocumented)
+    cellMap: SpreadsheetCellMap;
+    // (undocumented)
     entries: SpreadsheetLogEntry[];
     // (undocumented)
     snapshot?: BlobId | undefined;
@@ -130,6 +141,18 @@ export interface SetCellValueAndFormatLogEntry extends LogEntry {
     // (undocumented)
     type: 'SetCellValueAndFormat';
     value: CellValue;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "SpreadsheetCellMap" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export class SpreadsheetCellMap {
+    constructor();
+    // (undocumented)
+    addEntries(entries: SetCellValueAndFormatLogEntry[], baseIndex: number): void;
+    // (undocumented)
+    addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: string): void;
+    findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
 }
 
 // @public

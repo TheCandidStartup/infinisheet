@@ -2,11 +2,13 @@ import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore } fr
 import { ok, err } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
+import { SpreadsheetCellMap } from "./SpreadsheetCellMap";
 
 /** @internal */
 export interface LogSegment {
   startSequenceId: SequenceId;
   entries: SpreadsheetLogEntry[];
+  cellMap: SpreadsheetCellMap;
   snapshot?: BlobId | undefined;
 }
 
@@ -30,7 +32,7 @@ export abstract class EventSourcedSpreadsheetEngine {
     this.blobStore = blobStore;
     this.content = {
       endSequenceId: 0n,
-      logSegment: { startSequenceId: 0n, entries: [] },
+      logSegment: { startSequenceId: 0n, entries: [], cellMap: new SpreadsheetCellMap },
       loadStatus: ok(false),
       rowCount: 0,
       colCount: 0
@@ -59,7 +61,7 @@ export abstract class EventSourcedSpreadsheetEngine {
       const result = await this.eventLog.query(start, 'end');
 
       if (curr != this.content) {
-        // Must have had setCellValueAndFormat complete successfully and update content to match
+        // Must have had setCellValueAndFormat complete successfully and update content to match.
         // Query result no longer relevant
         break;
       }
@@ -93,6 +95,7 @@ export abstract class EventSourcedSpreadsheetEngine {
 
       // Don't create new snapshot if nothing has changed
       if (value.entries.length > 0) {
+        segment.cellMap.addEntries(value.entries, segment.entries.length);
         segment.entries.push(...value.entries);
 
         // Create a new snapshot based on the new data

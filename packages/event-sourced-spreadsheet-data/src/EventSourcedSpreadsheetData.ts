@@ -2,8 +2,9 @@ import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync
   SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage, } from "@candidstartup/infinisheet-types";
 import { FixedSizeItemOffsetMapping, ok, storageError } from "@candidstartup/infinisheet-types";
 
-import type { SpreadsheetLogEntry, SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
+import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
+import { CellMapEntry } from "./SpreadsheetCellMap";
 
 const EVENT_LOG_CHECK_DELAY = 10000;
 
@@ -105,6 +106,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       if (this.content == curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
         curr.logSegment.entries.push({ type: 'SetCellValueAndFormat', row, column, value, format});
+        curr.logSegment.cellMap.addEntry(row, column, Number(curr.endSequenceId-curr.logSegment.startSequenceId), value, format);
 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
@@ -143,15 +145,10 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       listener();
   }
 
-  private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): SetCellValueAndFormatLogEntry | undefined {
+  private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {
     const content = asContent(snapshot);
     const endIndex = Number(content.endSequenceId-content.logSegment.startSequenceId);
-    for (let i = endIndex-1; i >= 0; i --) {
-      const entry = content.logSegment.entries[i]!;
-      if (entry.row == row && entry.column == column)
-        return entry;
-    }
-    return undefined;
+    return content.logSegment.cellMap.findEntry(row, column, endIndex);
   }
 
 

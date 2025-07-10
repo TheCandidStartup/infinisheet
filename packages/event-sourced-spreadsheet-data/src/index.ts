@@ -9,6 +9,7 @@
  */
 
 export * from './SpreadsheetLogEntry'
+export * from './SpreadsheetCellMap'
 export * from './EventSourcedSpreadsheetEngine'
 export * from './EventSourcedSpreadsheetWorkflow'
 export * from './EventSourcedSpreadsheetData'

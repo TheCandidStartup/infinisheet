@@ -148,4 +148,45 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(data.getRowCount(snapshot)).toEqual(1);
     expect(data.getCellValue(snapshot, 0, 0)).toEqual(42);
   })
+
+  it('should handle conflict', async () => {
+    vi.useFakeTimers();
+
+    const blobStore = new SimpleBlobStore;
+    const worker = new SimpleWorker<PendingWorkflowMessage>;
+    const host = new SimpleWorkerHost(worker);
+    const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
+    new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
+
+    const delayA = new DelayEventLog(log, 5000);
+    const dataA = new EventSourcedSpreadsheetData(delayA, blobStore);
+
+    const delayB = new DelayEventLog(log, 50);
+    const dataB = new EventSourcedSpreadsheetData(delayB, blobStore);
+
+    // Spreadsheets synced up and ready to go
+    await vi.runOnlyPendingTimersAsync();
+    let status = dataA.getLoadStatus(dataA.getSnapshot());
+    expect(status.isOk() && status.value).toBe(true);
+    status = dataB.getLoadStatus(dataB.getSnapshot());
+    expect(status.isOk() && status.value).toBe(true);
+
+    // Change value in B which will complete in 50ms
+    const promiseB = dataB.setCellValueAndFormat(0, 0, 42, undefined);
+    expect(dataB.getCellValue(dataB.getSnapshot(), 0, 0)).toBeUndefined();
+    await vi.advanceTimersByTimeAsync(50);
+    expect(await promiseB).toBeOk();
+    expect(dataB.getCellValue(dataB.getSnapshot(), 0, 0)).toEqual(42);
+  
+    // Try to change value in A which hasn't synced with B's change yet
+    expect(dataA.getCellValue(dataA.getSnapshot(), 0, 0)).toBeUndefined();
+    const promiseA = dataA.setCellValueAndFormat(0, 0, 17, undefined);
+    expect(dataA.getCellValue(dataA.getSnapshot(), 0, 0)).toBeUndefined();
+    await vi.runOnlyPendingTimersAsync();
+    expect(await promiseA).toBeStorageError(409);
+
+    // Discovery of conflict should schedule a sync
+    await vi.runOnlyPendingTimersAsync();
+    expect(dataA.getCellValue(dataA.getSnapshot(), 0, 0)).toEqual(42);
+  })
 })
