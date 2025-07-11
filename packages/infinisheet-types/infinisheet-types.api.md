@@ -46,7 +46,7 @@ export interface BlobWrongKindError extends InfinisheetError {
 
 // @public
 export interface CellData {
-    format?: string | undefined;
+    format?: CellFormat;
     value: CellValue;
 }
 

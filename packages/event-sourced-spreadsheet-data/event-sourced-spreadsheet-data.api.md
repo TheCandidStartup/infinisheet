@@ -149,7 +149,7 @@ export class SpreadsheetCellMap {
     // (undocumented)
     addEntries(entries: SetCellValueAndFormatLogEntry[], baseIndex: number): void;
     // (undocumented)
-    addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: string): void;
+    addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void;
     findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
     loadSnapshot(snapshot: Uint8Array): void;
     saveSnapshot(snapshotIndex: number): Uint8Array;

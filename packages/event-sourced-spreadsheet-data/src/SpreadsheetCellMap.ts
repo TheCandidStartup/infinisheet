@@ -1,4 +1,4 @@
-import { CellValue, CellData, RowColRef, rowColCoordsToRef } from "@candidstartup/infinisheet-types";
+import { CellValue, CellData, CellFormat, RowColRef, rowColCoordsToRef } from "@candidstartup/infinisheet-types";
 import { SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
 
 /**
@@ -8,6 +8,20 @@ import { SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
 export interface CellMapEntry extends CellData {
   /** Index of entry within `LogSegment` */
   logIndex?: number | undefined;
+}
+
+function bestEntry(entry: CellMapEntry | CellMapEntry[], snapshotIndex: number): CellMapEntry | undefined {
+  if (!Array.isArray(entry))
+    return (entry.logIndex === undefined || entry.logIndex < snapshotIndex) ? entry : undefined;
+
+  // Future optimization: Check 3 entries then switch to binary chop
+  for (let i = entry.length-1; i >= 0; i --) {
+    const t = entry[i]!;
+    if (t.logIndex === undefined || t.logIndex < snapshotIndex)
+      return t;
+  }
+
+  return undefined;
 }
 
 /** @internal */
@@ -22,7 +36,7 @@ export class SpreadsheetCellMap {
     })
   }
 
-  addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: string): void {
+  addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void {
     const key = rowColCoordsToRef(row, column);
     const newEntry = { value, format, logIndex };
 
@@ -43,28 +57,14 @@ export class SpreadsheetCellMap {
   findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry|undefined {
     const key = rowColCoordsToRef(row, column);
     const entry = this.map.get(key);
-    return entry ? this.bestEntry(entry, snapshotIndex) : undefined;
-  }
-
-  private bestEntry(entry: CellMapEntry | CellMapEntry[], snapshotIndex: number) {
-    if (!Array.isArray(entry))
-      return (entry.logIndex === undefined || entry.logIndex < snapshotIndex) ? entry : undefined;
-
-    // Future optimization: Check last 3 entries then switch to binary chop
-    for (let i = entry.length-1; i >= 0; i --) {
-      const t = entry[i]!;
-      if (t.logIndex === undefined || t.logIndex < snapshotIndex)
-        return t;
-    }
-
-    return undefined;
+    return entry ? bestEntry(entry, snapshotIndex) : undefined;
   }
 
   /** Saves snapshot containing highest entry smaller than snapshotIndex for each cell */
   saveSnapshot(snapshotIndex: number): Uint8Array {
     const output: { [index: string]: CellData } = {};
     for (const [key,value] of this.map.entries()) {
-      const entry = this.bestEntry(value,snapshotIndex);
+      const entry = bestEntry(value,snapshotIndex);
       if (entry) {
         const { logIndex: _logIndex, ...rest } = entry;
         output[key] = rest;

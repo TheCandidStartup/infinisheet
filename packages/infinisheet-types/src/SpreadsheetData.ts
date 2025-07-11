@@ -54,7 +54,7 @@ export interface CellData {
   value: CellValue;
 
   /** Format of cell */
-  format?: string|undefined;
+  format?: CellFormat;
 }
 
 /** Types of error that can be returned by {@link SpreadsheetData} methods */
