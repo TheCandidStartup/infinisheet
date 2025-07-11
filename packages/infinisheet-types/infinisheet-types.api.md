@@ -45,6 +45,12 @@ export interface BlobWrongKindError extends InfinisheetError {
 }
 
 // @public
+export interface CellData {
+    format?: string | undefined;
+    value: CellValue;
+}
+
+// @public
 export interface CellError {
     type: 'CellError';
     value: CellErrorValue;
@@ -52,6 +58,9 @@ export interface CellError {
 
 // @public
 export type CellErrorValue = '#NULL!' | '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME?' | '#NUM!' | '#N/A' | '#GETTING_DATA' | '#SPILL!' | '#UNKNOWN!' | '#FIELD!' | '#CALC!';
+
+// @public
+export type CellFormat = string | undefined;
 
 // @public
 export type CellValue = string | number | boolean | null | undefined | CellError;
@@ -93,9 +102,9 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
     getSnapshot(): number;
     // (undocumented)
-    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
+    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void, ValidationError>;
     // (undocumented)
-    setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
+    setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(_onDataChange: () => void): () => void;
 }
@@ -291,7 +300,7 @@ export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: C
 
 // @public
 export interface SpreadsheetData<Snapshot> {
-    getCellFormat(snapshot: Snapshot, row: number, column: number): string | undefined;
+    getCellFormat(snapshot: Snapshot, row: number, column: number): CellFormat;
     getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
     getColumnCount(snapshot: Snapshot): number;
     getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
@@ -299,8 +308,8 @@ export interface SpreadsheetData<Snapshot> {
     getRowCount(snapshot: Snapshot): number;
     getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
     getSnapshot(): Snapshot;
-    isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, ValidationError>;
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
+    isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): Result<void, ValidationError>;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
     subscribe(onDataChange: () => void): () => void;
 }
 

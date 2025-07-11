@@ -1,4 +1,4 @@
-import { EmptySpreadsheetData, rowColCoordsToRef, CellValue, 
+import { EmptySpreadsheetData, rowColCoordsToRef, CellValue, CellFormat,
   validationError, Result, ValidationError, err, ok } from '@candidstartup/infinisheet-types';
 import { SimpleSpreadsheetData } from './SimpleSpreadsheetData'
 import { LayeredSpreadsheetData } from './LayeredSpreadsheetData'
@@ -14,7 +14,7 @@ class BaseTestData extends EmptySpreadsheetData {
     return `Format ${row} ${column}`
   }
 
-  isValidCellValueAndFormat(_row: number, column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {
+  isValidCellValueAndFormat(_row: number, column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> {
     return (column > 1) ? err(validationError("Only first two columns are editable")) : ok();
   }
 }

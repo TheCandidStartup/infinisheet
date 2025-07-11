@@ -9,6 +9,7 @@ import { BlobDir } from '@candidstartup/infinisheet-types';
 import { BlobDirEntries } from '@candidstartup/infinisheet-types';
 import { BlobName } from '@candidstartup/infinisheet-types';
 import { BlobStore } from '@candidstartup/infinisheet-types';
+import { CellFormat } from '@candidstartup/infinisheet-types';
 import { CellValue } from '@candidstartup/infinisheet-types';
 import { DirQueryError } from '@candidstartup/infinisheet-types';
 import { EventLog } from '@candidstartup/infinisheet-types';
@@ -74,7 +75,7 @@ export enum _LayeredSnapshotBrand {
 export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapshot>, EditData extends SpreadsheetData<EditSnapshot>, BaseSnapshot = SnapshotType<BaseData>, EditSnapshot = SnapshotType<EditData>> implements SpreadsheetData<LayeredSnapshot<BaseSnapshot, EditSnapshot>> {
     constructor(base: BaseData, edit: EditData);
     // (undocumented)
-    getCellFormat(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>, row: number, column: number): string | undefined;
+    getCellFormat(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>, row: number, column: number): CellFormat;
     // (undocumented)
     getCellValue(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>, row: number, column: number): CellValue;
     // (undocumented)
@@ -90,9 +91,9 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     // (undocumented)
     getSnapshot(): LayeredSnapshot<BaseSnapshot, EditSnapshot>;
     // (undocumented)
-    isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void, ValidationError>;
+    isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): Result<void, ValidationError>;
     // (undocumented)
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }
@@ -163,7 +164,7 @@ export enum _SimpleSnapshotBrand {
 export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     constructor();
     // (undocumented)
-    getCellFormat(snapshot: SimpleSnapshot, row: number, column: number): string | undefined;
+    getCellFormat(snapshot: SimpleSnapshot, row: number, column: number): CellFormat;
     // (undocumented)
     getCellValue(snapshot: SimpleSnapshot, row: number, column: number): CellValue;
     // (undocumented)
@@ -179,9 +180,9 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     // (undocumented)
     getSnapshot(): SimpleSnapshot;
     // (undocumented)
-    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
+    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void, ValidationError>;
     // (undocumented)
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }

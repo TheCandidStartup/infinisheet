@@ -1,4 +1,4 @@
-import type { CellValue, SpreadsheetData, RowColRef, ItemOffsetMapping, Result, ResultAsync,
+import type { CellValue, CellFormat, SpreadsheetData, RowColRef, ItemOffsetMapping, Result, ResultAsync,
   SpreadsheetDataError, ValidationError, StorageError } from "@candidstartup/infinisheet-types";
 import { FixedSizeItemOffsetMapping, rowColCoordsToRef, ok, okAsync } from "@candidstartup/infinisheet-types";
 
@@ -96,12 +96,12 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     return asContent(snapshot).values[ref]?.value;
   }
 
-  getCellFormat(snapshot: SimpleSnapshot, row: number, column: number): string | undefined {
+  getCellFormat(snapshot: SimpleSnapshot, row: number, column: number): CellFormat {
     const ref = rowColCoordsToRef(row, column);
     return asContent(snapshot).values[ref]?.format;
   }
 
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void,SpreadsheetDataError> {
     const curr = this.content;
     const ref = rowColCoordsToRef(row, column);
 
@@ -118,7 +118,7 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     return okAsync().andTee(() => this.notifyListeners());
   }
 
-  isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {
+  isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> {
     return ok(); 
   }
 

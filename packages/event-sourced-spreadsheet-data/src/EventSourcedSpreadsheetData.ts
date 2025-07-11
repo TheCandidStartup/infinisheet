@@ -1,4 +1,4 @@
-import type { CellValue, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, 
+import type { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, 
   SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage, } from "@candidstartup/infinisheet-types";
 import { FixedSizeItemOffsetMapping, ok, storageError } from "@candidstartup/infinisheet-types";
 
@@ -93,12 +93,12 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
     return entry?.value;
   }
 
-  getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): string | undefined {
+  getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): CellFormat {
     const entry = this.getCellValueAndFormatEntry(snapshot, row, column);
     return entry?.format;
   }
 
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> {
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void,SpreadsheetDataError> {
     const curr = this.content;
 
     const result = this.eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format }, curr.endSequenceId);
@@ -136,7 +136,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
     });
   }
 
-  isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> {
+  isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> {
     return ok(); 
   }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { DisplayList, DisplayGrid, AutoSizer, VirtualContainerRender, VirtualScroll, VirtualScrollProxy,
   getRangeToScroll, getOffsetToScrollRange } from '@candidstartup/react-virtual-scroll';
 import type { VirtualSpreadsheetTheme } from './VirtualSpreadsheetTheme';
-import { SpreadsheetData, SpreadsheetDataError, CellValue, indexToColRef, RowColCoords, 
+import { SpreadsheetData, SpreadsheetDataError, CellValue, CellFormat, CellData, indexToColRef, RowColCoords, 
   rowColRefToCoords, rowColCoordsToRef, storageError} from '@candidstartup/infinisheet-types'
 import * as numfmt from 'numfmt'
 
@@ -125,7 +125,7 @@ const numfmtOptions = {
   dateSpanLarge: true
 }
 
-function formatContent(value: CellValue, format: string | undefined): string {
+function formatContent(value: CellValue, format: CellFormat): string {
   if (value === null ||  value === undefined)
     return "";
 
@@ -198,11 +198,9 @@ function Cell({ rowIndex, columnIndex, data, style }: { rowIndex: number, column
   return cellRender(rowIndex, columnIndex, style);
 }
 
-interface PendingCellValueAndFormat {
+interface PendingCellValueAndFormat extends CellData {
   row: number, 
   column: number,
-  value: CellValue,
-  format?: string | undefined
 };
 
 /**
@@ -448,7 +446,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
 
   function parseFormula(formula: string): [CellValue, string|undefined] {
     let value: CellValue = undefined;
-    let format: string | undefined = undefined;
+    let format: CellFormat = undefined;
     const parseData =  numfmt.parseValue(formula);
     if (parseData) {
       // number or boolean

@@ -45,6 +45,18 @@ export interface CellError {
 */
 export type CellValue = string | number | boolean | null | undefined | CellError
 
+/** Format of cell typically used when displaying numbers */
+export type CellFormat = string | undefined;
+
+/** Data stored in a spreadsheet cell */
+export interface CellData {
+  /** Value of cell */
+  value: CellValue;
+
+  /** Format of cell */
+  format?: string|undefined;
+}
+
 /** Types of error that can be returned by {@link SpreadsheetData} methods */
 export type SpreadsheetDataError = ValidationError | StorageError;
 
@@ -89,19 +101,19 @@ export interface SpreadsheetData<Snapshot> {
   getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
 
   /** Format of specified cell using 0-based row and column indexes */
-  getCellFormat(snapshot: Snapshot, row: number, column: number): string | undefined;
+  getCellFormat(snapshot: Snapshot, row: number, column: number): CellFormat;
 
   /** Set value and format of specified cell
    * 
    * @returns `Ok` if the change was successfully applied
    */
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError>
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void,SpreadsheetDataError>
 
   /** Check whether value and format are valid to set for specified cell
    * 
    * @returns `Ok` if the value and format are valid
    */
-  isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,ValidationError>
+  isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): Result<void,ValidationError>
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
@@ -118,9 +130,9 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
   getColumnItemOffsetMapping(_snapshot: number): ItemOffsetMapping { return columnItemOffsetMapping; }
   getCellValue(_snapshot: number, _row: number, _column: number): CellValue { return null; }
   getCellFormat(_snapshot: number, _row: number, _column: number): string|undefined { return undefined; }
-  setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): ResultAsync<void,SpreadsheetDataError> 
+  setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): ResultAsync<void,SpreadsheetDataError> 
   { return errAsync(storageError("Not implemented", 501)); }
-  isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> 
+  isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> 
   { return ok(); }
 }
 

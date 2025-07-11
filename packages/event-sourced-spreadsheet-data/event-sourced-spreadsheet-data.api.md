@@ -6,6 +6,8 @@
 
 import { BlobId } from '@candidstartup/infinisheet-types';
 import { BlobStore } from '@candidstartup/infinisheet-types';
+import { CellData } from '@candidstartup/infinisheet-types';
+import { CellFormat } from '@candidstartup/infinisheet-types';
 import { CellValue } from '@candidstartup/infinisheet-types';
 import { EventLog } from '@candidstartup/infinisheet-types';
 import { InfiniSheetWorker } from '@candidstartup/infinisheet-types';
@@ -24,10 +26,8 @@ import { WorkerHost } from '@candidstartup/infinisheet-types';
 // Warning: (ae-internal-missing-underscore) The name "CellMapEntry" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal
-export interface CellMapEntry {
-    format?: string | undefined;
-    logIndex: number;
-    value: CellValue;
+export interface CellMapEntry extends CellData {
+    logIndex?: number | undefined;
 }
 
 // @public
@@ -64,7 +64,7 @@ export interface EventSourcedSnapshotContent {
 export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
     constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>);
     // (undocumented)
-    getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): string | undefined;
+    getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): CellFormat;
     // (undocumented)
     getCellValue(snapshot: EventSourcedSnapshot, row: number, column: number): CellValue;
     // (undocumented)
@@ -80,11 +80,11 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
     // (undocumented)
     getSnapshot(): EventSourcedSnapshot;
     // (undocumented)
-    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: string | undefined): Result<void, ValidationError>;
+    isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void, ValidationError>;
     // (undocumented)
     protected notifyListeners(): void;
     // (undocumented)
-    setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void, SpreadsheetDataError>;
+    setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
     // (undocumented)
@@ -134,13 +134,11 @@ export interface LogSegment {
 }
 
 // @public
-export interface SetCellValueAndFormatLogEntry extends LogEntry {
+export interface SetCellValueAndFormatLogEntry extends LogEntry, CellData {
     column: number;
-    format?: string | undefined;
     row: number;
     // (undocumented)
     type: 'SetCellValueAndFormat';
-    value: CellValue;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "SpreadsheetCellMap" should be prefixed with an underscore because the declaration is marked as @internal
@@ -153,6 +151,8 @@ export class SpreadsheetCellMap {
     // (undocumented)
     addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: string): void;
     findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
+    loadSnapshot(snapshot: Uint8Array): void;
+    saveSnapshot(snapshotIndex: number): Uint8Array;
 }
 
 // @public

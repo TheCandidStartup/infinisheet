@@ -1,4 +1,4 @@
-import type { LogEntry, CellValue } from "@candidstartup/infinisheet-types";
+import type { LogEntry, CellData } from "@candidstartup/infinisheet-types";
 
 // Needed for Intellisense links
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -7,7 +7,7 @@ import type { SpreadsheetData } from "@candidstartup/infinisheet-types";
 /**
  * Log entry that captures change from calling {@link SpreadsheetData.setCellValueAndFormat}
  */
-export interface SetCellValueAndFormatLogEntry extends LogEntry {
+export interface SetCellValueAndFormatLogEntry extends LogEntry, CellData {
   type: 'SetCellValueAndFormat';
 
   /** Row index of cell being modified */
@@ -15,12 +15,6 @@ export interface SetCellValueAndFormatLogEntry extends LogEntry {
 
   /** Column index of cell being modified */
   column: number;
-
-  /** Value of cell being modified */
-  value: CellValue;
-
-  /** Format of cell being modified */
-  format?: string|undefined;
 }
 
 /** Union of all types of Spreadsheet related log entries */

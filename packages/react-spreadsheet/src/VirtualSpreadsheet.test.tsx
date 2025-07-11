@@ -3,7 +3,7 @@ import { stubProperty, unstubAllProperties } from '../../../shared/test/utils'
 
 import { VirtualSpreadsheet } from './VirtualSpreadsheet'
 import { VirtualSpreadsheetDefaultTheme } from './VirtualSpreadsheetTheme'
-import { EmptySpreadsheetData, CellValue, Result, ResultAsync, SpreadsheetDataError, ValidationError,
+import { EmptySpreadsheetData, CellValue, CellFormat, Result, ResultAsync, SpreadsheetDataError, ValidationError,
   rowColCoordsToRef, ok, err, validationError } from '@candidstartup/infinisheet-types';
 
 class TestData extends EmptySpreadsheetData {
@@ -35,9 +35,9 @@ class TestData extends EmptySpreadsheetData {
         return undefined; 
     }
   }
-  setCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): ResultAsync<void,SpreadsheetDataError> 
+  setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void,SpreadsheetDataError> 
   { return new ResultAsync(Promise.resolve(this.isValidCellValueAndFormat(row, column, value, format))); }
-  isValidCellValueAndFormat(_row: number, column: number, _value: CellValue, _format: string | undefined): Result<void,ValidationError> 
+  isValidCellValueAndFormat(_row: number, column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> 
   { return (column < 25) ? ok() : err(validationError("Column Z is read only")); }
 }
 

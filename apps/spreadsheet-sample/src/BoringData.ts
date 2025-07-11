@@ -1,4 +1,4 @@
-import { EmptySpreadsheetData, CellValue, Result, ValidationError, ok, err, validationError } from '@candidstartup/infinisheet-types';
+import { EmptySpreadsheetData, CellValue, CellFormat, Result, ValidationError, ok, err, validationError } from '@candidstartup/infinisheet-types';
 import { ItemOffsetMapping, useVariableSizeItemOffsetMapping } from '@candidstartup/react-virtual-scroll';
 import { dateToSerial, isDateFormat } from 'numfmt'
 
@@ -105,7 +105,7 @@ export class BoringData extends EmptySpreadsheetData {
     }
   }
 
-  isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: string | undefined): Result<void,ValidationError> {
+  isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): Result<void,ValidationError> {
     if (row == 0)
       return ok();
 
