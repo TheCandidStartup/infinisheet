@@ -5,7 +5,7 @@ export interface WorkerMessage {
   type: string;
 }
 
-export interface PendingWorkflowMessage {
+export interface PendingWorkflowMessage extends WorkerMessage {
   type: "PendingWorkflowMessage",
 
   /** Workflow requested */

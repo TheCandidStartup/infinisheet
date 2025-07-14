@@ -240,7 +240,7 @@ export function okAsync<T, E = never>(value: T): ResultAsync<T, E>;
 export function okAsync<_T extends void = void, E = never>(value: void): ResultAsync<void, E>;
 
 // @public (undocumented)
-export interface PendingWorkflowMessage {
+export interface PendingWorkflowMessage extends WorkerMessage {
     sequenceId: SequenceId;
     // (undocumented)
     type: "PendingWorkflowMessage";
