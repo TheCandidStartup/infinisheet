@@ -6,7 +6,8 @@ import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
 import { CellMapEntry } from "./SpreadsheetCellMap";
 
-const EVENT_LOG_CHECK_DELAY = 10000;
+// How often to check for new event log entries (ms)
+const EVENT_LOG_CHECK_INTERVAL = 10000;
 
 /** 
  * Branding Enum. Used by {@link EventSourcedSnapshot} to ensure that
@@ -41,19 +42,21 @@ function asSnapshot(snapshot: EventSourcedSnapshotContent) {
  *
  */
 export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
-  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>) {
+  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>,
+               snapshotInterval=100) {
     super(eventLog, blobStore);
 
     this.intervalId = undefined;
     this.workerHost = workerHost;
+    this.snapshotInterval = snapshotInterval;
     this.listeners = [];
 
-    this.syncLogs();
+    void this.syncLogs();
   }
 
   subscribe(onDataChange: () => void): () => void {
     if (!this.intervalId)
-      this.intervalId = setInterval(() => { this.syncLogs() }, EVENT_LOG_CHECK_DELAY);
+      this.intervalId = setInterval(() => { void this.syncLogs() }, EVENT_LOG_CHECK_INTERVAL);
     this.listeners = [...this.listeners, onDataChange];
     return () => {
       this.listeners = this.listeners.filter(l => l !== onDataChange);
@@ -101,7 +104,8 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void,SpreadsheetDataError> {
     const curr = this.content;
 
-    const result = this.eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format }, curr.endSequenceId);
+    const pending = this.workflowNeeded();
+    const result = this.eventLog.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format, pending }, curr.endSequenceId);
     return result.andTee(() => {
       if (this.content == curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
@@ -127,7 +131,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
             // Out of date wrt to event log, nothing else has updated content since then, so set
             // status for in progress load and trigger sync.
             this.content = { ...curr, loadStatus: ok(false) }
-            this.syncLogs();
+            void this.syncLogs();
           }
           return storageError("Client out of sync", 409);
         case 'StorageError': 
@@ -145,6 +149,14 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       listener();
   }
 
+  private workflowNeeded(): string | undefined {
+    if (!this.workerHost)
+      return undefined;
+    
+    const index = this.content.logSegment.entries.length % this.snapshotInterval;
+    return (this.snapshotInterval === index + 1) ? 'snapshot' : undefined;
+  }
+
   private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {
     const content = asContent(snapshot);
     const endIndex = Number(content.endSequenceId-content.logSegment.startSequenceId);
@@ -153,6 +165,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
 
 
   protected workerHost?: WorkerHost<PendingWorkflowMessage> | undefined;
+  private snapshotInterval: number;
   private intervalId: ReturnType<typeof setInterval> | undefined;
   private listeners: (() => void)[];
 }

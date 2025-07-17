@@ -204,7 +204,7 @@ export interface LogMetadata {
 }
 
 // @public
-export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT) => void;
+export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT) => ResultAsync<void, InfinisheetError>;
 
 // @public
 export type MetadataError = InfinisheetRangeError | StorageError;

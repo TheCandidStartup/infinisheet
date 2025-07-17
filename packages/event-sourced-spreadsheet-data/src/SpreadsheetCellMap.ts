@@ -1,4 +1,4 @@
-import { CellValue, CellData, CellFormat, RowColRef, rowColCoordsToRef } from "@candidstartup/infinisheet-types";
+import { CellValue, CellData, CellFormat, RowColRef, rowColCoordsToRef, rowColRefToCoords } from "@candidstartup/infinisheet-types";
 import { SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
 
 /**
@@ -22,6 +22,14 @@ function bestEntry(entry: CellMapEntry | CellMapEntry[], snapshotIndex: number):
   }
 
   return undefined;
+}
+
+/** @internal */
+export interface CellMapExtents {
+  rowMin: number;
+  rowMax: number;
+  columnMin: number;
+  columnMax: number;
 }
 
 /** @internal */
@@ -58,6 +66,26 @@ export class SpreadsheetCellMap {
     const key = rowColCoordsToRef(row, column);
     const entry = this.map.get(key);
     return entry ? bestEntry(entry, snapshotIndex) : undefined;
+  }
+
+  calcExtents(snapshotIndex: number): CellMapExtents {
+    let extents: CellMapExtents | undefined = undefined;
+    for (const [key,value] of this.map.entries()) {
+      const entry = bestEntry(value,snapshotIndex);
+      if (entry) {
+        const [row,column] = rowColRefToCoords(key);
+        if (extents) {
+          extents.rowMin = Math.min(extents.rowMin, row!);
+          extents.rowMax = Math.max(extents.rowMax, row! + 1);
+          extents.columnMin = Math.min(extents.columnMin, column!);
+          extents.columnMax = Math.max(extents.columnMax, column! + 1);
+        } else {
+          extents = { rowMin: row!, rowMax: row!+1, columnMin: column!, columnMax: column!+1 }
+        }
+      }
+    }
+
+    return extents ? extents : { rowMin: 0, columnMin: 0, rowMax: 0, columnMax: 0};
   }
 
   /** Saves snapshot containing highest entry smaller than snapshotIndex for each cell */

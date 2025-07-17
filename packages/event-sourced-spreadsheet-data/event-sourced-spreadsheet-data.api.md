@@ -30,6 +30,20 @@ export interface CellMapEntry extends CellData {
     logIndex?: number | undefined;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "CellMapExtents" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface CellMapExtents {
+    // (undocumented)
+    columnMax: number;
+    // (undocumented)
+    columnMin: number;
+    // (undocumented)
+    rowMax: number;
+    // (undocumented)
+    rowMin: number;
+}
+
 // @public
 export interface EventSourcedSnapshot {
     // @internal (undocumented)
@@ -62,7 +76,7 @@ export interface EventSourcedSnapshotContent {
 //
 // @public
 export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
-    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>);
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>, snapshotInterval?: number);
     // (undocumented)
     getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): CellFormat;
     // (undocumented)
@@ -105,7 +119,7 @@ export abstract class EventSourcedSpreadsheetEngine {
     // (undocumented)
     protected abstract notifyListeners(): void;
     // (undocumented)
-    protected syncLogs(): void;
+    protected syncLogs(endSequenceId?: SequenceId): Promise<void>;
 }
 
 // Warning: (ae-incompatible-release-tags) The symbol "EventSourcedSpreadsheetWorkflow" is marked as @public, but its signature references "EventSourcedSpreadsheetEngine" which is marked as @internal
@@ -150,6 +164,8 @@ export class SpreadsheetCellMap {
     addEntries(entries: SetCellValueAndFormatLogEntry[], baseIndex: number): void;
     // (undocumented)
     addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void;
+    // (undocumented)
+    calcExtents(snapshotIndex: number): CellMapExtents;
     findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
     loadSnapshot(snapshot: Uint8Array): void;
     saveSnapshot(snapshotIndex: number): Uint8Array;

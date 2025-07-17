@@ -4,6 +4,7 @@ import { SpreadsheetData, EventLog, PendingWorkflowMessage } from '@candidstartu
 import { DelayEventLog, SimpleEventLog, SimpleBlobStore, SimpleWorkerHost, SimpleWorker } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
 import { spreadsheetDataInterfaceTests } from '../../infinisheet-types/src/SpreadsheetData.interface-test'
+import { expectUnwrap } from '../../../shared/test/utils'
 
 
 function subscribeFired(data: SpreadsheetData<unknown>): Promise<void> {
@@ -16,7 +17,8 @@ function subscribeFired(data: SpreadsheetData<unknown>): Promise<void> {
 }
 
 function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEventLog<SpreadsheetLogEntry>, 
-                 wrapperLog: EventLog<SpreadsheetLogEntry> = eventLog) {
+                 wrapperLog: EventLog<SpreadsheetLogEntry> = eventLog,
+                snapshotInterval?: number) {
   const worker = new SimpleWorker<PendingWorkflowMessage>;
   const host = new SimpleWorkerHost(worker);
   const blobStore = new SimpleBlobStore;
@@ -25,7 +27,7 @@ function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEvent
   // Constructor subscribes to worker's onReceiveMessage which keeps it alive
   new EventSourcedSpreadsheetWorkflow(wrapperLog, blobStore, worker);
 
-  return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host);
+  return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host, snapshotInterval);
 }
 
 describe('EventSourcedSpreadsheetData', () => {
@@ -109,6 +111,79 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(data.getCellValue(snapshot2, 19, 0)).toEqual(undefined);
     expect(data.getRowCount(snapshot3)).toEqual(20);
     expect(data.getCellValue(snapshot3, 19, 0)).toEqual(19);
+  })
+
+  it('should save and load snapshots', async () => {
+    vi.useFakeTimers();
+
+    const blobStore = new SimpleBlobStore;
+    const worker = new SimpleWorker<PendingWorkflowMessage>;
+    const host = new SimpleWorkerHost(worker);
+    const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
+    new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
+
+    const data = new EventSourcedSpreadsheetData(log, blobStore, host, 15);
+    await subscribeFired(data);
+
+    for (let i = 0; i < 5; i ++) {
+      const result = await data.setCellValueAndFormat(i, 0, i, undefined);
+      expect(result).toBeOk();
+    }
+
+    const dataSnapshot5 = data.getSnapshot();
+    expect(data.getRowCount(dataSnapshot5)).toEqual(5);
+    expect(data.getColumnCount(dataSnapshot5)).toEqual(1);
+
+    for (let i = 5; i < 15; i ++) {
+      const result = await data.setCellValueAndFormat(i, 0, i, undefined);
+      expect(result).toBeOk();
+    }
+
+    const dataSnapshot15 = data.getSnapshot();
+    expect(data.getRowCount(dataSnapshot15)).toEqual(15);
+    expect(data.getColumnCount(dataSnapshot15)).toEqual(1);
+    expect(data.getCellValue(dataSnapshot15, 5, 0)).toEqual(5);
+
+    // Final set should have triggered snapshot. Wait for all async ops to complete.
+    await vi.runAllTimersAsync();
+
+    // Snapshot taken before log snapshot should still be valid
+    expect(data.getRowCount(dataSnapshot5)).toEqual(5);
+    expect(data.getColumnCount(dataSnapshot5)).toEqual(1);
+
+    // Query should find new snapshot
+    let queryValue = expectUnwrap(await log.query('snapshot', 'end'));
+    expect(queryValue.startSequenceId).toEqual(14n);
+    expect(queryValue.entries.length).toEqual(1);
+
+    // Single entry in result should have completed snapshot
+    const snapshotEntry = queryValue.entries[0]!;
+    expect(snapshotEntry.pending).toBeUndefined();
+    expect(snapshotEntry.snapshot).toEqual("14");
+
+    // Start new client from current state, should load everything from snapshot with empty log segment
+    const data2 = new EventSourcedSpreadsheetData(log, blobStore);
+    await subscribeFired(data2);
+    await vi.runAllTimersAsync();
+    expect(data2["content"].logSegment.entries.length).toEqual(0);
+
+    const data2Snapshot15 = data2.getSnapshot();
+    expect(data2.getRowCount(data2Snapshot15)).toEqual(15);
+    expect(data2.getColumnCount(data2Snapshot15)).toEqual(1);
+    expect(data2.getCellValue(data2Snapshot15, 5, 0)).toEqual(5);
+
+    for (let i = 15; i < 33; i ++) {
+      const result = await data.setCellValueAndFormat(i, 0, i, undefined);
+      expect(result).toBeOk();
+    }
+
+    // Snapshot triggered + a few more log writes. Wait for it to all sort itself out.
+    await vi.runAllTimersAsync();
+
+    // Query should find next snapshot
+    queryValue = expectUnwrap(await log.query('snapshot', 'end'));
+    expect(queryValue.startSequenceId).toEqual(29n);
+    expect(queryValue.entries.length).toEqual(4);
   })
 
   it('should handle delays', async () => {

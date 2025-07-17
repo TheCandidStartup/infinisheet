@@ -1,4 +1,6 @@
+import { InfinisheetError } from "./Error";
 import type { SequenceId, WorkflowId } from "./EventLog";
+import type { ResultAsync } from "./ResultAsync";
 
 export interface WorkerMessage {
   /** Used as a discriminated union tag by implementations */
@@ -16,7 +18,7 @@ export interface PendingWorkflowMessage extends WorkerMessage {
 }
 
 /** Type of handler function for {@link InfiniSheetWorker.onReceiveMessage} */
-export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT) => void;
+export type MessageHandler<MessageT extends WorkerMessage> = (message: MessageT) => ResultAsync<void,InfinisheetError>;
 
 export interface WorkerHost<MessageT extends WorkerMessage> { 
   /** 

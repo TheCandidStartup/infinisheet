@@ -36,9 +36,15 @@ export class SimpleWorkerHost<T extends WorkerMessage> implements PostMessageWor
     const handler = this.worker.onReceiveMessage;
     if (handler) {
       // Using setTimeout ensures message is delivered via the event loop
-      setTimeout(() => { handler(message) }, 0);
+      setTimeout(() => { 
+        const result = handler(message);
+        result.orTee((error) => {
+          console.log(`SimpleWorker returned error ${JSON.stringify(error)}`);
+          throw Error("SimpleWorker returned error", { cause: error });
+        })
+      }, 0);
     } else {
-      throw new Error("Worker has no message handler");
+      throw Error("Worker has no message handler");
     }
   }
 

@@ -1,4 +1,5 @@
-import type { EventLog, BlobStore, PendingWorkflowMessage, InfiniSheetWorker} from "@candidstartup/infinisheet-types";
+import { EventLog, BlobStore, PendingWorkflowMessage, InfiniSheetWorker, 
+  ResultAsync, errAsync, Result, InfinisheetError } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
@@ -13,12 +14,40 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
 
     this.worker = worker;
 
-    worker.onReceiveMessage = (message: PendingWorkflowMessage) => { this.onReceiveMessage(message); }
+    worker.onReceiveMessage = (message: PendingWorkflowMessage) => this.onReceiveMessage(message);
   }
 
   protected notifyListeners(): void {}
 
-  private onReceiveMessage(_message: PendingWorkflowMessage): void {
+  private onReceiveMessage(message: PendingWorkflowMessage): ResultAsync<void,InfinisheetError> {
+    if (message.workflow !== 'snapshot')
+      throw Error(`Unknown workflow ${message.workflow}`);
+
+    return new ResultAsync(this.onReceiveMessageAsync(message));
+  }
+
+  private async onReceiveMessageAsync(message: PendingWorkflowMessage): Promise<Result<void,InfinisheetError>> {
+    const endSequenceId = message.sequenceId + 1n;
+    await this.syncLogs(endSequenceId);
+    if (this.content.loadStatus.isErr())
+      return errAsync(this.content.loadStatus.error);
+    if (!this.content.loadStatus.value)
+      throw Error("Somehow syncLogs() is still in progress despite promise having resolved");
+
+    const logSegment = this.content.logSegment;
+    const snapshotIndex = Number(endSequenceId - logSegment.startSequenceId);
+    const blob = logSegment.cellMap.saveSnapshot(snapshotIndex);
+    const name = message.sequenceId.toString();
+
+    const dir = await this.blobStore.getRootDir();
+    if (dir.isErr())
+      return errAsync(dir.error);
+
+    const blobResult = await dir.value.writeBlob(name, blob);
+    if (blobResult.isErr())
+      return errAsync(blobResult.error);
+
+    return this.eventLog.setMetadata(message.sequenceId, { pending: undefined, snapshot: name });
   }
 
   protected worker: InfiniSheetWorker<PendingWorkflowMessage>;
