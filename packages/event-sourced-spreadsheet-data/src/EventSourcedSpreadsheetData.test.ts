@@ -27,7 +27,7 @@ function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEvent
   // Constructor subscribes to worker's onReceiveMessage which keeps it alive
   new EventSourcedSpreadsheetWorkflow(wrapperLog, blobStore, worker);
 
-  return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host, snapshotInterval);
+  return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host, { snapshotInterval });
 }
 
 describe('EventSourcedSpreadsheetData', () => {
@@ -122,7 +122,7 @@ describe('EventSourcedSpreadsheetData', () => {
     const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
     new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
 
-    const data = new EventSourcedSpreadsheetData(log, blobStore, host, 15);
+    const data = new EventSourcedSpreadsheetData(log, blobStore, host,  { snapshotInterval: 15 });
     await subscribeFired(data);
 
     for (let i = 0; i < 5; i ++) {

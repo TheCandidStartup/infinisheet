@@ -76,7 +76,7 @@ export interface EventSourcedSnapshotContent {
 //
 // @public
 export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
-    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>, snapshotInterval?: number);
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>, options?: EventSourcedSpreadsheetDataOptions);
     // (undocumented)
     getCellFormat(snapshot: EventSourcedSnapshot, row: number, column: number): CellFormat;
     // (undocumented)
@@ -105,6 +105,12 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
     protected workerHost?: WorkerHost<PendingWorkflowMessage> | undefined;
 }
 
+// @public
+export interface EventSourcedSpreadsheetDataOptions {
+    restartPendingWorkflowsOnLoad?: boolean | undefined;
+    snapshotInterval?: number | undefined;
+}
+
 // Warning: (ae-internal-missing-underscore) The name "EventSourcedSpreadsheetEngine" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal
@@ -119,7 +125,9 @@ export abstract class EventSourcedSpreadsheetEngine {
     // (undocumented)
     protected abstract notifyListeners(): void;
     // (undocumented)
-    protected syncLogs(endSequenceId?: SequenceId): Promise<void>;
+    protected syncLogs(endSequenceId?: SequenceId): void;
+    // (undocumented)
+    protected syncLogsAsync(endSequenceId?: SequenceId): Promise<void>;
 }
 
 // Warning: (ae-incompatible-release-tags) The symbol "EventSourcedSpreadsheetWorkflow" is marked as @public, but its signature references "EventSourcedSpreadsheetEngine" which is marked as @internal

@@ -88,7 +88,13 @@ export abstract class EventSourcedSpreadsheetEngine {
   }
 
   // Sync in-memory representation so that it includes range to endSequenceId (defaults to end of log)
-  protected syncLogs(endSequenceId?: SequenceId): Promise<void> {
+  protected syncLogs(endSequenceId?: SequenceId): void {
+    this.syncLogsAsync(endSequenceId).catch((reason) => { throw Error("Rejected promise from syncLogsAsync", { cause: reason }) });
+  }
+
+  protected abstract notifyListeners(): void
+
+  protected async syncLogsAsync(endSequenceId?: SequenceId): Promise<void> {
     if (this.isInSyncLogs)
       return Promise.resolve();
 
@@ -96,12 +102,6 @@ export abstract class EventSourcedSpreadsheetEngine {
     if (endSequenceId && endSequenceId <= this.content.endSequenceId)
       return Promise.resolve();
 
-    return this.syncLogsAsync(endSequenceId).catch((reason) => { throw Error("Rejected promise from syncLogsAsync", { cause: reason }) });
-  }
-
-  protected abstract notifyListeners(): void
-
-  private async syncLogsAsync(endSequenceId?: SequenceId): Promise<void> {
     this.isInSyncLogs = true;
 
     // Set up load of first batch of entries
