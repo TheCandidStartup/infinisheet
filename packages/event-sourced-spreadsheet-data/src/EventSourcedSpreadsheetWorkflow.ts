@@ -1,5 +1,5 @@
 import { EventLog, BlobStore, PendingWorkflowMessage, InfiniSheetWorker, 
-  ResultAsync, errAsync, Result, InfinisheetError } from "@candidstartup/infinisheet-types";
+  ResultAsync, err, Result, InfinisheetError } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
@@ -30,7 +30,7 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
     const endSequenceId = message.sequenceId + 1n;
     await this.syncLogsAsync(endSequenceId);
     if (this.content.loadStatus.isErr())
-      return errAsync(this.content.loadStatus.error);
+      return err(this.content.loadStatus.error);
     if (!this.content.loadStatus.value)
       throw Error("Somehow syncLogs() is still in progress despite promise having resolved");
 
@@ -41,11 +41,11 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
 
     const dir = await this.blobStore.getRootDir();
     if (dir.isErr())
-      return errAsync(dir.error);
+      return err(dir.error);
 
     const blobResult = await dir.value.writeBlob(name, blob);
     if (blobResult.isErr())
-      return errAsync(blobResult.error);
+      return err(blobResult.error);
 
     return this.eventLog.setMetadata(message.sequenceId, { pending: undefined, snapshot: name });
   }
