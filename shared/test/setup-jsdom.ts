@@ -9,12 +9,12 @@ function arrayEquals<T>(a: T[], b: T[]) {
 
 // Declare each method added in vitest.d.ts
 expect.extend({
-  toBeQueryValue(received: Result<QueryValue<TestLogEntry>,unknown>, expected: [SequenceId, boolean, number]) {
+  toBeQueryValue(received: Result<QueryValue<TestLogEntry>,unknown>, expected: [SequenceId, boolean, number, SequenceId?]) {
     function fail(message: () => string) {
-      const [startSequenceId, isComplete, length] = expected;
-      return { pass: false, message, actual: received, expected: testQueryResult(startSequenceId, isComplete, length)}
+      const [startSequenceId, isComplete, length, snapshotId] = expected;
+      return { pass: false, message, actual: received, expected: testQueryResult(startSequenceId, isComplete, length, snapshotId)}
     }
-    const [startSequenceId, isComplete, length] = expected;
+    const [startSequenceId, isComplete, length, snapshotId] = expected;
     if (!received.isOk())
       return fail(() => "Should be Ok");
     const value = received.value;
@@ -22,6 +22,8 @@ expect.extend({
       return fail( () => `startSequenceId should be ${startSequenceId}, actually ${value.startSequenceId}`);
     if (value.isComplete !== isComplete)
       return fail( () => `isComplete should be ${isComplete}, actually ${value.isComplete}`);
+    if (value.snapshotId !== snapshotId)
+      return fail( () => `snapshotId should be ${snapshotId}, actually ${value.snapshotId}`);
     if (value.entries.length != length)
       return fail(() => `entries length should be ${length}, actually ${value.entries.length}`);
     if (value.endSequenceId !== startSequenceId+BigInt(length))

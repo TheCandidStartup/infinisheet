@@ -5,6 +5,7 @@
 ```ts
 
 import { AddEntryError } from '@candidstartup/infinisheet-types';
+import { AddEntryValue } from '@candidstartup/infinisheet-types';
 import { BlobDir } from '@candidstartup/infinisheet-types';
 import { BlobDirEntries } from '@candidstartup/infinisheet-types';
 import { BlobName } from '@candidstartup/infinisheet-types';
@@ -43,10 +44,10 @@ import { WriteBlobError } from '@candidstartup/infinisheet-types';
 export class DelayEventLog<T extends LogEntry> implements EventLog<T> {
     constructor(base: EventLog<T>, delay?: number);
     // (undocumented)
-    addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void, AddEntryError>;
+    addEntry(entry: T, sequenceId: SequenceId, snapshotId?: SequenceId): ResultAsync<AddEntryValue, AddEntryError>;
     delay: number;
     // (undocumented)
-    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>, QueryError>;
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end', snapshotId?: SequenceId): ResultAsync<QueryValue<T>, QueryError>;
     // (undocumented)
     setMetadata(sequenceId: SequenceId, metadata: LogMetadata): ResultAsync<void, MetadataError>;
     // (undocumented)
@@ -138,9 +139,9 @@ export interface SimpleBlobStoreContinuation {
 export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     constructor(workerHost?: PostMessageWorkerHost<PendingWorkflowMessage>);
     // (undocumented)
-    addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void, AddEntryError>;
+    addEntry(entry: T, sequenceId: SequenceId, snapshotId?: SequenceId): ResultAsync<AddEntryValue, AddEntryError>;
     // (undocumented)
-    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>, QueryError>;
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end', snapshotId?: SequenceId): ResultAsync<QueryValue<T>, QueryError>;
     // (undocumented)
     setMetadata(sequenceId: SequenceId, metadata: LogMetadata): ResultAsync<void, MetadataError>;
     // (undocumented)

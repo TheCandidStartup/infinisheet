@@ -1,5 +1,6 @@
 import type { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, AddEntryError, 
-  SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage, } from "@candidstartup/infinisheet-types";
+  SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage,
+  AddEntryValue, } from "@candidstartup/infinisheet-types";
 import { FixedSizeItemOffsetMapping, ok, storageError } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
@@ -118,7 +119,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
     const curr = this.content;
 
     const result = this.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format });
-    return result.andTee(() => {
+    return result.map((_addEntryValue) => {
       if (this.content == curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
         curr.logSegment.entries.push({ type: 'SetCellValueAndFormat', row, column, value, format});
@@ -161,7 +162,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       listener();
   }
 
-  private addEntry(entry: SpreadsheetLogEntry): ResultAsync<void,AddEntryError> {
+  private addEntry(entry: SpreadsheetLogEntry): ResultAsync<AddEntryValue,AddEntryError> {
     if (this.workerHost) {
       const index = this.content.logSegment.entries.length % this.snapshotInterval;
       if (this.snapshotInterval === index + 1)

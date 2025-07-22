@@ -1,4 +1,4 @@
-import type { EventLog, LogEntry, LogMetadata, SequenceId, ResultAsync, QueryValue, WorkflowId, 
+import type { EventLog, LogEntry, LogMetadata, SequenceId, ResultAsync, QueryValue, WorkflowId, AddEntryValue, 
   AddEntryError, QueryError, TruncateError, MetadataError, PendingWorkflowMessage } from "@candidstartup/infinisheet-types";
 import { okAsync, errAsync, conflictError, infinisheetRangeError, PostMessageWorkerHost } from "@candidstartup/infinisheet-types";
 
@@ -23,7 +23,7 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
   /** Worker host used to process pending workflows */
   workerHost?: PostMessageWorkerHost<PendingWorkflowMessage> | undefined;
 
-  addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void,AddEntryError> {
+  addEntry(entry: T, sequenceId: SequenceId, snapshotId?: SequenceId): ResultAsync<AddEntryValue,AddEntryError> {
     if (sequenceId !== this.endSequenceId)
       return errAsync(conflictError("sequenceId is not next sequence id", this.endSequenceId));
 
@@ -33,7 +33,14 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     if (entry.pending)
       this.sendPendingWorkflowMessage(entry.pending, sequenceId);
 
-    return okAsync();
+    const value: AddEntryValue = {};
+    if (snapshotId !== undefined) {
+      const currSnapshotId = BigInt(this.findSnapshotIndex());
+      if (currSnapshotId && snapshotId !== currSnapshotId)
+        value.snapshotId = currSnapshotId;
+    }
+    
+    return okAsync(value);
   }
 
   setMetadata(sequenceId: SequenceId, metadata: LogMetadata): ResultAsync<void,MetadataError> {
@@ -55,7 +62,7 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     return okAsync();
   }
 
-  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>,QueryError> {
+  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end', snapshotId?: SequenceId): ResultAsync<QueryValue<T>,QueryError> {
     if (start === 'start')
       start = this.startSequenceId;
     else if (start === 'snapshot')
@@ -73,11 +80,18 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     if (firstIndex + numToReturn > this.entries.length)
       numToReturn = this.entries.length - firstIndex;
 
+    
     const value: QueryValue<T> = {
       startSequenceId: start,
       endSequenceId: start + BigInt(numToReturn),
       isComplete,
       entries: this.entries.slice(firstIndex, firstIndex + numToReturn)
+    }
+
+    if (snapshotId !== undefined) {
+      const currSnapshotId = BigInt(this.findSnapshotIndex());
+      if (currSnapshotId && snapshotId !== currSnapshotId)
+        value.snapshotId = currSnapshotId;
     }
 
     return okAsync(value);

@@ -12,6 +12,11 @@ import { ResultAsync as ResultAsync_2 } from 'neverthrow';
 export type AddEntryError = ConflictError | StorageError;
 
 // @public
+export interface AddEntryValue {
+    snapshotId?: SequenceId | undefined;
+}
+
+// @public
 export interface BlobDir<ContinuationT> {
     getDir(name: BlobName): ResultAsync<BlobDir<ContinuationT>, GetDirError>;
     query(continuation?: ContinuationT): ResultAsync<BlobDirEntries<ContinuationT>, DirQueryError>;
@@ -130,8 +135,8 @@ export function errAsync<T = never, _E extends void = void>(err: void): ResultAs
 
 // @public
 export interface EventLog<T extends LogEntry> {
-    addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void, AddEntryError>;
-    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>, QueryError>;
+    addEntry(entry: T, sequenceId: SequenceId, snapshotId?: SequenceId): ResultAsync<AddEntryValue, AddEntryError>;
+    query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end', snapshotId?: SequenceId): ResultAsync<QueryValue<T>, QueryError>;
     setMetadata(sequenceId: SequenceId, metaData: LogMetadata): ResultAsync<void, MetadataError>;
     truncate(start: SequenceId): ResultAsync<void, TruncateError>;
 }
@@ -261,6 +266,7 @@ export interface QueryValue<T extends LogEntry> {
     endSequenceId: SequenceId;
     entries: T[];
     isComplete: boolean;
+    snapshotId?: SequenceId | undefined;
     startSequenceId: SequenceId;
 }
 

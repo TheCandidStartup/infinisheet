@@ -46,6 +46,16 @@ describe('EventLog Interface', () => {
 
     result = await data.query('start', 'end');
     expect(result).toBeQueryValue([0n, true, 2]);
+
+    addResult = await data.addEntry(testLogEntry(2), 2n, 0n);
+    expect(addResult.isOk()).toEqual(true);
+    expect(addResult._unsafeUnwrap().snapshotId).toBeUndefined();
+
+    await data.setMetadata(1n, { snapshot: "snap" });
+
+    addResult = await data.addEntry(testLogEntry(3), 3n, 0n);
+    expect(addResult.isOk()).toEqual(true);
+    expect(addResult._unsafeUnwrap().snapshotId).toEqual(1n);
   })
 
   // Note that declaring snapshot property in this way results in
@@ -89,6 +99,14 @@ describe('EventLog Interface', () => {
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("snapshot", "snap");
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("history", "hist2");
     expect(result._unsafeUnwrap().entries[0]).toHaveProperty("pending", "pend");
+
+    // Set properties to undefined
+    await data.setMetadata(0n, { pending: undefined });
+    result = await data.query('start', 'end');
+    expect(result).toBeQueryValue([0n, true, 1]);
+    expect(result._unsafeUnwrap().entries[0]).toHaveProperty("snapshot", "snap");
+    expect(result._unsafeUnwrap().entries[0]).toHaveProperty("history", "hist2");
+    expect(result._unsafeUnwrap().entries[0]).toHaveProperty("pending", undefined);
 
     // Extra non-metadata properties should be ignored
     await data.setMetadata(0n, new ExtraPropsMetaData);
@@ -145,7 +163,9 @@ describe('EventLog Interface', () => {
 
     await data.setMetadata(4n, { snapshot: "snap" });
 
+    expect(await data.query('start', 'end', 0n)).toBeQueryValue([0n, true, 10, 4n]);
     expect(await data.query('snapshot', 'end')).toBeQueryValue([4n, true, 6]);
+    expect(await data.query('start', 'end', 4n)).toBeQueryValue([0n, true, 10]);
   })
 })
 }

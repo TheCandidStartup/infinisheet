@@ -38,10 +38,16 @@ export class SimpleWorkerHost<T extends WorkerMessage> implements PostMessageWor
       // Using setTimeout ensures message is delivered via the event loop
       setTimeout(() => { 
         const result = handler(message);
-        result.orTee((error) => {
-          console.log(`SimpleWorker returned error ${JSON.stringify(error)}`);
-          throw Error("SimpleWorker returned error", { cause: error });
-        })
+        result.orElse(
+          // Intentionally results in an unhandled exception in event handler
+          // Should never use SimplerWorkers with workflow that can result in error
+          // Can't be unit tested as blows up the test
+          /* istanbul ignore next */
+          (error) => {
+            console.log(`SimpleWorker returned error ${JSON.stringify(error)}`);
+            throw Error("SimpleWorker returned error", { cause: error });
+          }
+        )
       }, 0);
     } else {
       throw Error("Worker has no message handler");

@@ -105,8 +105,25 @@ export interface QueryValue<T extends LogEntry> {
    */
   isComplete: boolean;
 
+  /** Sequence id of most recent snapshot
+   * 
+   * Returned if query includes `snapshotId` argument and
+   * most recent snapshot is different. 
+   */
+  snapshotId?: SequenceId | undefined;
+
   /** The {@link LogEntry} records returned by the query */
   entries: T[];
+}
+
+/** Result of calling {@link EventLog.addEntry} */
+export interface AddEntryValue {
+    /** Sequence id of most recent snapshot
+   * 
+   * Returned if query includes `snapshotId` argument and
+   * most recent snapshot is different. 
+   */
+  snapshotId?: SequenceId | undefined;
 }
 
 /** Abstract interface representing an event log
@@ -117,11 +134,16 @@ export interface EventLog<T extends LogEntry> {
   /** 
    * Add an entry to the log with the given sequence id
    * 
-   * The `sequenceId` must be the next available sequence id in the log. This is returned as `endSequenceId` when
-   * making a query for the `last` entry in the log. Returns a {@link ConflictError} if not the next available id.
+   * @param sequenceId - The next available sequence id in the log. 
+   * This is returned as `endSequenceId` when making a query for the `last` entry in the log. 
+   * Returns a {@link ConflictError} if not the next available id.
+   * 
+   * @param snapshotId - The sequence id for the most recent snapshot that the client is aware of.
+   * If there's a more recent snapshot, it's id will be returned in `AddEntryValue`. 
+   * 
    * Any other problem with serializing the entry will return a {@link StorageError}.
    */
-  addEntry(entry: T, sequenceId: SequenceId): ResultAsync<void,AddEntryError>;
+  addEntry(entry: T, sequenceId: SequenceId, snapshotId?: SequenceId): ResultAsync<AddEntryValue,AddEntryError>;
 
   /**
    * Set some or all of a log entry's metadata fields
@@ -141,7 +163,7 @@ export interface EventLog<T extends LogEntry> {
    * @param end - `SequenceId` one after the last entry to return.
    * Use `'end'` to query everything to the end of the log.
    */
-  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end'): ResultAsync<QueryValue<T>,QueryError>;
+  query(start: SequenceId | 'snapshot' | 'start', end: SequenceId | 'end', snapshotId?: SequenceId): ResultAsync<QueryValue<T>,QueryError>;
 
   /** All entries prior to `start` are removed from the log. */
   truncate(start: SequenceId): ResultAsync<void,TruncateError>

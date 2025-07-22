@@ -6,7 +6,7 @@ interface CustomMatchers<R = unknown> {
   toBeOk: () => void
   toBeInfinisheetError: (expectedType: string) => void
   toBeStorageError: (expectedStatusCode?: number) => void
-  toBeQueryValue: (expected: [SequenceId, boolean, number]) => void
+  toBeQueryValue: (expected: [SequenceId, boolean, number, SequenceId?]) => void
   toBeBlobDirEntries: (expectedBlobs: string[], expectedDirs: string[], expectedContinuation?: boolean) => void
 }
 
