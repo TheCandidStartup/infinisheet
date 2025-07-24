@@ -1,20 +1,30 @@
 import '@testing-library/jest-dom'
 
-import type { Result, QueryValue, InfinisheetError, StorageError, SequenceId, BlobDirEntries } from '@candidstartup/infinisheet-types';
+import type { Result, QueryValue, InfinisheetError, StorageError, SequenceId, BlobDirEntries, SnapshotValue } from '@candidstartup/infinisheet-types';
 import { testQueryResult, type TestLogEntry } from './TestLogEntry';
 
 function arrayEquals<T>(a: T[], b: T[]) {
   return a.length === b.length && a.every((val, index) => val === b[index]);
 }
 
+function snapshotValueEquals(a: SnapshotValue|undefined, b: SnapshotValue|undefined): boolean {
+  if (a === b)
+    return true;
+
+  if (a === undefined || b === undefined)
+    return false;
+
+  return a.sequenceId === b.sequenceId && a.blobId === b.blobId;
+}
+
 // Declare each method added in vitest.d.ts
 expect.extend({
-  toBeQueryValue(received: Result<QueryValue<TestLogEntry>,unknown>, expected: [SequenceId, boolean, number, SequenceId?]) {
+  toBeQueryValue(received: Result<QueryValue<TestLogEntry>,unknown>, expected: [SequenceId, boolean, number, SnapshotValue?]) {
     function fail(message: () => string) {
-      const [startSequenceId, isComplete, length, snapshotId] = expected;
-      return { pass: false, message, actual: received, expected: testQueryResult(startSequenceId, isComplete, length, snapshotId)}
+      const [startSequenceId, isComplete, length, lastSnapshot] = expected;
+      return { pass: false, message, actual: received, expected: testQueryResult(startSequenceId, isComplete, length, lastSnapshot)}
     }
-    const [startSequenceId, isComplete, length, snapshotId] = expected;
+    const [startSequenceId, isComplete, length, lastSnapshot] = expected;
     if (!received.isOk())
       return fail(() => "Should be Ok");
     const value = received.value;
@@ -22,8 +32,8 @@ expect.extend({
       return fail( () => `startSequenceId should be ${startSequenceId}, actually ${value.startSequenceId}`);
     if (value.isComplete !== isComplete)
       return fail( () => `isComplete should be ${isComplete}, actually ${value.isComplete}`);
-    if (value.snapshotId !== snapshotId)
-      return fail( () => `snapshotId should be ${snapshotId}, actually ${value.snapshotId}`);
+    if (!snapshotValueEquals(value.lastSnapshot,lastSnapshot))
+      return fail( () => `lastSnapshot should be ${JSON.stringify(lastSnapshot)}, actually ${JSON.stringify(value.lastSnapshot)}`);
     if (value.entries.length != length)
       return fail(() => `entries length should be ${length}, actually ${value.entries.length}`);
     if (value.endSequenceId !== startSequenceId+BigInt(length))

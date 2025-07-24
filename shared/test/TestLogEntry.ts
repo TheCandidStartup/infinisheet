@@ -1,4 +1,4 @@
-import { LogEntry, SequenceId, Result, QueryError, QueryValue, ok } from '@candidstartup/infinisheet-types';
+import { LogEntry, SequenceId, Result, QueryError, QueryValue, ok, SnapshotValue } from '@candidstartup/infinisheet-types';
 
 export interface TestLogEntry extends LogEntry {
   type: 'test',
@@ -10,9 +10,9 @@ export function testLogEntry(index: number): TestLogEntry {
 }
 
 export function testQueryResult(startSequenceId: SequenceId, isComplete: boolean, length: number, 
-                                snapshotId?: SequenceId): Result<QueryValue<TestLogEntry>, QueryError> {
+                                lastSnapshot?: SnapshotValue): Result<QueryValue<TestLogEntry>, QueryError> {
   const endSequenceId = startSequenceId + BigInt(length);
-  const value:QueryValue<TestLogEntry> = { startSequenceId, endSequenceId, isComplete, snapshotId, entries: [] };
+  const value:QueryValue<TestLogEntry> = { startSequenceId, endSequenceId, isComplete, lastSnapshot, entries: [] };
 
   for  (let i = 0; i < length; i ++) {
     value.entries.push(testLogEntry(Number(startSequenceId)+i));

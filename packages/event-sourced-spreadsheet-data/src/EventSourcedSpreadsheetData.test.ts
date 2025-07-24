@@ -172,13 +172,18 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(data2.getColumnCount(data2Snapshot15)).toEqual(1);
     expect(data2.getCellValue(data2Snapshot15, 5, 0)).toEqual(5);
 
-    for (let i = 15; i < 33; i ++) {
+    // Add a load more entries to original, triggering another snapshot
+    for (let i = 15; i < 32; i ++) {
       const result = await data.setCellValueAndFormat(i, 0, i, undefined);
       expect(result).toBeOk();
     }
 
     // Snapshot triggered + a few more log writes. Wait for it to all sort itself out.
     await vi.runAllTimersAsync();
+
+    // Additional log entry should notice new snapshot and fork segment
+    expect(await data.setCellValueAndFormat(32, 0, 32, undefined)).toBeOk();
+    expect(data["content"].logSegment.entries.length).toEqual(3);
 
     // Query should find next snapshot
     queryValue = expectUnwrap(await log.query('snapshot', 'end'));

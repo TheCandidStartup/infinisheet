@@ -1,5 +1,5 @@
 import type { EventLog, LogEntry, LogMetadata, SequenceId, ResultAsync, QueryValue, WorkflowId, AddEntryValue, 
-  AddEntryError, QueryError, TruncateError, MetadataError, PendingWorkflowMessage } from "@candidstartup/infinisheet-types";
+  AddEntryError, QueryError, TruncateError, MetadataError, PendingWorkflowMessage, SnapshotValue } from "@candidstartup/infinisheet-types";
 import { okAsync, errAsync, conflictError, infinisheetRangeError, PostMessageWorkerHost } from "@candidstartup/infinisheet-types";
 
 const QUERY_PAGE_SIZE = 10;
@@ -35,9 +35,9 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
 
     const value: AddEntryValue = {};
     if (snapshotId !== undefined) {
-      const currSnapshotId = BigInt(this.findSnapshotIndex());
-      if (currSnapshotId && snapshotId !== currSnapshotId)
-        value.snapshotId = currSnapshotId;
+      const snapshot = this.findSnapshot();
+      if (snapshot && snapshot.sequenceId !== snapshotId)
+        value.lastSnapshot = snapshot;
     }
     
     return okAsync(value);
@@ -89,9 +89,9 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
     }
 
     if (snapshotId !== undefined) {
-      const currSnapshotId = BigInt(this.findSnapshotIndex());
-      if (currSnapshotId && snapshotId !== currSnapshotId)
-        value.snapshotId = currSnapshotId;
+      const snapshot = this.findSnapshot();
+      if (snapshot && snapshot.sequenceId !== snapshotId)
+        value.lastSnapshot = snapshot;
     }
 
     return okAsync(value);
@@ -125,6 +125,17 @@ export class SimpleEventLog<T extends LogEntry> implements EventLog<T> {
       const message: PendingWorkflowMessage = { type: 'PendingWorkflowMessage', sequenceId, workflow }
       this.workerHost.postMessage(message);
     }
+  }
+
+  private findSnapshot(): SnapshotValue | undefined {
+    for (let i = this.entries.length - 1; i > 0; i--) {
+      const entry = this.entries[i]!;
+      if (entry.snapshot) {
+        return { sequenceId: this.startSequenceId + BigInt(i), blobId: entry.snapshot }
+      }
+    }
+
+    return undefined;
   }
 
   private findSnapshotIndex(): number {

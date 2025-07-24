@@ -13,7 +13,7 @@ export type AddEntryError = ConflictError | StorageError;
 
 // @public
 export interface AddEntryValue {
-    snapshotId?: SequenceId | undefined;
+    lastSnapshot?: SnapshotValue | undefined;
 }
 
 // @public
@@ -266,7 +266,7 @@ export interface QueryValue<T extends LogEntry> {
     endSequenceId: SequenceId;
     entries: T[];
     isComplete: boolean;
-    snapshotId?: SequenceId | undefined;
+    lastSnapshot?: SnapshotValue | undefined;
     startSequenceId: SequenceId;
 }
 
@@ -300,6 +300,12 @@ export function rowColRefToCoords(ref: RowColRef): RowColCoords;
 
 // @public
 export type SequenceId = bigint;
+
+// @public
+export interface SnapshotValue {
+    blobId: BlobId;
+    sequenceId: SequenceId;
+}
 
 // @public
 export function splitRowColRef(ref: RowColRef): [row: number | undefined, col: ColRef | undefined];

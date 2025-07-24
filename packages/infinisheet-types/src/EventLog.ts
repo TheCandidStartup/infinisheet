@@ -80,6 +80,15 @@ export type TruncateError = InfinisheetRangeError | StorageError;
 /** Errors that can be returned by {@link EventLog} `setMetadata` method */
 export type MetadataError = InfinisheetRangeError | StorageError;
 
+/** Value of a snapshot stored at a specific sequence id in the log */
+export interface SnapshotValue {
+  /** Sequence id of log entry that stores this snapshot */
+  sequenceId: SequenceId;
+
+  /** Content of snapshot in the `BlobStore` */
+  blobId: BlobId;
+}
+
 /** A range of {@link LogEntry} values returned by querying an {@link EventLog} */
 export interface QueryValue<T extends LogEntry> {
   /**  Sequence id corresponding to the first entry in `entries`
@@ -105,12 +114,12 @@ export interface QueryValue<T extends LogEntry> {
    */
   isComplete: boolean;
 
-  /** Sequence id of most recent snapshot
+  /** Most recent snapshot
    * 
    * Returned if query includes `snapshotId` argument and
    * most recent snapshot is different. 
    */
-  snapshotId?: SequenceId | undefined;
+  lastSnapshot?: SnapshotValue | undefined;
 
   /** The {@link LogEntry} records returned by the query */
   entries: T[];
@@ -118,12 +127,12 @@ export interface QueryValue<T extends LogEntry> {
 
 /** Result of calling {@link EventLog.addEntry} */
 export interface AddEntryValue {
-    /** Sequence id of most recent snapshot
+  /** Most recent snapshot
    * 
    * Returned if query includes `snapshotId` argument and
    * most recent snapshot is different. 
    */
-  snapshotId?: SequenceId | undefined;
+  lastSnapshot?: SnapshotValue | undefined;
 }
 
 /** Abstract interface representing an event log

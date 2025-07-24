@@ -1,10 +1,9 @@
-import type { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, AddEntryError, 
-  SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage,
-  AddEntryValue, } from "@candidstartup/infinisheet-types";
+import type { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, AddEntryError, AddEntryValue,
+  SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage } from "@candidstartup/infinisheet-types";
 import { FixedSizeItemOffsetMapping, ok, storageError } from "@candidstartup/infinisheet-types";
 
-import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
-import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
+import type { SetCellValueAndFormatLogEntry, SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
+import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine, forkSegment } from "./EventSourcedSpreadsheetEngine"
 import { CellMapEntry } from "./SpreadsheetCellMap";
 
 // How often to check for new event log entries (ms)
@@ -118,18 +117,19 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void,SpreadsheetDataError> {
     const curr = this.content;
 
-    const result = this.addEntry({ type: 'SetCellValueAndFormat', row, column, value, format });
-    return result.map((_addEntryValue) => {
-      if (this.content == curr) {
+    const entry: SetCellValueAndFormatLogEntry = { type: 'SetCellValueAndFormat', row, column, value, format };
+    return this.addEntry(curr, entry).map((addEntryValue) => {
+      if (this.content === curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
-        curr.logSegment.entries.push({ type: 'SetCellValueAndFormat', row, column, value, format});
-        curr.logSegment.cellMap.addEntry(row, column, Number(curr.endSequenceId-curr.logSegment.startSequenceId), value, format);
+        const logSegment = addEntryValue.lastSnapshot ? forkSegment(curr.logSegment, addEntryValue.lastSnapshot) : curr.logSegment;
+        logSegment.entries.push(entry);
+        logSegment.cellMap.addEntry(row, column, Number(curr.endSequenceId-curr.logSegment.startSequenceId), value, format);
 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
         this.content = {
           endSequenceId: curr.endSequenceId + 1n,
-          logSegment: curr.logSegment,
+          logSegment,
           loadStatus: ok(true),
           rowCount: Math.max(curr.rowCount, row+1),
           colCount: Math.max(curr.colCount, column+1)
@@ -162,9 +162,10 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       listener();
   }
 
-  private addEntry(entry: SpreadsheetLogEntry): ResultAsync<AddEntryValue,AddEntryError> {
+  private addEntry(curr: EventSourcedSnapshotContent, entry: SpreadsheetLogEntry): ResultAsync<AddEntryValue,AddEntryError> {
+    const segment = curr.logSegment;
     if (this.workerHost) {
-      const index = this.content.logSegment.entries.length % this.snapshotInterval;
+      const index = segment.entries.length % this.snapshotInterval;
       if (this.snapshotInterval === index + 1)
         entry.pending = 'snapshot';
 
@@ -172,7 +173,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       // doing another. May need to retry previous snapshot.
     }
 
-    return this.eventLog.addEntry(entry, this.content.endSequenceId);
+    return this.eventLog.addEntry(entry, curr.endSequenceId, segment.snapshot ? segment.startSequenceId - 1n : 0n);
   }
 
   private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {

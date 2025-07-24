@@ -49,13 +49,14 @@ describe('EventLog Interface', () => {
 
     addResult = await data.addEntry(testLogEntry(2), 2n, 0n);
     expect(addResult.isOk()).toEqual(true);
-    expect(addResult._unsafeUnwrap().snapshotId).toBeUndefined();
+    expect(addResult._unsafeUnwrap().lastSnapshot).toBeUndefined();
 
     await data.setMetadata(1n, { snapshot: "snap" });
 
     addResult = await data.addEntry(testLogEntry(3), 3n, 0n);
     expect(addResult.isOk()).toEqual(true);
-    expect(addResult._unsafeUnwrap().snapshotId).toEqual(1n);
+    expect(addResult._unsafeUnwrap().lastSnapshot?.sequenceId).toEqual(1n);
+    expect(addResult._unsafeUnwrap().lastSnapshot?.blobId).toEqual("snap");
   })
 
   // Note that declaring snapshot property in this way results in
@@ -163,7 +164,7 @@ describe('EventLog Interface', () => {
 
     await data.setMetadata(4n, { snapshot: "snap" });
 
-    expect(await data.query('start', 'end', 0n)).toBeQueryValue([0n, true, 10, 4n]);
+    expect(await data.query('start', 'end', 0n)).toBeQueryValue([0n, true, 10, { sequenceId: 4n, blobId: "snap" }]);
     expect(await data.query('snapshot', 'end')).toBeQueryValue([4n, true, 6]);
     expect(await data.query('start', 'end', 4n)).toBeQueryValue([0n, true, 10]);
   })

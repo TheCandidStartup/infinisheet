@@ -3,6 +3,7 @@ import { ok, err } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { SpreadsheetCellMap } from "./SpreadsheetCellMap";
+import { SnapshotValue } from "packages/infinisheet-types/dist";
 
 /** @internal */
 export interface LogSegment {
@@ -19,6 +20,19 @@ export interface EventSourcedSnapshotContent {
   loadStatus: Result<boolean,StorageError>;
   rowCount: number;
   colCount: number;
+}
+
+/** @internal */
+export function forkSegment(segment: LogSegment, snapshot: SnapshotValue): LogSegment {
+  const index = Number(snapshot.sequenceId - segment.startSequenceId) + 1;
+  if (index < 0 || index > segment.entries.length)
+    throw Error("forkSegment: snapshotId not within segment");
+
+  const newSegment: LogSegment = 
+    { startSequenceId: snapshot.sequenceId+1n, entries: segment.entries.slice(index), cellMap: new SpreadsheetCellMap, snapshot: snapshot.blobId };
+  newSegment.cellMap.addEntries(newSegment.entries, 0);
+
+  return newSegment;
 }
 
 async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValue<SpreadsheetLogEntry>,
