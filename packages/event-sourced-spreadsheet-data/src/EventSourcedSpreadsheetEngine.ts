@@ -1,9 +1,8 @@
-import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore, QueryValue } from "@candidstartup/infinisheet-types";
+import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore, QueryValue, SnapshotValue } from "@candidstartup/infinisheet-types";
 import { ok, err } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { SpreadsheetCellMap } from "./SpreadsheetCellMap";
-import { SnapshotValue } from "packages/infinisheet-types/dist";
 
 /** @internal */
 export interface LogSegment {
