@@ -17,7 +17,6 @@ import { PendingWorkflowMessage } from '@candidstartup/infinisheet-types';
 import { Result } from '@candidstartup/infinisheet-types';
 import { ResultAsync } from '@candidstartup/infinisheet-types';
 import { SequenceId } from '@candidstartup/infinisheet-types';
-import { SnapshotValue } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
 import { StorageError } from '@candidstartup/infinisheet-types';
@@ -141,11 +140,6 @@ export class EventSourcedSpreadsheetWorkflow extends EventSourcedSpreadsheetEngi
     // (undocumented)
     protected worker: InfiniSheetWorker<PendingWorkflowMessage>;
 }
-
-// Warning: (ae-internal-missing-underscore) The name "forkSegment" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
-export function forkSegment(segment: LogSegment, snapshot: SnapshotValue): LogSegment;
 
 // Warning: (ae-internal-missing-underscore) The name "LogSegment" should be prefixed with an underscore because the declaration is marked as @internal
 //

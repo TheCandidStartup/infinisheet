@@ -10,6 +10,7 @@
 
 export * from './SpreadsheetLogEntry'
 export * from './SpreadsheetCellMap'
-export * from './EventSourcedSpreadsheetEngine'
+export type { EventSourcedSnapshotContent, LogSegment } from './EventSourcedSpreadsheetEngine'
+export { EventSourcedSpreadsheetEngine,  } from './EventSourcedSpreadsheetEngine'
 export * from './EventSourcedSpreadsheetWorkflow'
 export * from './EventSourcedSpreadsheetData'
