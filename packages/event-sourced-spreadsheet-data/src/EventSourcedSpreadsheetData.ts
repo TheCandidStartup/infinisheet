@@ -123,7 +123,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
         const logSegment = addEntryValue.lastSnapshot ? forkSegment(curr.logSegment, addEntryValue.lastSnapshot) : curr.logSegment;
         logSegment.entries.push(entry);
-        logSegment.cellMap.addEntry(row, column, Number(curr.endSequenceId-curr.logSegment.startSequenceId), value, format);
+        logSegment.cellMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);
 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
@@ -173,7 +173,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       // doing another. May need to retry previous snapshot.
     }
 
-    return this.eventLog.addEntry(entry, curr.endSequenceId, segment.snapshot ? segment.startSequenceId - 1n : 0n);
+    return this.eventLog.addEntry(entry, curr.endSequenceId, segment.snapshot ? segment.startSequenceId : 0n);
   }
 
   private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {

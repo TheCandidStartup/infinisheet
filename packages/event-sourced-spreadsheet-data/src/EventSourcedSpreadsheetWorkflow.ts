@@ -27,7 +27,7 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
   }
 
   private async onReceiveMessageAsync(message: PendingWorkflowMessage): Promise<Result<void,InfinisheetError>> {
-    const endSequenceId = message.sequenceId + 1n;
+    const endSequenceId = message.sequenceId;
     await this.syncLogsAsync(endSequenceId);
     if (this.content.loadStatus.isErr())
       return err(this.content.loadStatus.error);

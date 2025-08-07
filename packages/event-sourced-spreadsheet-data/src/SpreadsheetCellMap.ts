@@ -120,5 +120,16 @@ export class SpreadsheetCellMap {
     }
   }
 
+  /** Equivalent to {@link saveSnapshot} followed by {@link loadSnapshot} */
+  loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number) {
+    for (const [key,value] of src.map.entries()) {
+      const entry = bestEntry(value,snapshotIndex);
+      if (entry) {
+        const { logIndex: _logIndex, ...rest } = entry;
+        this.map.set(key, rest);
+      }
+    }
+  }
+
   private map: Map<RowColRef, CellMapEntry | CellMapEntry[]>
 }

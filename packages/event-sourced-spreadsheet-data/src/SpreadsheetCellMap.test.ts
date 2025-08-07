@@ -12,6 +12,11 @@ describe('SpreadsheetCellMap', () => {
     const map = new SpreadsheetCellMap;
     expect(map.findEntry(0,0,0)).toBeUndefined();
     expect(map.findEntry(10,20,30)).toBeUndefined();
+
+    const map2 = new SpreadsheetCellMap;
+    map2.loadAsSnapshot(map,0);
+    expect(map2.findEntry(0,0,0)).toBeUndefined();
+    expect(map2.findEntry(10,20,30)).toBeUndefined();
   })
 
   it('should work with one entry per cell', () => {
@@ -28,6 +33,11 @@ describe('SpreadsheetCellMap', () => {
     expect(map.findEntry(0,0,0)).toBeUndefined();
     expect(map.findEntry(0,0,1)).toEqual({ value: 42, logIndex: 0 })
     expect(map.findEntry(10,20,30)).toBeUndefined();
+
+    const map2 = new SpreadsheetCellMap;
+    map2.loadAsSnapshot(map,2);
+    expect(map2.findEntry(0,0,0)).toEqual({ value: 42 })
+    expect(map2.findEntry(2,3,0)).toEqual({ value: 17, format: "something" })
   })
 
   it('should work with multiple entries per cell', () => {
@@ -41,6 +51,10 @@ describe('SpreadsheetCellMap', () => {
     expect(map.findEntry(0,0,2)).toEqual({ value: 17, logIndex: 1 })
     expect(map.findEntry(0,0,3)).toEqual({ value: 99, logIndex: 2 })
     expect(map.findEntry(0,0,10)).toEqual({ value: 99, logIndex: 2 })
+
+    const map2 = new SpreadsheetCellMap;
+    map2.loadAsSnapshot(map,2);
+    expect(map2.findEntry(0,0,0)).toEqual({ value: 17 })
   })
 
   it('should save and restore snapshots', () => {

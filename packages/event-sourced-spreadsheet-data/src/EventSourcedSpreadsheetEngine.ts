@@ -23,12 +23,13 @@ export interface EventSourcedSnapshotContent {
 
 /** @internal */
 export function forkSegment(segment: LogSegment, snapshot: SnapshotValue): LogSegment {
-  const index = Number(snapshot.sequenceId - segment.startSequenceId) + 1;
-  if (index < 0 || index > segment.entries.length)
+  const index = Number(snapshot.sequenceId - segment.startSequenceId);
+  if (index < 0 || index >= segment.entries.length)
     throw Error("forkSegment: snapshotId not within segment");
 
   const newSegment: LogSegment = 
-    { startSequenceId: snapshot.sequenceId+1n, entries: segment.entries.slice(index), cellMap: new SpreadsheetCellMap, snapshot: snapshot.blobId };
+    { startSequenceId: snapshot.sequenceId, entries: segment.entries.slice(index), cellMap: new SpreadsheetCellMap, snapshot: snapshot.blobId };
+  newSegment.cellMap.loadAsSnapshot(segment.cellMap, index);
   newSegment.cellMap.addEntries(newSegment.entries, 0);
 
   return newSegment;
@@ -43,7 +44,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
   // Start a new segment if value contains a snapshot
   const snapshot = value.entries[0]!.snapshot;
   if (snapshot) {
-    segment = { startSequenceId: value.startSequenceId, entries: value.entries.slice(1), cellMap: new SpreadsheetCellMap, snapshot };
+    segment = { startSequenceId: value.startSequenceId, entries: value.entries, cellMap: new SpreadsheetCellMap, snapshot };
     const dir = await blobStore.getRootDir();
     if (dir.isErr())
       return err(dir.error);

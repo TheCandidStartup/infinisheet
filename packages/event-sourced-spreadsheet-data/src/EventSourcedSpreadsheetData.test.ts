@@ -165,7 +165,7 @@ describe('EventSourcedSpreadsheetData', () => {
     const data2 = new EventSourcedSpreadsheetData(log, blobStore);
     await subscribeFired(data2);
     await vi.runAllTimersAsync();
-    expect(data2["content"].logSegment.entries.length).toEqual(0);
+    expect(data2["content"].logSegment.entries.length).toEqual(1);
 
     const data2Snapshot15 = data2.getSnapshot();
     expect(data2.getRowCount(data2Snapshot15)).toEqual(15);
@@ -183,12 +183,18 @@ describe('EventSourcedSpreadsheetData', () => {
 
     // Additional log entry should notice new snapshot and fork segment
     expect(await data.setCellValueAndFormat(32, 0, 32, undefined)).toBeOk();
-    expect(data["content"].logSegment.entries.length).toEqual(3);
+    expect(data["content"].logSegment.entries.length).toEqual(5);
+
+    const dataSnapshot33 = data.getSnapshot();
+    expect(data.getRowCount(dataSnapshot33)).toEqual(33);
+    expect(data.getColumnCount(dataSnapshot33)).toEqual(1);
+    for (let i = 0; i < 33; i ++) 
+      expect(data.getCellValue(dataSnapshot33, i, 0)).toEqual(i);
 
     // Query should find next snapshot
     queryValue = expectUnwrap(await log.query('snapshot', 'end'));
-    expect(queryValue.startSequenceId).toEqual(29n);
-    expect(queryValue.entries.length).toEqual(4);
+    expect(queryValue.startSequenceId).toEqual(28n);
+    expect(queryValue.entries.length).toEqual(5);
   })
 
   it('should handle delays', async () => {

@@ -175,6 +175,7 @@ export class SpreadsheetCellMap {
     // (undocumented)
     calcExtents(snapshotIndex: number): CellMapExtents;
     findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
+    loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number): void;
     loadSnapshot(snapshot: Uint8Array): void;
     saveSnapshot(snapshotIndex: number): Uint8Array;
 }
