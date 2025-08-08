@@ -2,7 +2,7 @@ import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore, Que
 import { ok, err } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
-import { SpreadsheetCellMap } from "./SpreadsheetCellMap";
+import { SpreadsheetCellMap } from "./SpreadsheetCellMap"
 
 /** @internal */
 export interface LogSegment {
@@ -37,14 +37,17 @@ export function forkSegment(segment: LogSegment, snapshot: SnapshotValue): LogSe
 
 async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValue<SpreadsheetLogEntry>,
   blobStore: BlobStore<unknown>): Promise<Result<EventSourcedSnapshotContent,StorageError>> {
-  let segment = curr.logSegment;
+  let segment: LogSegment = curr.logSegment;
   let rowCount = curr.rowCount;
   let colCount = curr.colCount;
 
-  // Start a new segment if value contains a snapshot
-  const snapshot = value.entries[0]!.snapshot;
-  if (snapshot) {
-    segment = { startSequenceId: value.startSequenceId, entries: value.entries, cellMap: new SpreadsheetCellMap, snapshot };
+  let entries = value.entries;
+  let startSequenceId = value.startSequenceId;
+  const snapshot = entries[0]!.snapshot;
+
+  // Start a new segment and load from snapshot if we've jumped to id past what we currently have
+  if (snapshot && curr.endSequenceId != value.startSequenceId) {
+    segment = { startSequenceId, entries, cellMap: new SpreadsheetCellMap, snapshot };
     const dir = await blobStore.getRootDir();
     if (dir.isErr())
       return err(dir.error);
@@ -59,22 +62,48 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
     segment.cellMap.addEntries(segment.entries, 0);
     ({ rowMax: rowCount, columnMax: colCount } = segment.cellMap.calcExtents(segment.entries.length));
   } else {
-    // Extend the current loaded segment.
     if (curr.endSequenceId != value.startSequenceId) {
       // Shouldn't happen unless we have buggy event log implementation
       throw Error(`Query returned start ${value.startSequenceId}, expected ${curr.endSequenceId}`);
     }
 
-    segment.cellMap.addEntries(value.entries, segment.entries.length);
-    segment.entries.push(...value.entries);
+    if (value.lastSnapshot) {
+      const { sequenceId } = value.lastSnapshot;
+      if (sequenceId < curr.endSequenceId) {
+        // Snapshot has completed in entry we already have. Fork segment at that point then process value as normal.
+        segment = forkSegment(segment, value.lastSnapshot);
+      } else if (sequenceId < value.endSequenceId) {
+        // Snapshot in returned value. Add entries up to snapshot to current cell map then start new segment from that.
+        const indexInValue = Number(sequenceId - startSequenceId);
+        const baseIndex = segment.entries.length;
+        for (let i = 0; i < indexInValue; i ++) {
+          const entry = entries[i]!;
+          rowCount = Math.max(rowCount, entry.row+1);
+          colCount = Math.max(colCount, entry.column+1);
+          segment.cellMap.addEntry(entry.row, entry.column, baseIndex+i, entry.value, entry.format);
+        }
+        entries = entries.slice(indexInValue);
+        startSequenceId = startSequenceId + BigInt(indexInValue);
+        const cellMap = new SpreadsheetCellMap;
+        cellMap.loadAsSnapshot(segment.cellMap, baseIndex+indexInValue);
+        const emptyArray: SpreadsheetLogEntry[] = [];
+        segment = { startSequenceId, entries: emptyArray, cellMap, snapshot: value.lastSnapshot.blobId };
+        // Segment extension code below will add the remaining values
+      }
+      // Snapshot must be in later page of results. Deal with it when we get there.
+    }
 
-    for (const entry of value.entries) {
+    // Extend the current loaded segment.
+    segment.cellMap.addEntries(entries, segment.entries.length);
+    segment.entries.push(...entries);
+
+    for (const entry of entries) {
       rowCount = Math.max(rowCount, entry.row+1);
       colCount = Math.max(colCount, entry.column+1);
     }
   }
 
-  // Create a new snapshot based on the new data
+  // Create new content based on the new data
   return ok({
     endSequenceId: value.endSequenceId,
     logSegment: segment,
@@ -123,9 +152,11 @@ export abstract class EventSourcedSpreadsheetEngine {
 
     while (!isComplete) {
       const curr = this.content;
-      const start = (curr.endSequenceId === 0n) ? 'snapshot' : curr.endSequenceId;
+      const initialLoad = (curr.endSequenceId === 0n);
+      const start = initialLoad ? 'snapshot' : curr.endSequenceId;
       const end = endSequenceId ? endSequenceId : 'end';
-      const result = await this.eventLog.query(start, end);
+      const segment = curr.logSegment;
+      const result = await this.eventLog.query(start, end, initialLoad ? undefined : segment.startSequenceId);
 
       if (curr != this.content) {
         // Must have had setCellValueAndFormat complete successfully and update content to match.

@@ -25,8 +25,9 @@ export class SimpleWorker<T extends WorkerMessage> implements InfiniSheetWorker<
  * for simple sample apps. Simplest possible implementation, no attempt at optimization.
  */
 export class SimpleWorkerHost<T extends WorkerMessage> implements PostMessageWorkerHost<T> {
-  constructor(worker: SimpleWorker<T>) {
+  constructor(worker: SimpleWorker<T>, delay: number = 0) {
     this.worker = worker;
+    this.delay = delay;
   }
 
   /** @internal */
@@ -48,11 +49,12 @@ export class SimpleWorkerHost<T extends WorkerMessage> implements PostMessageWor
             throw Error("SimpleWorker returned error", { cause: error });
           }
         )
-      }, 0);
+      }, this.delay);
     } else {
       throw Error("Worker has no message handler");
     }
   }
 
   private worker: SimpleWorker<T>;
+  private delay: number;
 }

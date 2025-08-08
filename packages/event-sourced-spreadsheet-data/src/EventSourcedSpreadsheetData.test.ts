@@ -16,6 +16,12 @@ function subscribeFired(data: SpreadsheetData<unknown>): Promise<void> {
   })
 }
 
+function enableSyncOnce(data: SpreadsheetData<unknown>) {
+  const unsubscribe = data.subscribe(() => {
+     unsubscribe();
+  })
+}
+
 function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEventLog<SpreadsheetLogEntry>, 
                  wrapperLog: EventLog<SpreadsheetLogEntry> = eventLog,
                 snapshotInterval?: number) {
@@ -195,6 +201,92 @@ describe('EventSourcedSpreadsheetData', () => {
     queryValue = expectUnwrap(await log.query('snapshot', 'end'));
     expect(queryValue.startSequenceId).toEqual(28n);
     expect(queryValue.entries.length).toEqual(5);
+  })
+
+  it('should save and load snapshots with two clients', async () => {
+    vi.useFakeTimers();
+
+    const blobStore = new SimpleBlobStore;
+    const worker = new SimpleWorker<PendingWorkflowMessage>;
+    const host = new SimpleWorkerHost(worker, 30000);
+    const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
+    new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
+
+    const dataA = new EventSourcedSpreadsheetData(log, blobStore, host,  { snapshotInterval: 15 });
+    await subscribeFired(dataA);
+
+    const dataB = new EventSourcedSpreadsheetData(log, blobStore, host );
+    await subscribeFired(dataB);
+
+    for (let i = 0; i < 15; i ++)
+      expect(await dataA.setCellValueAndFormat(i, 0, i, undefined)).toBeOk();
+
+    // Final set should have triggered snapshot. Enable sync on client B and wait for all async ops to complete.
+    // B should sync up after 10 seconds
+    // Snapshot completes after 30
+    enableSyncOnce(dataB);
+    await vi.runAllTimersAsync();
+    expect(dataB["content"].logSegment.entries.length).toEqual(15);
+    expect(dataB["content"].logSegment.snapshot).toBeUndefined();
+
+    const dataBSnapshot15 = dataB.getSnapshot();
+    expect(dataB.getRowCount(dataBSnapshot15)).toEqual(15);
+    expect(dataB.getColumnCount(dataBSnapshot15)).toEqual(1);
+    expect(dataB.getCellValue(dataBSnapshot15, 5, 0)).toEqual(5);
+
+    // Add a load more entries to original, triggering another snapshot
+    for (let i = 15; i < 33; i ++)
+      expect(await dataA.setCellValueAndFormat(i, 0, i, undefined)).toBeOk();
+
+    // Snapshot triggered + a few more log writes. Wait for snapshot to complete
+    await vi.runAllTimersAsync();
+
+    // Sync client B which should pick up most recent snapshot and create new segment
+    enableSyncOnce(dataB);
+    await vi.runAllTimersAsync();
+    expect(dataB["content"].logSegment.entries.length).toEqual(5);
+    expect(dataB["content"].logSegment.snapshot).toEqual("28");
+
+    const dataBSnapshot33 = dataB.getSnapshot();
+    expect(dataB.getRowCount(dataBSnapshot15)).toEqual(15);
+    expect(dataB.getRowCount(dataBSnapshot33)).toEqual(33);
+    expect(dataB.getColumnCount(dataBSnapshot33)).toEqual(1);
+    for (let i = 0; i < 33; i ++) 
+      expect(dataB.getCellValue(dataBSnapshot33, i, 0)).toEqual(i);
+
+    // Trigger another snapshot
+    for (let i = 33; i < 50; i ++)
+      expect(await dataA.setCellValueAndFormat(i, 0, i, undefined)).toBeOk();
+
+    // Let other client sync up with log *before* snapshot completes
+    enableSyncOnce(dataB);
+    await vi.advanceTimersByTimeAsync(15000);
+    expect(dataB["content"].logSegment.entries.length).toEqual(22);
+    expect(dataB["content"].logSegment.snapshot).toEqual("28");
+
+    const dataBSnapshot50 = dataB.getSnapshot();
+    expect(dataB.getRowCount(dataBSnapshot15)).toEqual(15);
+    expect(dataB.getRowCount(dataBSnapshot33)).toEqual(33);
+    expect(dataB.getRowCount(dataBSnapshot50)).toEqual(50);
+    expect(dataB.getColumnCount(dataBSnapshot50)).toEqual(1);
+    for (let i = 0; i < 50; i ++) 
+      expect(dataB.getCellValue(dataBSnapshot50, i, 0)).toEqual(i);
+
+    // Wait for snapshot to complete
+    await vi.runAllTimersAsync();
+
+    // Run another sync of client B. Subscribe doesn't fire because no new entries. 
+    // New snapshot is ignored.
+    enableSyncOnce(dataB);
+    await vi.advanceTimersByTimeAsync(15000);
+    expect(dataB["content"].logSegment.entries.length).toEqual(22);
+    expect(dataB["content"].logSegment.snapshot).toEqual("28");
+
+    // After adding another entry, sync happens and log segment is forked at snapshot
+    expect(await dataA.setCellValueAndFormat(50, 0, 50, undefined)).toBeOk();
+    await vi.advanceTimersByTimeAsync(15000);
+    expect(dataB["content"].logSegment.entries.length).toEqual(9);
+    expect(dataB["content"].logSegment.snapshot).toEqual("42");
   })
 
   it('should handle delays', async () => {

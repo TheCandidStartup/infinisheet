@@ -197,7 +197,7 @@ export class SimpleWorker<T extends WorkerMessage> implements InfiniSheetWorker<
 
 // @public
 export class SimpleWorkerHost<T extends WorkerMessage> implements PostMessageWorkerHost<T> {
-    constructor(worker: SimpleWorker<T>);
+    constructor(worker: SimpleWorker<T>, delay?: number);
     // @internal (undocumented)
     isHost(): this is PostMessageWorkerHost<T>;
     // (undocumented)
