@@ -42,11 +42,11 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
   let colCount = curr.colCount;
 
   let entries = value.entries;
-  let startSequenceId = value.startSequenceId;
+  const startSequenceId = value.startSequenceId;
   const snapshot = entries[0]!.snapshot;
 
   // Start a new segment and load from snapshot if we've jumped to id past what we currently have
-  if (snapshot && curr.endSequenceId != value.startSequenceId) {
+  if (snapshot && curr.endSequenceId != startSequenceId) {
     segment = { startSequenceId, entries, cellMap: new SpreadsheetCellMap, snapshot };
     const dir = await blobStore.getRootDir();
     if (dir.isErr())
@@ -62,7 +62,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
     segment.cellMap.addEntries(segment.entries, 0);
     ({ rowMax: rowCount, columnMax: colCount } = segment.cellMap.calcExtents(segment.entries.length));
   } else {
-    if (curr.endSequenceId != value.startSequenceId) {
+    if (curr.endSequenceId != startSequenceId) {
       // Shouldn't happen unless we have buggy event log implementation
       throw Error(`Query returned start ${value.startSequenceId}, expected ${curr.endSequenceId}`);
     }
@@ -83,11 +83,10 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
           segment.cellMap.addEntry(entry.row, entry.column, baseIndex+i, entry.value, entry.format);
         }
         entries = entries.slice(indexInValue);
-        startSequenceId = startSequenceId + BigInt(indexInValue);
         const cellMap = new SpreadsheetCellMap;
         cellMap.loadAsSnapshot(segment.cellMap, baseIndex+indexInValue);
         const emptyArray: SpreadsheetLogEntry[] = [];
-        segment = { startSequenceId, entries: emptyArray, cellMap, snapshot: value.lastSnapshot.blobId };
+        segment = { startSequenceId: startSequenceId + BigInt(indexInValue), entries: emptyArray, cellMap, snapshot: value.lastSnapshot.blobId };
         // Segment extension code below will add the remaining values
       }
       // Snapshot must be in later page of results. Deal with it when we get there.
