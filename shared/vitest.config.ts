@@ -11,7 +11,7 @@ export default defineConfig({
     coverage: {
       provider: 'istanbul',
       include: ['src/**'],
-      exclude: ['src/test/**','src/*.*test.*'],
+      exclude: ['src/test/**','src/*.*test.*','src/*.bench.*'],
     },
   },
   define: { 
