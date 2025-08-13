@@ -73,35 +73,67 @@ describe('EventSourcedSpreadsheetData', () => {
     vi.useRealTimers();
   }
 
-  bench('write 100 entries', async () => {
-    await writeEntries(10, 10, 99n, 1);
-  }, { time: 1000, iterations: 10, warmupIterations: 1, throws: true })
-
-  bench('read 100 entries', async () => {
-    await readEntries(99n, 1);
-  }, { time: 1000, iterations: 10, warmupIterations: 1, throws: true })
-
-  bench('write 1000 entries', async () => {
+  bench('write 1k entries', async () => {
     await writeEntries(100, 10, 990n, 10);
   }, { time: 1000, iterations: 10, warmupIterations: 1, throws: true })
 
-  bench('read 1000 entries', async () => {
+  bench('read 1k entries', async () => {
     await readEntries(990n, 10);
   }, { time: 1000, iterations: 10, warmupIterations: 1, throws: true })
 
-  bench('write 10000 entries', async () => {
-    await writeEntries(100, 100, 9999n, 1);
+  bench('write 2k entries', async () => {
+    await writeEntries(100, 20, 1980n, 10);
+  }, { time: 1000, iterations: 10, warmupIterations: 1, throws: true })
+
+  bench('read 2k entries', async () => {
+    await readEntries(1980n, 20);
+  }, { time: 1000, iterations: 10, warmupIterations: 1, throws: true })
+
+  bench('write 4k entries', async () => {
+    await writeEntries(100, 40, 3960n, 10);
   }, { time: 1000, iterations: 5, warmupIterations: 1, throws: true })
 
-  bench('read 10000 entries', async () => {
-    await readEntries(9999n, 1);
+  bench('read 4k entries', async () => {
+    await readEntries(3960n, 40);
   }, { time: 1000, iterations: 5, warmupIterations: 1, throws: true })
 
-    bench('write 100K entries', async () => {
-    await writeEntries(1000, 100, 99990n, 10);
-  }, { time: 1000, iterations: 1, warmupIterations: 1, throws: true })
+  bench('write 8K entries', async () => {
+    await writeEntries(100, 80, 7920n, 10);
+  }, { time: 1000, iterations: 5, warmupIterations: 1, throws: true })
 
-  bench('read 100K entries', async () => {
-    await readEntries(99990n, 10);
-  }, { time: 1000, iterations: 1, warmupIterations: 1, throws: true })
+  bench('read 8K entries', async () => {
+    await readEntries(7920n, 80);
+  }, { time: 1000, iterations: 5, warmupIterations: 1, throws: true })
+
+  bench('write 16K entries', async () => {
+    await writeEntries(1000, 16, 15939n, 10);
+  }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
+
+  bench('read 16K entries', async () => {
+    await readEntries(15939n, 61);
+  }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
+
+  bench('write 24K entries', async () => {
+    await writeEntries(1000, 24, 23958n, 10);
+  }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
+
+  bench('read 24K entries', async () => {
+    await readEntries(23958n, 42);
+  }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
+
+  bench('write 32K entries', async () => {
+    await writeEntries(1000, 32, 31977n, 10);
+  }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
+
+  bench('read 32K entries', async () => {
+    await readEntries(31977n, 23);
+  }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
+
+  bench('write 48K entries', async () => {
+    await writeEntries(1000, 48, 47916n, 10);
+  }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
+
+  bench('read 48K entries', async () => {
+    await readEntries(47916n, 84);
+  }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
 })
