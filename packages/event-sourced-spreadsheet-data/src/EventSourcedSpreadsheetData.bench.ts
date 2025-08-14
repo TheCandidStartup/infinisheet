@@ -129,11 +129,11 @@ describe('EventSourcedSpreadsheetData', () => {
     await readEntries(31977n, 23);
   }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
 
-  bench('write 48K entries', async () => {
-    await writeEntries(1000, 48, 47916n, 10);
+  bench('write 40K entries', async () => {
+    await writeEntries(1000, 40, 39996n, 4);
   }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
 
-  bench('read 48K entries', async () => {
-    await readEntries(47916n, 84);
+  bench('read 40K entries', async () => {
+    await readEntries(39996n, 4);
   }, { time: 1000, iterations: 1, warmupIterations: 0, throws: true })
 })
