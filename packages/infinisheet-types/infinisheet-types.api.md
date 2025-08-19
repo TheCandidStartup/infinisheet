@@ -90,6 +90,7 @@ export type DirQueryError = StorageError | NoContinuationError;
 
 // @public (undocumented)
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
+    constructor();
     // (undocumented)
     getCellFormat(_snapshot: number, _row: number, _column: number): string | undefined;
     // (undocumented)
@@ -107,12 +108,22 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
     // (undocumented)
     getSnapshot(): number;
     // (undocumented)
+    getViewport(_snapshot: number): SpreadsheetViewport | undefined;
+    // (undocumented)
     isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void, ValidationError>;
     // (undocumented)
     setCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
+    setViewport(viewport: SpreadsheetViewport | undefined): void;
+    // (undocumented)
     subscribe(_onDataChange: () => void): () => void;
 }
+
+// @public
+export function emptyViewport(): SpreadsheetViewport;
+
+// @public
+export function equalViewports(a: SpreadsheetViewport | undefined, b: SpreadsheetViewport | undefined): boolean;
 
 // @public
 export interface Err<T, E> extends Err_2<T, E> {
@@ -320,13 +331,23 @@ export interface SpreadsheetData<Snapshot> {
     getRowCount(snapshot: Snapshot): number;
     getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping;
     getSnapshot(): Snapshot;
+    getViewport(snapshot: Snapshot): SpreadsheetViewport | undefined;
     isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): Result<void, ValidationError>;
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
+    setViewport(viewport: SpreadsheetViewport | undefined): void;
     subscribe(onDataChange: () => void): () => void;
 }
 
 // @public
 export type SpreadsheetDataError = ValidationError | StorageError;
+
+// @public
+export interface SpreadsheetViewport {
+    columnMinOffset: number;
+    height: number;
+    rowMinOffset: number;
+    width: number;
+}
 
 // @public
 export interface StorageError extends InfinisheetError {

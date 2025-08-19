@@ -1,6 +1,6 @@
 import type { CellValue, CellFormat, SpreadsheetData, RowColRef, ItemOffsetMapping, Result, ResultAsync,
-  SpreadsheetDataError, ValidationError, StorageError } from "@candidstartup/infinisheet-types";
-import { FixedSizeItemOffsetMapping, rowColCoordsToRef, ok, okAsync } from "@candidstartup/infinisheet-types";
+  SpreadsheetDataError, ValidationError, StorageError, SpreadsheetViewport } from "@candidstartup/infinisheet-types";
+import { FixedSizeItemOffsetMapping, rowColCoordsToRef, ok, okAsync, equalViewports } from "@candidstartup/infinisheet-types";
 
 interface CellContent {
   value: CellValue;
@@ -11,6 +11,7 @@ interface SimpleSnapshotContent {
   values: Record<RowColRef,CellContent>;
   rowCount: number;
   colCount: number;
+  viewport: SpreadsheetViewport | undefined;
 }
 
 /** 
@@ -56,7 +57,8 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     this.content = {
       values: {},
       rowCount: 0,
-      colCount: 0
+      colCount: 0,
+      viewport: undefined
     }
   }
 
@@ -112,7 +114,8 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     this.content = {
       values: { ...curr.values, [ref]: { value, format }},
       rowCount: Math.max(curr.rowCount, row+1),
-      colCount: Math.max(curr.colCount, column+1)
+      colCount: Math.max(curr.colCount, column+1),
+      viewport: curr.viewport
     }
 
     return okAsync().andTee(() => this.notifyListeners());
@@ -120,6 +123,19 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
 
   isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> {
     return ok(); 
+  }
+
+  setViewport(viewport: SpreadsheetViewport | undefined): void { 
+    const curr = this.content;
+    if (equalViewports(curr.viewport, viewport))
+      return;
+
+    this.content = { ...curr, viewport };
+    this.notifyListeners();
+  }
+
+  getViewport(snapshot: SimpleSnapshot): SpreadsheetViewport | undefined { 
+    return asContent(snapshot).viewport; 
   }
 
   private notifyListeners() {

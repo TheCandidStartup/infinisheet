@@ -1,4 +1,5 @@
-import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore, QueryValue, SnapshotValue } from "@candidstartup/infinisheet-types";
+import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore, QueryValue, SnapshotValue,
+  SpreadsheetViewport } from "@candidstartup/infinisheet-types";
 import { ok, err } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
@@ -19,6 +20,7 @@ export interface EventSourcedSnapshotContent {
   loadStatus: Result<boolean,StorageError>;
   rowCount: number;
   colCount: number;
+  viewport: SpreadsheetViewport | undefined;
 }
 
 /** @internal */
@@ -107,7 +109,8 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
     endSequenceId: value.endSequenceId,
     logSegment: segment,
     loadStatus: ok(value.isComplete),
-    rowCount, colCount
+    rowCount, colCount,
+    viewport: curr.viewport
   });
 }
 
@@ -116,7 +119,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
  * @internal
  */
 export abstract class EventSourcedSpreadsheetEngine {
-  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>) {
+  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, viewport?: SpreadsheetViewport) {
     this.isInSyncLogs = false;
     this.eventLog = eventLog;
     this.blobStore = blobStore;
@@ -125,7 +128,8 @@ export abstract class EventSourcedSpreadsheetEngine {
       logSegment: { startSequenceId: 0n, entries: [], cellMap: new SpreadsheetCellMap },
       loadStatus: ok(false),
       rowCount: 0,
-      colCount: 0
+      colCount: 0,
+      viewport
     }
   }
 

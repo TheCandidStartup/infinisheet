@@ -268,6 +268,11 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
   const columnMapping = data.getColumnItemOffsetMapping(snapshot);
   const columnOffset = columnMapping.itemOffset(columnCount);
 
+  const minWidth = rowHeaderWidth * 2;
+  const minHeight = inputBarHeight + columnHeaderHeight * 2;
+  const gridWidth = Math.max(width - rowHeaderWidth, rowHeaderWidth);
+  const gridHeight = Math.max(height - columnHeaderHeight - inputBarHeight, columnHeaderHeight);
+
   React.useEffect(() => {
     scrollRef.current?.scrollTo(gridRowOffset, gridColumnOffset);
   }, [gridRowOffset, gridColumnOffset])
@@ -275,6 +280,15 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
   React.useEffect(() => {
     focusSinkRef.current?.focus({preventScroll: true})
   }, [focusCell])
+
+  React.useEffect(() => {
+    data.setViewport({rowMinOffset: gridRowOffset, columnMinOffset: gridColumnOffset, width: gridWidth, height: gridHeight});
+  }, [data, gridRowOffset, gridColumnOffset, gridWidth, gridHeight])
+
+  function updateGridScrollState(rowOffset: number, columnOffset: number) {
+    setGridScrollState([rowOffset, columnOffset]);
+    data.setViewport({rowMinOffset: rowOffset, columnMinOffset: columnOffset, width: gridWidth, height: gridHeight});
+  }
 
   function onScroll(rowOffsetValue: number, columnOffsetValue: number) {
     if (rowOffsetValue == gridRowOffset && columnOffsetValue == gridColumnOffset)
@@ -296,7 +310,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
         setHwmColumnIndex(columnCount);
     }
 
-    setGridScrollState([rowOffsetValue, columnOffsetValue]);
+    updateGridScrollState(rowOffsetValue, columnOffsetValue);
   }
 
   function updateFormula(rowIndex: number, colIndex: number, editMode: boolean) {
@@ -364,7 +378,7 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
     const newRowOffset = getOffsetToScrollRange(...rowRange, scroll.clientHeight, gridRowOffset, 'visible');
     const newColOffset = getOffsetToScrollRange(...colRange, scroll.clientWidth, gridColumnOffset, 'visible');
     if (newRowOffset !== undefined || newColOffset !== undefined) {
-      setGridScrollState([(newRowOffset === undefined) ? gridRowOffset : newRowOffset, (newColOffset === undefined) ? gridColumnOffset : newColOffset]);
+      updateGridScrollState((newRowOffset === undefined) ? gridRowOffset : newRowOffset, (newColOffset === undefined) ? gridColumnOffset : newColOffset);
     }
   }
 
@@ -736,10 +750,6 @@ export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGen
 
   const columnTemplate = `${rowHeaderWidth}px 1fr`;
   const rowTemplate = `${inputBarHeight}px ${columnHeaderHeight}px 1fr`;
-  const minWidth = rowHeaderWidth * 2;
-  const minHeight = inputBarHeight + columnHeaderHeight * 2;
-  const gridWidth = Math.max(width - rowHeaderWidth, rowHeaderWidth);
-  const gridHeight = Math.max(height - columnHeaderHeight - inputBarHeight, columnHeaderHeight);
 
   return (
     <div className={join(props.className, theme?.VirtualSpreadsheet)} 

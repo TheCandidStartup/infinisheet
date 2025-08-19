@@ -34,6 +34,7 @@ import { ResultAsync } from '@candidstartup/infinisheet-types';
 import { SequenceId } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
+import { SpreadsheetViewport } from '@candidstartup/infinisheet-types';
 import { StorageError } from '@candidstartup/infinisheet-types';
 import { TruncateError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
@@ -92,9 +93,13 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
     // (undocumented)
     getSnapshot(): LayeredSnapshot<BaseSnapshot, EditSnapshot>;
     // (undocumented)
+    getViewport(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): SpreadsheetViewport | undefined;
+    // (undocumented)
     isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): Result<void, ValidationError>;
     // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
+    // (undocumented)
+    setViewport(viewport: SpreadsheetViewport | undefined): void;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }
@@ -181,9 +186,13 @@ export class SimpleSpreadsheetData implements SpreadsheetData<SimpleSnapshot> {
     // (undocumented)
     getSnapshot(): SimpleSnapshot;
     // (undocumented)
+    getViewport(snapshot: SimpleSnapshot): SpreadsheetViewport | undefined;
+    // (undocumented)
     isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void, ValidationError>;
     // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
+    // (undocumented)
+    setViewport(viewport: SpreadsheetViewport | undefined): void;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
 }

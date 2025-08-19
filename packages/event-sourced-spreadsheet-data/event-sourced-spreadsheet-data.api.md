@@ -19,6 +19,7 @@ import { ResultAsync } from '@candidstartup/infinisheet-types';
 import { SequenceId } from '@candidstartup/infinisheet-types';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 import { SpreadsheetDataError } from '@candidstartup/infinisheet-types';
+import { SpreadsheetViewport } from '@candidstartup/infinisheet-types';
 import { StorageError } from '@candidstartup/infinisheet-types';
 import { ValidationError } from '@candidstartup/infinisheet-types';
 import { WorkerHost } from '@candidstartup/infinisheet-types';
@@ -70,6 +71,8 @@ export interface EventSourcedSnapshotContent {
     logSegment: LogSegment;
     // (undocumented)
     rowCount: number;
+    // (undocumented)
+    viewport: SpreadsheetViewport | undefined;
 }
 
 // Warning: (ae-incompatible-release-tags) The symbol "EventSourcedSpreadsheetData" is marked as @public, but its signature references "EventSourcedSpreadsheetEngine" which is marked as @internal
@@ -94,11 +97,15 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
     // (undocumented)
     getSnapshot(): EventSourcedSnapshot;
     // (undocumented)
+    getViewport(snapshot: EventSourcedSnapshot): SpreadsheetViewport | undefined;
+    // (undocumented)
     isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void, ValidationError>;
     // (undocumented)
     protected notifyListeners(): void;
     // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
+    // (undocumented)
+    setViewport(viewport: SpreadsheetViewport | undefined): void;
     // (undocumented)
     subscribe(onDataChange: () => void): () => void;
     // (undocumented)
@@ -109,13 +116,14 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
 export interface EventSourcedSpreadsheetDataOptions {
     restartPendingWorkflowsOnLoad?: boolean | undefined;
     snapshotInterval?: number | undefined;
+    viewport?: SpreadsheetViewport | undefined;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "EventSourcedSpreadsheetEngine" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal
 export abstract class EventSourcedSpreadsheetEngine {
-    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>);
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, viewport?: SpreadsheetViewport);
     // (undocumented)
     protected blobStore: BlobStore<unknown>;
     // (undocumented)

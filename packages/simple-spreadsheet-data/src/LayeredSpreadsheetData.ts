@@ -1,5 +1,5 @@
 import type { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync,
-  SpreadsheetDataError, ValidationError, StorageError } from "@candidstartup/infinisheet-types";
+  SpreadsheetDataError, ValidationError, StorageError, SpreadsheetViewport } from "@candidstartup/infinisheet-types";
 
 interface LayeredSnapshotContent<BaseSnapshot, EditSnapshot> {
   base: BaseSnapshot,
@@ -133,6 +133,15 @@ export class LayeredSpreadsheetData<BaseData extends SpreadsheetData<BaseSnapsho
   isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): Result<void,ValidationError> {
     const result = this.base.isValidCellValueAndFormat(row, column, value, format);
     return result.andThen(() => this.edit.isValidCellValueAndFormat(row,column,value,format));
+  }
+
+  setViewport(viewport: SpreadsheetViewport | undefined): void { 
+    this.base.setViewport(viewport);
+    this.edit.setViewport(viewport);
+  }
+  getViewport(snapshot: LayeredSnapshot<BaseSnapshot, EditSnapshot>): SpreadsheetViewport | undefined { 
+    const content = asContent(snapshot);
+    return this.edit.getViewport(content.edit);
   }
 
   private base: BaseData;

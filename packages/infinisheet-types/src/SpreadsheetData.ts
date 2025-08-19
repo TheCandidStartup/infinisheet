@@ -57,6 +57,40 @@ export interface CellData {
   format?: CellFormat;
 }
 
+/** A viewport onto the spreadsheet. Usually the portion of the spreadsheet visible on-screen. */
+export interface SpreadsheetViewport {
+  /** Offset down the rows to the start of the viewport (using {@link ItemOffsetMapping} offsets) */
+  rowMinOffset: number,
+
+  /** Offset along the columns to the start of the viewport (using {@link ItemOffsetMapping} offsets) */
+  columnMinOffset: number,
+
+  /** Viewport width */
+  width: number,
+
+  /** Viewport height */
+  height: number
+}
+
+/** Are two viewports equal by value? */
+export function equalViewports(a: SpreadsheetViewport | undefined, b: SpreadsheetViewport | undefined): boolean {
+  if (a === b)
+    return true;
+
+  if (!a || !b)
+    return false;
+
+  return a.rowMinOffset === b.rowMinOffset &&
+    a.columnMinOffset === b.columnMinOffset &&
+    a.width === b.width &&
+    a.height === b.height;
+}
+
+/** Creates an empty viewport */
+export function emptyViewport(): SpreadsheetViewport {
+  return { rowMinOffset: 0, columnMinOffset: 0, width: 0, height: 0 }
+}
+
 /** Types of error that can be returned by {@link SpreadsheetData} methods */
 export type SpreadsheetDataError = ValidationError | StorageError;
 
@@ -72,10 +106,10 @@ export type SpreadsheetDataError = ValidationError | StorageError;
  */
 export interface SpreadsheetData<Snapshot> {
   /** Subscribe to data changes */
-  subscribe(onDataChange: () => void): () => void,
+  subscribe(onDataChange: () => void): () => void
 
   /** Return a snapshot to use when accessing values at a consistent point in time */
-  getSnapshot(): Snapshot,
+  getSnapshot(): Snapshot
 
   /** 
    * Return load status at the time the snapshot was created 
@@ -83,25 +117,25 @@ export interface SpreadsheetData<Snapshot> {
    * On Success returns true if load has completed, false if still in progress
    * On Err returns most recent error reported by the storage system
    */
-  getLoadStatus(snapshot: Snapshot): Result<boolean,StorageError>,
+  getLoadStatus(snapshot: Snapshot): Result<boolean,StorageError>
 
   /** Number of rows in the spreadsheet */
-  getRowCount(snapshot: Snapshot): number,
+  getRowCount(snapshot: Snapshot): number
 
   /** {@link ItemOffsetMapping} which describes sizes and offsets to start of rows */
-  getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping,
+  getRowItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping
 
     /** Number of columns in the spreadsheet */
-  getColumnCount(snapshot: Snapshot): number,
+  getColumnCount(snapshot: Snapshot): number
 
   /** {@link ItemOffsetMapping} which describes sizes and offsets to start of columns */
-  getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping,
+  getColumnItemOffsetMapping(snapshot: Snapshot): ItemOffsetMapping
 
   /** Value of specified cell using 0-based row and column indexes */
-  getCellValue(snapshot: Snapshot, row: number, column: number): CellValue;
+  getCellValue(snapshot: Snapshot, row: number, column: number): CellValue
 
   /** Format of specified cell using 0-based row and column indexes */
-  getCellFormat(snapshot: Snapshot, row: number, column: number): CellFormat;
+  getCellFormat(snapshot: Snapshot, row: number, column: number): CellFormat
 
   /** Set value and format of specified cell
    * 
@@ -114,12 +148,29 @@ export interface SpreadsheetData<Snapshot> {
    * @returns `Ok` if the value and format are valid
    */
   isValidCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): Result<void,ValidationError>
+
+  /** Set viewport of interest
+   * 
+   * Can be used by `SpreadsheetData` implementations to optimize data retrieval and memory usage.
+   * Queries for cells outside the viewport *may* return `undefined`. Clients should not rely on any particular behavior
+   * for queries outside the viewport.
+   * 
+   * Set to undefined (the default) if the client needs access to the entire spreadsheet
+   */
+  setViewport(viewport: SpreadsheetViewport | undefined): void
+
+  /** Return the viewport in force (if any) */
+  getViewport(snapshot: Snapshot): SpreadsheetViewport | undefined
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
 const columnItemOffsetMapping = new FixedSizeItemOffsetMapping(100);
 
 export class EmptySpreadsheetData implements SpreadsheetData<number> {
+  constructor() {
+    this.viewport = undefined;
+  }
+
   subscribe(_onDataChange: () => void) { return () => {}; }
   getSnapshot() { return 0; }
   
@@ -134,5 +185,10 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
   { return errAsync(storageError("Not implemented", 501)); }
   isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> 
   { return ok(); }
+
+  setViewport(viewport: SpreadsheetViewport | undefined): void { this.viewport = viewport; }
+  getViewport(_snapshot: number): SpreadsheetViewport | undefined { return this.viewport }
+
+  private viewport: SpreadsheetViewport | undefined;
 }
 

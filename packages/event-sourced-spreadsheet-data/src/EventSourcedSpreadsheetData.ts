@@ -1,6 +1,7 @@
 import type { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, AddEntryError, AddEntryValue,
-  SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage } from "@candidstartup/infinisheet-types";
-import { FixedSizeItemOffsetMapping, ok, storageError } from "@candidstartup/infinisheet-types";
+  SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage,
+  SpreadsheetViewport } from "@candidstartup/infinisheet-types";
+import { FixedSizeItemOffsetMapping, ok, storageError, equalViewports } from "@candidstartup/infinisheet-types";
 
 import type { SetCellValueAndFormatLogEntry, SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine, forkSegment } from "./EventSourcedSpreadsheetEngine"
@@ -37,6 +38,9 @@ export interface EventSourcedSpreadsheetDataOptions {
    * @defaultValue false
   */
   restartPendingWorkflowsOnLoad?: boolean | undefined;
+
+  /** Initial viewport */
+  viewport?: SpreadsheetViewport | undefined;
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
@@ -57,7 +61,7 @@ function asSnapshot(snapshot: EventSourcedSnapshotContent) {
 export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
   constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>,
                options?: EventSourcedSpreadsheetDataOptions) {
-    super(eventLog, blobStore);
+    super(eventLog, blobStore, options?.viewport);
 
     this.intervalId = undefined;
     this.workerHost = workerHost;
@@ -132,7 +136,8 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
           logSegment,
           loadStatus: ok(true),
           rowCount: Math.max(curr.rowCount, row+1),
-          colCount: Math.max(curr.colCount, column+1)
+          colCount: Math.max(curr.colCount, column+1),
+          viewport: curr.viewport
         }
 
         this.notifyListeners();
@@ -155,6 +160,21 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
 
   isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> {
     return ok(); 
+  }
+
+  setViewport(viewport: SpreadsheetViewport | undefined): void { 
+    const curr = this.content;
+    if (equalViewports(curr.viewport, viewport))
+      return;
+
+    // Take our own copy of viewport to ensure that it's immutable
+    const viewportCopy = viewport ? { ...viewport } : undefined;
+    this.content = { ...curr, viewport: viewportCopy };
+    this.notifyListeners();
+  }
+  
+  getViewport(snapshot: EventSourcedSnapshot): SpreadsheetViewport | undefined { 
+    return asContent(snapshot).viewport; 
   }
 
   protected notifyListeners() {
