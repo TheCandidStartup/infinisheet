@@ -1,6 +1,6 @@
 import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore, QueryValue, SnapshotValue,
   SpreadsheetViewport } from "@candidstartup/infinisheet-types";
-import { ok, err } from "@candidstartup/infinisheet-types";
+import { ok, err, equalViewports } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { SpreadsheetCellMap } from "./SpreadsheetCellMap"
@@ -9,7 +9,6 @@ import { SpreadsheetCellMap } from "./SpreadsheetCellMap"
 export interface LogSegment {
   startSequenceId: SequenceId;
   entries: SpreadsheetLogEntry[];
-  cellMap: SpreadsheetCellMap;
   snapshot?: BlobId | undefined;
 }
 
@@ -17,29 +16,33 @@ export interface LogSegment {
 export interface EventSourcedSnapshotContent {
   endSequenceId: SequenceId;
   logSegment: LogSegment;
-  loadStatus: Result<boolean,StorageError>;
+  logLoadStatus: Result<boolean,StorageError>;
+  cellMap: SpreadsheetCellMap;
+  mapLoadStatus: Result<boolean,StorageError>;
   rowCount: number;
   colCount: number;
   viewport: SpreadsheetViewport | undefined;
 }
 
 /** @internal */
-export function forkSegment(segment: LogSegment, snapshot: SnapshotValue): LogSegment {
+export function forkSegment(segment: LogSegment, cellMap: SpreadsheetCellMap, snapshot: SnapshotValue): [LogSegment, SpreadsheetCellMap] {
   const index = Number(snapshot.sequenceId - segment.startSequenceId);
   if (index < 0 || index >= segment.entries.length)
     throw Error("forkSegment: snapshotId not within segment");
 
   const newSegment: LogSegment = 
-    { startSequenceId: snapshot.sequenceId, entries: segment.entries.slice(index), cellMap: new SpreadsheetCellMap, snapshot: snapshot.blobId };
-  newSegment.cellMap.loadAsSnapshot(segment.cellMap, index);
-  newSegment.cellMap.addEntries(newSegment.entries, 0);
+    { startSequenceId: snapshot.sequenceId, entries: segment.entries.slice(index), snapshot: snapshot.blobId };
+  const newMap = new SpreadsheetCellMap;
+  newMap.loadAsSnapshot(cellMap, index);
+  newMap.addEntries(newSegment.entries, 0);
 
-  return newSegment;
+  return [newSegment, newMap];
 }
 
 async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValue<SpreadsheetLogEntry>,
   blobStore: BlobStore<unknown>): Promise<Result<EventSourcedSnapshotContent,StorageError>> {
   let segment: LogSegment = curr.logSegment;
+  let cellMap: SpreadsheetCellMap = curr.cellMap;
   let rowCount = curr.rowCount;
   let colCount = curr.colCount;
 
@@ -49,7 +52,8 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
 
   // Start a new segment and load from snapshot if we've jumped to id past what we currently have
   if (snapshot && curr.endSequenceId != startSequenceId) {
-    segment = { startSequenceId, entries, cellMap: new SpreadsheetCellMap, snapshot };
+    segment = { startSequenceId, entries, snapshot };
+    cellMap = new SpreadsheetCellMap;
     const dir = await blobStore.getRootDir();
     if (dir.isErr())
       return err(dir.error);
@@ -60,9 +64,9 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
         throw Error("Blob store all messed up", { cause: blob.error })
       return err(blob.error);
     }
-    segment.cellMap.loadSnapshot(blob.value);
-    segment.cellMap.addEntries(segment.entries, 0);
-    ({ rowMax: rowCount, columnMax: colCount } = segment.cellMap.calcExtents(segment.entries.length));
+    cellMap.loadSnapshot(blob.value);
+    cellMap.addEntries(segment.entries, 0);
+    ({ rowMax: rowCount, columnMax: colCount } = cellMap.calcExtents(segment.entries.length));
   } else {
     if (curr.endSequenceId != startSequenceId) {
       // Shouldn't happen unless we have buggy event log implementation
@@ -73,7 +77,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
       const { sequenceId } = value.lastSnapshot;
       if (sequenceId < curr.endSequenceId) {
         // Snapshot has completed in entry we already have. Fork segment at that point then process value as normal.
-        segment = forkSegment(segment, value.lastSnapshot);
+        [segment, cellMap] = forkSegment(segment, cellMap, value.lastSnapshot);
       } else if (sequenceId < value.endSequenceId) {
         // Snapshot in returned value. Add entries up to snapshot to current cell map then start new segment from that.
         const indexInValue = Number(sequenceId - startSequenceId);
@@ -82,20 +86,21 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
           const entry = entries[i]!;
           rowCount = Math.max(rowCount, entry.row+1);
           colCount = Math.max(colCount, entry.column+1);
-          segment.cellMap.addEntry(entry.row, entry.column, baseIndex+i, entry.value, entry.format);
+          cellMap.addEntry(entry.row, entry.column, baseIndex+i, entry.value, entry.format);
         }
         entries = entries.slice(indexInValue);
-        const cellMap = new SpreadsheetCellMap;
-        cellMap.loadAsSnapshot(segment.cellMap, baseIndex+indexInValue);
+        const oldCellMap = cellMap;
+        cellMap = new SpreadsheetCellMap;
+        cellMap.loadAsSnapshot(oldCellMap, baseIndex+indexInValue);
         const emptyArray: SpreadsheetLogEntry[] = [];
-        segment = { startSequenceId: startSequenceId + BigInt(indexInValue), entries: emptyArray, cellMap, snapshot: value.lastSnapshot.blobId };
+        segment = { startSequenceId: startSequenceId + BigInt(indexInValue), entries: emptyArray, snapshot: value.lastSnapshot.blobId };
         // Segment extension code below will add the remaining values
       }
       // Snapshot must be in later page of results. Deal with it when we get there.
     }
 
     // Extend the current loaded segment.
-    segment.cellMap.addEntries(entries, segment.entries.length);
+    cellMap.addEntries(entries, segment.entries.length);
     segment.entries.push(...entries);
 
     for (const entry of entries) {
@@ -108,7 +113,9 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
   return ok({
     endSequenceId: value.endSequenceId,
     logSegment: segment,
-    loadStatus: ok(value.isComplete),
+    logLoadStatus: ok(value.isComplete),
+    cellMap,
+    mapLoadStatus: ok(true),
     rowCount, colCount,
     viewport: curr.viewport
   });
@@ -125,12 +132,25 @@ export abstract class EventSourcedSpreadsheetEngine {
     this.blobStore = blobStore;
     this.content = {
       endSequenceId: 0n,
-      logSegment: { startSequenceId: 0n, entries: [], cellMap: new SpreadsheetCellMap },
-      loadStatus: ok(false),
+      logSegment: { startSequenceId: 0n, entries: [] },
+      logLoadStatus: ok(false),
+      cellMap: new SpreadsheetCellMap,
+      mapLoadStatus: ok(true),    // Empty map is consistent with current state of log
       rowCount: 0,
       colCount: 0,
       viewport
     }
+  }
+
+  setViewport(viewport: SpreadsheetViewport | undefined): void { 
+    const curr = this.content;
+    if (equalViewports(curr.viewport, viewport))
+      return;
+
+    // Take our own copy of viewport to ensure that it's immutable
+    const viewportCopy = viewport ? { ...viewport } : undefined;
+    this.content = { ...curr, viewport: viewportCopy };
+    this.notifyListeners();
   }
 
   // Sync in-memory representation so that it includes range to endSequenceId (defaults to end of log)
@@ -178,7 +198,7 @@ export abstract class EventSourcedSpreadsheetEngine {
         // For now wait for interval timer to try another sync
         // For persistent failures should stop interval timer and have some mechanism for user to trigger
         // manual retry. 
-        this.content = { ...curr, loadStatus: err(result.error)};
+        this.content = { ...curr, logLoadStatus: err(result.error)};
         this.notifyListeners();
         break;
       }
@@ -189,11 +209,11 @@ export abstract class EventSourcedSpreadsheetEngine {
       // Don't create new snapshot if nothing has changed
       if (value.entries.length > 0) {
         const result = await updateContent(curr, value, this.blobStore);
-        this.content = result.isOk() ? result.value : { ...curr, loadStatus: err(result.error)};
+        this.content = result.isOk() ? result.value : { ...curr, logLoadStatus: err(result.error)};
         this.notifyListeners();
-      } else if (curr.loadStatus.isErr() || curr.loadStatus.value != isComplete) {
+      } else if (curr.logLoadStatus.isErr() || curr.logLoadStatus.value != isComplete) {
         // Careful, even if no entries returned, loadStatus may have changed
-        this.content = { ...curr, loadStatus: ok(isComplete) }
+        this.content = { ...curr, logLoadStatus: ok(isComplete) }
         this.notifyListeners();
       }
     }

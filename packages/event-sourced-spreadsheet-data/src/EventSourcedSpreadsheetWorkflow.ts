@@ -29,14 +29,16 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
   private async onReceiveMessageAsync(message: PendingWorkflowMessage): Promise<Result<void,InfinisheetError>> {
     const endSequenceId = message.sequenceId;
     await this.syncLogsAsync(endSequenceId);
-    if (this.content.loadStatus.isErr())
-      return err(this.content.loadStatus.error);
-    if (!this.content.loadStatus.value)
+    if (this.content.logLoadStatus.isErr())
+      return err(this.content.logLoadStatus.error);
+    if (this.content.mapLoadStatus.isErr())
+      return err(this.content.mapLoadStatus.error);
+    if (!this.content.logLoadStatus.value)
       throw Error("Somehow syncLogs() is still in progress despite promise having resolved");
 
-    const logSegment = this.content.logSegment;
+    const { logSegment, cellMap } = this.content;
     const snapshotIndex = Number(endSequenceId - logSegment.startSequenceId);
-    const blob = logSegment.cellMap.saveSnapshot(snapshotIndex);
+    const blob = cellMap.saveSnapshot(snapshotIndex);
     const name = message.sequenceId.toString();
 
     const dir = await this.blobStore.getRootDir();

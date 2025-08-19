@@ -1,7 +1,7 @@
 import type { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, AddEntryError, AddEntryValue,
   SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage,
   SpreadsheetViewport } from "@candidstartup/infinisheet-types";
-import { FixedSizeItemOffsetMapping, ok, storageError, equalViewports } from "@candidstartup/infinisheet-types";
+import { FixedSizeItemOffsetMapping, ok, storageError } from "@candidstartup/infinisheet-types";
 
 import type { SetCellValueAndFormatLogEntry, SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine, forkSegment } from "./EventSourcedSpreadsheetEngine"
@@ -89,7 +89,13 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   }
 
   getLoadStatus(snapshot: EventSourcedSnapshot): Result<boolean,StorageError> {
-    return asContent(snapshot).loadStatus;
+    const content = asContent(snapshot);
+    if (content.logLoadStatus.isErr())
+      return content.logLoadStatus;
+    if (content.mapLoadStatus.isErr())
+      return content.mapLoadStatus;
+
+    return content.logLoadStatus.value ? content.mapLoadStatus : content.logLoadStatus;
   }
 
   getRowCount(snapshot: EventSourcedSnapshot): number {
@@ -124,17 +130,21 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
     const entry: SetCellValueAndFormatLogEntry = { type: 'SetCellValueAndFormat', row, column, value, format };
     return this.addEntry(curr, entry).map((addEntryValue) => {
       if (this.content === curr) {
-        // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
-        const logSegment = addEntryValue.lastSnapshot ? forkSegment(curr.logSegment, addEntryValue.lastSnapshot) : curr.logSegment;
+         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
+        let { logSegment, cellMap } = curr
+        if (addEntryValue.lastSnapshot)
+          [logSegment, cellMap] = forkSegment(curr.logSegment, curr.cellMap, addEntryValue.lastSnapshot);
         logSegment.entries.push(entry);
-        logSegment.cellMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);
+        cellMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);
 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
         this.content = {
           endSequenceId: curr.endSequenceId + 1n,
           logSegment,
-          loadStatus: ok(true),
+          logLoadStatus: ok(true),
+          cellMap,
+          mapLoadStatus: ok(true),
           rowCount: Math.max(curr.rowCount, row+1),
           colCount: Math.max(curr.colCount, column+1),
           viewport: curr.viewport
@@ -148,7 +158,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
           if (this.content == curr) {
             // Out of date wrt to event log, nothing else has updated content since then, so set
             // status for in progress load and trigger sync.
-            this.content = { ...curr, loadStatus: ok(false) }
+            this.content = { ...curr, logLoadStatus: ok(false) }
             this.syncLogs();
           }
           return storageError("Client out of sync", 409);
@@ -162,17 +172,6 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
     return ok(); 
   }
 
-  setViewport(viewport: SpreadsheetViewport | undefined): void { 
-    const curr = this.content;
-    if (equalViewports(curr.viewport, viewport))
-      return;
-
-    // Take our own copy of viewport to ensure that it's immutable
-    const viewportCopy = viewport ? { ...viewport } : undefined;
-    this.content = { ...curr, viewport: viewportCopy };
-    this.notifyListeners();
-  }
-  
   getViewport(snapshot: EventSourcedSnapshot): SpreadsheetViewport | undefined { 
     return asContent(snapshot).viewport; 
   }
@@ -199,7 +198,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {
     const content = asContent(snapshot);
     const endIndex = Number(content.endSequenceId-content.logSegment.startSequenceId);
-    return content.logSegment.cellMap.findEntry(row, column, endIndex);
+    return content.cellMap.findEntry(row, column, endIndex);
   }
 
 

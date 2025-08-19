@@ -62,13 +62,17 @@ export enum _EventSourcedSnapshotBrand {
 // @internal (undocumented)
 export interface EventSourcedSnapshotContent {
     // (undocumented)
+    cellMap: SpreadsheetCellMap;
+    // (undocumented)
     colCount: number;
     // (undocumented)
     endSequenceId: SequenceId;
     // (undocumented)
-    loadStatus: Result<boolean, StorageError>;
+    logLoadStatus: Result<boolean, StorageError>;
     // (undocumented)
     logSegment: LogSegment;
+    // (undocumented)
+    mapLoadStatus: Result<boolean, StorageError>;
     // (undocumented)
     rowCount: number;
     // (undocumented)
@@ -105,8 +109,6 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
     // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
-    setViewport(viewport: SpreadsheetViewport | undefined): void;
-    // (undocumented)
     subscribe(onDataChange: () => void): () => void;
     // (undocumented)
     protected workerHost?: WorkerHost<PendingWorkflowMessage> | undefined;
@@ -133,6 +135,8 @@ export abstract class EventSourcedSpreadsheetEngine {
     // (undocumented)
     protected abstract notifyListeners(): void;
     // (undocumented)
+    setViewport(viewport: SpreadsheetViewport | undefined): void;
+    // (undocumented)
     protected syncLogs(endSequenceId?: SequenceId): void;
     // (undocumented)
     protected syncLogsAsync(endSequenceId?: SequenceId): Promise<void>;
@@ -153,8 +157,6 @@ export class EventSourcedSpreadsheetWorkflow extends EventSourcedSpreadsheetEngi
 //
 // @internal (undocumented)
 export interface LogSegment {
-    // (undocumented)
-    cellMap: SpreadsheetCellMap;
     // (undocumented)
     entries: SpreadsheetLogEntry[];
     // (undocumented)
