@@ -227,7 +227,7 @@ describe('EventSourcedSpreadsheetData', () => {
     enableSyncOnce(dataB);
     await vi.runAllTimersAsync();
     expect(dataB["content"].logSegment.entries.length).toEqual(15);
-    expect(dataB["content"].logSegment.snapshot).toBeUndefined();
+    expect(dataB["content"].logSegment.snapshotId).toBeUndefined();
 
     const dataBSnapshot15 = dataB.getSnapshot();
     expect(dataB.getRowCount(dataBSnapshot15)).toEqual(15);
@@ -245,7 +245,7 @@ describe('EventSourcedSpreadsheetData', () => {
     enableSyncOnce(dataB);
     await vi.runAllTimersAsync();
     expect(dataB["content"].logSegment.entries.length).toEqual(5);
-    expect(dataB["content"].logSegment.snapshot).toEqual("28");
+    expect(dataB["content"].logSegment.snapshotId).toEqual("28");
 
     const dataBSnapshot33 = dataB.getSnapshot();
     expect(dataB.getRowCount(dataBSnapshot15)).toEqual(15);
@@ -262,7 +262,7 @@ describe('EventSourcedSpreadsheetData', () => {
     enableSyncOnce(dataB);
     await vi.advanceTimersByTimeAsync(15000);
     expect(dataB["content"].logSegment.entries.length).toEqual(22);
-    expect(dataB["content"].logSegment.snapshot).toEqual("28");
+    expect(dataB["content"].logSegment.snapshotId).toEqual("28");
 
     const dataBSnapshot50 = dataB.getSnapshot();
     expect(dataB.getRowCount(dataBSnapshot15)).toEqual(15);
@@ -280,13 +280,13 @@ describe('EventSourcedSpreadsheetData', () => {
     enableSyncOnce(dataB);
     await vi.advanceTimersByTimeAsync(15000);
     expect(dataB["content"].logSegment.entries.length).toEqual(22);
-    expect(dataB["content"].logSegment.snapshot).toEqual("28");
+    expect(dataB["content"].logSegment.snapshotId).toEqual("28");
 
     // After adding another entry, sync happens and log segment is forked at snapshot
     expect(await dataA.setCellValueAndFormat(50, 0, 50, undefined)).toBeOk();
     await vi.advanceTimersByTimeAsync(15000);
     expect(dataB["content"].logSegment.entries.length).toEqual(9);
-    expect(dataB["content"].logSegment.snapshot).toEqual("42");
+    expect(dataB["content"].logSegment.snapshotId).toEqual("42");
   })
 
   it('should handle delays', async () => {

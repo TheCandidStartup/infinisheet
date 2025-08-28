@@ -192,7 +192,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       // doing another. May need to retry previous snapshot.
     }
 
-    return this.eventLog.addEntry(entry, curr.endSequenceId, segment.snapshot ? segment.startSequenceId : 0n);
+    return this.eventLog.addEntry(entry, curr.endSequenceId, segment.snapshotId ? segment.startSequenceId : 0n);
   }
 
   private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {

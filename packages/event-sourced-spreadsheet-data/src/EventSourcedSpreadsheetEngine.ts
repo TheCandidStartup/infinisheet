@@ -4,12 +4,14 @@ import { ok, err, equalViewports } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { SpreadsheetCellMap } from "./SpreadsheetCellMap"
+import { openSnapshot, SpreadsheetSnapshot } from "./SpreadsheetSnapshot";
 
 /** @internal */
 export interface LogSegment {
   startSequenceId: SequenceId;
   entries: SpreadsheetLogEntry[];
-  snapshot?: BlobId | undefined;
+  snapshotId?: BlobId | undefined;
+  snapshot?: SpreadsheetSnapshot | undefined;
 }
 
 /** @internal */
@@ -31,12 +33,38 @@ export function forkSegment(segment: LogSegment, cellMap: SpreadsheetCellMap, sn
     throw Error("forkSegment: snapshotId not within segment");
 
   const newSegment: LogSegment = 
-    { startSequenceId: snapshot.sequenceId, entries: segment.entries.slice(index), snapshot: snapshot.blobId };
+    { startSequenceId: snapshot.sequenceId, entries: segment.entries.slice(index), snapshotId: snapshot.blobId };
   const newMap = new SpreadsheetCellMap;
   newMap.loadAsSnapshot(cellMap, index);
   newMap.addEntries(newSegment.entries, 0);
 
   return [newSegment, newMap];
+}
+
+async function cellMapFromSnapshot(segment: LogSegment, blobStore: BlobStore<unknown>): Promise<Result<SpreadsheetCellMap,StorageError>> {
+  let snapshot = segment.snapshot;
+  if (!snapshot) {
+    const dir = await blobStore.getRootDir();
+    if (dir.isErr())
+      return err(dir.error);
+    const result = await openSnapshot(dir.value, segment.snapshotId!);
+    if (result.isErr())
+      return err(result.error);
+    snapshot = result.value;
+    const index = await snapshot.loadIndex();
+    if (index.isErr())
+      return err(index.error);
+    segment.snapshot = snapshot;
+  }
+
+  const blob = await snapshot.loadTile(0, 0, snapshot.rowCount, snapshot.colCount);
+  if (blob.isErr())
+    return err(blob.error);
+
+  const cellMap = new SpreadsheetCellMap;
+  cellMap.loadSnapshot(blob.value);
+  cellMap.addEntries(segment.entries, 0);
+  return ok(cellMap);
 }
 
 async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValue<SpreadsheetLogEntry>,
@@ -48,25 +76,22 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
 
   let entries = value.entries;
   const startSequenceId = value.startSequenceId;
-  const snapshot = entries[0]!.snapshot;
+  const snapshotId = entries[0]!.snapshot;
 
   // Start a new segment and load from snapshot if we've jumped to id past what we currently have
-  if (snapshot && curr.endSequenceId != startSequenceId) {
-    segment = { startSequenceId, entries, snapshot };
-    cellMap = new SpreadsheetCellMap;
-    const dir = await blobStore.getRootDir();
-    if (dir.isErr())
-      return err(dir.error);
-    const blob = await dir.value.readBlob(snapshot);
-    if (blob.isErr()) {
-      const type = blob.error.type;
-      if (type === 'BlobWrongKindError' || type === 'InvalidBlobNameError')
-        throw Error("Blob store all messed up", { cause: blob.error })
-      return err(blob.error);
+  if (snapshotId && curr.endSequenceId != startSequenceId) {
+    segment = { startSequenceId, entries, snapshotId };
+    const result = await cellMapFromSnapshot(segment, blobStore);
+    if (result.isErr())
+      return err(result.error);
+    cellMap = result.value;
+
+    rowCount = segment.snapshot!.rowCount;
+    colCount = segment.snapshot!.colCount;
+    for (const entry of entries) {
+      rowCount = Math.max(rowCount, entry.row+1);
+      colCount = Math.max(colCount, entry.column+1);
     }
-    cellMap.loadSnapshot(blob.value);
-    cellMap.addEntries(segment.entries, 0);
-    ({ rowMax: rowCount, columnMax: colCount } = cellMap.calcExtents(segment.entries.length));
   } else {
     if (curr.endSequenceId != startSequenceId) {
       // Shouldn't happen unless we have buggy event log implementation
@@ -93,7 +118,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
         cellMap = new SpreadsheetCellMap;
         cellMap.loadAsSnapshot(oldCellMap, baseIndex+indexInValue);
         const emptyArray: SpreadsheetLogEntry[] = [];
-        segment = { startSequenceId: startSequenceId + BigInt(indexInValue), entries: emptyArray, snapshot: value.lastSnapshot.blobId };
+        segment = { startSequenceId: startSequenceId + BigInt(indexInValue), entries: emptyArray, snapshotId: value.lastSnapshot.blobId };
         // Segment extension code below will add the remaining values
       }
       // Snapshot must be in later page of results. Deal with it when we get there.
@@ -149,7 +174,7 @@ export abstract class EventSourcedSpreadsheetEngine {
 
     // Take our own copy of viewport to ensure that it's immutable
     const viewportCopy = viewport ? { ...viewport } : undefined;
-    this.content = { ...curr, viewport: viewportCopy };
+    this.content = { ...curr, viewport: viewportCopy, mapLoadStatus: ok(false) };
     this.notifyListeners();
   }
 

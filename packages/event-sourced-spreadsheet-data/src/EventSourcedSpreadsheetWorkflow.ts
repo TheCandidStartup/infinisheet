@@ -3,6 +3,7 @@ import { EventLog, BlobStore, PendingWorkflowMessage, InfiniSheetWorker,
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
+import { openSnapshot } from "./SpreadsheetSnapshot";
 
 /**
  * Event sourced implementation of spreadsheet {@link EventLog} triggered workflows
@@ -45,9 +46,18 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
     if (dir.isErr())
       return err(dir.error);
 
-    const blobResult = await dir.value.writeBlob(name, blob);
+    const snapshotResult = await openSnapshot(dir.value, name);
+    if (snapshotResult.isErr())
+      return err(snapshotResult.error);
+    const snapshot = snapshotResult.value;
+
+    const blobResult = await snapshot.saveTile(0, 0, this.content.rowCount, this.content.colCount, blob);
     if (blobResult.isErr())
       return err(blobResult.error);
+
+    const indexResult = await snapshot.saveIndex();
+    if (indexResult.isErr())
+      return err(indexResult.error);
 
     return this.eventLog.setMetadata(message.sequenceId, { pending: undefined, snapshot: name });
   }

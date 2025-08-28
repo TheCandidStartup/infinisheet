@@ -4,6 +4,7 @@
 
 ```ts
 
+import { BlobDir } from '@candidstartup/infinisheet-types';
 import { BlobId } from '@candidstartup/infinisheet-types';
 import { BlobStore } from '@candidstartup/infinisheet-types';
 import { CellData } from '@candidstartup/infinisheet-types';
@@ -160,10 +161,17 @@ export interface LogSegment {
     // (undocumented)
     entries: SpreadsheetLogEntry[];
     // (undocumented)
-    snapshot?: BlobId | undefined;
+    snapshot?: SpreadsheetSnapshot | undefined;
+    // (undocumented)
+    snapshotId?: BlobId | undefined;
     // (undocumented)
     startSequenceId: SequenceId;
 }
+
+// Warning: (ae-incompatible-release-tags) The symbol "openSnapshot" is marked as @public, but its signature references "SpreadsheetSnapshot" which is marked as @internal
+//
+// @public (undocumented)
+export function openSnapshot(rootDir: BlobDir<unknown>, snapshotId: BlobId): Promise<Result<SpreadsheetSnapshot, StorageError>>;
 
 // @public
 export interface SetCellValueAndFormatLogEntry extends LogEntry, CellData {
@@ -192,6 +200,31 @@ export class SpreadsheetCellMap {
 
 // @public
 export type SpreadsheetLogEntry = SetCellValueAndFormatLogEntry;
+
+// Warning: (ae-internal-missing-underscore) The name "SpreadsheetSnapshot" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export class SpreadsheetSnapshot {
+    constructor(id: BlobId, snapshotDir: BlobDir<unknown>, tileDir: BlobDir<unknown>);
+    // (undocumented)
+    colCount: number;
+    // (undocumented)
+    id: BlobId;
+    // (undocumented)
+    loadIndex(): Promise<Result<void, StorageError>>;
+    // (undocumented)
+    loadTile(rowMin: number, colMin: number, rowCount: number, colCount: number): Promise<Result<Uint8Array, StorageError>>;
+    // (undocumented)
+    rowCount: number;
+    // (undocumented)
+    saveIndex(): Promise<Result<void, StorageError>>;
+    // (undocumented)
+    saveTile(rowMin: number, colMin: number, rowCount: number, colCount: number, blob: Uint8Array): Promise<Result<void, StorageError>>;
+    // (undocumented)
+    snapshotDir: BlobDir<unknown>;
+    // (undocumented)
+    tileDir: BlobDir<unknown>;
+}
 
 // (No @packageDocumentation comment for this package)
 
