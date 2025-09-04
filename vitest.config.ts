@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 // https://vitest.dev/guide/workspace#configuration
 export default defineConfig({
   test: {
+    projects: ['packages/*/vite.config.ts'],
     coverage: {
       provider: 'istanbul',
       include: ['packages/*/src/**'],
