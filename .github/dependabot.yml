@@ -23,11 +23,11 @@ updates:
           - "patch"
           - "minor"
     ignore:
-      - dependency_name: "typedoc*"
+      - dependency-name: "typedoc*"
         update-types: ["version-update:semver-minor"]
-      - dependency_name: "*storybook*"
+      - dependency-name: "*storybook*"
         versions: ["8.x"]
-      - dependency_name: "typescript"
+      - dependency-name: "typescript"
         update-types: ["version-update:semver-minor"]
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
