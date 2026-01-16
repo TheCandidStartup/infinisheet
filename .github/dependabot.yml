@@ -12,12 +12,16 @@ updates:
     cooldown:
       default-days: 7
     groups:
-      angular:
+      minor-version-updates:
         applies-to: version-updates
         update-types:
           - "minor"
           - "patch"
-      minor-and-patch:
+        exclude-patterns:
+          - "storybook*"
+          - "typedoc*"
+          - "typescript*"
+      minor-security-updates:
         applies-to: security-updates
         update-types:
           - "patch"
@@ -25,4 +29,4 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-      
+    
