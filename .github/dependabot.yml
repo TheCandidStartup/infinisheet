@@ -17,16 +17,15 @@ updates:
         update-types:
           - "minor"
           - "patch"
-        exclude-patterns:
-          - "storybook*"
-          - "typedoc*"
-          - "typescript*"
       minor-security-updates:
         applies-to: security-updates
         update-types:
           - "patch"
           - "minor"
     ignore:
-      - dependency-name: "*"
+      - dependency_name: "typedoc*"
+      - dependency_name: "*storybook*"
+      - dependency_name: "*storybook*"
+      - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
     
