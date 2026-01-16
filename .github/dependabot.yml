@@ -24,8 +24,11 @@ updates:
           - "minor"
     ignore:
       - dependency_name: "typedoc*"
+        update-types: ["version-update:semver-minor"]
       - dependency_name: "*storybook*"
+        versions: ["8.x"]
       - dependency_name: "typescript"
+        update-types: ["version-update:semver-minor"]
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
     
