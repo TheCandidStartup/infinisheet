@@ -3,6 +3,13 @@
   "name": "InfiniSheet",
   "entryPoints": ["packages/*"],
   "entryPointStrategy": "packages",
+  "packagesRequiringDocumentation": [
+    "@candidstartup/event-sourced-spreadsheet-data",
+    "@candidstartup/infinisheet-types",
+    "@candidstartup/react-spreadsheet",
+    "@candidstartup/react-virtual-scroll",
+    "@candidstartup/simple-spreadsheet-data"
+  ],
   "packageOptions": {
     "entryPoints": ["src/index.ts"],
     "groupOrder": [ "Components", "Hooks" ],
