@@ -1,5 +1,5 @@
 {
-  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
+  "$schema": "node_modules/@lerna-lite/cli/schemas/lerna-schema.json",
   "version": "0.12.0",
   "ignoreChanges": [
     "**/src/test/**",
@@ -9,5 +9,6 @@
     "version": {
       "message": "chore(release): version %s"
     }
-  }
+  },
+  "useWorkspaces": true
 }
