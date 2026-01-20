@@ -3,8 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.12.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.11.0...v0.12.0) (2025-06-13)
+# [0.13.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.12.0...v0.13.0) (2026-01-20)
 
+### Features
+
+* **event-sourced-spreadsheet-data:** Added save/load CellMap as snapshot ([9c56368](https://github.com/TheCandidStartup/infinisheet/commit/9c56368b08934f617843643bc69c7a4a9d693086))
+* **infinisheet:** Added viewport to SpreadsheetData ([c90e7de](https://github.com/TheCandidStartup/infinisheet/commit/c90e7de1544fb839a9d4d1555d33934a8fefed3b))
+
+# [0.12.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.11.0...v0.12.0) (2025-06-13)
 
 ### Features
 
@@ -13,88 +19,55 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **react-spreadsheet:** Improved UX for conflict errors ([f411f24](https://github.com/TheCandidStartup/infinisheet/commit/f411f24f207c559d511b29d828aeebb24843fe7d))
 * **react-spreadsheet:** Using optimistic update pattern when editing cells ([d98429d](https://github.com/TheCandidStartup/infinisheet/commit/d98429d7dede531b1c76a79f9ee77bf9bc0a9325))
 
-
 ### BREAKING CHANGES
 
 * **infinisheet:** setCellValueAndFormat return type changed from Result to ResultAsync
-
-
-
-
 
 # [0.11.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.10.0...v0.11.0) (2025-05-28)
 
 **Note:** Version bump only for package @candidstartup/react-spreadsheet
 
-
-
-
-
 # [0.10.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.9.0...v0.10.0) (2025-04-17)
-
 
 ### Features
 
 * **react-spreadsheet:** Added error handling when SpreadsheetData setCellValueAndFormat method fails ([2e33d05](https://github.com/TheCandidStartup/infinisheet/commit/2e33d05044e95cf4c9b9dbc28f119d797e3b5de8))
 
-
-
-
-
 # [0.9.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.8.0...v0.9.0) (2025-03-20)
-
 
 ### Features
 
 * **infinisheet:** API now compatible with  TypeScript `exactOptionalPropertyTypes` and `noUncheckedIndexedAccess` options ([4159992](https://github.com/TheCandidStartup/infinisheet/commit/4159992699e50fd85aef9ce86d9910ed084bd573))
 * **infinisheet:** React 19  compatibility ([fdee127](https://github.com/TheCandidStartup/infinisheet/commit/fdee127d86f5d0513f7beac48e4e9f8ff9ac7b64))
 
-
 ### BREAKING CHANGES
 
 * **infinisheet:** API signatures changed to add explicit `| undefined` to optional props
 * **infinisheet:** Types exposed in react-virtual-scroll API have changed. In most cases you won't notice but possible something might break.
 
-
-
-
-
 # [0.8.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.7.1...v0.8.0) (2025-03-06)
-
 
 ### Features
 
 * **react-spreadsheet:** VirtualSpreadsheet no longer needs a type parameter ([f53882c](https://github.com/TheCandidStartup/infinisheet/commit/f53882cd3c0f56737a8e6b10fed998d2979db5fb))
 
-
 ### BREAKING CHANGES
 
 * **react-spreadsheet:** Code that used VirtualSpreadsheet or VirtualSpreadsheetProps with a type parameter needs to either remove the parameter or switch to the generic version.
-
-
-
-
 
 ## [0.7.1](https://github.com/TheCandidStartup/infinisheet/compare/v0.7.0...v0.7.1) (2025-02-25)
 
 **Note:** Version bump only for package @candidstartup/react-spreadsheet
 
-
-
-
-
 # [0.7.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.2...v0.7.0) (2025-02-25)
-
 
 ### Bug Fixes
 
 * **react-spreadsheet:** Mouse click handler now copes with bogus client XY coords ([c2b54a6](https://github.com/TheCandidStartup/infinisheet/commit/c2b54a65d46bf1318169227571793416bacc4bc8))
 
-
 ### Build System
 
 * **infinisheet:** Preparing to publish react-spreadsheet, react-virtual-scroll and infinisheet-types packages ([9008fe5](https://github.com/TheCandidStartup/infinisheet/commit/9008fe56dc7e4a09b30048181300b33c7c45ed48))
-
 
 ### Features
 
@@ -109,39 +82,26 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **storybook:** Added stories for useIsScrolling prop ([d859e17](https://github.com/TheCandidStartup/infinisheet/commit/d859e170e1029ec5646174ef8bd7f256b75b4e34))
 * **virtual-spreadsheet:** Cell content aligned depending on type ([65d9968](https://github.com/TheCandidStartup/infinisheet/commit/65d996800a4f85d76f56e950ccdacb8ce49558d7))
 
-
 ### BREAKING CHANGES
 
 * **infinisheet:** Moved `ItemOffsetMapping` into new `infinisheet-types` package
 
-
-
-
-
 ## [0.6.2](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.1...v0.6.2) (2024-11-26)
-
 
 ### Bug Fixes
 
 * **react-spreadsheet:** Moving around grid with arrow keys now reliably extends grid when you reach the end ([01dd87c](https://github.com/TheCandidStartup/infinisheet/commit/01dd87c8e7cc9dba2b5b2eb63223109452ac1d03))
 
-
 ### Features
 
 * **react-virtual-scroll:** Added useOffsets prop to VirtualScroll ([3ffa9fe](https://github.com/TheCandidStartup/infinisheet/commit/3ffa9fe932354f929feccd739cae243bd6317305))
 
-
-
-
-
 # [0.6.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.5.0...v0.6.0) (2024-11-11)
-
 
 ### Bug Fixes
 
 * **react-spreadsheet:** Make sure focus sink correctly positioned and rendered ([b740c53](https://github.com/TheCandidStartup/infinisheet/commit/b740c534998b4ecc05712214e4977b2e73e0d50a))
 * **react-spreadsheet:** Off by one error when sizing grid to include focus cell ([75efe88](https://github.com/TheCandidStartup/infinisheet/commit/75efe8856162609e5d82e49d7947fba5a3b39344))
-
 
 ### Features
 
@@ -151,24 +111,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **react-virtual-scroll:** Added VirtualContainer component that provides a generic customizable div ([aefccfd](https://github.com/TheCandidStartup/infinisheet/commit/aefccfd927681d2f0198da967620fb1aa7a76aad))
 * **react-virtual-scroll:** Improvements to DisplayList ([17e07cf](https://github.com/TheCandidStartup/infinisheet/commit/17e07cf5fb212a59607f98754e4e4b2f202810e3))
 
-
 ### Performance Improvements
 
 * **react-spreadsheet:** Using DisplayList instead of VirtualList for headers ([7f5a512](https://github.com/TheCandidStartup/infinisheet/commit/7f5a512e8d8b17ba1b168b8d5fcf2e301e682a6b))
 * **react-virtual-scroll:** Removed overscan items from DIsplayList and DisplayGrid ([4acb018](https://github.com/TheCandidStartup/infinisheet/commit/4acb0189ebcf6abcbd28017a732cd3d50d42832a))
 
-
-
-
-
 # [0.5.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.4.0...v0.5.0) (2024-10-08)
-
 
 ### Bug Fixes
 
 * **react-spreadsheet:** Pass maxCssSize and minNumPages props through to internal VirtualList and VirtualGrid ([a689078](https://github.com/TheCandidStartup/infinisheet/commit/a6890788396201253f4d81b891fb91fcc0bcc422))
 * **virtual-spreadsheet:** Headers and grid stay aligned when scrolled right to the end ([20fb6dc](https://github.com/TheCandidStartup/infinisheet/commit/20fb6dc33bbf232a430b715308ecf42216220dcd))
-
 
 ### Features
 
@@ -187,11 +140,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **react-virtual-scroll:** Customization of inner and outer divs in VirtualList and VirtualGrid is now provided using render props ([8569034](https://github.com/TheCandidStartup/infinisheet/commit/8569034f0088c9e5c67bd0313777101e4dec1cf0))
 * **virtual-spreadsheet:** Added proper grid lines by cunning use of CSS borders and box-sizing ([17a23fc](https://github.com/TheCandidStartup/infinisheet/commit/17a23fc564a42b02827685d847d4f695de5ddc2d))
 
-
 ### Performance Improvements
 
 * **virtual-spreadsheet:** Memoize data.subscribe.bind so that React doesn't unsubscribe and resubscribe every render ([a8fa44c](https://github.com/TheCandidStartup/infinisheet/commit/a8fa44c63aac38107368de14fa4c311a276bb8a1))
-
 
 ### BREAKING CHANGES
 

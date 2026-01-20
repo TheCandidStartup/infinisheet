@@ -3,8 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.12.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.11.0...v0.12.0) (2025-06-13)
+# [0.13.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.12.0...v0.13.0) (2026-01-20)
 
+### Features
+
+* **infinisheet:** Added viewport to SpreadsheetData ([c90e7de](https://github.com/TheCandidStartup/infinisheet/commit/c90e7de1544fb839a9d4d1555d33934a8fefed3b))
+* **infinisheet:** Continuing to evolve Workers interfaces while trying to integrate into EventSourcedSpreadsheetData ([9dc58ce](https://github.com/TheCandidStartup/infinisheet/commit/9dc58ced0e30a9f886d50f7338150a05ccbdca23))
+
+# [0.12.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.11.0...v0.12.0) (2025-06-13)
 
 ### Features
 
@@ -12,82 +18,50 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **storybook:** Added latency to EventSourceSync story ([1c32bbb](https://github.com/TheCandidStartup/infinisheet/commit/1c32bbbeee8fe56427c3dff36afc65eb2bf6a5cf))
 * **storybook:** Added on screen description of latency setttings to EventSourceSync story ([dd9b208](https://github.com/TheCandidStartup/infinisheet/commit/dd9b208dbe3eaec86fadc169031f38671a239eb2))
 
-
-
-
-
 # [0.11.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.10.0...v0.11.0) (2025-05-28)
-
 
 ### Features
 
 * **storybook:** Added EventSourceSync story ([599cb29](https://github.com/TheCandidStartup/infinisheet/commit/599cb29296884e9cb501ce0dcd2a142f3a950830))
 
-
-
-
-
 # [0.10.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.9.0...v0.10.0) (2025-04-17)
-
 
 ### Features
 
 * **storybook:** Added Data Error story ([aa0859b](https://github.com/TheCandidStartup/infinisheet/commit/aa0859b6e9b3724da156c942265889c18b80bc11))
 
-
-
-
-
 # [0.9.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.8.0...v0.9.0) (2025-03-20)
-
 
 ### Bug Fixes
 
 * **storybook:** Control displays correctly for optional args ([a6d53e5](https://github.com/TheCandidStartup/infinisheet/commit/a6d53e5a39dcb34cc05916d9c6818d18b2848264))
-
 
 ### Features
 
 * **infinisheet:** API now compatible with  TypeScript `exactOptionalPropertyTypes` and `noUncheckedIndexedAccess` options ([4159992](https://github.com/TheCandidStartup/infinisheet/commit/4159992699e50fd85aef9ce86d9910ed084bd573))
 * **infinisheet:** React 19  compatibility ([fdee127](https://github.com/TheCandidStartup/infinisheet/commit/fdee127d86f5d0513f7beac48e4e9f8ff9ac7b64))
 
-
 ### BREAKING CHANGES
 
 * **infinisheet:** API signatures changed to add explicit `| undefined` to optional props
 * **infinisheet:** Types exposed in react-virtual-scroll API have changed. In most cases you won't notice but possible something might break.
 
-
-
-
-
 # [0.8.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.7.1...v0.8.0) (2025-03-06)
-
 
 ### Features
 
 * **react-spreadsheet:** VirtualSpreadsheet no longer needs a type parameter ([f53882c](https://github.com/TheCandidStartup/infinisheet/commit/f53882cd3c0f56737a8e6b10fed998d2979db5fb))
 * **storybook:** All data sources are now editable ([27982aa](https://github.com/TheCandidStartup/infinisheet/commit/27982aaa1c9b3bf35ec04f0ad928fa8ee394f67b))
 
-
 ### BREAKING CHANGES
 
 * **react-spreadsheet:** Code that used VirtualSpreadsheet or VirtualSpreadsheetProps with a type parameter needs to either remove the parameter or switch to the generic version.
-
-
-
-
 
 ## [0.7.1](https://github.com/TheCandidStartup/infinisheet/compare/v0.7.0...v0.7.1) (2025-02-25)
 
 **Note:** Version bump only for package @candidstartup/storybook
 
-
-
-
-
 # [0.7.0](https://github.com/TheCandidStartup/infinisheet/compare/v0.6.2...v0.7.0) (2025-02-25)
-
 
 ### Features
 
