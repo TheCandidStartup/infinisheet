@@ -211,13 +211,15 @@ export const FullWidth: Story = {
       },
     },
   },
-  render: ( {width: _width, height, ...args} ) => (
-    <AutoSizer style={{ width: '100%', height }}>
+  render: ( {...input} ) => {
+    // Storybook 8.6.5 broke inference for render arguments. Fixed with this cast.
+    const {width: _width, height, ...args} = input as { width: number, height: number, data: typeof testData};
+    return <AutoSizer style={{ width: '100%', height }}>
       {({width}) => (
         <VirtualSpreadsheet width={width} height={height} {...args}/>
       )}
     </AutoSizer>
-  ),
+  },
   parameters: {
     // Needed so that AutoSizer can use full width
     layout: 'fullscreen',
@@ -257,13 +259,15 @@ export const FullScreen: Story = {
       },
     }
   },
-  render: ( {width: _width, height: _height, ...args} ) => (
-    <AutoSizer style={{ width: '100%', height: '100vh' }}>
+  render: ( {...input} ) => {
+    // Storybook 8.6.5 broke inference for render arguments. Fixed with this cast.
+    const {width: _width, height: _height, ...args} = input as { width: number, height: number, data: typeof testData};
+    return <AutoSizer style={{ width: '100%', height: '100vh' }}>
       {({width, height}) => (
         <VirtualSpreadsheet width={width} height={height} {...args}/>
       )}
     </AutoSizer>
-  ),
+  },
   parameters: {
     // Needed so that AutoSizer can use full width
     layout: 'fullscreen',
@@ -310,7 +314,10 @@ export const EventSourceSync: Story = {
     },
   },
   tags: ['!autodocs'],
-  render: ( {width: width, height: height, eventSourceLatencyA, eventSourceLatencyB, data: _data, ...args} ) => {
+  render: ( {...input} ) => {
+    // Storybook 8.6.5 broke inference for render arguments. Fixed with this cast.
+    const {width: width, height: height, eventSourceLatencyA, eventSourceLatencyB, data: _data, ...args} = 
+      input as { width: number, height: number, eventSourceLatencyA?: number, eventSourceLatencyB?: number, data: typeof testData }
     delayEventLogA.delay = eventSourceLatencyA || 0;
     delayEventLogB.delay = eventSourceLatencyB || 0;
     return <div>
