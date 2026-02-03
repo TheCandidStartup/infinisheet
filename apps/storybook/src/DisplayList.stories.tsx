@@ -1,5 +1,5 @@
 import React from "react";
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { DisplayList, DisplayListProps } from '@candidstartup/react-virtual-scroll';
 import { mappingVariableVertical, mappingFixedVertical, mappingFixedHorizontal, rewriteMapping } from './mapping';

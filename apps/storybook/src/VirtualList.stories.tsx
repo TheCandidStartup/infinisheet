@@ -1,7 +1,7 @@
 import React from "react";
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { useArgs } from '@storybook/preview-api';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { fn } from 'storybook/test';
+import { useArgs } from 'storybook/preview-api';
 
 import { ScrollState, VirtualList, VirtualListProps, VirtualListProxy, DisplayListItemProps } from '@candidstartup/react-virtual-scroll';
 import { mappingVariableVertical, mappingFixedVertical, mappingFixedHorizontal, rewriteMapping } from './mapping';

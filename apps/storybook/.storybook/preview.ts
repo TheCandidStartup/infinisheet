@@ -1,4 +1,4 @@
-import type { Preview } from "@storybook/react";
+import type { Preview } from "@storybook/react-vite";
 import '@candidstartup/react-spreadsheet/VirtualSpreadsheet.css';
 import { extractArgTypes, extractComponentDescription } from '../src/extract';
 import theme from './theme';
