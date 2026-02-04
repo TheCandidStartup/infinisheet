@@ -19,16 +19,9 @@ updates:
         update-types:
           - "minor"
           - "patch"
-      minor-security-updates:
-        applies-to: security-updates
-        update-types:
-          - "patch"
-          - "minor"
     ignore:
       - dependency-name: "typedoc*"
         update-types: ["version-update:semver-minor"]
-      - dependency-name: "*storybook*"
-        versions: ["8.x"]
       - dependency-name: "typescript"
         update-types: ["version-update:semver-minor"]
       - dependency-name: "*"
