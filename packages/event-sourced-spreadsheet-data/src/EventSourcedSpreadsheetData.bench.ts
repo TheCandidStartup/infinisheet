@@ -67,7 +67,7 @@ describe('EventSourcedSpreadsheetData', () => {
     const data2 = new EventSourcedSpreadsheetData(writeLog, writeStore);
     await subscribeFired(data2);
     await vi.runAllTimersAsync();
-    expect(data2["content"].logSegment.snapshot).toEqual(lastSnapshot.toString());
+    expect(data2["content"].logSegment.snapshot?.id).toEqual(lastSnapshot.toString());
     expect(data2["content"].logSegment.entries.length).toEqual(lastEntries);
 
     vi.useRealTimers();
