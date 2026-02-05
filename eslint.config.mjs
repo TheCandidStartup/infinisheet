@@ -4,11 +4,12 @@ import tseslint from "typescript-eslint";
 import reactRecommended from "eslint-plugin-react/configs/recommended.js";
 import jsxRuntime from "eslint-plugin-react/configs/jsx-runtime.js";
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from "eslint-plugin-react-refresh";
+import { reactRefresh } from "eslint-plugin-react-refresh";
+import { defineConfig } from "eslint/config";
 
-export default tseslint.config(
+export default defineConfig(
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.recommendedTypeChecked,
   {
     languageOptions: {
       parserOptions: {
@@ -18,6 +19,7 @@ export default tseslint.config(
     }
   },
   reactRecommended,
+  reactRefresh.configs.vite(),
   jsxRuntime,
   { files: ["**/*.ts", "**/*.tsx"] },
   { ignores: ["**/dist", "**/*.js", "**/*.mjs", "**/*.cjs", "**/vite.config.ts", "**/playwright.config.ts"] },
@@ -26,8 +28,7 @@ export default tseslint.config(
       globals: { ...globals.browser }
     },
     plugins: {
-      "react-hooks": eslintPluginReactHooks,
-      "react-refresh": reactRefresh
+      "react-hooks": eslintPluginReactHooks
     },
     settings: {
       "react": {
