@@ -22,7 +22,6 @@
     "test": "vitest --run --coverage"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.1.0",
     "@eslint/js": "^9.5.0",
     "@gordonmleigh/rollup-plugin-sourcemaps": "^0.1.2",
     "@lerna-lite/cli": "^4.11.0",
@@ -48,7 +47,7 @@
     "@vitest/ui": "^4.0.18",
     "eslint": "^9.0.0",
     "eslint-plugin-react": "^7.34.3",
-    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.3",
     "eslint-plugin-storybook": "9.1.17",
     "globals": "^17.3.0",
