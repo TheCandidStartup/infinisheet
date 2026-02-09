@@ -2,8 +2,10 @@ packages:
   - packages/*
   - apps/*
 
-linkWorkspacePackages: true
-
 onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
+
+catalog:
+  react: ^18.2.0
+  react-dom: ^18.2.0

@@ -49,6 +49,6 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@candidstartup/infinisheet-types": "^0.13.0"
+    "@candidstartup/infinisheet-types": "workspace:*"
   }
 }

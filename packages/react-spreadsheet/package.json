@@ -58,11 +58,11 @@
     "react": "18 - 19"
   },
   "devDependencies": {
-    "react": "^18.2.0"
+    "react": "catalog:"
   },
   "dependencies": {
-    "@candidstartup/infinisheet-types": "^0.13.0",
-    "@candidstartup/react-virtual-scroll": "^0.13.0",
+    "@candidstartup/infinisheet-types": "workspace:*",
+    "@candidstartup/react-virtual-scroll": "workspace:*",
     "numfmt": "^3.1.2"
   }
 }

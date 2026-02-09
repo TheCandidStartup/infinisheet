@@ -16,12 +16,12 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@candidstartup/infinisheet-types": "^0.13.0",
-    "@candidstartup/event-sourced-spreadsheet-data": "^0.13.0",
-    "@candidstartup/react-spreadsheet": "^0.13.0",
-    "@candidstartup/react-virtual-scroll": "^0.13.0",
-    "@candidstartup/simple-spreadsheet-data": "^0.13.0",
-    "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0"
+    "@candidstartup/infinisheet-types": "workspace:*",
+    "@candidstartup/event-sourced-spreadsheet-data": "workspace:*",
+    "@candidstartup/react-spreadsheet": "workspace:*",
+    "@candidstartup/react-virtual-scroll": "workspace:*",
+    "@candidstartup/simple-spreadsheet-data": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   }
 }
