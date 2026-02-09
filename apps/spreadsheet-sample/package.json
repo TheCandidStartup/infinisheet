@@ -11,11 +11,13 @@
     "typecheck": "tsc -p tsconfig.json",
     "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview",
-    "playwright": "npx playwright test",
+    "playwright": "pnpm exec playwright test",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@candidstartup/react-spreadsheet": "^0.13.0",
+    "@candidstartup/infinisheet-types": "^0.13.0",
+    "@candidstartup/react-virtual-scroll": "^0.13.0",
     "numfmt": "^3.1.2",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"

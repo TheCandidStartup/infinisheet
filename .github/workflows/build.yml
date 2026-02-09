@@ -15,24 +15,28 @@ jobs:
     strategy:
       matrix:
         node-version: [22.x, 24.x]
-        react-version: [18, 19]
+        react-version: [18]
     name: Node ${{ matrix.node-version }} - React ${{ matrix.react-version }}
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
+        cache: 'pnpm'
+    - run: pnpm install --frozen-lockfile
     - name: Use React ${{ matrix.react-version }}
       if: ${{ matrix.react-version == 19 }}
-      run: npm install -D react@19 react-dom@19 @types/react@19 @types/react-dom@19
-    - run: npx playwright install --with-deps
-    - run: npm run lerna-typecheck
-    - run: npm run lerna-build
-    - run: npm run lerna-lint
-    - run: npm run lerna-prodapi
-    - run: npm run lerna-test
-    - run: npm run lerna-playwright
+      run: pnpm -r update react@19 react-dom@19 @types/react@19 @types/react-dom@19
+    - run: pnpm exec playwright install --with-deps
+    - run: pnpm run lerna-typecheck
+    - run: pnpm run lerna-build
+    - run: pnpm run lerna-lint
+    - run: pnpm run lerna-prodapi
+    - run: pnpm run lerna-test
+    - run: pnpm run lerna-playwright

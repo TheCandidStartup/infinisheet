@@ -2,23 +2,25 @@
   "name": "root",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+  "engines": {
+    "node": ">= 20",
+    "npm": "Please use pnpm instead of npm to install dependencies",
+    "yarn": "Please use pnpm instead of yarn to install dependencies",
+    "pnpm": ">= 10"
+  },
   "scripts": {
-    "lerna-typecheck": "npx lerna run typecheck",
-    "lerna-build": "npx lerna run build",
-    "lerna-lint": "npx lerna run lint",
-    "lerna-prodapi": "npx lerna run prodapi",
-    "lerna-test": "npx lerna run test -- --run --coverage",
-    "lerna-playwright": "PROD=true npx lerna run playwright",
-    "build-docs": "npx typedoc && npm run build-docs --workspace=@candidstartup/storybook",
+    "lerna-typecheck": "pnpm run -r typecheck",
+    "lerna-build": "pnpm run -r build",
+    "lerna-lint": "pnpm run -r lint",
+    "lerna-prodapi": "pnpm run -r prodapi",
+    "lerna-test": "pnpm run -r test --run --coverage",
+    "lerna-playwright": "PROD=true pnpm run -r playwright",
+    "build-docs": "pnpm exec typedoc && pnpm run -r build-docs --workspace=@candidstartup/storybook",
     "preview-docs": "vite preview --outDir temp",
-    "prodbuild": "npm run lerna-typecheck && npm run lerna-build && npm run lerna-lint && npm run lerna-prodapi && npm run lerna-test && npm run lerna-playwright",
-    "lerna-version": "npx lerna version --conventional-commits --sync-workspace-lock",
-    "lerna-version-dryrun": "npx lerna version --conventional-commits --sync-workspace-lock --dry-run",
-    "lerna-publish": "npx lerna publish from-package --yes",
+    "prodbuild": "pnpm run lerna-typecheck && pnpm run lerna-build && pnpm run lerna-lint && pnpm run lerna-prodapi && pnpm run lerna-test && pnpm run lerna-playwright",
+    "lerna-version": "pnpm exec lerna version --conventional-commits --sync-workspace-lock",
+    "lerna-version-dryrun": "pnpm exec lerna version --conventional-commits --sync-workspace-lock --dry-run",
+    "lerna-publish": "pnpm -r publish",
     "test": "vitest --run --coverage"
   },
   "devDependencies": {

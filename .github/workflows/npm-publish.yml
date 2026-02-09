@@ -24,14 +24,18 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: 24.X
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
       - run: npm run lerna-build
       - run: npm run lerna-lint
       - run: npm run lerna-test
-      - run: npx lerna publish from-package --yes
+      - run: pnpm -r publish
         env:
           NPM_CONFIG_PROVENANCE: true

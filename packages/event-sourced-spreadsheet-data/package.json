@@ -37,15 +37,15 @@
   "scripts": {
     "dev": "vite",
     "clean": "rimraf {dist,temp}",
-    "prebuild": "npm run clean",
+    "prebuild": "pnpm run clean",
     "typecheck": "tsc -p tsconfig.json",
     "build-tsc": "tsc -p tsconfig.build.json",
     "build-rollup": "rollup -c ../rollup.config.mjs",
-    "build": "npm run build-rollup",
+    "build": "pnpm run build-rollup",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "devapi": "api-extractor run --local",
     "prodapi": "api-extractor run",
-    "devbuild": "npm run build && npm run lint && npm run devapi",
+    "devbuild": "pnpm run build && pnpm run lint && pnpm run devapi",
     "test": "vitest"
   },
   "dependencies": {

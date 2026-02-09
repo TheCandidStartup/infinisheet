@@ -7,8 +7,8 @@ export default defineConfig({
     projects: ['packages/*/vite.config.ts'],
     coverage: {
       provider: 'istanbul',
-      include: ['packages/*/src/**'],
-      exclude: ['packages/*/src/test/**', 'packages/*/src/*.*test.*', 'packages/*/src/*.bench.*']
+      include: ['packages/*/src/**.{js,jsx,ts,tsx}'],
+      exclude: ['packages/*/src/test/**', 'packages/*/src/*.*test.*', 'packages/*/src/*.bench.*','**/.DS_Store']
     },
   },
 })

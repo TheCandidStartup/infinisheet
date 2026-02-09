@@ -12,10 +12,11 @@
     "build": "storybook build -o dist && storybook build -o dist/test --test",
     "build-docs": "storybook build -o ../../temp/storybook",
     "preview": "vite preview --port 6006",
-    "playwright": "npx playwright test",
+    "playwright": "pnpm exec playwright test",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@candidstartup/infinisheet-types": "^0.13.0",
     "@candidstartup/event-sourced-spreadsheet-data": "^0.13.0",
     "@candidstartup/react-spreadsheet": "^0.13.0",
     "@candidstartup/react-virtual-scroll": "^0.13.0",

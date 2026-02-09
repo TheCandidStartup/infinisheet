@@ -1,0 +1,9 @@
+packages:
+  - packages/*
+  - apps/*
+
+linkWorkspacePackages: true
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild
