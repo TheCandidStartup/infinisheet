@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         node-version: [22.x, 24.x]
-        react-version: [18]
+        react-version: [18, 19]
     name: Node ${{ matrix.node-version }} - React ${{ matrix.react-version }}
 
     steps:
