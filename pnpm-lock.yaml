@@ -236,8 +236,9 @@ importers:
       numfmt:
         specifier: ^3.1.2
         version: 3.2.3
+    devDependencies:
       react:
-        specifier: 18 - 19
+        specifier: ^18.2.0
         version: 18.3.1
 
   packages/react-virtual-scroll:
@@ -245,8 +246,9 @@ importers:
       '@candidstartup/infinisheet-types':
         specifier: ^0.13.0
         version: link:../infinisheet-types
+    devDependencies:
       react:
-        specifier: 18 - 19
+        specifier: ^18.2.0
         version: 18.3.1
 
   packages/simple-spreadsheet-data:

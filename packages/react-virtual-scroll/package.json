@@ -61,6 +61,9 @@
   "peerDependencies": {
     "react": "18 - 19"
   },
+  "devDependencies": {
+    "react": "^18.2.0"
+  },
   "dependencies": {
     "@candidstartup/infinisheet-types": "^0.13.0"
   }
