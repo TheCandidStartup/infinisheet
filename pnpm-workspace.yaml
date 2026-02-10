@@ -6,6 +6,10 @@ onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
 
+blockExoticSubdeps: true
+minimumReleaseAge: 10080
+trustPolicy: no-downgrade
+
 catalog:
   react: ^18.2.0
   react-dom: ^18.2.0
