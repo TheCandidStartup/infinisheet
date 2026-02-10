@@ -1,7 +1,7 @@
 {
   "name": "@candidstartup/storybook",
   "private": true,
-  "version": "0.13.0",
+  "version": "0.13.1",
   "type": "module",
   "files": [
     "dist"
@@ -16,8 +16,8 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@candidstartup/infinisheet-types": "workspace:*",
     "@candidstartup/event-sourced-spreadsheet-data": "workspace:*",
+    "@candidstartup/infinisheet-types": "workspace:*",
     "@candidstartup/react-spreadsheet": "workspace:*",
     "@candidstartup/react-virtual-scroll": "workspace:*",
     "@candidstartup/simple-spreadsheet-data": "workspace:*",

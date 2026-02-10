@@ -1,7 +1,7 @@
 {
   "name": "@candidstartup/simple-spreadsheet-data",
   "private": false,
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Reference implementations of SpreadsheetData",
   "author": "Tim Wiegand <tim.wiegand@thecandidstartup.org>",
   "license": "BSD-3-Clause",
