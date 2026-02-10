@@ -9,6 +9,7 @@ onlyBuiltDependencies:
 blockExoticSubdeps: true
 minimumReleaseAge: 10080
 trustPolicy: no-downgrade
+trustPolicyIgnoreAfter: 43200
 
 catalog:
   react: ^18.2.0

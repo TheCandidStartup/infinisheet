@@ -19,7 +19,7 @@
     "lerna-prodapi": "pnpm run -r prodapi",
     "lerna-test": "pnpm run -r test --run --coverage",
     "lerna-playwright": "PROD=true pnpm run -r playwright",
-    "build-docs": "pnpm exec typedoc && pnpm run -r build-docs --workspace=@candidstartup/storybook",
+    "build-docs": "pnpm exec typedoc && pnpm run -r --filter @candidstartup/storybook build-docs",
     "preview-docs": "vite preview --outDir temp",
     "prodbuild": "pnpm run lerna-typecheck && pnpm run lerna-build && pnpm run lerna-lint && pnpm run lerna-prodapi && pnpm run lerna-test && pnpm run lerna-playwright",
     "lerna-version": "pnpm exec lerna version --conventional-commits --sync-workspace-lock",
