@@ -10,7 +10,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "03:11"
+      time: "03:12"
     cooldown:
       default-days: 7
     groups:
