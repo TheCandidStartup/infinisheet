@@ -1,6 +1,6 @@
-import { EventSourcedSpreadsheetData } from './EventSourcedSpreadsheetData'
+import { EventSourcedSpreadsheetData, EventSourcedSpreadsheetDataOptions } from './EventSourcedSpreadsheetData'
 import { EventSourcedSpreadsheetWorkflow } from './EventSourcedSpreadsheetWorkflow'
-import { SpreadsheetData, EventLog, PendingWorkflowMessage } from '@candidstartup/infinisheet-types'
+import { SpreadsheetData, EventLog, PendingWorkflowMessage, emptyViewport } from '@candidstartup/infinisheet-types'
 import { DelayEventLog, SimpleEventLog, SimpleBlobStore, SimpleWorkerHost, SimpleWorker } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
 import { spreadsheetDataInterfaceTests } from '../../infinisheet-types/src/SpreadsheetData.interface-test'
@@ -24,7 +24,7 @@ function enableSyncOnce(data: SpreadsheetData<unknown>) {
 
 function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEventLog<SpreadsheetLogEntry>, 
                  wrapperLog: EventLog<SpreadsheetLogEntry> = eventLog,
-                snapshotInterval?: number) {
+                options?: EventSourcedSpreadsheetDataOptions) {
   const worker = new SimpleWorker<PendingWorkflowMessage>;
   const host = new SimpleWorkerHost(worker);
   const blobStore = new SimpleBlobStore;
@@ -33,7 +33,7 @@ function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEvent
   // Constructor subscribes to worker's onReceiveMessage which keeps it alive
   new EventSourcedSpreadsheetWorkflow(wrapperLog, blobStore, worker);
 
-  return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host, { snapshotInterval });
+  return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host, options);
 }
 
 describe('EventSourcedSpreadsheetData', () => {
@@ -43,27 +43,33 @@ describe('EventSourcedSpreadsheetData', () => {
 
   spreadsheetDataInterfaceTests(creator);
 
-  it('should complete load from empty log', async () => {
-    const data = creator();
-    const snapshot = data.getSnapshot();
-    const status = data.getLoadStatus(snapshot);
-    expect(status.isOk() && !status.value).toBe(true);
-    expect(data.getRowCount(snapshot)).toEqual(0);
-    expect(data.getColumnCount(snapshot)).toEqual(0);
-    expect(data.getCellValue(snapshot, 0, 0)).toEqual(undefined);
-    expect(data.getCellFormat(snapshot, 0, 0)).toEqual(undefined);
+  function itCompletesInitialLoad(description: string, options?: EventSourcedSpreadsheetDataOptions) {
+    it("completes initial load ".concat(description), async () => {
+      const eventLog = new SimpleEventLog<SpreadsheetLogEntry>;
+      const data = creator(eventLog, eventLog, options);
+      const snapshot = data.getSnapshot();
+      const status = data.getLoadStatus(snapshot);
+      expect(status.isOk() && !status.value).toBe(true);
+      expect(data.getRowCount(snapshot)).toEqual(0);
+      expect(data.getColumnCount(snapshot)).toEqual(0);
+      expect(data.getCellValue(snapshot, 0, 0)).toEqual(undefined);
+      expect(data.getCellFormat(snapshot, 0, 0)).toEqual(undefined);
 
-    const rowMapping = data.getRowItemOffsetMapping(snapshot);
-    expect(rowMapping.itemOffset(0)).toEqual(0);
+      const rowMapping = data.getRowItemOffsetMapping(snapshot);
+      expect(rowMapping.itemOffset(0)).toEqual(0);
 
-    const columnMapping = data.getColumnItemOffsetMapping(snapshot);
-    expect(columnMapping.itemOffset(0)).toEqual(0);
+      const columnMapping = data.getColumnItemOffsetMapping(snapshot);
+      expect(columnMapping.itemOffset(0)).toEqual(0);
 
-    await subscribeFired(data);
-    const snapshot2 = data.getSnapshot();
-    const status2 = data.getLoadStatus(snapshot2);
-    expect(status2.isOk() && status2.value).toBe(true);
-  })
+      await subscribeFired(data);
+      const snapshot2 = data.getSnapshot();
+      const status2 = data.getLoadStatus(snapshot2);
+      expect(status2.isOk() && status2.value).toBe(true);
+    })
+  };
+
+  itCompletesInitialLoad('from empty log');
+  itCompletesInitialLoad('from empty log and viewport', { viewport: emptyViewport() });
 
   it('subscribe should fire after initial load', async () => {
     const data = creator();
