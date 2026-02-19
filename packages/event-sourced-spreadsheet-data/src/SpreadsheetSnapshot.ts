@@ -5,21 +5,39 @@ function formatName(rowMin: number, colMin: number, rowCount: number, colCount: 
   return `${rowMin}-${colMin}-${rowCount}-${colCount}`
 }
 
+/** Metadata that describes tiling format used in this snapshot
+ * @internal
+ */
+export interface TileFormat {
+  /** Used as a discriminated union tag by implementations */
+  type: string;
+};
+
+/** Regular grid tile format. All tiles have same width and height.
+ * @internal
+ */
+export interface GridTileFormat extends TileFormat {
+  type: "grid";
+  tileWidth: number;
+  tileHeight: number;
+};
+
 /** In-memory representation of snapshot metadata
  * @internal
  */
 export class SpreadsheetSnapshot {
-  constructor(id: BlobId, snapshotDir: BlobDir<unknown>, tileDir: BlobDir<unknown>) {
+  constructor(id: BlobId, snapshotDir: BlobDir<unknown>, tileDir: BlobDir<unknown>, tileFormat?: TileFormat) {
     this.id = id;
     this.snapshotDir = snapshotDir;
     this.tileDir = tileDir;
 
     this.rowCount = 0;
     this.colCount = 0;
+    this.tileFormat = tileFormat;
   }
 
   async saveIndex(): Promise<Result<void,StorageError>> {
-    const meta = { rowCount: this.rowCount, colCount: this.colCount }
+    const meta = { rowCount: this.rowCount, colCount: this.colCount, tileFormat: this.tileFormat }
     const json = JSON.stringify(meta);
     const encoder = new TextEncoder;
     const blob = encoder.encode(json);
@@ -49,6 +67,7 @@ export class SpreadsheetSnapshot {
     const input = JSON.parse(inputString) as  SpreadsheetSnapshot;
     this.rowCount = input.rowCount;
     this.colCount = input.colCount;
+    this.tileFormat = input.tileFormat;
 
     return ok();
   }
@@ -82,6 +101,7 @@ export class SpreadsheetSnapshot {
   tileDir: BlobDir<unknown>;
   rowCount: number;
   colCount: number;
+  tileFormat: TileFormat | undefined;
 }
 
 export async function openSnapshot(rootDir: BlobDir<unknown>, snapshotId: BlobId): Promise<Result<SpreadsheetSnapshot,StorageError>> {
