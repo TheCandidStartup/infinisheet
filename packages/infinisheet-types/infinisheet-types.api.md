@@ -68,6 +68,15 @@ export type CellErrorValue = '#NULL!' | '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME
 export type CellFormat = string | undefined;
 
 // @public
+export type CellRangeCoords = [startRow: number, startCol: number, endRow: number, endCol: number];
+
+// @public
+export function cellRangeCoords(startRow: number, startCol: number, endRow: number, endCol: number): CellRangeCoords;
+
+// @public
+export function cellRangesIntersect(a: CellRangeCoords | null | undefined, b: CellRangeCoords | null | undefined): boolean;
+
+// @public
 export type CellValue = string | number | boolean | null | undefined | CellError;
 
 // @public
@@ -121,6 +130,9 @@ export class EmptySpreadsheetData implements SpreadsheetData<number> {
 
 // @public
 export function emptyViewport(): SpreadsheetViewport;
+
+// @public
+export function equalCellRangeCoords(a: CellRangeCoords | null | undefined, b: CellRangeCoords | null | undefined): boolean;
 
 // @public
 export function equalViewports(a: SpreadsheetViewport | undefined, b: SpreadsheetViewport | undefined): boolean;
@@ -199,6 +211,9 @@ export interface InvalidBlobNameError extends InfinisheetError {
 
 // @public (undocumented)
 export function invalidBlobNameError(message?: string): InvalidBlobNameError;
+
+// @public
+export function isEmptyViewport(vp: SpreadsheetViewport): boolean;
 
 // @public
 export interface ItemOffsetMapping {
@@ -379,6 +394,12 @@ export class VariableSizeItemOffsetMapping implements ItemOffsetMapping {
     // (undocumented)
     offsetToItem(offset: number): [itemIndex: number, startOffset: number];
 }
+
+// @public
+export function viewport(rowMinOffset: number, columnMinOffset: number, width: number, height: number): SpreadsheetViewport;
+
+// @public
+export function viewportToCellRange<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snapshot, viewport: SpreadsheetViewport): CellRangeCoords | null;
 
 // @public (undocumented)
 export interface WorkerHost<MessageT extends WorkerMessage> {

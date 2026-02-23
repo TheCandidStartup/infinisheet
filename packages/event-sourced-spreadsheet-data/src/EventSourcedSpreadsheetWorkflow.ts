@@ -37,9 +37,6 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
     if (!this.content.logLoadStatus.value)
       throw Error("Somehow syncLogs() is still in progress despite promise having resolved");
 
-    const { logSegment, cellMap } = this.content;
-    const snapshotIndex = Number(endSequenceId - logSegment.startSequenceId);
-    const blob = cellMap.saveSnapshot(snapshotIndex);
     const name = message.sequenceId.toString();
 
     const dir = await this.blobStore.getRootDir();
@@ -51,9 +48,12 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
       return err(snapshotResult.error);
     const snapshot = snapshotResult.value;
 
-    const blobResult = await snapshot.saveTile(0, 0, this.content.rowCount, this.content.colCount, blob);
-    if (blobResult.isErr())
-      return err(blobResult.error);
+    const { logSegment, tileMap, rowCount, colCount } = this.content;
+    const snapshotIndex = Number(endSequenceId - logSegment.startSequenceId);
+    const tileResult = await tileMap.saveSnapshot(logSegment.snapshot, logSegment.entries, 
+      rowCount, colCount, snapshot, snapshotIndex);
+    if (tileResult.isErr())
+      return err(tileResult.error);
 
     const indexResult = await snapshot.saveIndex();
     if (indexResult.isErr())

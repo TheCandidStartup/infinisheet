@@ -1,6 +1,6 @@
 import type { SpreadsheetData } from './SpreadsheetData'
 
-export function spreadsheetDataInterfaceTests(creator: () => SpreadsheetData<unknown>, startsEmpty=true) {
+export function spreadsheetDataInterfaceTests(creator: () => SpreadsheetData<unknown>, startsEmpty=true, initialNotify=0) {
 describe('SpreadsheetData Interface', () => {
   it.runIf(startsEmpty)('should start out empty', () => {
     const data = creator();
@@ -64,14 +64,15 @@ describe('SpreadsheetData Interface', () => {
     const unsubscribe = data.subscribe(mock);
 
     await data.setCellValueAndFormat(0, 0, "In A1", undefined);
-    expect(mock).toBeCalledTimes(1);
+    // Any notifications during initialization + setCellValue
+    expect(mock).toBeCalledTimes(initialNotify+1);
 
     await data.setCellValueAndFormat(0, 0, 42, undefined);
-    expect(mock).toBeCalledTimes(2);
+    expect(mock).toBeCalledTimes(initialNotify+2);
 
     unsubscribe();
     await data.setCellValueAndFormat(0, 0, false, undefined);
-    expect(mock).toBeCalledTimes(2);
+    expect(mock).toBeCalledTimes(initialNotify+2);
   })
 })
 }

@@ -1,7 +1,7 @@
-import type { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, AddEntryError, AddEntryValue,
+import { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, AddEntryError, AddEntryValue,
   SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage,
-  SpreadsheetViewport } from "@candidstartup/infinisheet-types";
-import { FixedSizeItemOffsetMapping, ok, storageError } from "@candidstartup/infinisheet-types";
+  SpreadsheetViewport, viewportToCellRange, emptyViewport} from "@candidstartup/infinisheet-types";
+import { FixedSizeItemOffsetMapping, ok, err, storageError } from "@candidstartup/infinisheet-types";
 
 import type { SetCellValueAndFormatLogEntry, SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine, forkSegment } from "./EventSourcedSpreadsheetEngine"
@@ -39,8 +39,10 @@ export interface EventSourcedSpreadsheetDataOptions {
   */
   restartPendingWorkflowsOnLoad?: boolean | undefined;
 
-  /** Initial viewport */
-  viewport?: SpreadsheetViewport | undefined;
+  /** Initial viewport empty ? 
+   * @defaultValue false
+  */
+  viewportEmpty?: boolean | undefined;
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
@@ -61,19 +63,23 @@ function asSnapshot(snapshot: EventSourcedSnapshotContent) {
 export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
   constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>,
                options?: EventSourcedSpreadsheetDataOptions) {
-    super(eventLog, blobStore, options?.viewport);
+    super(eventLog, blobStore, options?.viewportEmpty ? null : undefined, options?.viewportEmpty ? emptyViewport() : undefined);
 
     this.intervalId = undefined;
     this.workerHost = workerHost;
     this.snapshotInterval = options?.snapshotInterval || 100;
     this.listeners = [];
 
-    this.syncLogs();
+    this.syncLogsPromise = this.syncLogsAsync();
   }
 
   subscribe(onDataChange: () => void): () => void {
-    if (!this.intervalId)
-      this.intervalId = setInterval(() => { this.syncLogs() }, EVENT_LOG_CHECK_INTERVAL);
+    if (!this.intervalId) {
+      this.intervalId = setInterval(() => { 
+        if (!this.isInSyncLogs)
+          this.syncLogsPromise = this.syncLogsAsync(); 
+      }, EVENT_LOG_CHECK_INTERVAL);
+    }
     this.listeners = [...this.listeners, onDataChange];
     return () => {
       this.listeners = this.listeners.filter(l => l !== onDataChange);
@@ -125,17 +131,28 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   }
 
   setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void,SpreadsheetDataError> {
-    const curr = this.content;
-
+    // Assign content here to keep TypeScript happy even though overwritten in first step of promise chain
+    let curr = this.content;
     const entry: SetCellValueAndFormatLogEntry = { type: 'SetCellValueAndFormat', row, column, value, format };
-    return this.addEntry(curr, entry).map((addEntryValue) => {
+
+    return ResultAsync.fromSafePromise(this.syncLogsPromise).andThen(() => {
+      // If syncLogs was in progress when we came in, content may have been updated
+      curr = this.content;
+      return this.addEntry(curr, entry);
+    }).andThrough((_addEntryValue) => {
+      if (this.content !== curr)
+        return ok();
+      
+      const { logSegment, tileMap } = curr;
+      return new ResultAsync(tileMap.loadTiles(logSegment.snapshot, logSegment.entries, true, [row, column, row, column])); 
+    }).map((addEntryValue) => {
       if (this.content === curr) {
-         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
-        let { logSegment, cellMap } = curr
+        // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
+        let { logSegment, tileMap } = curr;
         if (addEntryValue.lastSnapshot)
-          [logSegment, cellMap] = forkSegment(curr.logSegment, curr.cellMap, addEntryValue.lastSnapshot);
+          [logSegment, tileMap] = forkSegment(curr.logSegment, curr.tileMap, addEntryValue.lastSnapshot);
         logSegment.entries.push(entry);
-        cellMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);
+        tileMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);
 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
@@ -143,10 +160,12 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
           endSequenceId: curr.endSequenceId + 1n,
           logSegment,
           logLoadStatus: ok(true),
-          cellMap,
+          tileMap,
+          // TODO - or should I leave this as current, all I know is that tile for this cell has been loaded, not all in range ...
           mapLoadStatus: ok(true),
           rowCount: Math.max(curr.rowCount, row+1),
           colCount: Math.max(curr.colCount, column+1),
+          viewportCellRange: curr.viewportCellRange,
           viewport: curr.viewport
         }
 
@@ -159,7 +178,8 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
             // Out of date wrt to event log, nothing else has updated content since then, so set
             // status for in progress load and trigger sync.
             this.content = { ...curr, logLoadStatus: ok(false) }
-            this.syncLogs();
+            if (!this.isInSyncLogs)
+              this.syncLogsPromise = this.syncLogsAsync();
           }
           return storageError("Client out of sync", 409);
         case 'StorageError': 
@@ -170,6 +190,25 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
 
   isValidCellValueAndFormat(_row: number, _column: number, _value: CellValue, _format: CellFormat): Result<void,ValidationError> {
     return ok(); 
+  }
+
+  setViewport(viewport: SpreadsheetViewport|undefined): void { 
+    const cellRange = viewport ? viewportToCellRange(this, asSnapshot(this.content), viewport) : undefined;
+    this.setViewportCellRange(cellRange, viewport);
+
+    void this.syncLogsPromise.then(() => {
+      const curr = this.content;
+      if (curr.viewportCellRange != null) {
+        const segment = curr.logSegment;
+        void curr.tileMap.loadTiles(segment.snapshot, segment.entries, false, curr.viewportCellRange).then((result) => {
+          if (this.content == curr) {
+            const status: typeof this.content.mapLoadStatus = result.isOk() ? ok(true) : err(result.error);
+            this.content = { ...curr, mapLoadStatus: status }
+            this.notifyListeners();
+          }
+        })
+      }
+    });
   }
 
   getViewport(snapshot: EventSourcedSnapshot): SpreadsheetViewport | undefined { 
@@ -198,7 +237,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {
     const content = asContent(snapshot);
     const endIndex = Number(content.endSequenceId-content.logSegment.startSequenceId);
-    return content.cellMap.findEntry(row, column, endIndex);
+    return content.tileMap.findEntry(row, column, endIndex);
   }
 
 
@@ -206,4 +245,5 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   private snapshotInterval: number;
   private intervalId: ReturnType<typeof setInterval> | undefined;
   private listeners: (() => void)[];
+  private syncLogsPromise: Promise<void>;
 }

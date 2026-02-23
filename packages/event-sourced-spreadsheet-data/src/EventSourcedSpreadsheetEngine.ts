@@ -1,9 +1,10 @@
 import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore, QueryValue, SnapshotValue,
-  SpreadsheetViewport } from "@candidstartup/infinisheet-types";
-import { ok, err, equalViewports } from "@candidstartup/infinisheet-types";
+  SpreadsheetViewport, CellRangeCoords} from "@candidstartup/infinisheet-types";
+import { ok, err, equalViewports, equalCellRangeCoords } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
-import { SpreadsheetCellMap } from "./SpreadsheetCellMap"
+import { SpreadsheetTileMap } from "./SpreadsheetTileMap";
+import { SpreadsheetGridTileMap } from "./SpreadsheetGridTileMap"
 import { openSnapshot, SpreadsheetSnapshot } from "./SpreadsheetSnapshot";
 
 /** @internal */
@@ -19,29 +20,37 @@ export interface EventSourcedSnapshotContent {
   endSequenceId: SequenceId;
   logSegment: LogSegment;
   logLoadStatus: Result<boolean,StorageError>;
-  cellMap: SpreadsheetCellMap;
+  tileMap: SpreadsheetTileMap;
   mapLoadStatus: Result<boolean,StorageError>;
   rowCount: number;
   colCount: number;
+  viewportCellRange: CellRangeCoords | undefined | null;
   viewport: SpreadsheetViewport | undefined;
 }
 
 /** @internal */
-export function forkSegment(segment: LogSegment, cellMap: SpreadsheetCellMap, snapshot: SnapshotValue): [LogSegment, SpreadsheetCellMap] {
+function createTileMap(): SpreadsheetTileMap {
+  return new SpreadsheetGridTileMap;
+}
+
+/** @internal */
+export function forkSegment(segment: LogSegment, tileMap: SpreadsheetTileMap, snapshot: SnapshotValue): [LogSegment, SpreadsheetTileMap] {
   const index = Number(snapshot.sequenceId - segment.startSequenceId);
   if (index < 0 || index >= segment.entries.length)
     throw Error("forkSegment: snapshotId not within segment");
 
   const newSegment: LogSegment = 
     { startSequenceId: snapshot.sequenceId, entries: segment.entries.slice(index), snapshotId: snapshot.blobId };
-  const newMap = new SpreadsheetCellMap;
-  newMap.loadAsSnapshot(cellMap, index);
+  const newMap = createTileMap();
+  newMap.loadAsSnapshot(tileMap, index);
   newMap.addEntries(newSegment.entries, 0);
 
   return [newSegment, newMap];
 }
 
-async function cellMapFromSnapshot(segment: LogSegment, blobStore: BlobStore<unknown>): Promise<Result<SpreadsheetCellMap,StorageError>> {
+async function tileMapFromSnapshot(segment: LogSegment, blobStore: BlobStore<unknown>,
+  cellRange: CellRangeCoords|undefined|null): Promise<Result<SpreadsheetTileMap,StorageError>> {
+
   let snapshot = segment.snapshot;
   if (!snapshot) {
     const dir = await blobStore.getRootDir();
@@ -57,20 +66,18 @@ async function cellMapFromSnapshot(segment: LogSegment, blobStore: BlobStore<unk
     segment.snapshot = snapshot;
   }
 
-  const blob = await snapshot.loadTile(0, 0, snapshot.rowCount, snapshot.colCount);
-  if (blob.isErr())
-    return err(blob.error);
+  const tileMap = createTileMap();
+  if (cellRange === null)
+    return ok(tileMap);
 
-  const cellMap = new SpreadsheetCellMap;
-  cellMap.loadSnapshot(blob.value);
-  cellMap.addEntries(segment.entries, 0);
-  return ok(cellMap);
+  const result = await tileMap.loadTiles(snapshot, segment.entries, false, cellRange);
+  return result.isOk() ? ok(tileMap) : err(result.error);
 }
 
 async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValue<SpreadsheetLogEntry>,
   blobStore: BlobStore<unknown>): Promise<Result<EventSourcedSnapshotContent,StorageError>> {
   let segment: LogSegment = curr.logSegment;
-  let cellMap: SpreadsheetCellMap = curr.cellMap;
+  let tileMap: SpreadsheetTileMap = curr.tileMap;
   let rowCount = curr.rowCount;
   let colCount = curr.colCount;
 
@@ -81,10 +88,10 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
   // Start a new segment and load from snapshot if we've jumped to id past what we currently have
   if (snapshotId && curr.endSequenceId != startSequenceId) {
     segment = { startSequenceId, entries, snapshotId };
-    const result = await cellMapFromSnapshot(segment, blobStore);
+    const result = await tileMapFromSnapshot(segment, blobStore, curr.viewportCellRange);
     if (result.isErr())
       return err(result.error);
-    cellMap = result.value;
+    tileMap = result.value;
 
     rowCount = segment.snapshot!.rowCount;
     colCount = segment.snapshot!.colCount;
@@ -98,25 +105,32 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
       throw Error(`Query returned start ${value.startSequenceId}, expected ${curr.endSequenceId}`);
     }
 
+    // Make sure tiles are loaded/created before we start forking segments and adding entries
+    if (curr.viewportCellRange !== null) {
+      const result = await tileMap.loadTiles(segment.snapshot, segment.entries, true, curr.viewportCellRange);
+      if (result.isErr())
+        return err(result.error);
+    }
+
     if (value.lastSnapshot) {
       const { sequenceId } = value.lastSnapshot;
       if (sequenceId < curr.endSequenceId) {
         // Snapshot has completed in entry we already have. Fork segment at that point then process value as normal.
-        [segment, cellMap] = forkSegment(segment, cellMap, value.lastSnapshot);
+        [segment, tileMap] = forkSegment(segment, tileMap, value.lastSnapshot);
       } else if (sequenceId < value.endSequenceId) {
-        // Snapshot in returned value. Add entries up to snapshot to current cell map then start new segment from that.
+        // Snapshot in returned value. Add entries up to snapshot to current tile map then start new segment from that.
         const indexInValue = Number(sequenceId - startSequenceId);
         const baseIndex = segment.entries.length;
         for (let i = 0; i < indexInValue; i ++) {
           const entry = entries[i]!;
           rowCount = Math.max(rowCount, entry.row+1);
           colCount = Math.max(colCount, entry.column+1);
-          cellMap.addEntry(entry.row, entry.column, baseIndex+i, entry.value, entry.format);
+          tileMap.addEntry(entry.row, entry.column, baseIndex+i, entry.value, entry.format);
         }
         entries = entries.slice(indexInValue);
-        const oldCellMap = cellMap;
-        cellMap = new SpreadsheetCellMap;
-        cellMap.loadAsSnapshot(oldCellMap, baseIndex+indexInValue);
+        const oldCellMap = tileMap;
+        tileMap = createTileMap();
+        tileMap.loadAsSnapshot(oldCellMap, baseIndex+indexInValue);
         const emptyArray: SpreadsheetLogEntry[] = [];
         segment = { startSequenceId: startSequenceId + BigInt(indexInValue), entries: emptyArray, snapshotId: value.lastSnapshot.blobId };
         // Segment extension code below will add the remaining values
@@ -125,7 +139,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
     }
 
     // Extend the current loaded segment.
-    cellMap.addEntries(entries, segment.entries.length);
+    tileMap.addEntries(entries, segment.entries.length);
     segment.entries.push(...entries);
 
     for (const entry of entries) {
@@ -139,9 +153,10 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
     endSequenceId: value.endSequenceId,
     logSegment: segment,
     logLoadStatus: ok(value.isComplete),
-    cellMap,
+    tileMap,
     mapLoadStatus: ok(true),
     rowCount, colCount,
+    viewportCellRange: curr.viewportCellRange,
     viewport: curr.viewport
   });
 }
@@ -151,7 +166,9 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
  * @internal
  */
 export abstract class EventSourcedSpreadsheetEngine {
-  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, viewport?: SpreadsheetViewport) {
+  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, 
+    viewportCellRange?: CellRangeCoords|null, viewport?: SpreadsheetViewport) 
+  {
     this.isInSyncLogs = false;
     this.eventLog = eventLog;
     this.blobStore = blobStore;
@@ -159,28 +176,26 @@ export abstract class EventSourcedSpreadsheetEngine {
       endSequenceId: 0n,
       logSegment: { startSequenceId: 0n, entries: [] },
       logLoadStatus: ok(false),
-      cellMap: new SpreadsheetCellMap,
+      tileMap: createTileMap(),
       mapLoadStatus: ok(true),    // Empty map is consistent with current state of log
       rowCount: 0,
       colCount: 0,
+      viewportCellRange,
       viewport
     }
   }
 
-  setViewport(viewport: SpreadsheetViewport | undefined): void { 
+  protected setViewportCellRange(viewportCellRange: CellRangeCoords|null|undefined,viewport?: SpreadsheetViewport): void { 
     const curr = this.content;
-    if (equalViewports(curr.viewport, viewport))
+    if (equalViewports(curr.viewport, viewport) && equalCellRangeCoords(curr.viewportCellRange, viewportCellRange))
       return;
 
     // Take our own copy of viewport to ensure that it's immutable
     const viewportCopy = viewport ? { ...viewport } : undefined;
-    this.content = { ...curr, viewport: viewportCopy, mapLoadStatus: ok(false) };
+    const cellRangeCopy = viewportCellRange ? [ ...viewportCellRange ] as CellRangeCoords : viewportCellRange;
+    // TODO - Updating content will cancel any in progress syncLogs, is that what we want???
+    this.content = { ...curr, viewportCellRange: cellRangeCopy, viewport: viewportCopy, mapLoadStatus: ok(false) };
     this.notifyListeners();
-  }
-
-  // Sync in-memory representation so that it includes range to endSequenceId (defaults to end of log)
-  protected syncLogs(endSequenceId?: SequenceId): void {
-    this.syncLogsAsync(endSequenceId).catch((reason) => { throw Error("Rejected promise from syncLogsAsync", { cause: reason }) });
   }
 
   protected abstract notifyListeners(): void
@@ -249,5 +264,5 @@ export abstract class EventSourcedSpreadsheetEngine {
   protected eventLog: EventLog<SpreadsheetLogEntry>;
   protected blobStore: BlobStore<unknown>;
   protected content: EventSourcedSnapshotContent;
-  private isInSyncLogs: boolean;
+  protected isInSyncLogs: boolean;
 }

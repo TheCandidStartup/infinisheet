@@ -9,6 +9,7 @@ import { BlobId } from '@candidstartup/infinisheet-types';
 import { BlobStore } from '@candidstartup/infinisheet-types';
 import { CellData } from '@candidstartup/infinisheet-types';
 import { CellFormat } from '@candidstartup/infinisheet-types';
+import { CellRangeCoords } from '@candidstartup/infinisheet-types';
 import { CellValue } from '@candidstartup/infinisheet-types';
 import { EventLog } from '@candidstartup/infinisheet-types';
 import { InfiniSheetWorker } from '@candidstartup/infinisheet-types';
@@ -63,8 +64,6 @@ export enum _EventSourcedSnapshotBrand {
 // @internal (undocumented)
 export interface EventSourcedSnapshotContent {
     // (undocumented)
-    cellMap: SpreadsheetCellMap;
-    // (undocumented)
     colCount: number;
     // (undocumented)
     endSequenceId: SequenceId;
@@ -77,7 +76,11 @@ export interface EventSourcedSnapshotContent {
     // (undocumented)
     rowCount: number;
     // (undocumented)
+    tileMap: SpreadsheetTileMap;
+    // (undocumented)
     viewport: SpreadsheetViewport | undefined;
+    // (undocumented)
+    viewportCellRange: CellRangeCoords | undefined | null;
 }
 
 // Warning: (ae-incompatible-release-tags) The symbol "EventSourcedSpreadsheetData" is marked as @public, but its signature references "EventSourcedSpreadsheetEngine" which is marked as @internal
@@ -110,6 +113,8 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
     // (undocumented)
     setCellValueAndFormat(row: number, column: number, value: CellValue, format: CellFormat): ResultAsync<void, SpreadsheetDataError>;
     // (undocumented)
+    setViewport(viewport: SpreadsheetViewport | undefined): void;
+    // (undocumented)
     subscribe(onDataChange: () => void): () => void;
     // (undocumented)
     protected workerHost?: WorkerHost<PendingWorkflowMessage> | undefined;
@@ -119,14 +124,14 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
 export interface EventSourcedSpreadsheetDataOptions {
     restartPendingWorkflowsOnLoad?: boolean | undefined;
     snapshotInterval?: number | undefined;
-    viewport?: SpreadsheetViewport | undefined;
+    viewportEmpty?: boolean | undefined;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "EventSourcedSpreadsheetEngine" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal
 export abstract class EventSourcedSpreadsheetEngine {
-    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, viewport?: SpreadsheetViewport);
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, viewportCellRange?: CellRangeCoords | null, viewport?: SpreadsheetViewport);
     // (undocumented)
     protected blobStore: BlobStore<unknown>;
     // (undocumented)
@@ -134,11 +139,11 @@ export abstract class EventSourcedSpreadsheetEngine {
     // (undocumented)
     protected eventLog: EventLog<SpreadsheetLogEntry>;
     // (undocumented)
+    protected isInSyncLogs: boolean;
+    // (undocumented)
     protected abstract notifyListeners(): void;
     // (undocumented)
-    setViewport(viewport: SpreadsheetViewport | undefined): void;
-    // (undocumented)
-    protected syncLogs(endSequenceId?: SequenceId): void;
+    protected setViewportCellRange(viewportCellRange: CellRangeCoords | null | undefined, viewport?: SpreadsheetViewport): void;
     // (undocumented)
     protected syncLogsAsync(endSequenceId?: SequenceId): Promise<void>;
 }
@@ -152,6 +157,18 @@ export class EventSourcedSpreadsheetWorkflow extends EventSourcedSpreadsheetEngi
     protected notifyListeners(): void;
     // (undocumented)
     protected worker: InfiniSheetWorker<PendingWorkflowMessage>;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "GridTileFormat" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface GridTileFormat extends TileFormat {
+    // (undocumented)
+    tileHeight: number;
+    // (undocumented)
+    tileWidth: number;
+    // (undocumented)
+    type: "grid";
 }
 
 // Warning: (ae-internal-missing-underscore) The name "LogSegment" should be prefixed with an underscore because the declaration is marked as @internal
@@ -205,7 +222,7 @@ export type SpreadsheetLogEntry = SetCellValueAndFormatLogEntry;
 //
 // @internal
 export class SpreadsheetSnapshot {
-    constructor(id: BlobId, snapshotDir: BlobDir<unknown>, tileDir: BlobDir<unknown>);
+    constructor(id: BlobId, snapshotDir: BlobDir<unknown>, tileDir: BlobDir<unknown>, tileFormat?: TileFormat);
     // (undocumented)
     colCount: number;
     // (undocumented)
@@ -224,6 +241,27 @@ export class SpreadsheetSnapshot {
     snapshotDir: BlobDir<unknown>;
     // (undocumented)
     tileDir: BlobDir<unknown>;
+    // (undocumented)
+    tileFormat: TileFormat | undefined;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "SpreadsheetTileMap" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface SpreadsheetTileMap {
+    addEntries(entries: SetCellValueAndFormatLogEntry[], baseIndex: number): void;
+    addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void;
+    findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
+    loadAsSnapshot(src: SpreadsheetTileMap, snapshotIndex: number): void;
+    loadTiles(snapshot: SpreadsheetSnapshot | undefined, logEntries: SetCellValueAndFormatLogEntry[], forceExist: boolean, range?: CellRangeCoords): Promise<Result<void, StorageError>>;
+    saveSnapshot(srcSnapshot: SpreadsheetSnapshot | undefined, logEntries: SetCellValueAndFormatLogEntry[], rowCount: number, colCount: number, destSnapshot: SpreadsheetSnapshot, snapshotIndex: number): Promise<Result<void, StorageError>>;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "TileFormat" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export interface TileFormat {
+    type: string;
 }
 
 // (No @packageDocumentation comment for this package)

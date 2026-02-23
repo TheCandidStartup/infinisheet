@@ -1,6 +1,6 @@
 import { EventSourcedSpreadsheetData, EventSourcedSpreadsheetDataOptions } from './EventSourcedSpreadsheetData'
 import { EventSourcedSpreadsheetWorkflow } from './EventSourcedSpreadsheetWorkflow'
-import { SpreadsheetData, EventLog, PendingWorkflowMessage, emptyViewport } from '@candidstartup/infinisheet-types'
+import { SpreadsheetData, EventLog, PendingWorkflowMessage } from '@candidstartup/infinisheet-types'
 import { DelayEventLog, SimpleEventLog, SimpleBlobStore, SimpleWorkerHost, SimpleWorker } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
 import { spreadsheetDataInterfaceTests } from '../../infinisheet-types/src/SpreadsheetData.interface-test'
@@ -41,7 +41,7 @@ describe('EventSourcedSpreadsheetData', () => {
     vi.useRealTimers();
   })
 
-  spreadsheetDataInterfaceTests(creator);
+  spreadsheetDataInterfaceTests(creator, true, 1);
 
   function itCompletesInitialLoad(description: string, options?: EventSourcedSpreadsheetDataOptions) {
     it("completes initial load ".concat(description), async () => {
@@ -69,7 +69,7 @@ describe('EventSourcedSpreadsheetData', () => {
   };
 
   itCompletesInitialLoad('from empty log');
-  itCompletesInitialLoad('from empty log and viewport', { viewport: emptyViewport() });
+  itCompletesInitialLoad('from empty log and viewport', { viewportEmpty: true });
 
   it('subscribe should fire after initial load', async () => {
     const data = creator();

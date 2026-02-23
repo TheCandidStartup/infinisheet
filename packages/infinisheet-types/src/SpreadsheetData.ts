@@ -3,6 +3,7 @@ import { FixedSizeItemOffsetMapping } from "./FixedSizeItemOffsetMapping";
 import { Result, ok } from "./Result";
 import { ResultAsync, errAsync } from "./ResultAsync";
 import { ValidationError, StorageError, storageError } from "./Error";
+import { CellRangeCoords } from "./RowColRef";
 
 /** Possible spreadsheet error values
  * 
@@ -91,6 +92,16 @@ export function emptyViewport(): SpreadsheetViewport {
   return { rowMinOffset: 0, columnMinOffset: 0, width: 0, height: 0 }
 }
 
+/** Is viewport empty? */
+export function isEmptyViewport(vp: SpreadsheetViewport): boolean {
+  return vp.height === 0 || vp.width === 0;
+}
+
+/** Creates a viewport */
+export function viewport(rowMinOffset: number, columnMinOffset: number, width: number, height: number): SpreadsheetViewport {
+  return { rowMinOffset, columnMinOffset, width, height }
+}
+
 /** Types of error that can be returned by {@link SpreadsheetData} methods */
 export type SpreadsheetDataError = ValidationError | StorageError;
 
@@ -161,6 +172,26 @@ export interface SpreadsheetData<Snapshot> {
 
   /** Return the viewport in force (if any) */
   getViewport(snapshot: Snapshot): SpreadsheetViewport | undefined
+}
+
+/** Converts a viewport into a cell range for given SpreadsheetData 
+ * Returns null if viewport is empty
+*/
+export function viewportToCellRange<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snapshot, 
+  viewport: SpreadsheetViewport): CellRangeCoords|null
+{
+  if (isEmptyViewport(viewport))
+    return null;
+
+  const rowMapping = data.getRowItemOffsetMapping(snapshot);
+  const colMapping = data.getColumnItemOffsetMapping(snapshot);
+
+  const startRow = rowMapping.offsetToItem(viewport.rowMinOffset)[0];
+  const startCol = colMapping.offsetToItem(viewport.columnMinOffset)[0];
+  const endRow = rowMapping.offsetToItem(viewport.rowMinOffset+viewport.height)[0];
+  const endCol = colMapping.offsetToItem(viewport.columnMinOffset+viewport.width)[0];
+
+  return [ startRow, startCol, endRow, endCol ]
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);

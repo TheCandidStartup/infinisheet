@@ -10,7 +10,7 @@ import { EventSourcedSpreadsheetData, EventSourcedSpreadsheetWorkflow, Spreadshe
 import { BoringData as BoringDataType } from '../../spreadsheet-sample/src/BoringData';
 import { TestData as TestDataType } from '../../spreadsheet-sample/src/TestData';
 import { CellRefData } from '../../spreadsheet-sample/src/CellRefData';
-import { emptyViewport, PendingWorkflowMessage } from '@candidstartup/infinisheet-types';
+import { PendingWorkflowMessage } from '@candidstartup/infinisheet-types';
 
 const emptySpreadsheet = new SimpleSpreadsheetData;
 const boringData = new LayeredSpreadsheetData(new BoringDataType, new SimpleSpreadsheetData);
@@ -25,9 +25,8 @@ const delayEventLogA = new DelayEventLog(eventLog);
 const delayEventLogB = new DelayEventLog(eventLog);
 
 // Start with empty viewport so we only load data that's visible
-const viewport = emptyViewport(); 
-const eventSourcedDataA = new EventSourcedSpreadsheetData(delayEventLogA, blobStore, undefined, { viewport });
-const eventSourcedDataB = new EventSourcedSpreadsheetData(delayEventLogB, blobStore, undefined, { viewport });
+const eventSourcedDataA = new EventSourcedSpreadsheetData(delayEventLogA, blobStore, undefined, { viewportEmpty: true });
+const eventSourcedDataB = new EventSourcedSpreadsheetData(delayEventLogB, blobStore, undefined, { viewportEmpty: true });
 
 type VirtualSpreadsheetPropsAndCustomArgs = VirtualSpreadsheetProps & { 
   eventSourceLatencyA?: number | undefined,
