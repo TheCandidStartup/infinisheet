@@ -143,14 +143,18 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       if (this.content !== curr)
         return ok();
       
-      const { logSegment, tileMap } = curr;
+      const logSegment = curr.logSegment;
+      const tileMap = logSegment.tileMap;
       return new ResultAsync(tileMap.loadTiles(logSegment.snapshot, logSegment.entries, true, [row, column, row, column])); 
     }).map((addEntryValue) => {
       if (this.content === curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
-        let { logSegment, tileMap } = curr;
-        if (addEntryValue.lastSnapshot)
-          [logSegment, tileMap] = forkSegment(curr.logSegment, curr.tileMap, addEntryValue.lastSnapshot);
+        let logSegment = curr.logSegment;
+        let tileMap = logSegment.tileMap;
+        if (addEntryValue.lastSnapshot) {
+          logSegment = forkSegment(logSegment, tileMap, addEntryValue.lastSnapshot);
+          tileMap = logSegment.tileMap;
+        }
         logSegment.entries.push(entry);
         tileMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);
 
@@ -160,7 +164,6 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
           endSequenceId: curr.endSequenceId + 1n,
           logSegment,
           logLoadStatus: ok(true),
-          tileMap,
           // TODO - or should I leave this as current, all I know is that tile for this cell has been loaded, not all in range ...
           mapLoadStatus: ok(true),
           rowCount: Math.max(curr.rowCount, row+1),
@@ -200,7 +203,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       const curr = this.content;
       if (curr.viewportCellRange != null) {
         const segment = curr.logSegment;
-        void curr.tileMap.loadTiles(segment.snapshot, segment.entries, false, curr.viewportCellRange).then((result) => {
+        void segment.tileMap.loadTiles(segment.snapshot, segment.entries, false, curr.viewportCellRange).then((result) => {
           if (this.content == curr) {
             const status: typeof this.content.mapLoadStatus = result.isOk() ? ok(true) : err(result.error);
             this.content = { ...curr, mapLoadStatus: status }
@@ -237,7 +240,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {
     const content = asContent(snapshot);
     const endIndex = Number(content.endSequenceId-content.logSegment.startSequenceId);
-    return content.tileMap.findEntry(row, column, endIndex);
+    return content.logSegment.tileMap.findEntry(row, column, endIndex);
   }
 
 

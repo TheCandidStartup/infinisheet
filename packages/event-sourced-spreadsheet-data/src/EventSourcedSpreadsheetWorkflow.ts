@@ -48,7 +48,8 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
       return err(snapshotResult.error);
     const snapshot = snapshotResult.value;
 
-    const { logSegment, tileMap, rowCount, colCount } = this.content;
+    const { logSegment, rowCount, colCount } = this.content;
+    const tileMap = logSegment.tileMap;
     const snapshotIndex = Number(endSequenceId - logSegment.startSequenceId);
     const tileResult = await tileMap.saveSnapshot(logSegment.snapshot, logSegment.entries, 
       rowCount, colCount, snapshot, snapshotIndex);

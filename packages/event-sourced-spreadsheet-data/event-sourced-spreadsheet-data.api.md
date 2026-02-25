@@ -76,8 +76,6 @@ export interface EventSourcedSnapshotContent {
     // (undocumented)
     rowCount: number;
     // (undocumented)
-    tileMap: SpreadsheetTileMap;
-    // (undocumented)
     viewport: SpreadsheetViewport | undefined;
     // (undocumented)
     viewportCellRange: CellRangeCoords | undefined | null;
@@ -183,6 +181,8 @@ export interface LogSegment {
     snapshotId?: BlobId | undefined;
     // (undocumented)
     startSequenceId: SequenceId;
+    // (undocumented)
+    tileMap: SpreadsheetTileMap;
 }
 
 // Warning: (ae-incompatible-release-tags) The symbol "openSnapshot" is marked as @public, but its signature references "SpreadsheetSnapshot" which is marked as @internal
