@@ -65,7 +65,7 @@
     "rollup-plugin-delete": "^3.0.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "storybook": "9.1.17",
+    "storybook": "9.1.19",
     "typedoc": "^0.28.16",
     "typedoc-plugin-coverage": "^4.0.1",
     "typedoc-plugin-extras": "^4.0.0",
