@@ -51,7 +51,7 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
     const { logSegment, rowCount, colCount } = this.content;
     const tileMap = logSegment.tileMap;
     const snapshotIndex = Number(endSequenceId - logSegment.startSequenceId);
-    const tileResult = await tileMap.saveSnapshot(logSegment.snapshot, logSegment.entries, 
+    const tileResult = await tileMap.saveSnapshot(logSegment.snapshot, logSegment.cellMap, 
       rowCount, colCount, snapshot, snapshotIndex);
     if (tileResult.isErr())
       return err(tileResult.error);

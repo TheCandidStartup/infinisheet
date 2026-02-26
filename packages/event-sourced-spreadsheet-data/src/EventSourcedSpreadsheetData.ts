@@ -139,24 +139,15 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       // If syncLogs was in progress when we came in, content may have been updated
       curr = this.content;
       return this.addEntry(curr, entry);
-    }).andThrough((_addEntryValue) => {
-      if (this.content !== curr)
-        return ok();
-      
-      const logSegment = curr.logSegment;
-      const tileMap = logSegment.tileMap;
-      return new ResultAsync(tileMap.loadTiles(logSegment.snapshot, logSegment.entries, true, [row, column, row, column])); 
     }).map((addEntryValue) => {
       if (this.content === curr) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
         let logSegment = curr.logSegment;
-        let tileMap = logSegment.tileMap;
         if (addEntryValue.lastSnapshot) {
-          logSegment = forkSegment(logSegment, tileMap, addEntryValue.lastSnapshot);
-          tileMap = logSegment.tileMap;
+          logSegment = forkSegment(logSegment, addEntryValue.lastSnapshot);
         }
         logSegment.entries.push(entry);
-        tileMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);
+        logSegment.cellMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);
 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
@@ -201,15 +192,20 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
 
     void this.syncLogsPromise.then(() => {
       const curr = this.content;
-      if (curr.viewportCellRange != null) {
-        const segment = curr.logSegment;
-        void segment.tileMap.loadTiles(segment.snapshot, segment.entries, false, curr.viewportCellRange).then((result) => {
-          if (this.content == curr) {
-            const status: typeof this.content.mapLoadStatus = result.isOk() ? ok(true) : err(result.error);
-            this.content = { ...curr, mapLoadStatus: status }
-            this.notifyListeners();
-          }
-        })
+      const segment = curr.logSegment;
+      if (segment.snapshot) {
+        if (curr.viewportCellRange != null) {
+          void segment.tileMap.loadTiles(segment.snapshot, curr.viewportCellRange).then((result) => {
+            if (this.content == curr) {
+              const status: typeof this.content.mapLoadStatus = result.isOk() ? ok(true) : err(result.error);
+              this.content = { ...curr, mapLoadStatus: status }
+              this.notifyListeners();
+            }
+          })
+        }
+      } else {
+        this.content = { ...curr, mapLoadStatus: ok(true) }
+        this.notifyListeners();
       }
     });
   }
@@ -240,7 +236,10 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   private getCellValueAndFormatEntry(snapshot: EventSourcedSnapshot, row: number, column: number): CellMapEntry | undefined {
     const content = asContent(snapshot);
     const endIndex = Number(content.endSequenceId-content.logSegment.startSequenceId);
-    return content.logSegment.tileMap.findEntry(row, column, endIndex);
+
+    const segment = content.logSegment;
+    const entry = segment.cellMap.findEntry(row, column, endIndex);
+    return entry ? entry : segment.tileMap.findEntry(row, column);
   }
 
 

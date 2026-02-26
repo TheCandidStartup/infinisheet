@@ -1,7 +1,6 @@
-import { CellValue, CellFormat, CellRangeCoords, Result, StorageError } from "@candidstartup/infinisheet-types";
+import { CellRangeCoords, Result, StorageError } from "@candidstartup/infinisheet-types";
 import { SpreadsheetSnapshot } from "./SpreadsheetSnapshot";
-import { SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
-import { CellMapEntry } from "./SpreadsheetCellMap";
+import { CellMapEntry, SpreadsheetCellMap } from "./SpreadsheetCellMap";
 
 /** 
  * Map of currently loaded tiles
@@ -12,30 +11,21 @@ import { CellMapEntry } from "./SpreadsheetCellMap";
  * @internal 
  **/
 export interface SpreadsheetTileMap {
-  /** Add entries to tiles in map, ignoring any entries for unloaded tiles */
-  addEntries(entries: SetCellValueAndFormatLogEntry[], baseIndex: number): void;
+  /** Return entry from corresponding tile, if present */
+  findEntry(row: number, column: number): CellMapEntry|undefined;
 
-  /** Add entry to corresponding tile, ignoring if tile not loaded */
-  addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void;
-
-  /** Return entry with highest index smaller than `snapshotIndex` */
-  findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry|undefined;
-
-  /** Loads any missing tiles that intersect cell range and adds log entries relevant to those tiles 
-   * Use `forceExist` to control whether empty tiles are created if nothing in snapshot
-  */
-  loadTiles(snapshot: SpreadsheetSnapshot|undefined, logEntries: SetCellValueAndFormatLogEntry[],
-    forceExist: boolean, range?: CellRangeCoords): Promise<Result<void,StorageError>>;
+  /** Loads any missing tiles that intersect cell range */
+  loadTiles(snapshot: SpreadsheetSnapshot, range?: CellRangeCoords): Promise<Result<void,StorageError>>;
 
   /** Saves snapshot containing highest entry smaller than snapshotIndex for each cell 
    * 
    * Iterates over all source tiles, loading if needed, before writing new destination snapshot
    * Tiles in source and destination can be different sizes
   */
-  saveSnapshot(srcSnapshot: SpreadsheetSnapshot|undefined, logEntries: SetCellValueAndFormatLogEntry[], 
+  saveSnapshot(srcSnapshot: SpreadsheetSnapshot|undefined, changes: SpreadsheetCellMap, 
     rowCount: number, colCount: number,
     destSnapshot: SpreadsheetSnapshot, snapshotIndex: number): Promise<Result<void,StorageError>>;
 
-  /** Equivalent to {@link saveSnapshot} followed by {@link loadSnapshot} for loaded tiles */
-  loadAsSnapshot(src: SpreadsheetTileMap, snapshotIndex: number): void;
+  /** Equivalent to merge layers then {@link saveSnapshot} followed by {@link loadSnapshot} for loaded tiles */
+  loadAsSnapshot(src: SpreadsheetTileMap, changes: SpreadsheetCellMap, snapshotIndex: number): void;
 }

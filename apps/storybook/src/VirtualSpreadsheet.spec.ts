@@ -79,3 +79,17 @@ test('Full Screen Loads', async ({ page }) => {
   await expect(page.getByText('H1', { exact: true })).toBeInViewport();
   await expect(page.getByText('A20', { exact: true })).toBeInViewport();
 });
+
+test('Event Source Sync Loads', async ({ page }) => {
+  await page.goto(smoke("EventSourceSync"));
+  const cols = page.getByText('A', { exact: true });
+  const rows = page.getByText('1', { exact: true });
+  await expect(cols).toHaveCount(2);
+  await expect(cols.first()).toBeInViewport();
+  await expect(cols.nth(1)).toBeInViewport();
+  await expect(rows).toHaveCount(2);
+  await expect(rows.first()).toBeInViewport();
+  await expect(rows.nth(1)).toBeInViewport();
+  
+  await expect(page.getByText('Loading ...')).toHaveCount(0);
+});

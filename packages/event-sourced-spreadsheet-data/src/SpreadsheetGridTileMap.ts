@@ -1,6 +1,5 @@
-import { CellValue, CellFormat, Result, StorageError, CellRangeCoords, ok, err, cellRangesIntersect, cellRangeCoords } from "@candidstartup/infinisheet-types";
+import { Result, StorageError, CellRangeCoords, ok, err, cellRangesIntersect, cellRangeCoords } from "@candidstartup/infinisheet-types";
 import { SpreadsheetSnapshot } from "./SpreadsheetSnapshot";
-import { SetCellValueAndFormatLogEntry } from "./SpreadsheetLogEntry";
 import { CellMapEntry, SpreadsheetCellMap } from "./SpreadsheetCellMap";
 import { SpreadsheetTileMap } from "./SpreadsheetTileMap";
 
@@ -17,27 +16,14 @@ export class SpreadsheetGridTileMap implements SpreadsheetTileMap {
     this.cellMap = null;
   }
 
-  addEntries(entries: SetCellValueAndFormatLogEntry[], baseIndex: number): void {
-    if (this.cellMap)
-      this.cellMap.addEntries(entries,baseIndex);
-  }
-
-  addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void {
-    if (this.cellMap)
-      this.cellMap.addEntry(row, column, logIndex, value, format);
-  }
-
-  findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry|undefined {
+  findEntry(row: number, column: number): CellMapEntry|undefined {
     if (!this.cellMap)
       return undefined;
 
-    return this.cellMap.findEntry(row, column, snapshotIndex);
+    return this.cellMap.findEntry(row, column, 0);
   }
 
-  async loadTiles(snapshot: SpreadsheetSnapshot|undefined, logEntries: SetCellValueAndFormatLogEntry[], 
-    forceExist: boolean, 
-    range?: CellRangeCoords): Promise<Result<void,StorageError>> 
-  {
+  async loadTiles(snapshot: SpreadsheetSnapshot, range?: CellRangeCoords): Promise<Result<void,StorageError>> {
     // Tile already loaded
     if (this.cellMap)
       return ok();
@@ -50,45 +36,49 @@ export class SpreadsheetGridTileMap implements SpreadsheetTileMap {
           return err(blob.error);
         this.cellMap = new SpreadsheetCellMap;
         this.cellMap.loadSnapshot(blob.value);
-        this.cellMap.addEntries(logEntries, 0);
       }
-    } else if (forceExist || logEntries.length > 0) {
-      // Initializing tile
-      this.cellMap = new SpreadsheetCellMap;
-      this.cellMap.addEntries(logEntries, 0);
     }
 
     return ok();
   }
 
-  async saveSnapshot(srcSnapshot: SpreadsheetSnapshot|undefined, logEntries: SetCellValueAndFormatLogEntry[], 
+  async saveSnapshot(srcSnapshot: SpreadsheetSnapshot|undefined, changes: SpreadsheetCellMap, 
     rowCount: number, colCount: number,
-    destSnapshot: SpreadsheetSnapshot, snapshotIndex: number): Promise<Result<void,StorageError>> {
-
-    if (!this.cellMap) {
-      const loadResult = await this.loadTiles(srcSnapshot, logEntries, false);
+    destSnapshot: SpreadsheetSnapshot, snapshotIndex: number): Promise<Result<void,StorageError>> 
+  {
+    if (srcSnapshot && !this.cellMap) {
+      const loadResult = await this.loadTiles(srcSnapshot);
       if (loadResult.isErr())
         return err(loadResult.error);
     }
 
-    // Nothing to write if nothing in cell map
+    let cellMap = changes;
     if (this.cellMap) {
-      const blob = this.cellMap.saveSnapshot(snapshotIndex);
-      const blobResult = await destSnapshot.saveTile(0, 0, rowCount, colCount, blob);
-      if (blobResult.isErr())
-        return err(blobResult.error);
+      // Merge changes into base snapshot
+      cellMap = new SpreadsheetCellMap;
+      cellMap.loadAsSnapshot(this.cellMap, 0);
+      cellMap.loadAsSnapshot(changes, snapshotIndex);
     }
+
+    const blob = cellMap.saveSnapshot(snapshotIndex);
+    const blobResult = await destSnapshot.saveTile(0, 0, rowCount, colCount, blob);
+    if (blobResult.isErr())
+      return err(blobResult.error);
 
     return ok();
   }
 
-  loadAsSnapshot(src: SpreadsheetTileMap, snapshotIndex: number): void {
+  // Layer changes onto values from old snapshot to get same result as loading new snapshot from scratch
+  // TODO - Future multi-tile optimization. If no changes apply to tile and src/dest have same layout can reuse
+  //        existing tile rather than copying as tiles are immutable.
+ loadAsSnapshot(src: SpreadsheetTileMap, changes: SpreadsheetCellMap, snapshotIndex: number): void {
     const from = src as SpreadsheetGridTileMap;
-    if (from.cellMap) {
-      if (!this.cellMap)
-        this.cellMap = new SpreadsheetCellMap;
-      this.cellMap.loadAsSnapshot(from.cellMap, snapshotIndex);
-    }
+    if (!this.cellMap)
+      this.cellMap = new SpreadsheetCellMap;
+
+    if (from.cellMap)
+      this.cellMap.loadAsSnapshot(from.cellMap, 0);
+    this.cellMap.loadAsSnapshot(changes, snapshotIndex);
   }
 
   private cellMap: SpreadsheetCellMap | null;

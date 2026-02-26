@@ -174,6 +174,8 @@ export interface GridTileFormat extends TileFormat {
 // @internal (undocumented)
 export interface LogSegment {
     // (undocumented)
+    cellMap: SpreadsheetCellMap;
+    // (undocumented)
     entries: SpreadsheetLogEntry[];
     // (undocumented)
     snapshot?: SpreadsheetSnapshot | undefined;
@@ -249,12 +251,10 @@ export class SpreadsheetSnapshot {
 //
 // @internal
 export interface SpreadsheetTileMap {
-    addEntries(entries: SetCellValueAndFormatLogEntry[], baseIndex: number): void;
-    addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void;
-    findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
-    loadAsSnapshot(src: SpreadsheetTileMap, snapshotIndex: number): void;
-    loadTiles(snapshot: SpreadsheetSnapshot | undefined, logEntries: SetCellValueAndFormatLogEntry[], forceExist: boolean, range?: CellRangeCoords): Promise<Result<void, StorageError>>;
-    saveSnapshot(srcSnapshot: SpreadsheetSnapshot | undefined, logEntries: SetCellValueAndFormatLogEntry[], rowCount: number, colCount: number, destSnapshot: SpreadsheetSnapshot, snapshotIndex: number): Promise<Result<void, StorageError>>;
+    findEntry(row: number, column: number): CellMapEntry | undefined;
+    loadAsSnapshot(src: SpreadsheetTileMap, changes: SpreadsheetCellMap, snapshotIndex: number): void;
+    loadTiles(snapshot: SpreadsheetSnapshot, range?: CellRangeCoords): Promise<Result<void, StorageError>>;
+    saveSnapshot(srcSnapshot: SpreadsheetSnapshot | undefined, changes: SpreadsheetCellMap, rowCount: number, colCount: number, destSnapshot: SpreadsheetSnapshot, snapshotIndex: number): Promise<Result<void, StorageError>>;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "TileFormat" should be prefixed with an underscore because the declaration is marked as @internal
