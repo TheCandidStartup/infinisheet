@@ -109,7 +109,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
       // Shouldn't happen unless we have buggy event log implementation
       throw Error(`Query returned start ${value.startSequenceId}, expected ${curr.endSequenceId}`);
     }
-    
+
     if (value.lastSnapshot) {
       const { sequenceId } = value.lastSnapshot;
       if (sequenceId < curr.endSequenceId) {
@@ -152,7 +152,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
     endSequenceId: value.endSequenceId,
     logSegment: segment,
     logLoadStatus: ok(value.isComplete),
-    mapLoadStatus: ok(true),
+    mapLoadStatus: ok(true), // TODO - is this right? Should only change if we loaded tiles (segmentFromSnapshot case)
     rowCount, colCount,
     viewportCellRange: curr.viewportCellRange,
     viewport: curr.viewport

@@ -152,15 +152,12 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
         this.content = {
+          ...curr,
           endSequenceId: curr.endSequenceId + 1n,
           logSegment,
           logLoadStatus: ok(true),
-          // TODO - or should I leave this as current, all I know is that tile for this cell has been loaded, not all in range ...
-          mapLoadStatus: ok(true),
           rowCount: Math.max(curr.rowCount, row+1),
           colCount: Math.max(curr.colCount, column+1),
-          viewportCellRange: curr.viewportCellRange,
-          viewport: curr.viewport
         }
 
         this.notifyListeners();
