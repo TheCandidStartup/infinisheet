@@ -1,5 +1,5 @@
 import { indexToColRef, colRefToIndex, rowColCoordsToRef,
-  splitRowColRef, rowColRefToCoords } from './RowColRef'
+  splitRowColRef, rowColRefToCoords, cellRangeCoords, cellRangesIntersect, equalCellRangeCoords } from './RowColRef'
 
 describe('indexToColRef', () => {
   it('should convert known values', () => {
@@ -62,5 +62,51 @@ describe('rowColRefToCoords', () => {
   it('should return undefined for unknown values', () => {
     expect(rowColRefToCoords('23A')).toEqual([undefined,undefined]);
     expect(rowColRefToCoords('#')).toEqual([undefined,undefined]);
+  })
+})
+
+describe('CellRangeCoords', () => {
+  it('cellRangeCoords', () => {
+    expect(cellRangeCoords(0,1,2,3)).toEqual([0,1,2,3])
+  })
+
+  it('equalCellRangeCoords', () => {
+    const v1 = cellRangeCoords(0,1,2,3);
+    const v2 = cellRangeCoords(0,1,2,3);
+    const v3 = cellRangeCoords(0,1,2,4);
+
+    expect(equalCellRangeCoords(v1,v1)).toEqual(true);
+    expect(equalCellRangeCoords(v1,v2)).toEqual(true);
+    expect(equalCellRangeCoords(v1,v3)).toEqual(false);
+    expect(equalCellRangeCoords(v1,null)).toEqual(false);
+    expect(equalCellRangeCoords(v1,undefined)).toEqual(false);
+    expect(equalCellRangeCoords(undefined,v1)).toEqual(false);
+    expect(equalCellRangeCoords(undefined,null)).toEqual(false);
+    expect(equalCellRangeCoords(undefined,undefined)).toEqual(true);
+    expect(equalCellRangeCoords(null,v1)).toEqual(false);
+    expect(equalCellRangeCoords(null,undefined)).toEqual(false);
+    expect(equalCellRangeCoords(null,null)).toEqual(true);
+  })
+
+  it('cellRangesIntersect', () => {
+    const v1 = cellRangeCoords(0,1,2,3);
+    const v2 = cellRangeCoords(0,1,2,3);
+    const v3 = cellRangeCoords(1,3,1,4);
+    const v4 = cellRangeCoords(0,0,0,0);
+
+    expect(cellRangesIntersect(v1,v1)).toEqual(true);
+    expect(cellRangesIntersect(v1,v2)).toEqual(true);
+    expect(cellRangesIntersect(v1,v3)).toEqual(true);
+    expect(cellRangesIntersect(v1,v4)).toEqual(false);
+    expect(cellRangesIntersect(v3,v4)).toEqual(false);
+
+    expect(cellRangesIntersect(v1,null)).toEqual(false);
+    expect(cellRangesIntersect(v1,undefined)).toEqual(true);
+    expect(cellRangesIntersect(undefined,v1)).toEqual(true);
+    expect(cellRangesIntersect(undefined,null)).toEqual(false);
+    expect(cellRangesIntersect(undefined,undefined)).toEqual(true);
+    expect(cellRangesIntersect(null,v1)).toEqual(false);
+    expect(cellRangesIntersect(null,undefined)).toEqual(false);
+    expect(cellRangesIntersect(null,null)).toEqual(false);
   })
 })

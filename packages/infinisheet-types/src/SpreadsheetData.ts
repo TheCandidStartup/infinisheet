@@ -188,10 +188,13 @@ export function viewportToCellRange<Snapshot>(data: SpreadsheetData<Snapshot>, s
 
   const startRow = rowMapping.offsetToItem(viewport.rowMinOffset)[0];
   const startCol = colMapping.offsetToItem(viewport.columnMinOffset)[0];
-  const endRow = rowMapping.offsetToItem(viewport.rowMinOffset+viewport.height)[0];
-  const endCol = colMapping.offsetToItem(viewport.columnMinOffset+viewport.width)[0];
+  const endRowOffset = viewport.rowMinOffset + viewport.height;
+  const endColOffset = viewport.columnMinOffset + viewport.width;
+  const [endRow, endRowStartOffset] = rowMapping.offsetToItem(endRowOffset);
+  const [endCol, endColStartOffset] = colMapping.offsetToItem(endColOffset);
 
-  return [ startRow, startCol, endRow, endCol ]
+  // Inclusive range so only include end cell if some part of it is visible
+  return [ startRow, startCol, (endRowOffset - endRowStartOffset) ? endRow : endRow-1, (endColOffset - endColStartOffset) ? endCol : endCol-1 ]
 }
 
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
