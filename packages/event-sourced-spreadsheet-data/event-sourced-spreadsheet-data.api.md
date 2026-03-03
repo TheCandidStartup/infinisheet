@@ -137,6 +137,10 @@ export abstract class EventSourcedSpreadsheetEngine {
     // (undocumented)
     protected eventLog: EventLog<SpreadsheetLogEntry>;
     // (undocumented)
+    protected isCompatibleLog(curr: EventSourcedSnapshotContent): boolean;
+    // (undocumented)
+    protected isCompatibleViewport(curr: EventSourcedSnapshotContent): boolean;
+    // (undocumented)
     protected isInSyncLogs: boolean;
     // (undocumented)
     protected abstract notifyListeners(): void;

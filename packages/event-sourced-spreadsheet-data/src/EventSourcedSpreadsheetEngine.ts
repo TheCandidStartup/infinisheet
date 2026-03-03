@@ -182,6 +182,7 @@ export abstract class EventSourcedSpreadsheetEngine {
     }
   }
 
+  // Caller is responsible for ensuring any syncLogsAsync is complete using returned promise
   protected setViewportCellRange(viewportCellRange: CellRangeCoords|null|undefined,viewport?: SpreadsheetViewport): void { 
     const curr = this.content;
     if (equalViewports(curr.viewport, viewport) && equalCellRangeCoords(curr.viewportCellRange, viewportCellRange))
@@ -190,12 +191,27 @@ export abstract class EventSourcedSpreadsheetEngine {
     // Take our own copy of viewport to ensure that it's immutable
     const viewportCopy = viewport ? { ...viewport } : undefined;
     const cellRangeCopy = viewportCellRange ? [ ...viewportCellRange ] as CellRangeCoords : viewportCellRange;
-    // TODO - Updating content will cancel any in progress syncLogs, is that what we want???
     this.content = { ...curr, viewportCellRange: cellRangeCopy, viewport: viewportCopy, mapLoadStatus: ok(false) };
     this.notifyListeners();
   }
 
   protected abstract notifyListeners(): void
+
+  protected isCompatibleLog(curr: EventSourcedSnapshotContent): boolean {
+    const content = this.content;
+    if (content == curr)
+      return true;
+
+    return (content.endSequenceId === curr.endSequenceId && content.logSegment === curr.logSegment)
+  }
+
+  protected isCompatibleViewport(curr: EventSourcedSnapshotContent): boolean {
+    const content = this.content;
+    if (content == curr)
+      return true;
+
+    return equalCellRangeCoords(content.viewportCellRange, curr.viewportCellRange);
+  }
 
   protected async syncLogsAsync(endSequenceId?: SequenceId): Promise<void> {
     if (this.isInSyncLogs)
@@ -218,7 +234,7 @@ export abstract class EventSourcedSpreadsheetEngine {
       const segment = curr.logSegment;
       const result = await this.eventLog.query(start, end, initialLoad ? undefined : segment.startSequenceId);
 
-      if (curr != this.content) {
+      if (!this.isCompatibleLog(curr)) {
         // Must have had setCellValueAndFormat complete successfully and update content to match.
         // Query result no longer relevant
         break;
@@ -235,7 +251,7 @@ export abstract class EventSourcedSpreadsheetEngine {
         // For now wait for interval timer to try another sync
         // For persistent failures should stop interval timer and have some mechanism for user to trigger
         // manual retry. 
-        this.content = { ...curr, logLoadStatus: err(result.error)};
+        this.content = { ...this.content, logLoadStatus: err(result.error)};
         this.notifyListeners();
         break;
       }
@@ -245,12 +261,12 @@ export abstract class EventSourcedSpreadsheetEngine {
 
       // Don't create new snapshot if nothing has changed
       if (value.entries.length > 0) {
-        const result = await updateContent(curr, value, this.blobStore);
-        this.content = result.isOk() ? result.value : { ...curr, logLoadStatus: err(result.error)};
+        const result = await updateContent(this.content, value, this.blobStore);
+        this.content = result.isOk() ? result.value : { ...this.content, logLoadStatus: err(result.error)};
         this.notifyListeners();
       } else if (curr.logLoadStatus.isErr() || curr.logLoadStatus.value != isComplete) {
         // Careful, even if no entries returned, loadStatus may have changed
-        this.content = { ...curr, logLoadStatus: ok(isComplete) }
+        this.content = { ...this.content, logLoadStatus: ok(isComplete) }
         this.notifyListeners();
       }
     }

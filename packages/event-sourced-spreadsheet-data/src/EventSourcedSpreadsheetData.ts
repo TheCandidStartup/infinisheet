@@ -140,7 +140,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       curr = this.content;
       return this.addEntry(curr, entry);
     }).map((addEntryValue) => {
-      if (this.content === curr) {
+      if (this.isCompatibleLog(curr)) {
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
         let logSegment = curr.logSegment;
         if (addEntryValue.lastSnapshot) {
@@ -152,7 +152,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
         // Snapshot semantics preserved by treating EventSourcedSnapshot as an immutable data structure which is 
         // replaced with a modified copy on every update.
         this.content = {
-          ...curr,
+          ...this.content,
           endSequenceId: curr.endSequenceId + 1n,
           logSegment,
           logLoadStatus: ok(true),
@@ -165,10 +165,10 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
     }).mapErr((err): SpreadsheetDataError => {
       switch (err.type) {
         case 'ConflictError':
-          if (this.content == curr) {
+          if (this.isCompatibleLog(curr)) {
             // Out of date wrt to event log, nothing else has updated content since then, so set
             // status for in progress load and trigger sync.
-            this.content = { ...curr, logLoadStatus: ok(false) }
+            this.content = { ...this.content, logLoadStatus: ok(false) }
             if (!this.isInSyncLogs)
               this.syncLogsPromise = this.syncLogsAsync();
           }
@@ -186,23 +186,25 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
   setViewport(viewport: SpreadsheetViewport|undefined): void { 
     const cellRange = viewport ? viewportToCellRange(this, asSnapshot(this.content), viewport) : undefined;
     this.setViewportCellRange(cellRange, viewport);
+    const curr = this.content;
 
     void this.syncLogsPromise.then(() => {
-      const curr = this.content;
-      const segment = curr.logSegment;
-      if (segment.snapshot) {
-        if (curr.viewportCellRange != null) {
-          void segment.tileMap.loadTiles(segment.snapshot, curr.viewportCellRange).then((result) => {
-            if (this.content == curr) {
-              const status: typeof this.content.mapLoadStatus = result.isOk() ? ok(true) : err(result.error);
-              this.content = { ...curr, mapLoadStatus: status }
-              this.notifyListeners();
-            }
-          })
+      if (this.isCompatibleViewport(curr)) {
+        const segment = this.content.logSegment;
+        if (segment.snapshot) {
+          if (curr.viewportCellRange != null) {
+            void segment.tileMap.loadTiles(segment.snapshot, curr.viewportCellRange).then((result) => {
+              if (this.isCompatibleViewport(curr)) {
+                const status: typeof this.content.mapLoadStatus = result.isOk() ? ok(true) : err(result.error);
+                this.content = { ...this.content, mapLoadStatus: status }
+                this.notifyListeners();
+              }
+            })
+          }
+        } else {
+          this.content = { ...this.content, mapLoadStatus: ok(true) }
+          this.notifyListeners();
         }
-      } else {
-        this.content = { ...curr, mapLoadStatus: ok(true) }
-        this.notifyListeners();
       }
     });
   }

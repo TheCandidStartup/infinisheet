@@ -125,6 +125,28 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(data.getCellValue(snapshot3, 19, 0)).toEqual(19);
   })
 
+  it('should load from event log despite setViewport interference', async () => {
+    vi.useFakeTimers();
+
+    const log = new  SimpleEventLog<SpreadsheetLogEntry>;
+    for (let i = 0; i < 20; i ++) {
+      const result = await log.addEntry({ type: 'SetCellValueAndFormat', row: i, column: 0, value: i}, BigInt(i));
+      expect(result).toBeOk();
+    }
+    const data = creator(log);
+    data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 1000, height: 1000 });
+
+    await subscribeFired(data);
+    await vi.runAllTimersAsync();
+
+    const snapshot = data.getSnapshot();
+    const status = data.getLoadStatus(snapshot);
+    expect(status.isOk() && status.value).toBe(true);
+    expect(data.getRowCount(snapshot)).toEqual(20);
+    expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
+    expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
+  })
+
   it('should save and load snapshots', async () => {
     vi.useFakeTimers();
 
@@ -207,6 +229,130 @@ describe('EventSourcedSpreadsheetData', () => {
     queryValue = expectUnwrap(await log.query('snapshot', 'end'));
     expect(queryValue.startSequenceId).toEqual(28n);
     expect(queryValue.entries.length).toEqual(5);
+  })
+
+  it('should update value despite setViewport interference', async () => {
+    vi.useFakeTimers();
+
+    const blobStore = new SimpleBlobStore;
+    const worker = new SimpleWorker<PendingWorkflowMessage>;
+    const host = new SimpleWorkerHost(worker);
+    const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
+    {
+      // Force snapshot to be created on log
+      new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
+
+      const data1 = new EventSourcedSpreadsheetData(log, blobStore, host,  { snapshotInterval: 15 });
+      await subscribeFired(data1);
+
+      for (let i = 0; i < 20; i ++) {
+        const result = await data1.setCellValueAndFormat(i, 0, i, undefined);
+        expect(result).toBeOk();
+      }
+      await vi.runAllTimersAsync();
+    }
+
+    const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
+    const resultAsync = data.setCellValueAndFormat(0, 0, 42, undefined);
+    data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 1000, height: 1000 });
+
+    await subscribeFired(data);
+    await vi.runAllTimersAsync();
+    const result = await resultAsync;
+
+    expect(result).toBeOk();
+
+    const snapshot = data.getSnapshot();
+    const status = data.getLoadStatus(snapshot);
+    expect(status.isOk() && status.value).toBe(true);
+    expect(data.getRowCount(snapshot)).toEqual(20);
+    expect(data.getCellValue(snapshot, 0, 0)).toEqual(42);
+    expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
+    expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
+  })
+
+  it('should coalesce multiple setViewports', async () => {
+    vi.useFakeTimers();
+
+    const blobStore = new SimpleBlobStore;
+    const worker = new SimpleWorker<PendingWorkflowMessage>;
+    const host = new SimpleWorkerHost(worker);
+    const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
+    {
+      // Force snapshot to be created on log
+      new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
+
+      const data1 = new EventSourcedSpreadsheetData(log, blobStore, host,  { snapshotInterval: 15 });
+      await subscribeFired(data1);
+
+      for (let i = 0; i < 20; i ++) {
+        const result = await data1.setCellValueAndFormat(i, 0, i, undefined);
+        expect(result).toBeOk();
+      }
+      await vi.runAllTimersAsync();
+    }
+
+    const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
+
+    const mock = vi.fn();
+    const unsubscribe = data.subscribe(mock);
+
+    data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
+    data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
+
+    // Each setViewport should notify listeners twice - when value changed and when load complete
+    // First completion will be ignored because required viewport has changed
+    await subscribeFired(data);
+    expect(mock).toBeCalledTimes(3);
+    unsubscribe();
+
+    // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
+    const snapshot = data.getSnapshot();
+    const status = data.getLoadStatus(snapshot);
+    expect(status.isOk() && status.value).toBe(true);
+    expect(data.getRowCount(snapshot)).toEqual(20);
+    expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
+    expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
+  })
+
+  it('should setViewport despite update value interference', async () => {
+    vi.useFakeTimers();
+
+    const blobStore = new SimpleBlobStore;
+    const worker = new SimpleWorker<PendingWorkflowMessage>;
+    const host = new SimpleWorkerHost(worker);
+    const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
+    {
+      // Force snapshot to be created on log
+      new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
+
+      const data1 = new EventSourcedSpreadsheetData(log, blobStore, host,  { snapshotInterval: 15 });
+      await subscribeFired(data1);
+
+      for (let i = 0; i < 20; i ++) {
+        const result = await data1.setCellValueAndFormat(i, 0, i, undefined);
+        expect(result).toBeOk();
+      }
+      await vi.runAllTimersAsync();
+    }
+
+    const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
+    {
+      const syncDone = await data.setCellValueAndFormat(0, 0, 77, undefined);
+      expect(syncDone).toBeOk();
+      const resultAsync = data.setCellValueAndFormat(0, 0, 42, undefined);
+      data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 1000, height: 1000 });
+      const result = await resultAsync;
+      await vi.runAllTimersAsync();
+      expect(result).toBeOk();
+      const snapshot = data.getSnapshot();
+      const status = data.getLoadStatus(snapshot);
+      expect(status.isOk() && status.value).toBe(true);
+      expect(data.getRowCount(snapshot)).toEqual(20);
+      expect(data.getCellValue(snapshot, 0, 0)).toEqual(42);
+      expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
+      expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
+    }
   })
 
   it('should save and load snapshots with two clients', async () => {
