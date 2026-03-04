@@ -32,7 +32,7 @@ describe('EmptySpreadsheetData', () => {
 })
 
 describe('SpreadsheetViewport', () => {
-  it('viewport', async () => {
+  it('viewport', () => {
     const v1 = viewport(0,1,2,3);
 
     expect(v1.rowMinOffset).toEqual(0);
@@ -41,7 +41,7 @@ describe('SpreadsheetViewport', () => {
     expect(v1.height).toEqual(3);
   })
 
-  it('equalViewports', async () => {
+  it('equalViewports', () => {
     const v1 = viewport(0,1,2,3);
     const v2 = viewport(0,1,2,3);
     const v3 = viewport(0,1,2,4);
@@ -54,7 +54,7 @@ describe('SpreadsheetViewport', () => {
     expect(equalViewports(undefined, undefined)).toEqual(true);
   })
 
-  it('emptyViewport', async () => {
+  it('emptyViewport', () => {
     const v1 = viewport(0,1,2,3);
     const v2 = emptyViewport();
     const v3 = viewport(0,1,0,3);
@@ -72,7 +72,7 @@ describe('SpreadsheetViewport', () => {
     expect(v1.height).toEqual(3);
   })
 
-  it('viewportToCellRange', async () => {
+  it('viewportToCellRange', () => {
     const data = new EmptySpreadsheetData;
     const v1 = viewport(0,1,2,3);
     const v2 = emptyViewport();

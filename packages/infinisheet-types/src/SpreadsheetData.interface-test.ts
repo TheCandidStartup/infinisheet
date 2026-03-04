@@ -75,7 +75,7 @@ describe('SpreadsheetData Interface', () => {
     expect(mock).toBeCalledTimes(initialNotify+2);
   })
 
-    it('should support viewports', async () => {
+  it('should support viewports', () => {
     const data = creator();
     const snapshot1 = data.getSnapshot();
     expect(data.getViewport(snapshot1)).toEqual(undefined);
