@@ -28,15 +28,13 @@ export class SpreadsheetGridTileMap implements SpreadsheetTileMap {
     if (this.cellMap)
       return ok();
 
-    if (snapshot) {
-      const { rowCount, colCount } = snapshot;
-      if (rowCount && colCount && cellRangesIntersect(range, cellRangeCoords(0, 0, rowCount-1, colCount-1))) {
-        const blob = await snapshot.loadTile(0, 0, rowCount, colCount);
-        if (blob.isErr())
-          return err(blob.error);
-        this.cellMap = new SpreadsheetCellMap;
-        this.cellMap.loadSnapshot(blob.value);
-      }
+    const { rowCount, colCount } = snapshot;
+    if (rowCount && colCount && cellRangesIntersect(range, cellRangeCoords(0, 0, rowCount-1, colCount-1))) {
+      const blob = await snapshot.loadTile(0, 0, rowCount, colCount);
+      if (blob.isErr())
+        return err(blob.error);
+      this.cellMap = new SpreadsheetCellMap;
+      this.cellMap.loadSnapshot(blob.value);
     }
 
     return ok();

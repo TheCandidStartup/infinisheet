@@ -1,4 +1,4 @@
-import type { SpreadsheetData } from './SpreadsheetData'
+import { emptyViewport, type SpreadsheetData } from './SpreadsheetData'
 
 export function spreadsheetDataInterfaceTests(creator: () => SpreadsheetData<unknown>, startsEmpty=true, initialNotify=0) {
 describe('SpreadsheetData Interface', () => {
@@ -73,6 +73,19 @@ describe('SpreadsheetData Interface', () => {
     unsubscribe();
     await data.setCellValueAndFormat(0, 0, false, undefined);
     expect(mock).toBeCalledTimes(initialNotify+2);
+  })
+
+    it('should support viewports', async () => {
+    const data = creator();
+    const snapshot1 = data.getSnapshot();
+    expect(data.getViewport(snapshot1)).toEqual(undefined);
+
+    const vp = emptyViewport();
+    data.setViewport(vp);
+    data.setViewport(vp);
+    const snapshot2 = data.getSnapshot();
+    expect(data.getViewport(snapshot1)).toEqual(undefined);
+    expect(data.getViewport(snapshot2)).toEqual(vp);
   })
 })
 }

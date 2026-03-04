@@ -33,11 +33,15 @@ describe('SpreadsheetCellMap', () => {
     expect(map.findEntry(0,0,0)).toBeUndefined();
     expect(map.findEntry(0,0,1)).toEqual({ value: 42, logIndex: 0 })
     expect(map.findEntry(10,20,30)).toBeUndefined();
+    expect(map.calcExtents(0)).toEqual({ rowMin: 0, columnMin: 0, rowMax: 0, columnMax: 0});
+    expect(map.calcExtents(1)).toEqual({ rowMin: 0, columnMin: 0, rowMax: 1, columnMax: 1});
+    expect(map.calcExtents(2)).toEqual({ rowMin: 0, columnMin: 0, rowMax: 3, columnMax: 4});
 
     const map2 = new SpreadsheetCellMap;
     map2.loadAsSnapshot(map,2);
     expect(map2.findEntry(0,0,0)).toEqual({ value: 42 })
     expect(map2.findEntry(2,3,0)).toEqual({ value: 17, format: "something" })
+    expect(map2.calcExtents(0)).toEqual({ rowMin: 0, columnMin: 0, rowMax: 3, columnMax: 4});
   })
 
   it('should work with multiple entries per cell', () => {
