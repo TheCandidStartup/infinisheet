@@ -215,11 +215,11 @@ export abstract class EventSourcedSpreadsheetEngine {
 
   protected async syncLogsAsync(endSequenceId?: SequenceId): Promise<void> {
     if (this.isInSyncLogs)
-      return Promise.resolve();
+      throw Error("Reentrant call to syncLogsAsync. Check isInSyncLogs before calling or use promise returned");
 
     // Already have everything required?
     if (endSequenceId && endSequenceId <= this.content.endSequenceId)
-      return Promise.resolve();
+      return;
 
     this.isInSyncLogs = true;
 
@@ -235,9 +235,8 @@ export abstract class EventSourcedSpreadsheetEngine {
       const result = await this.eventLog.query(start, end, initialLoad ? undefined : segment.startSequenceId);
 
       if (!this.isCompatibleLog(curr)) {
-        // Must have had setCellValueAndFormat complete successfully and update content to match.
-        // Query result no longer relevant
-        break;
+        // Any processes that modify event log are required to synchronize access using promised returned
+        throw Error("Incompatible logs during syncLogsAsync, did you forget to synchronize on promise?");
       }
 
       if (!result.isOk()) {

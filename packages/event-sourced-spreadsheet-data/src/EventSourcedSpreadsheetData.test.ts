@@ -297,14 +297,16 @@ describe('EventSourcedSpreadsheetData', () => {
     const mock = vi.fn();
     const unsubscribe = data.subscribe(mock);
 
+    // Coalesce at start of chain
     data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
     data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
 
     // Each setViewport should notify listeners twice - when value changed and when load complete
     // First completion will be ignored because required viewport has changed
     await subscribeFired(data);
-    expect(mock).toBeCalledTimes(3);
     unsubscribe();
+    await vi.runAllTimersAsync();
+    expect(mock).toBeCalledTimes(3);
 
     // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
     const snapshot = data.getSnapshot();

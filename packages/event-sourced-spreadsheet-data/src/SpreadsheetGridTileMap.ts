@@ -71,8 +71,7 @@ export class SpreadsheetGridTileMap implements SpreadsheetTileMap {
   //        existing tile rather than copying as tiles are immutable.
  loadAsSnapshot(src: SpreadsheetTileMap, changes: SpreadsheetCellMap, snapshotIndex: number): void {
     const from = src as SpreadsheetGridTileMap;
-    if (!this.cellMap)
-      this.cellMap = new SpreadsheetCellMap;
+    this.cellMap = new SpreadsheetCellMap;
 
     if (from.cellMap)
       this.cellMap.loadAsSnapshot(from.cellMap, 0);
