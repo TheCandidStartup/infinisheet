@@ -19,7 +19,7 @@ interface SimpleBlobStoreIter {
 export enum _SimpleBlobStoreBrand { _DO_NOT_USE="" };
 
 /**
- * Opaque type representing a {@link SimpleSpreadsheetData} snapshot. All the
+ * Opaque type representing a {@link SimpleBlobStore} continuation. All the
  * internal implementation details are hidden from the exported API.
  */
 export interface SimpleBlobStoreContinuation {

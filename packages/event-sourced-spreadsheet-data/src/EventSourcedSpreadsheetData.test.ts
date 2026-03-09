@@ -1,7 +1,8 @@
 import { EventSourcedSpreadsheetData, EventSourcedSpreadsheetDataOptions } from './EventSourcedSpreadsheetData'
 import { EventSourcedSpreadsheetWorkflow } from './EventSourcedSpreadsheetWorkflow'
 import { SpreadsheetData, EventLog, PendingWorkflowMessage } from '@candidstartup/infinisheet-types'
-import { DelayEventLog, SimpleEventLog, SimpleBlobStore, SimpleWorkerHost, SimpleWorker } from '@candidstartup/simple-spreadsheet-data'
+import { DelayEventLog, DelayBlobStore, SimpleEventLog, SimpleBlobStore, 
+  SimpleWorkerHost, SimpleWorker } from '@candidstartup/simple-spreadsheet-data'
 import { SpreadsheetLogEntry } from './SpreadsheetLogEntry';
 import { spreadsheetDataInterfaceTests } from '../../infinisheet-types/src/SpreadsheetData.interface-test'
 import { expectUnwrap } from '../../../shared/test/utils'
@@ -274,7 +275,7 @@ describe('EventSourcedSpreadsheetData', () => {
   it('should coalesce multiple setViewports', async () => {
     vi.useFakeTimers();
 
-    const blobStore = new SimpleBlobStore;
+    const blobStore = new DelayBlobStore(new SimpleBlobStore);
     const worker = new SimpleWorker<PendingWorkflowMessage>;
     const host = new SimpleWorkerHost(worker);
     const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
@@ -292,29 +293,69 @@ describe('EventSourcedSpreadsheetData', () => {
       await vi.runAllTimersAsync();
     }
 
-    const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
+    // Coalesce after first setViewpoint loads tiles
+    {
+      const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
+      await vi.advanceTimersByTimeAsync(0);
 
-    const mock = vi.fn();
-    const unsubscribe = data.subscribe(mock);
+      const mock = vi.fn();
+      const unsubscribe = data.subscribe(mock);
+
+      // Should run up to point of loading tile from blob store, one notify from start of setViewpoint
+      blobStore.delay = 100;
+      data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(mock).toBeCalledTimes(1);
+
+      // Run second setViewpoint to completion, two additional notifies from start and end of setViewpoint
+      blobStore.delay = 0;
+      data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(mock).toBeCalledTimes(3);
+
+      // First setViewpoint should now complete and find content no longer compatible, skipping update
+      // and notify.
+      await vi.advanceTimersByTimeAsync(100);
+      expect(mock).toBeCalledTimes(3);
+      unsubscribe();
+
+      // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
+      const snapshot = data.getSnapshot();
+      const status = data.getLoadStatus(snapshot);
+      expect(status.isOk() && status.value).toBe(true);
+      expect(data.getRowCount(snapshot)).toEqual(20);
+      expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
+      expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
+    }
 
     // Coalesce at start of chain
-    data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
-    data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
+    {
+      const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
 
-    // Each setViewport should notify listeners twice - when value changed and when load complete
-    // First completion will be ignored because required viewport has changed
-    await subscribeFired(data);
-    unsubscribe();
-    await vi.runAllTimersAsync();
-    expect(mock).toBeCalledTimes(3);
+      const mock = vi.fn();
+      const unsubscribe = data.subscribe(mock);
 
-    // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
-    const snapshot = data.getSnapshot();
-    const status = data.getLoadStatus(snapshot);
-    expect(status.isOk() && status.value).toBe(true);
-    expect(data.getRowCount(snapshot)).toEqual(20);
-    expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
-    expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
+      // Notifies at start of both setViewpoints, all async operations pending
+      data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
+      data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
+      expect(mock).toBeCalledTimes(2);
+
+      // All pending async operations run
+      // Notify from data constructor syncLogsAsync complete
+      // Notify from first setViewpoint ignored as second changed range
+      // Notify from second setViewpoint
+      await vi.advanceTimersByTimeAsync(0);
+      unsubscribe();
+      expect(mock).toBeCalledTimes(4);
+
+      // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
+      const snapshot = data.getSnapshot();
+      const status = data.getLoadStatus(snapshot);
+      expect(status.isOk() && status.value).toBe(true);
+      expect(data.getRowCount(snapshot)).toEqual(20);
+      expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
+      expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
+    }
   })
 
   it('should setViewport despite update value interference', async () => {

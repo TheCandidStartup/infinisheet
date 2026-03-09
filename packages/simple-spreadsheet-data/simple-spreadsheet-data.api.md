@@ -42,6 +42,31 @@ import { WorkerMessage } from '@candidstartup/infinisheet-types';
 import { WriteBlobError } from '@candidstartup/infinisheet-types';
 
 // @public
+export class DelayBlobDir<BaseContinuationT> implements BlobDir<BaseContinuationT> {
+    constructor(base: BlobDir<BaseContinuationT>, store: DelayBlobStore<BaseContinuationT>);
+    // (undocumented)
+    getDir(name: BlobName): ResultAsync<DelayBlobDir<BaseContinuationT>, GetDirError>;
+    // (undocumented)
+    query(continuation?: BaseContinuationT): ResultAsync<BlobDirEntries<BaseContinuationT>, DirQueryError>;
+    // (undocumented)
+    readBlob(name: BlobName): ResultAsync<Uint8Array, ReadBlobError>;
+    // (undocumented)
+    removeAll(): ResultAsync<void, RemoveAllBlobDirError>;
+    // (undocumented)
+    removeBlob(name: BlobName): ResultAsync<void, RemoveBlobError>;
+    // (undocumented)
+    writeBlob(name: BlobName, content: Uint8Array): ResultAsync<void, WriteBlobError>;
+}
+
+// @public
+export class DelayBlobStore<BaseContinuationT> implements BlobStore<BaseContinuationT> {
+    constructor(base: BlobStore<BaseContinuationT>, delay?: number);
+    delay: number;
+    // (undocumented)
+    getRootDir(): ResultAsync<DelayBlobDir<BaseContinuationT>, GetRootDirError>;
+}
+
+// @public
 export class DelayEventLog<T extends LogEntry> implements EventLog<T> {
     constructor(base: EventLog<T>, delay?: number);
     // (undocumented)

@@ -20,14 +20,18 @@ export interface LogSegment {
 }
 
 /** @internal */
-export interface EventSourcedSnapshotContent {
+export interface EventSourcedSnapshotLogContent {
   endSequenceId: SequenceId;
   logSegment: LogSegment;
   logLoadStatus: Result<boolean,StorageError>;
 
-  mapLoadStatus: Result<boolean,StorageError>;
   rowCount: number;
   colCount: number;
+}
+
+/** @internal */
+export interface EventSourcedSnapshotContent extends EventSourcedSnapshotLogContent {
+  mapLoadStatus: Result<boolean,StorageError>;
   viewportCellRange: CellRangeCoords | undefined | null;
   viewport: SpreadsheetViewport | undefined;
 }
@@ -81,8 +85,8 @@ async function segmentFromSnapshot(startSequenceId: SequenceId, entries: Spreads
   return tileResult.isOk() ? ok(segment) : err(tileResult.error);
 }
 
-async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValue<SpreadsheetLogEntry>,
-  blobStore: BlobStore<unknown>): Promise<Result<EventSourcedSnapshotContent,StorageError>> {
+async function updateLogContent(curr: EventSourcedSnapshotContent, value: QueryValue<SpreadsheetLogEntry>,
+  blobStore: BlobStore<unknown>): Promise<Result<EventSourcedSnapshotLogContent,StorageError>> {
   let segment = curr.logSegment;
   let rowCount = curr.rowCount;
   let colCount = curr.colCount;
@@ -152,10 +156,7 @@ async function updateContent(curr: EventSourcedSnapshotContent, value: QueryValu
     endSequenceId: value.endSequenceId,
     logSegment: segment,
     logLoadStatus: ok(value.isComplete),
-    mapLoadStatus: ok(true), // TODO - is this right? Should only change if we loaded tiles (segmentFromSnapshot case)
     rowCount, colCount,
-    viewportCellRange: curr.viewportCellRange,
-    viewport: curr.viewport
   });
 }
 
@@ -260,8 +261,8 @@ export abstract class EventSourcedSpreadsheetEngine {
 
       // Don't create new snapshot if nothing has changed
       if (value.entries.length > 0) {
-        const result = await updateContent(this.content, value, this.blobStore);
-        this.content = result.isOk() ? result.value : { ...this.content, logLoadStatus: err(result.error)};
+        const result = await updateLogContent(this.content, value, this.blobStore);
+        this.content = result.isOk() ? { ...this.content, ...result.value } : { ...this.content, logLoadStatus: err(result.error)};
         this.notifyListeners();
       } else if (curr.logLoadStatus.isErr() || curr.logLoadStatus.value != isComplete) {
         // Careful, even if no entries returned, loadStatus may have changed

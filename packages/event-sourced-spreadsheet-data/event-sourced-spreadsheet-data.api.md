@@ -62,7 +62,19 @@ export enum _EventSourcedSnapshotBrand {
 // Warning: (ae-internal-missing-underscore) The name "EventSourcedSnapshotContent" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export interface EventSourcedSnapshotContent {
+export interface EventSourcedSnapshotContent extends EventSourcedSnapshotLogContent {
+    // (undocumented)
+    mapLoadStatus: Result<boolean, StorageError>;
+    // (undocumented)
+    viewport: SpreadsheetViewport | undefined;
+    // (undocumented)
+    viewportCellRange: CellRangeCoords | undefined | null;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "EventSourcedSnapshotLogContent" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface EventSourcedSnapshotLogContent {
     // (undocumented)
     colCount: number;
     // (undocumented)
@@ -72,13 +84,7 @@ export interface EventSourcedSnapshotContent {
     // (undocumented)
     logSegment: LogSegment;
     // (undocumented)
-    mapLoadStatus: Result<boolean, StorageError>;
-    // (undocumented)
     rowCount: number;
-    // (undocumented)
-    viewport: SpreadsheetViewport | undefined;
-    // (undocumented)
-    viewportCellRange: CellRangeCoords | undefined | null;
 }
 
 // Warning: (ae-incompatible-release-tags) The symbol "EventSourcedSpreadsheetData" is marked as @public, but its signature references "EventSourcedSpreadsheetEngine" which is marked as @internal

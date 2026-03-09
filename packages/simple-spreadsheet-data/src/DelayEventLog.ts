@@ -12,6 +12,8 @@ export function delayPromise<T>(value: T, delay: number): Promise<T> {
 
 // Utility method that completes a `ResultAsync` after a delay (in ms)
 export function delayResult<T,E>(result: ResultAsync<T,E>, delay: number): ResultAsync<T,E> {
+  if (delay == 0)
+    return result;
   const promiseLike = result.then<Result<T,E>,never>((r) => delayPromise(r, delay));
   return new ResultAsync(Promise.resolve(promiseLike));
 }
