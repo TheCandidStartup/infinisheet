@@ -21,5 +21,6 @@ it('storageError', () => {
 
 it('fatalErrorIf', () => {
   expect(() => fatalErrorIf(false)).not.toThrowError();
+  expect(() => fatalErrorIf(true)).toThrowError("fatalError");
   expect(() => fatalErrorIf(true, "my mistake")).toThrowError("my mistake");
 })
