@@ -484,6 +484,72 @@ describe('EventSourcedSpreadsheetData', () => {
     expect(dataB["content"].logSegment.snapshotId).toEqual("42");
   })
 
+  it('setCellValueAndFormat should handle interference from syncLogs', async () => {
+    vi.useFakeTimers();
+
+    const blobStore = new SimpleBlobStore;
+    const worker = new SimpleWorker<PendingWorkflowMessage>;
+    const host = new SimpleWorkerHost(worker);
+    const log = new DelayEventLog(new SimpleEventLog<SpreadsheetLogEntry>(host));
+    new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
+
+    const dataA = new EventSourcedSpreadsheetData(log, blobStore, host );
+    const mockA = vi.fn();
+    const unsubscribeA = dataA.subscribe(mockA);
+
+    const dataB = new EventSourcedSpreadsheetData(log, blobStore, host );
+    const mockB = vi.fn();
+    const unsubscribeB = dataB.subscribe(mockB);
+
+    await vi.advanceTimersByTimeAsync(0);
+    expect(mockA).toBeCalledTimes(1);
+    expect(mockB).toBeCalledTimes(1);
+
+    // Waiting on result from log.addEntry
+    log.delay = 250000;
+    const result = dataA.setCellValueAndFormat(0, 0, 42, undefined);
+    await vi.advanceTimersByTimeAsync(0);
+    log.delay = 0;
+    expect(mockA).toBeCalledTimes(1);
+    expect(mockB).toBeCalledTimes(1);
+
+    // Advance time far enough to trigger another syncLogs
+    await vi.advanceTimersByTimeAsync(110000);
+    expect(mockA).toBeCalledTimes(2);
+    expect(mockB).toBeCalledTimes(2);
+
+    // Add another entry to the log using client B
+    expect(await dataB.setCellValueAndFormat(1, 1, 77, undefined)).toBeOk();
+    expect(mockA).toBeCalledTimes(2);
+    expect(mockB).toBeCalledTimes(3);
+
+    const snapshotB = dataB.getSnapshot();
+    expect(dataB.getRowCount(snapshotB)).toEqual(2);
+    expect(dataB.getColumnCount(snapshotB)).toEqual(2);
+    expect(dataB.getCellValue(snapshotB, 0, 0)).toEqual(42);
+    expect(dataB.getCellValue(snapshotB, 1, 1)).toEqual(77);
+
+    // Advance time far enough to trigger second syncLogs
+    await vi.advanceTimersByTimeAsync(100000);
+    expect(mockA).toBeCalledTimes(3);
+    expect(mockB).toBeCalledTimes(3);
+
+    // Advance to complete original setCellValueAndFormat. Should notice syncLogs has already updated content
+    await vi.advanceTimersByTimeAsync(100000);
+    expect(mockA).toBeCalledTimes(3);
+    expect(mockB).toBeCalledTimes(3);
+    expect(await result).toBeOk();
+
+    unsubscribeA();
+    unsubscribeB();
+
+    const snapshotA = dataA.getSnapshot();
+    expect(dataA.getRowCount(snapshotA)).toEqual(2);
+    expect(dataA.getColumnCount(snapshotA)).toEqual(2);
+    expect(dataA.getCellValue(snapshotA, 0, 0)).toEqual(42);
+    expect(dataA.getCellValue(snapshotA, 1, 1)).toEqual(77);
+  })
+
   it('should handle delays', async () => {
     vi.useFakeTimers();
 
