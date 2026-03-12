@@ -1,6 +1,6 @@
 import type { Result, StorageError, SequenceId, BlobId, EventLog, BlobStore, QueryValue, SnapshotValue,
   SpreadsheetViewport, CellRangeCoords} from "@candidstartup/infinisheet-types";
-import { ok, err, equalViewports, equalCellRangeCoords } from "@candidstartup/infinisheet-types";
+import { ok, err, equalViewports, equalCellRangeCoords, fatalErrorIf } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { SpreadsheetTileMap } from "./SpreadsheetTileMap";
@@ -44,8 +44,7 @@ function createTileMap(): SpreadsheetTileMap {
 /** @internal */
 export function forkSegment(segment: LogSegment, snapshot: SnapshotValue): LogSegment {
   const index = Number(snapshot.sequenceId - segment.startSequenceId);
-  if (index < 0 || index >= segment.entries.length)
-    throw Error("forkSegment: snapshotId not within segment");
+  fatalErrorIf(index < 0 || index >= segment.entries.length, "forkSegment: snapshotId not within segment");
 
   const tileMap = createTileMap();
   const cellMap = new SpreadsheetCellMap;
@@ -109,10 +108,8 @@ async function updateLogContent(curr: EventSourcedSnapshotContent, value: QueryV
       colCount = Math.max(colCount, entry.column+1);
     }
   } else {
-    if (curr.endSequenceId != startSequenceId) {
-      // Shouldn't happen unless we have buggy event log implementation
-      throw Error(`Query returned start ${value.startSequenceId}, expected ${curr.endSequenceId}`);
-    }
+    // Shouldn't happen unless we have buggy event log implementation
+    fatalErrorIf(curr.endSequenceId != startSequenceId, `Query returned start ${value.startSequenceId}, expected ${curr.endSequenceId}`);
 
     if (value.lastSnapshot) {
       const { sequenceId } = value.lastSnapshot;
@@ -215,8 +212,7 @@ export abstract class EventSourcedSpreadsheetEngine {
   }
 
   protected async syncLogsAsync(endSequenceId?: SequenceId): Promise<void> {
-    if (this.isInSyncLogs)
-      throw Error("Reentrant call to syncLogsAsync. Check isInSyncLogs before calling or use promise returned");
+    fatalErrorIf(this.isInSyncLogs, "Reentrant call to syncLogsAsync. Check isInSyncLogs before calling or use promise returned");
 
     // Already have everything required?
     if (endSequenceId && endSequenceId <= this.content.endSequenceId)
@@ -235,10 +231,8 @@ export abstract class EventSourcedSpreadsheetEngine {
       const segment = curr.logSegment;
       const result = await this.eventLog.query(start, end, initialLoad ? undefined : segment.startSequenceId);
 
-      if (!this.isCompatibleLog(curr)) {
-        // Any processes that modify event log are required to synchronize access using promised returned
-        throw Error("Incompatible logs during syncLogsAsync, did you forget to synchronize on promise?");
-      }
+      // Any processes that modify event log are required to synchronize access using promised returned
+      fatalErrorIf(!this.isCompatibleLog(curr), "Incompatible logs during syncLogsAsync, did you forget to synchronize on promise?");
 
       if (!result.isOk()) {
         if (result.error.type == 'InfinisheetRangeError') {

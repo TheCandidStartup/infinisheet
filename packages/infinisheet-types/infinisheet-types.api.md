@@ -165,6 +165,9 @@ export interface EventLog<T extends LogEntry> {
 }
 
 // @public
+export function fatalErrorIf(errorCondition: boolean, message?: string): void;
+
+// @public
 export class FixedSizeItemOffsetMapping implements ItemOffsetMapping {
     constructor(itemSize: number);
     // (undocumented)

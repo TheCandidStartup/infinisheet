@@ -1,4 +1,4 @@
-import { validationError, infinisheetRangeError, storageError } from './Error'
+import { validationError, infinisheetRangeError, storageError, fatalErrorIf } from './Error'
 
 it('validationError', () => {
   const error = validationError("test");
@@ -17,4 +17,9 @@ it('storageError', () => {
   expect(error.type).toEqual('StorageError');
   expect(error.message).toEqual("test");
   expect(error.statusCode).toEqual(501);
+})
+
+it('fatalErrorIf', () => {
+  expect(() => fatalErrorIf(false)).not.toThrowError();
+  expect(() => fatalErrorIf(true, "my mistake")).toThrowError("my mistake");
 })

@@ -49,3 +49,9 @@ export interface StorageError extends InfinisheetError {
 export function storageError(message: string, statusCode?: number): StorageError {
   return { type: 'StorageError', message, statusCode };
 }
+
+/** Throws a fatal error if errorCondition is true. Indicates a fundamental programming error that isn't intended to be caught. */
+export function fatalErrorIf(errorCondition: boolean, message?: string): void {
+  if (errorCondition)
+    throw new Error(message || "fatalError");
+}

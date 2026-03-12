@@ -1,5 +1,5 @@
 import { EventLog, BlobStore, PendingWorkflowMessage, InfiniSheetWorker, 
-  ResultAsync, err, Result, InfinisheetError } from "@candidstartup/infinisheet-types";
+  ResultAsync, err, Result, InfinisheetError, fatalErrorIf } from "@candidstartup/infinisheet-types";
 
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
@@ -21,8 +21,7 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
   protected notifyListeners(): void {}
 
   private onReceiveMessage(message: PendingWorkflowMessage): ResultAsync<void,InfinisheetError> {
-    if (message.workflow !== 'snapshot')
-      throw Error(`Unknown workflow ${message.workflow}`);
+    fatalErrorIf(message.workflow !== 'snapshot', `Unknown workflow ${message.workflow}`);
 
     return new ResultAsync(this.onReceiveMessageAsync(message));
   }
@@ -34,8 +33,7 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
       return err(this.content.logLoadStatus.error);
     if (this.content.mapLoadStatus.isErr())
       return err(this.content.mapLoadStatus.error);
-    if (!this.content.logLoadStatus.value)
-      throw Error("Somehow syncLogs() is still in progress despite promise having resolved");
+    fatalErrorIf(!this.content.logLoadStatus.value, "Somehow syncLogs() is still in progress despite promise having resolved");
 
     const name = message.sequenceId.toString();
 
