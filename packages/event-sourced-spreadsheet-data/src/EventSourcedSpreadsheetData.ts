@@ -192,7 +192,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
       if (this.isCompatibleViewport(curr)) {
         const segment = this.content.logSegment;
         if (segment.snapshot) {
-          if (curr.viewportCellRange != null) {
+          if (curr.viewportCellRange !== null) {
             void segment.tileMap.loadTiles(segment.snapshot, curr.viewportCellRange).then((result) => {
               if (this.isCompatibleViewport(curr)) {
                 const status: typeof this.content.mapLoadStatus = result.isOk() ? ok(true) : err(result.error);

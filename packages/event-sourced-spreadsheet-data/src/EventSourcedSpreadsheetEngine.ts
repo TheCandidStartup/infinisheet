@@ -205,7 +205,7 @@ export abstract class EventSourcedSpreadsheetEngine {
 
   protected isCompatibleViewport(curr: EventSourcedSnapshotContent): boolean {
     const content = this.content;
-    if (content == curr)
+    if (content === curr)
       return true;
 
     return equalCellRangeCoords(content.viewportCellRange, curr.viewportCellRange);
