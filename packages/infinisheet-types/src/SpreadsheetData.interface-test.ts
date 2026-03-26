@@ -65,14 +65,14 @@ describe('SpreadsheetData Interface', () => {
 
     await data.setCellValueAndFormat(0, 0, "In A1", undefined);
     // Any notifications during initialization + setCellValue
-    expect(mock).toBeCalledTimes(initialNotify+1);
+    expect(mock).toHaveBeenCalledTimes(initialNotify+1);
 
     await data.setCellValueAndFormat(0, 0, 42, undefined);
-    expect(mock).toBeCalledTimes(initialNotify+2);
+    expect(mock).toHaveBeenCalledTimes(initialNotify+2);
 
     unsubscribe();
     await data.setCellValueAndFormat(0, 0, false, undefined);
-    expect(mock).toBeCalledTimes(initialNotify+2);
+    expect(mock).toHaveBeenCalledTimes(initialNotify+2);
   })
 
   it('should support viewports', () => {

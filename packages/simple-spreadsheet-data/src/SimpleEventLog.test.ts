@@ -20,7 +20,7 @@ describe('SimpleEventLog', () => {
 
     let addResult = await data.addEntry(testLogEntry(0), 0n)
     expect(addResult.isOk()).toEqual(true);
-    expect(mock).toBeCalledTimes(0);
+    expect(mock).toHaveBeenCalledTimes(0);
 
     const entry = testLogEntry(1);
     entry.pending = 'snapshot';

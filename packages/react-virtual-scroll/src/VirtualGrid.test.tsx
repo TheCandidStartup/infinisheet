@@ -172,9 +172,9 @@ describe('VirtualGrid', () => {
       expect(mock).lastCalledWith({ left: 700 });
 
       proxy = ref.current || throwErr("null ref");
-      expect(mock).toBeCalledTimes(5);
+      expect(mock).toHaveBeenCalledTimes(5);
       {act(() => { proxy.scrollToItem(43, 8, 'visible'); })}
-      expect(mock).toBeCalledTimes(5);
+      expect(mock).toHaveBeenCalledTimes(5);
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(80, 50, 'visible'); })}

@@ -79,17 +79,17 @@ describe('EventSourcedSpreadsheetData', () => {
     const unsubscribe = data.subscribe(mock);
 
     await subscribeFired(data);
-    expect(mock).toBeCalledTimes(1);
+    expect(mock).toHaveBeenCalledTimes(1);
 
     await data.setCellValueAndFormat(0, 0, "In A1", undefined);
-    expect(mock).toBeCalledTimes(2);
+    expect(mock).toHaveBeenCalledTimes(2);
 
     await data.setCellValueAndFormat(0, 0, 42, undefined);
-    expect(mock).toBeCalledTimes(3);
+    expect(mock).toHaveBeenCalledTimes(3);
 
     unsubscribe();
     await data.setCellValueAndFormat(0, 0, false, undefined);
-    expect(mock).toBeCalledTimes(3);
+    expect(mock).toHaveBeenCalledTimes(3);
   })
 
   it('should load from event log', async () => {
@@ -305,18 +305,18 @@ describe('EventSourcedSpreadsheetData', () => {
       blobStore.delay = 100;
       data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
       await vi.advanceTimersByTimeAsync(0);
-      expect(mock).toBeCalledTimes(1);
+      expect(mock).toHaveBeenCalledTimes(1);
 
       // Run second setViewpoint to completion, two additional notifies from start and end of setViewpoint
       blobStore.delay = 0;
       data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
       await vi.advanceTimersByTimeAsync(0);
-      expect(mock).toBeCalledTimes(3);
+      expect(mock).toHaveBeenCalledTimes(3);
 
       // First setViewpoint should now complete and find content no longer compatible, skipping update
       // and notify.
       await vi.advanceTimersByTimeAsync(100);
-      expect(mock).toBeCalledTimes(3);
+      expect(mock).toHaveBeenCalledTimes(3);
       unsubscribe();
 
       // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
@@ -339,7 +339,7 @@ describe('EventSourcedSpreadsheetData', () => {
       // Notifies at start of both setViewpoints, all async operations pending
       data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
       data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
-      expect(mock).toBeCalledTimes(2);
+      expect(mock).toHaveBeenCalledTimes(2);
 
       // All pending async operations run
       // Notify from data constructor syncLogsAsync complete
@@ -347,7 +347,7 @@ describe('EventSourcedSpreadsheetData', () => {
       // Notify from second setViewpoint
       await vi.advanceTimersByTimeAsync(0);
       unsubscribe();
-      expect(mock).toBeCalledTimes(4);
+      expect(mock).toHaveBeenCalledTimes(4);
 
       // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
       const snapshot = data.getSnapshot();
@@ -369,7 +369,7 @@ describe('EventSourcedSpreadsheetData', () => {
       // Notifies at start of both setViewpoints, all async operations pending
       data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
       data.setViewport(undefined);
-      expect(mock).toBeCalledTimes(2);
+      expect(mock).toHaveBeenCalledTimes(2);
 
       // All pending async operations run
       // Notify from data constructor syncLogsAsync complete
@@ -377,7 +377,7 @@ describe('EventSourcedSpreadsheetData', () => {
       // Notify from second setViewpoint
       await vi.advanceTimersByTimeAsync(0);
       unsubscribe();
-      expect(mock).toBeCalledTimes(4);
+      expect(mock).toHaveBeenCalledTimes(4);
 
       // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
       const snapshot = data.getSnapshot();
@@ -534,8 +534,8 @@ describe('EventSourcedSpreadsheetData', () => {
     const unsubscribeB = dataB.subscribe(mockB);
 
     await vi.advanceTimersByTimeAsync(0);
-    expect(mockA).toBeCalledTimes(1);
-    expect(mockB).toBeCalledTimes(1);
+    expect(mockA).toHaveBeenCalledTimes(1);
+    expect(mockB).toHaveBeenCalledTimes(1);
 
     // Interference after log.addEntry succeeds
     {
@@ -544,18 +544,18 @@ describe('EventSourcedSpreadsheetData', () => {
       const result = dataA.setCellValueAndFormat(0, 0, 42, undefined);
       await vi.advanceTimersByTimeAsync(0);
       log.delay = 0;
-      expect(mockA).toBeCalledTimes(1);
-      expect(mockB).toBeCalledTimes(1);
+      expect(mockA).toHaveBeenCalledTimes(1);
+      expect(mockB).toHaveBeenCalledTimes(1);
 
       // Advance time far enough to trigger another syncLogs
       await vi.advanceTimersByTimeAsync(10000);
-      expect(mockA).toBeCalledTimes(2);
-      expect(mockB).toBeCalledTimes(2);
+      expect(mockA).toHaveBeenCalledTimes(2);
+      expect(mockB).toHaveBeenCalledTimes(2);
 
       // Add another entry to the log using client B
       expect(await dataB.setCellValueAndFormat(1, 1, 77, undefined)).toBeOk();
-      expect(mockA).toBeCalledTimes(2);
-      expect(mockB).toBeCalledTimes(3);
+      expect(mockA).toHaveBeenCalledTimes(2);
+      expect(mockB).toHaveBeenCalledTimes(3);
 
       const snapshotB = dataB.getSnapshot();
       expect(dataB.getRowCount(snapshotB)).toEqual(2);
@@ -565,13 +565,13 @@ describe('EventSourcedSpreadsheetData', () => {
 
       // Advance time far enough to trigger second syncLogs
       await vi.advanceTimersByTimeAsync(10000);
-      expect(mockA).toBeCalledTimes(3);
-      expect(mockB).toBeCalledTimes(3);
+      expect(mockA).toHaveBeenCalledTimes(3);
+      expect(mockB).toHaveBeenCalledTimes(3);
 
       // Advance to complete original setCellValueAndFormat. Should notice syncLogs has already updated content
       await vi.advanceTimersByTimeAsync(10000);
-      expect(mockA).toBeCalledTimes(3);
-      expect(mockB).toBeCalledTimes(3);
+      expect(mockA).toHaveBeenCalledTimes(3);
+      expect(mockB).toHaveBeenCalledTimes(3);
       expect(await result).toBeOk();
 
       const snapshotA = dataA.getSnapshot();
@@ -585,26 +585,26 @@ describe('EventSourcedSpreadsheetData', () => {
     {
       // Add another entry to the log using client B
       expect(await dataB.setCellValueAndFormat(2, 0, 63, undefined)).toBeOk();
-      expect(mockA).toBeCalledTimes(3);
-      expect(mockB).toBeCalledTimes(4);
+      expect(mockA).toHaveBeenCalledTimes(3);
+      expect(mockB).toHaveBeenCalledTimes(4);
 
       // Add conflicting entry to log using client A and wait on result
       log.delay = 15000;
       const result = dataA.setCellValueAndFormat(0, 2, 99, undefined);
       await vi.advanceTimersByTimeAsync(0);
       log.delay = 0;
-      expect(mockA).toBeCalledTimes(3);
-      expect(mockB).toBeCalledTimes(4);
+      expect(mockA).toHaveBeenCalledTimes(3);
+      expect(mockB).toHaveBeenCalledTimes(4);
 
       // Advance time far enough to trigger another syncLogs
       await vi.advanceTimersByTimeAsync(10000);
-      expect(mockA).toBeCalledTimes(4);
-      expect(mockB).toBeCalledTimes(4);
+      expect(mockA).toHaveBeenCalledTimes(4);
+      expect(mockB).toHaveBeenCalledTimes(4);
 
       // Advance time far enough for result to be returned
       await vi.advanceTimersByTimeAsync(10000);
-      expect(mockA).toBeCalledTimes(4);
-      expect(mockB).toBeCalledTimes(4);
+      expect(mockA).toHaveBeenCalledTimes(4);
+      expect(mockB).toHaveBeenCalledTimes(4);
       const value = await result;
       expect(value.isErr()).toEqual(true);
       expect(value._unsafeUnwrapErr()).toEqual(storageError("Client out of sync", 409));
@@ -622,37 +622,37 @@ describe('EventSourcedSpreadsheetData', () => {
     {
       // Add entry to the log using client B
       expect(await dataB.setCellValueAndFormat(3, 0, 57, undefined)).toBeOk();
-      expect(mockA).toBeCalledTimes(4);
-      expect(mockB).toBeCalledTimes(5);
+      expect(mockA).toHaveBeenCalledTimes(4);
+      expect(mockB).toHaveBeenCalledTimes(5);
 
       // Add conflicting entry to log using client A and wait on result
       log.delay = 15000;
       const result = dataA.setCellValueAndFormat(0, 3, 33, undefined);
       await vi.advanceTimersByTimeAsync(0);
       log.delay = 0;
-      expect(mockA).toBeCalledTimes(4);
-      expect(mockB).toBeCalledTimes(5);
+      expect(mockA).toHaveBeenCalledTimes(4);
+      expect(mockB).toHaveBeenCalledTimes(5);
 
       // Advance time far enough to trigger syncLogs which will stop at query
       log.delay = 8000;
       await vi.advanceTimersByTimeAsync(10000);
       log.delay = 0;
-      expect(mockA).toBeCalledTimes(4);
-      expect(mockB).toBeCalledTimes(5);
+      expect(mockA).toHaveBeenCalledTimes(4);
+      expect(mockB).toHaveBeenCalledTimes(5);
 
       // Advance time far enough for result to be returned
       // Should bail out because syncLogs is active
       await vi.advanceTimersByTimeAsync(5000);
-      expect(mockA).toBeCalledTimes(4);
-      expect(mockB).toBeCalledTimes(5);
+      expect(mockA).toHaveBeenCalledTimes(4);
+      expect(mockB).toHaveBeenCalledTimes(5);
       const value = await result;
       expect(value.isErr()).toEqual(true);
       expect(value._unsafeUnwrapErr()).toEqual(storageError("Client out of sync", 409));
 
       // Enough for syncLogs to complete
       await vi.advanceTimersByTimeAsync(3000);
-      expect(mockA).toBeCalledTimes(5);
-      expect(mockB).toBeCalledTimes(5);
+      expect(mockA).toHaveBeenCalledTimes(5);
+      expect(mockB).toHaveBeenCalledTimes(5);
 
       const snapshotA = dataA.getSnapshot();
       expect(dataA.getRowCount(snapshotA)).toEqual(4);

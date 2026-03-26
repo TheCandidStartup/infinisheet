@@ -141,9 +141,9 @@ describe('Fixed Size VirtualList', () => {
       expect(mock).lastCalledWith({ "top":  0 });
 
       proxy = ref.current || throwErr("null ref");
-      expect(mock).toBeCalledTimes(3);
+      expect(mock).toHaveBeenCalledTimes(3);
       {act(() => { proxy.scrollToItem(1, 'visible'); })}
-      expect(mock).toBeCalledTimes(3);
+      expect(mock).toHaveBeenCalledTimes(3);
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42, 'visible'); })}
@@ -261,9 +261,9 @@ describe('Fixed Size VirtualList', () => {
       expect(mock).lastCalledWith({ "left": 0 });
 
       proxy = ref.current || throwErr("null ref");
-      expect(mock).toBeCalledTimes(3);
+      expect(mock).toHaveBeenCalledTimes(3);
       {act(() => { proxy.scrollToItem(1, 'visible'); })}
-      expect(mock).toBeCalledTimes(3);
+      expect(mock).toHaveBeenCalledTimes(3);
 
       proxy = ref.current || throwErr("null ref");
       {act(() => { proxy.scrollToItem(42, 'visible'); })}
