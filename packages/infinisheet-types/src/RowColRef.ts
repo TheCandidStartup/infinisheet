@@ -29,21 +29,47 @@ export function equalCellRangeCoords(a: CellRangeCoords | null | undefined, b: C
     a[3] === b[3];
 }
 
-/** Do two cell ranges intersect? */
+/** Do two cell ranges intersect? 
+ * `null` represents the empty range
+ * `undefined` represents the entire range
+*/
 export function cellRangesIntersect(a: CellRangeCoords | null | undefined, b: CellRangeCoords | null | undefined): boolean {
-if (a === null || b === null)
-  return false;
+  if (a === null || b === null)
+    return false;
 
-if (!a || !b)
+  if (!a || !b)
+    return true;
+
+  if (a[2] < b[0] || a[0] > b[2])
+    return false;
+
+  if (a[3] < b[1] || a[1] > b[3])
+    return false;
+
   return true;
+}
 
-if (a[2] < b[0] || a[0] > b[2])
-  return false;
+/** Intersect two cellRanges 
+ * `null` represents the empty range
+ * `undefined` represents the entire range
+*/
+export function intersectCellRanges(a: CellRangeCoords | null | undefined, b: CellRangeCoords | null | undefined): CellRangeCoords | null | undefined {
+  if (a === null || b === null)
+    return null;
 
-if (a[3] < b[1] || a[1] > b[3])
-  return false;
+  if (!a)
+    return b;
 
-return true;
+  if (!b)
+    return a;
+
+  if (a[2] < b[0] || a[0] > b[2])
+    return null;
+
+  if (a[3] < b[1] || a[1] > b[3])
+    return null;
+
+  return [ Math.max(a[0], b[0]), Math.max(a[1], b[1]), Math.min(a[2],b[2]), Math.min(a[3],b[3]) ];
 }
 
 /** Converts a {@link ColRef} to the 0-based index of the column */

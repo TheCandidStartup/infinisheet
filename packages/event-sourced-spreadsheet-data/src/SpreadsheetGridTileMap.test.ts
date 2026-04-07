@@ -4,7 +4,7 @@ import { SpreadsheetGridTileMap } from "./SpreadsheetGridTileMap";
 import { openSnapshot } from "./SpreadsheetSnapshot";
 
 async function saveAndRestore(map: SpreadsheetCellMap, snapshotIndex: number) {
-  const tiles = new SpreadsheetGridTileMap;
+  const tiles = new SpreadsheetGridTileMap(2,2);
   const { rowMax, columnMax } = map.calcExtents(snapshotIndex);
 
   const blobStore = new SimpleBlobStore;
@@ -20,7 +20,7 @@ async function saveAndRestore(map: SpreadsheetCellMap, snapshotIndex: number) {
   if (result.isErr())
     return tiles;
 
-  const newMap = new SpreadsheetGridTileMap;
+  const newMap = new SpreadsheetGridTileMap(2,2);
   await newMap.loadTiles(snapshot);
   return newMap;
 }
@@ -79,18 +79,18 @@ describe('SpreadsheetGridTileMap', () => {
     const result = await openSnapshot(dir._unsafeUnwrap(), "src");
     const srcSnapshot = result._unsafeUnwrap();
 
-    const srcMap = new SpreadsheetGridTileMap;
+    const srcMap = new SpreadsheetGridTileMap(2,2);
     const saveResult = await srcMap.saveSnapshot(undefined, map, 1, 1, srcSnapshot, 1);
     expect (saveResult).toBeOk();
 
-    const newMap = new SpreadsheetGridTileMap;
+    const newMap = new SpreadsheetGridTileMap(2,2);
     const changes = new SpreadsheetCellMap;
     changes.addEntry(1, 0, 0, 88);
     const snapshot = (await openSnapshot(dir._unsafeUnwrap(), "test"))._unsafeUnwrap();
     const saveNewResult = await newMap.saveSnapshot(srcSnapshot, changes, 2, 1, snapshot, 1);
     expect (saveNewResult).toBeOk();
 
-    const map2 = new SpreadsheetGridTileMap;
+    const map2 = new SpreadsheetGridTileMap(2,2);
     const loadResult = await map2.loadTiles(snapshot);
     expect(loadResult).toBeOk();
     expect(map2.findEntry(0,0)).toEqual({ value: 42 });

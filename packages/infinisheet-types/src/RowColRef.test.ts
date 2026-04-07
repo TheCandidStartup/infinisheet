@@ -1,4 +1,4 @@
-import { indexToColRef, colRefToIndex, rowColCoordsToRef,
+import { indexToColRef, colRefToIndex, rowColCoordsToRef, intersectCellRanges, 
   splitRowColRef, rowColRefToCoords, cellRangeCoords, cellRangesIntersect, equalCellRangeCoords } from './RowColRef'
 
 describe('indexToColRef', () => {
@@ -108,5 +108,27 @@ describe('CellRangeCoords', () => {
     expect(cellRangesIntersect(null,v1)).toEqual(false);
     expect(cellRangesIntersect(null,undefined)).toEqual(false);
     expect(cellRangesIntersect(null,null)).toEqual(false);
+  })
+
+    it('intersectCellRanges', () => {
+    const v1 = cellRangeCoords(0,1,2,3);
+    const v2 = cellRangeCoords(0,1,2,3);
+    const v3 = cellRangeCoords(1,3,1,4);
+    const v4 = cellRangeCoords(0,0,0,0);
+
+    expect(intersectCellRanges(v1,v1)).toEqual(v1);
+    expect(intersectCellRanges(v1,v2)).toEqual(v1);
+    expect(intersectCellRanges(v1,v3)).toEqual([1,3,1,3]);
+    expect(intersectCellRanges(v1,v4)).toEqual(null);
+    expect(intersectCellRanges(v3,v4)).toEqual(null);
+
+    expect(intersectCellRanges(v1,null)).toEqual(null);
+    expect(intersectCellRanges(v1,undefined)).toEqual(v1);
+    expect(intersectCellRanges(undefined,v1)).toEqual(v1);
+    expect(intersectCellRanges(undefined,null)).toEqual(null);
+    expect(intersectCellRanges(undefined,undefined)).toEqual(undefined);
+    expect(intersectCellRanges(null,v1)).toEqual(null);
+    expect(intersectCellRanges(null,undefined)).toEqual(null);
+    expect(intersectCellRanges(null,null)).toEqual(null);
   })
 })

@@ -5,22 +5,19 @@ function formatName(rowMin: number, colMin: number, rowCount: number, colCount: 
   return `${rowMin}-${colMin}-${rowCount}-${colCount}`
 }
 
-/** Metadata that describes tiling format used in this snapshot
- * @internal
- */
-export interface TileFormat {
-  /** Used as a discriminated union tag by implementations */
-  type: string;
-};
-
 /** Regular grid tile format. All tiles have same width and height.
  * @internal
  */
-export interface GridTileFormat extends TileFormat {
+export type GridTileFormat = {
   type: "grid";
   tileWidth: number;
   tileHeight: number;
 };
+
+/** Metadata that describes tiling format used in this snapshot
+ * @internal
+ */
+export type TileFormat = GridTileFormat;
 
 /** In-memory representation of snapshot metadata
  * @internal
@@ -36,8 +33,10 @@ export class SpreadsheetSnapshot {
     this.tileFormat = tileFormat;
   }
 
-  async saveIndex(): Promise<Result<void,StorageError>> {
-    const meta = { rowCount: this.rowCount, colCount: this.colCount, tileFormat: this.tileFormat }
+  async saveIndex(rowCount: number, colCount: number): Promise<Result<void,StorageError>> {
+    if (rowCount > this.rowCount || colCount > this.colCount)
+      throw Error("Saved tiles must cover grid up to rowCount x colCount");
+    const meta = { rowCount, colCount, tileFormat: this.tileFormat }
     const json = JSON.stringify(meta);
     const encoder = new TextEncoder;
     const blob = encoder.encode(json);

@@ -24,6 +24,14 @@ function bestEntry(entry: CellMapEntry | CellMapEntry[], snapshotIndex: number):
   return undefined;
 }
 
+function inRange(filter: CellMapExtents|undefined, key: string): boolean {
+  if (!filter)
+    return true;
+
+  const [row,column] = rowColRefToCoords(key) as [number,number];
+  return row >= filter.rowMin && row < filter.rowMax && column >= filter.columnMin && column < filter.columnMax;
+}
+
 /** @internal */
 export interface CellMapExtents {
   rowMin: number;
@@ -32,10 +40,38 @@ export interface CellMapExtents {
   columnMax: number;
 }
 
+
+
 /** @internal */
 export class SpreadsheetCellMap {
   constructor() {
     this.map = new Map<RowColRef, CellMapEntry | CellMapEntry[]>();
+  }
+
+  /** Iterate over entries at a specific snapshot index */
+  entries(snapshotIndex: number)  {
+    const mapIter = this.map.entries();
+    const myIterator: IterableIterator<[row: number, column: number, value: CellData], unknown, unknown> = {
+      [Symbol.iterator]: () => myIterator,
+      next: () => {
+        while (true) {
+          const result = mapIter.next();
+          if (result.done) {
+            return { value: [0,0,undefined], done: true };
+          }
+
+          const [key, value] = result.value;
+          const [row,column] = rowColRefToCoords(key);
+          const entry = bestEntry(value,snapshotIndex);
+          if (entry) {
+            const { logIndex: _logIndex, ...data } = entry;
+            return { value: [row!,column!,data], done: false };
+          } 
+        }
+      }
+      // TODO: Do I need to define return and throw methods?
+    };
+    return myIterator;
   }
 
   addEntries(entries: SetCellValueAndFormatLogEntry[], baseIndex: number): void {
@@ -121,14 +157,19 @@ export class SpreadsheetCellMap {
   }
 
   /** Equivalent to {@link saveSnapshot} followed by {@link loadSnapshot} */
-  loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number) {
+  loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number, filter?: CellMapExtents) {
     for (const [key,value] of src.map.entries()) {
       const entry = bestEntry(value,snapshotIndex);
-      if (entry) {
+      if (entry && inRange(filter,key)) {
         const { logIndex: _logIndex, ...rest } = entry;
         this.map.set(key, rest);
       }
     }
+  }
+
+  loadEntryAsSnapshot(row: number, column: number, entry: CellData) {
+    const key = rowColCoordsToRef(row, column);
+    this.map.set(key, entry)
   }
 
   private map: Map<RowColRef, CellMapEntry | CellMapEntry[]>

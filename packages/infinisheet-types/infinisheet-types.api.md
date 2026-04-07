@@ -208,6 +208,9 @@ export interface InfiniSheetWorker<MessageT extends WorkerMessage> {
 }
 
 // @public
+export function intersectCellRanges(a: CellRangeCoords | null | undefined, b: CellRangeCoords | null | undefined): CellRangeCoords | null | undefined;
+
+// @public
 export interface InvalidBlobNameError extends InfinisheetError {
     type: 'InvalidBlobNameError';
 }

@@ -170,14 +170,11 @@ export class EventSourcedSpreadsheetWorkflow extends EventSourcedSpreadsheetEngi
 // Warning: (ae-internal-missing-underscore) The name "GridTileFormat" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal
-export interface GridTileFormat extends TileFormat {
-    // (undocumented)
-    tileHeight: number;
-    // (undocumented)
-    tileWidth: number;
-    // (undocumented)
+export type GridTileFormat = {
     type: "grid";
-}
+    tileWidth: number;
+    tileHeight: number;
+};
 
 // Warning: (ae-internal-missing-underscore) The name "LogSegment" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -221,8 +218,11 @@ export class SpreadsheetCellMap {
     addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void;
     // (undocumented)
     calcExtents(snapshotIndex: number): CellMapExtents;
+    entries(snapshotIndex: number): IterableIterator<[row: number, column: number, value: CellData], unknown, unknown>;
     findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
-    loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number): void;
+    loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number, filter?: CellMapExtents): void;
+    // (undocumented)
+    loadEntryAsSnapshot(row: number, column: number, entry: CellData): void;
     loadSnapshot(snapshot: Uint8Array): void;
     saveSnapshot(snapshotIndex: number): Uint8Array;
 }
@@ -246,7 +246,7 @@ export class SpreadsheetSnapshot {
     // (undocumented)
     rowCount: number;
     // (undocumented)
-    saveIndex(): Promise<Result<void, StorageError>>;
+    saveIndex(rowCount: number, colCount: number): Promise<Result<void, StorageError>>;
     // (undocumented)
     saveTile(rowMin: number, colMin: number, rowCount: number, colCount: number, blob: Uint8Array): Promise<Result<void, StorageError>>;
     // (undocumented)
@@ -270,9 +270,7 @@ export interface SpreadsheetTileMap {
 // Warning: (ae-internal-missing-underscore) The name "TileFormat" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal
-export interface TileFormat {
-    type: string;
-}
+export type TileFormat = GridTileFormat;
 
 // (No @packageDocumentation comment for this package)
 

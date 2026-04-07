@@ -54,7 +54,7 @@ export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEng
     if (tileResult.isErr())
       return err(tileResult.error);
 
-    const indexResult = await snapshot.saveIndex();
+    const indexResult = await snapshot.saveIndex(rowCount, colCount);
     if (indexResult.isErr())
       return err(indexResult.error);
 
