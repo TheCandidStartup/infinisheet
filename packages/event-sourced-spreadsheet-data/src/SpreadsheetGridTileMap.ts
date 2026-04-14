@@ -44,11 +44,9 @@ export class SpreadsheetGridTileMap implements SpreadsheetTileMap {
     const [tileRow, rowInTile] = divmod(row, this.tileHeight);
     const [tileCol, colInTile] = divmod(column, this.tileWidth);
     const key = rowColCoordsToRef(tileRow, tileCol);
-    const cellMap = this.map.get(key);
-    if (!cellMap)
-      return undefined;
 
-    return cellMap.findEntry(rowInTile, colInTile, 0);
+    const cellMap = this.map.get(key);
+    return cellMap?.findEntry(rowInTile, colInTile, 0);
   }
 
   async loadTiles(snapshot: SpreadsheetSnapshot, range?: CellRangeCoords): Promise<Result<void,StorageError>> {
@@ -126,7 +124,7 @@ export class SpreadsheetGridTileMap implements SpreadsheetTileMap {
     const srcMap = src as SpreadsheetGridTileMap;
     for (const [key,value] of srcMap.map.entries()) {
       const cellMap = new SpreadsheetCellMap;
-      cellMap.loadAsSnapshot(value, snapshotIndex);
+      cellMap.loadAsSnapshot(value, 0);
       this.map.set(key, cellMap);
     }
 

@@ -218,7 +218,7 @@ export class SpreadsheetCellMap {
     addEntry(row: number, column: number, logIndex: number, value: CellValue, format?: CellFormat): void;
     // (undocumented)
     calcExtents(snapshotIndex: number): CellMapExtents;
-    entries(snapshotIndex: number): IterableIterator<[row: number, column: number, value: CellData], unknown, unknown>;
+    entries(snapshotIndex: number): IterableIterator<[row: number, column: number, value: CellData], undefined>;
     findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
     loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number, filter?: CellMapExtents): void;
     // (undocumented)
