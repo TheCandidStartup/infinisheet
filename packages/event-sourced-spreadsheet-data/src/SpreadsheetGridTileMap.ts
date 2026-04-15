@@ -69,8 +69,8 @@ export class SpreadsheetGridTileMap implements SpreadsheetTileMap {
         const key = rowColCoordsToRef(row, col);
         let cellMap = this.map.get(key);
         if (!cellMap) {
-          const rowStart = tileRowStart * this.tileHeight;
-          const colStart = tileColStart * this.tileWidth;
+          const rowStart = row * this.tileHeight;
+          const colStart = col * this.tileWidth;
           const blob = await snapshot.loadTile(rowStart, colStart, this.tileHeight, this.tileWidth);
           if (blob.isErr())
             return err(blob.error);
@@ -98,7 +98,7 @@ export class SpreadsheetGridTileMap implements SpreadsheetTileMap {
     for (let row = 0; row < rowCount; row += this.tileHeight) {
       for (let col = 0; col < colCount; col += this.tileWidth) {
         const cellMap = new SpreadsheetCellMap;
-        if (srcSnapshot) {
+        if (srcSnapshot && row < srcSnapshot.rowCount && col < srcSnapshot.colCount) {
           const blob = await srcSnapshot.loadTile(row, col, this.tileHeight, this.tileWidth);
           if (blob.isErr())
             return err(blob.error);

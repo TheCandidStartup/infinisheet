@@ -39,35 +39,35 @@ describe('SpreadsheetGridTileMap', () => {
     map.addEntry(0, 0, 2, true);
     map.addEntry(0, 0, 3, undefined, "format");
     map.addEntry(0, 0, 4, null);
-    map.addEntry(1, 1, 5, { type: 'CellError', value: '#CALC!'}, "something");
+    map.addEntry(2, 2, 5, { type: 'CellError', value: '#CALC!'}, "something");
 
     const map0 = await saveAndRestore(map, 0);
     expect(map0.findEntry(0,0)).toBeUndefined();
-    expect(map0.findEntry(1,1)).toBeUndefined();
+    expect(map0.findEntry(2,2)).toBeUndefined();
 
     const map1 = await saveAndRestore(map, 1);
     expect(map1.findEntry(0,0)).toEqual({ value: 42 });
-    expect(map1.findEntry(1,1)).toBeUndefined();
+    expect(map1.findEntry(2,2)).toBeUndefined();
 
     const map2 = await saveAndRestore(map, 2);
     expect(map2.findEntry(0,0)).toEqual({ value: "what", format: "other" });
-    expect(map2.findEntry(1,1)).toBeUndefined();
+    expect(map2.findEntry(2,2)).toBeUndefined();
 
     const map3 = await saveAndRestore(map, 3);
     expect(map3.findEntry(0,0)).toEqual({ value: true });
-    expect(map3.findEntry(1,1)).toBeUndefined();
+    expect(map3.findEntry(2,2)).toBeUndefined();
 
     const map4 = await saveAndRestore(map, 4);
     expect(map4.findEntry(0,0)).toEqual({ value: undefined, format: "format"});
-    expect(map4.findEntry(1,1)).toBeUndefined();
+    expect(map4.findEntry(2,2)).toBeUndefined();
 
     const map5 = await saveAndRestore(map, 5);
     expect(map5.findEntry(0,0)).toEqual({ value: null });
-    expect(map5.findEntry(1,1)).toBeUndefined();
+    expect(map5.findEntry(2,2)).toBeUndefined();
 
     const map6 = await saveAndRestore(map, 6);
     expect(map6.findEntry(0,0)).toEqual({ value: null });
-    expect(map6.findEntry(1,1)).toEqual({ value: { type: 'CellError', value: '#CALC!'}, format: "something" });
+    expect(map6.findEntry(2,2)).toEqual({ value: { type: 'CellError', value: '#CALC!'}, format: "something" });
   })
 
   it('should save snapshot even if src tiles not loaded', async () => {
@@ -85,15 +85,30 @@ describe('SpreadsheetGridTileMap', () => {
 
     const newMap = new SpreadsheetGridTileMap(2,2);
     const changes = new SpreadsheetCellMap;
-    changes.addEntry(1, 0, 0, 88);
+    changes.addEntry(2, 2, 0, 88);
     const snapshot = (await openSnapshot(dir._unsafeUnwrap(), "test"))._unsafeUnwrap();
-    const saveNewResult = await newMap.saveSnapshot(srcSnapshot, changes, 2, 1, snapshot, 1);
+    const saveNewResult = await newMap.saveSnapshot(srcSnapshot, changes, 3, 3, snapshot, 1);
     expect (saveNewResult).toBeOk();
 
     const map2 = new SpreadsheetGridTileMap(2,2);
     const loadResult = await map2.loadTiles(snapshot);
     expect(loadResult).toBeOk();
     expect(map2.findEntry(0,0)).toEqual({ value: 42 });
-    expect(map2.findEntry(1,0)).toEqual({ value: 88 });
+    expect(map2.findEntry(2,2)).toEqual({ value: 88 });
+
+    const map3 = new SpreadsheetGridTileMap(2,2);
+    expect(await map3.loadTiles(snapshot, [ 0, 0, 1, 0 ])).toBeOk();
+    expect(map3.findEntry(0,0)).toEqual({ value: 42 });
+    expect(map3.findEntry(2,2)).toBeUndefined();
+
+    const map4 = new SpreadsheetGridTileMap(2,2);
+    expect(await map4.loadTiles(snapshot, [ 5, 5, 5, 5 ])).toBeOk();
+    expect(map4.findEntry(0,0)).toBeUndefined();
+    expect(map4.findEntry(2,2)).toBeUndefined();
+
+    const map5 = new SpreadsheetGridTileMap(2,2);
+    expect(await map5.loadTiles(snapshot, [ 2, 2, 5, 5 ])).toBeOk();
+    expect(map5.findEntry(0,0)).toBeUndefined();
+    expect(map5.findEntry(2,2)).toEqual({ value: 88 });
   })
 })

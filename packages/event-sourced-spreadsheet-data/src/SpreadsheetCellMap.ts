@@ -24,14 +24,6 @@ function bestEntry(entry: CellMapEntry | CellMapEntry[], snapshotIndex: number):
   return undefined;
 }
 
-function inRange(filter: CellMapExtents|undefined, key: string): boolean {
-  if (!filter)
-    return true;
-
-  const [row,column] = rowColRefToCoords(key) as [number,number];
-  return row >= filter.rowMin && row < filter.rowMax && column >= filter.columnMin && column < filter.columnMax;
-}
-
 /** @internal */
 export interface CellMapExtents {
   rowMin: number;
@@ -155,13 +147,26 @@ export class SpreadsheetCellMap {
     }
   }
 
-  /** Equivalent to {@link saveSnapshot} followed by {@link loadSnapshot} */
-  loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number, filter?: CellMapExtents) {
+  /** Equivalent to {@link saveSnapshot} followed by {@link loadSnapshot} 
+   * 
+   * If extents is defined, only src entries within the extents are added.
+   * Entries are offset so that `(extents.rowMin,extents.columnMin)` in the src ends
+   * up at `(0,0)`. 
+  */
+  loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number, extents?: CellMapExtents) {
     for (const [key,value] of src.map.entries()) {
       const entry = bestEntry(value,snapshotIndex);
-      if (entry && inRange(filter,key)) {
-        const { logIndex: _logIndex, ...rest } = entry;
-        this.map.set(key, rest);
+      if (entry) {
+        const { logIndex: _logIndex, ...data } = entry;
+        if (extents) {
+          const [row,column] = rowColRefToCoords(key) as [number,number];
+          if (row >= extents.rowMin && row < extents.rowMax && column >= extents.columnMin && column < extents.columnMax) {
+            const localKey = rowColCoordsToRef(row - extents.rowMin, column - extents.columnMin);
+            this.map.set(localKey, data);
+          }
+        } else {
+          this.map.set(key, data);
+        }
       }
     }
   }

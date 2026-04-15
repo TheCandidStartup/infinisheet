@@ -220,7 +220,7 @@ export class SpreadsheetCellMap {
     calcExtents(snapshotIndex: number): CellMapExtents;
     entries(snapshotIndex: number): IterableIterator<[row: number, column: number, value: CellData], undefined>;
     findEntry(row: number, column: number, snapshotIndex: number): CellMapEntry | undefined;
-    loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number, filter?: CellMapExtents): void;
+    loadAsSnapshot(src: SpreadsheetCellMap, snapshotIndex: number, extents?: CellMapExtents): void;
     // (undocumented)
     loadEntryAsSnapshot(row: number, column: number, entry: CellData): void;
     loadSnapshot(snapshot: Uint8Array): void;
