@@ -1,11 +1,12 @@
 import { CellValue, CellFormat, SpreadsheetData, ItemOffsetMapping, Result, ResultAsync, StorageError, AddEntryError, AddEntryValue,
   SpreadsheetDataError, ValidationError, EventLog, BlobStore, WorkerHost, PendingWorkflowMessage,
-  SpreadsheetViewport, viewportToCellRange, emptyViewport} from "@candidstartup/infinisheet-types";
+  SpreadsheetViewport, viewportToCellRange } from "@candidstartup/infinisheet-types";
 import { FixedSizeItemOffsetMapping, ok, err, storageError } from "@candidstartup/infinisheet-types";
 
 import type { SetCellValueAndFormatLogEntry, SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSnapshotContent, EventSourcedSpreadsheetEngine, forkSegment } from "./EventSourcedSpreadsheetEngine"
 import { CellMapEntry } from "./SpreadsheetCellMap";
+import { EventSourcedSpreadsheetDataOptions } from "./EventSourcedSpreadsheetDataOptions";
 
 // How often to check for new event log entries (ms)
 const EVENT_LOG_CHECK_INTERVAL = 10000;
@@ -27,24 +28,6 @@ export interface EventSourcedSnapshot {
   _brand: _EventSourcedSnapshotBrand;
 }
 
-/** Additional options for {@link EventSourcedSpreadsheetData} */
-export interface EventSourcedSpreadsheetDataOptions {
-  /** Minimum number of log entries before creation of next snapshot 
-   * @defaultValue 100
-  */
-  snapshotInterval?: number | undefined;
-
-  /** Should pending workflows be restarted on initial load of event log? 
-   * @defaultValue false
-  */
-  restartPendingWorkflowsOnLoad?: boolean | undefined;
-
-  /** Initial viewport empty ? 
-   * @defaultValue false
-  */
-  viewportEmpty?: boolean | undefined;
-}
-
 const rowItemOffsetMapping = new FixedSizeItemOffsetMapping(30);
 const columnItemOffsetMapping = new FixedSizeItemOffsetMapping(100);
 
@@ -63,7 +46,7 @@ function asSnapshot(snapshot: EventSourcedSnapshotContent) {
 export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine implements SpreadsheetData<EventSourcedSnapshot> {
   constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, workerHost?: WorkerHost<PendingWorkflowMessage>,
                options?: EventSourcedSpreadsheetDataOptions) {
-    super(eventLog, blobStore, options?.viewportEmpty ? null : undefined, options?.viewportEmpty ? emptyViewport() : undefined);
+    super(eventLog, blobStore, options);
 
     this.intervalId = undefined;
     this.workerHost = workerHost;
@@ -144,7 +127,7 @@ export class EventSourcedSpreadsheetData  extends EventSourcedSpreadsheetEngine 
         // Nothing else has updated local copy (no async load has snuck in), so safe to do it myself avoiding round trip with event log
         let logSegment = curr.logSegment;
         if (addEntryValue.lastSnapshot) {
-          logSegment = forkSegment(logSegment, addEntryValue.lastSnapshot);
+          logSegment = forkSegment(logSegment, addEntryValue.lastSnapshot, this.options);
         }
         logSegment.entries.push(entry);
         logSegment.cellMap.addEntry(row, column, Number(curr.endSequenceId-logSegment.startSequenceId), value, format);

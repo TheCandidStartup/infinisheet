@@ -1,4 +1,5 @@
-import { EventSourcedSpreadsheetData, EventSourcedSpreadsheetDataOptions } from './EventSourcedSpreadsheetData'
+import { EventSourcedSpreadsheetData } from './EventSourcedSpreadsheetData'
+import { EventSourcedSpreadsheetDataOptions } from './EventSourcedSpreadsheetDataOptions'
 import { EventSourcedSpreadsheetWorkflow } from './EventSourcedSpreadsheetWorkflow'
 import { SpreadsheetData, EventLog, PendingWorkflowMessage, storageError } from '@candidstartup/infinisheet-types'
 import { DelayEventLog, DelayBlobStore, SimpleEventLog, SimpleBlobStore, 
@@ -32,7 +33,7 @@ function creator(eventLog: SimpleEventLog<SpreadsheetLogEntry> = new SimpleEvent
   eventLog.workerHost = host;
   
   // Constructor subscribes to worker's onReceiveMessage which keeps it alive
-  new EventSourcedSpreadsheetWorkflow(wrapperLog, blobStore, worker);
+  new EventSourcedSpreadsheetWorkflow(wrapperLog, blobStore, worker, options);
 
   return new EventSourcedSpreadsheetData(wrapperLog, blobStore, host, options);
 }
@@ -157,7 +158,8 @@ describe('EventSourcedSpreadsheetData', () => {
     const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
     new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
 
-    const data = new EventSourcedSpreadsheetData(log, blobStore, host,  { snapshotInterval: 15 });
+    const data = new EventSourcedSpreadsheetData(log, blobStore, host,  
+      { snapshotInterval: 15, snapshotFormat: { type: "grid", tileWidth: 5, tileHeight: 5 } });
     await subscribeFired(data);
 
     for (let i = 0; i < 5; i ++) {
@@ -279,11 +281,17 @@ describe('EventSourcedSpreadsheetData', () => {
     const worker = new SimpleWorker<PendingWorkflowMessage>;
     const host = new SimpleWorkerHost(worker);
     const log = new  SimpleEventLog<SpreadsheetLogEntry>(host);
+    const options: EventSourcedSpreadsheetDataOptions = { 
+      snapshotInterval: 15,
+      snapshotFormat: { type: "grid", tileWidth: 5, tileHeight: 10 }, 
+      viewportEmpty: true
+    };
+
     {
       // Force snapshot to be created on log
-      new EventSourcedSpreadsheetWorkflow(log, blobStore, worker);
+      new EventSourcedSpreadsheetWorkflow(log, blobStore, worker, options);
 
-      const data1 = new EventSourcedSpreadsheetData(log, blobStore, host,  { snapshotInterval: 15 });
+      const data1 = new EventSourcedSpreadsheetData(log, blobStore, host, options);
       await subscribeFired(data1);
 
       for (let i = 0; i < 20; i ++) {
@@ -295,7 +303,7 @@ describe('EventSourcedSpreadsheetData', () => {
 
     // Coalesce after first setViewpoint loads tiles
     {
-      const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
+      const data = new EventSourcedSpreadsheetData(log, blobStore, host, options);
       await vi.advanceTimersByTimeAsync(0);
 
       const mock = vi.fn();
@@ -303,13 +311,13 @@ describe('EventSourcedSpreadsheetData', () => {
 
       // Should run up to point of loading tile from blob store, one notify from start of setViewpoint
       blobStore.delay = 100;
-      data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
+      data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 300 });
       await vi.advanceTimersByTimeAsync(0);
       expect(mock).toHaveBeenCalledTimes(1);
 
       // Run second setViewpoint to completion, two additional notifies from start and end of setViewpoint
       blobStore.delay = 0;
-      data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
+      data.setViewport({ rowMinOffset: 300, columnMinOffset: 0, width: 100, height: 300 });
       await vi.advanceTimersByTimeAsync(0);
       expect(mock).toHaveBeenCalledTimes(3);
 
@@ -319,26 +327,28 @@ describe('EventSourcedSpreadsheetData', () => {
       expect(mock).toHaveBeenCalledTimes(3);
       unsubscribe();
 
-      // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
+      // Tiles for both viewports will end up being loaded. The first setViewport isn't abandoned until
+      // after the loadTiles completes.
       const snapshot = data.getSnapshot();
       const status = data.getLoadStatus(snapshot);
       expect(status.isOk() && status.value).toBe(true);
       expect(data.getRowCount(snapshot)).toEqual(20);
+      expect(data.getCellValue(snapshot, 0, 0)).toEqual(0);
       expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
       expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
-      expect(data.getViewport(snapshot)).toEqual({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
+      expect(data.getViewport(snapshot)).toEqual({ rowMinOffset: 300, columnMinOffset: 0, width: 100, height: 300 });
     }
 
     // Coalesce at start of chain
     {
-      const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
+      const data = new EventSourcedSpreadsheetData(log, blobStore, host, options);
 
       const mock = vi.fn();
       const unsubscribe = data.subscribe(mock);
 
       // Notifies at start of both setViewpoints, all async operations pending
-      data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 100 });
-      data.setViewport({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
+      data.setViewport({ rowMinOffset: 0, columnMinOffset: 0, width: 100, height: 300 });
+      data.setViewport({ rowMinOffset: 300, columnMinOffset: 0, width: 100, height: 300 });
       expect(mock).toHaveBeenCalledTimes(2);
 
       // All pending async operations run
@@ -349,19 +359,21 @@ describe('EventSourcedSpreadsheetData', () => {
       unsubscribe();
       expect(mock).toHaveBeenCalledTimes(4);
 
-      // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
+      // Only second tile will have been loaded
       const snapshot = data.getSnapshot();
       const status = data.getLoadStatus(snapshot);
       expect(status.isOk() && status.value).toBe(true);
       expect(data.getRowCount(snapshot)).toEqual(20);
-      expect(data.getCellValue(snapshot, 9, 0)).toEqual(9);
+      expect(data.getCellValue(snapshot, 0, 0)).toBeUndefined();
+      expect(data.getCellValue(snapshot, 9, 0)).toBeUndefined();
+      expect(data.getCellValue(snapshot, 10, 0)).toEqual(10);
       expect(data.getCellValue(snapshot, 19, 0)).toEqual(19);
-      expect(data.getViewport(snapshot)).toEqual({ rowMinOffset: 100, columnMinOffset: 0, width: 100, height: 100 });
+      expect(data.getViewport(snapshot)).toEqual({ rowMinOffset: 300, columnMinOffset: 0, width: 100, height: 300 });
     }
 
     // Coalesce with undefined viewport (load all)
     {
-      const data = new EventSourcedSpreadsheetData(log, blobStore, host, { viewportEmpty: true });
+      const data = new EventSourcedSpreadsheetData(log, blobStore, host, options);
 
       const mock = vi.fn();
       const unsubscribe = data.subscribe(mock);
@@ -379,7 +391,7 @@ describe('EventSourcedSpreadsheetData', () => {
       unsubscribe();
       expect(mock).toHaveBeenCalledTimes(4);
 
-      // TODO - when multi-tile snapshots implemented confirm that tile for first viewport wasn't loaded
+      // Both tiles should be loaded
       const snapshot = data.getSnapshot();
       const status = data.getLoadStatus(snapshot);
       expect(status.isOk() && status.value).toBe(true);

@@ -127,6 +127,8 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
 // @public
 export interface EventSourcedSpreadsheetDataOptions {
     restartPendingWorkflowsOnLoad?: boolean | undefined;
+    // Warning: (ae-incompatible-release-tags) The symbol "snapshotFormat" is marked as @public, but its signature references "TileFormat" which is marked as @internal
+    snapshotFormat?: TileFormat | undefined;
     snapshotInterval?: number | undefined;
     viewportEmpty?: boolean | undefined;
 }
@@ -135,7 +137,7 @@ export interface EventSourcedSpreadsheetDataOptions {
 //
 // @internal
 export abstract class EventSourcedSpreadsheetEngine {
-    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, viewportCellRange?: CellRangeCoords | null, viewport?: SpreadsheetViewport);
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, options?: EventSourcedSpreadsheetDataOptions);
     // (undocumented)
     protected blobStore: BlobStore<unknown>;
     // (undocumented)
@@ -151,6 +153,8 @@ export abstract class EventSourcedSpreadsheetEngine {
     // (undocumented)
     protected abstract notifyListeners(): void;
     // (undocumented)
+    protected options: EventSourcedSpreadsheetDataOptions | undefined;
+    // (undocumented)
     protected setViewportCellRange(viewportCellRange: CellRangeCoords | null | undefined, viewport?: SpreadsheetViewport): void;
     // (undocumented)
     protected syncLogsAsync(endSequenceId?: SequenceId): Promise<void>;
@@ -160,7 +164,7 @@ export abstract class EventSourcedSpreadsheetEngine {
 //
 // @public
 export class EventSourcedSpreadsheetWorkflow extends EventSourcedSpreadsheetEngine {
-    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, worker: InfiniSheetWorker<PendingWorkflowMessage>);
+    constructor(eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, worker: InfiniSheetWorker<PendingWorkflowMessage>, options?: EventSourcedSpreadsheetDataOptions);
     // (undocumented)
     protected notifyListeners(): void;
     // (undocumented)

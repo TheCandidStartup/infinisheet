@@ -4,14 +4,17 @@ import { EventLog, BlobStore, PendingWorkflowMessage, InfiniSheetWorker,
 import type { SpreadsheetLogEntry } from "./SpreadsheetLogEntry";
 import { EventSourcedSpreadsheetEngine } from "./EventSourcedSpreadsheetEngine"
 import { openSnapshot } from "./SpreadsheetSnapshot";
+import { EventSourcedSpreadsheetDataOptions } from "./EventSourcedSpreadsheetDataOptions";
 
 /**
  * Event sourced implementation of spreadsheet {@link EventLog} triggered workflows
  *
  */
 export class EventSourcedSpreadsheetWorkflow  extends EventSourcedSpreadsheetEngine {
-  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, worker: InfiniSheetWorker<PendingWorkflowMessage>) {
-    super(eventLog, blobStore);
+  constructor (eventLog: EventLog<SpreadsheetLogEntry>, blobStore: BlobStore<unknown>, 
+    worker: InfiniSheetWorker<PendingWorkflowMessage>, options?: EventSourcedSpreadsheetDataOptions) 
+  {
+    super(eventLog, blobStore, options);
 
     this.worker = worker;
 
