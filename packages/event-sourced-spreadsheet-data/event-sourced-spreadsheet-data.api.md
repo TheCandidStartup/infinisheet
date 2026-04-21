@@ -127,7 +127,6 @@ export class EventSourcedSpreadsheetData extends EventSourcedSpreadsheetEngine i
 // @public
 export interface EventSourcedSpreadsheetDataOptions {
     restartPendingWorkflowsOnLoad?: boolean | undefined;
-    // Warning: (ae-incompatible-release-tags) The symbol "snapshotFormat" is marked as @public, but its signature references "TileFormat" which is marked as @internal
     snapshotFormat?: TileFormat | undefined;
     snapshotInterval?: number | undefined;
     viewportEmpty?: boolean | undefined;
@@ -171,9 +170,7 @@ export class EventSourcedSpreadsheetWorkflow extends EventSourcedSpreadsheetEngi
     protected worker: InfiniSheetWorker<PendingWorkflowMessage>;
 }
 
-// Warning: (ae-internal-missing-underscore) The name "GridTileFormat" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal
+// @public
 export type GridTileFormat = {
     type: "grid";
     tileWidth: number;
@@ -271,9 +268,7 @@ export interface SpreadsheetTileMap {
     saveSnapshot(srcSnapshot: SpreadsheetSnapshot | undefined, changes: SpreadsheetCellMap, rowCount: number, colCount: number, destSnapshot: SpreadsheetSnapshot, snapshotIndex: number): Promise<Result<void, StorageError>>;
 }
 
-// Warning: (ae-internal-missing-underscore) The name "TileFormat" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal
+// @public
 export type TileFormat = GridTileFormat;
 
 // (No @packageDocumentation comment for this package)

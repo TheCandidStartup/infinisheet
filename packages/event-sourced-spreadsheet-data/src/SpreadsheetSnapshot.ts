@@ -6,7 +6,6 @@ function formatName(rowMin: number, colMin: number, rowCount: number, colCount: 
 }
 
 /** Regular grid tile format. All tiles have same width and height.
- * @internal
  */
 export type GridTileFormat = {
   type: "grid";
@@ -15,7 +14,6 @@ export type GridTileFormat = {
 };
 
 /** Metadata that describes tiling format used in this snapshot
- * @internal
  */
 export type TileFormat = GridTileFormat;
 
