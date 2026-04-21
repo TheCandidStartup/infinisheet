@@ -26,4 +26,9 @@ updates:
         update-types: ["version-update:semver-minor"]
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-    
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:23"
