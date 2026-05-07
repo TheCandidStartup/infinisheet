@@ -23,7 +23,7 @@ describe('withScope', () => {
     await withScope(null, (scope) => {
       void scope.started(myFunc(scope));
       void scope.started(myOtherFunc(scope));
-    })
+    }, { noCancelOnExit: true })
   })
 
   it('promise', async () => {

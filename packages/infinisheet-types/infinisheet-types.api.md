@@ -117,7 +117,9 @@ export class ConcurrencyScope {
 // @public (undocumented)
 export interface ConcurrencyScopeOptions {
     // (undocumented)
-    timeout: number;
+    noCancelOnExit?: boolean | undefined;
+    // (undocumented)
+    timeout?: number | undefined;
 }
 
 // @public

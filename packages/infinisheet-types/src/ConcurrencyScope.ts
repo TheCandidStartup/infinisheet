@@ -11,7 +11,8 @@ export type InferPromiseOkTypes<R> = R extends Promise<Result<infer T, unknown>>
 export type InferPromiseErrTypes<R> = R extends Promise<Result<unknown, infer E>> ? E : never;
 
 export interface ConcurrencyScopeOptions {
-  timeout: number;
+  timeout?: number | undefined;
+  noCancelOnExit?: boolean | undefined;
 }
 
 export class ConcurrencyScope {
@@ -32,7 +33,7 @@ export class ConcurrencyScope {
   startSoon<R extends ResultAsync<unknown,InfinisheetError>>(task: (scope: ConcurrencyScope) => R): R;
   startSoon<R extends Promise<Result<unknown,InfinisheetError>>>(task: (scope: ConcurrencyScope) => R): R;
   startSoon<R extends PromiseLike<Result<unknown,InfinisheetError>>>(task: (scope: ConcurrencyScope) => R): R;
-  startSoon<R extends PromiseLike<Result<unknown,InfinisheetError>>>(task: (scope: ConcurrencyScope) => R) {
+  startSoon<R extends PromiseLike<Result<unknown,InfinisheetError>>>(task: (scope: ConcurrencyScope) => R): R {
     const ret = task(this);
     return this.started(ret);
   }
@@ -71,7 +72,8 @@ export async function withScope<R>(parentScope: ConcurrencyScope | null,
 {
   const scope = new ConcurrencyScope(parentScope, options);
   const ret = await body(scope);
-  scope.cancel();
+  if (!options?.noCancelOnExit)
+    scope.cancel();
   await scope.allSettled();
   return ret;
 }
@@ -89,7 +91,8 @@ export function withScopeAsync<R extends PromiseLike<Result<unknown, unknown>> |
 
   return new ResultAsync((async () => {
     const ret = await body(scope);
-    scope.cancel();
+    if (!options?.noCancelOnExit)
+      scope.cancel();
     await scope.allSettled();
     return ret;
   })())
