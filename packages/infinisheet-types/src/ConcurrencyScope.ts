@@ -1,16 +1,16 @@
-import { InfinisheetError, StorageError, ValidationError } from "./Error";
+import { InfinisheetError } from "./Error";
 import { Result, ok, err } from "./Result"
-import { ResultAsync, okAsync } from "./ResultAsync"
+import { ResultAsync } from "./ResultAsync"
 
 export type Task<T,E> = (scope: ConcurrencyScope) => Promise<Result<T,E>> | ResultAsync<T,E>
 
-type InferPromiseLikeType<R> = R extends PromiseLike<infer T> ? T : never;
-type InferOkTypes<R> = R extends Result<infer T, unknown> ? T : never;
-type InferErrTypes<R> = [R] extends [Result<unknown, infer E>] ? E : never;
-type InferPromiseOkTypes<R> = R extends Promise<Result<infer T, unknown>> ? T : never;
-type InferPromiseErrTypes<R> = R extends Promise<Result<unknown, infer E>> ? E : never;
+export type InferPromiseLikeType<R> = R extends PromiseLike<infer T> ? T : never;
+export type InferOkTypes<R> = R extends Result<infer T, unknown> ? T : never;
+export type InferErrTypes<R> = [R] extends [Result<unknown, infer E>] ? E : never;
+export type InferPromiseOkTypes<R> = R extends Promise<Result<infer T, unknown>> ? T : never;
+export type InferPromiseErrTypes<R> = R extends Promise<Result<unknown, infer E>> ? E : never;
 
-interface ConcurrencyScopeOptions {
+export interface ConcurrencyScopeOptions {
   timeout: number;
 }
 
@@ -49,7 +49,6 @@ export class ConcurrencyScope {
   }
 
   async anyError(): Promise<Result<void,InfinisheetError>> {
-    // Optimize: Only need to wait for first error, can then cancel the rest
     const results = await Promise.all(this.promises);
     for (const result of results) {
       if (result.isErr())
@@ -62,22 +61,6 @@ export class ConcurrencyScope {
   readonly options?: ConcurrencyScopeOptions | undefined;
   private promises: PromiseLike<Result<unknown,InfinisheetError>>[];
 }
-
-/*
-export function withScope<R extends Promise<Result<unknown,unknown>>>(parentScope: ConcurrencyScope | null, 
-  body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): Promise<Result<InferPromiseOkTypes<R>, InferPromiseErrTypes<R>>>;
-export function withScope<E extends InfinisheetError = InfinisheetError>(parentScope: ConcurrencyScope | null, 
-  body: (scope: ConcurrencyScope) => void, options?: ConcurrencyScopeOptions):  Promise<Result<void,E>>;
-export function withScope<R>(parentScope: ConcurrencyScope | null, 
-  body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): Promise<Result<unknown, unknown>>
-{
-  const scope = new ConcurrencyScope(options);
-  const ret = body(scope);
-  if (ret === undefined)
-    return Promise.resolve(ok())
-  else
-    return scope.all().then((_) => ret as Promise<Result<unknown,unknown>>)
-}*/
 
 export function withScope<R extends PromiseLike<unknown>>(parentScope: ConcurrencyScope | null, 
   body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): Promise<InferPromiseLikeType<R>>;
@@ -112,51 +95,3 @@ export function withScopeAsync<R extends PromiseLike<Result<unknown, unknown>> |
   })())
 }
 
-function myFunc(_scope: ConcurrencyScope): Promise<Result<number,ValidationError>> {
-  return Promise.resolve(ok(3));
-}
-
-function myOtherFunc(_scope: ConcurrencyScope): ResultAsync<number,StorageError> {
-  return okAsync(4);
-}
-
-export async function mainish() {
-  await withScope(null, (scope) => {
-    void scope.started(myFunc(scope));
-    void scope.started(myOtherFunc(scope));
-  })
-
-  await withScope(null, (scope) => {
-    void scope.startSoon(myFunc);
-    void scope.startSoon(myOtherFunc);
-  }, { timeout: 10000 })
-
-  await withScope(null, (scope) => {
-    void scope.startSoon(myFunc);
-    void scope.startSoon(myOtherFunc);
-  }, { timeout: 10000 })
-
-  await withScope(null, async (scope: ConcurrencyScope) => {
-      const ret = scope.startSoon(myFunc);
-    const result = await scope.startSoon(myOtherFunc);
-    if (result.isErr())
-      return result;
-    return await ret;
-  }, { timeout: 10000 })
-
-  await withScopeAsync(null, async (scope: ConcurrencyScope): Promise<Result<number,StorageError|ValidationError>> => {
-      const ret = scope.startSoon(myFunc);
-    const result = await scope.startSoon(myOtherFunc);
-    if (result.isErr())
-      return result;
-    return await ret;
-  }, { timeout: 10000 })
-
-  await withScopeAsync(null, (_scope: ConcurrencyScope) => {
-      return ok(3);
-  }, { timeout: 10000 })
-
-  await withScopeAsync(null, (_scope: ConcurrencyScope) => {
-      return okAsync(3);
-  }, { timeout: 10000 })
-}

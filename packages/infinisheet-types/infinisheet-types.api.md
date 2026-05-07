@@ -85,6 +85,41 @@ export type ColRef = string;
 // @public
 export function colRefToIndex(col: ColRef): number;
 
+// @public (undocumented)
+export class ConcurrencyScope {
+    constructor(parent: ConcurrencyScope | null, options?: ConcurrencyScopeOptions);
+    // (undocumented)
+    all(): Promise<void>;
+    // (undocumented)
+    allSettled(): Promise<void>;
+    // (undocumented)
+    anyError(): Promise<Result<void, InfinisheetError>>;
+    // (undocumented)
+    cancel(): void;
+    // (undocumented)
+    readonly options?: ConcurrencyScopeOptions | undefined;
+    // (undocumented)
+    readonly parent: ConcurrencyScope | null;
+    // (undocumented)
+    started<R extends ResultAsync<unknown, InfinisheetError>>(promise: R): R;
+    // (undocumented)
+    started<R extends Promise<Result<unknown, InfinisheetError>>>(promise: R): R;
+    // (undocumented)
+    started<R extends PromiseLike<Result<unknown, InfinisheetError>>>(promise: R): R;
+    // (undocumented)
+    startSoon<R extends ResultAsync<unknown, InfinisheetError>>(task: (scope: ConcurrencyScope) => R): R;
+    // (undocumented)
+    startSoon<R extends Promise<Result<unknown, InfinisheetError>>>(task: (scope: ConcurrencyScope) => R): R;
+    // (undocumented)
+    startSoon<R extends PromiseLike<Result<unknown, InfinisheetError>>>(task: (scope: ConcurrencyScope) => R): R;
+}
+
+// @public (undocumented)
+export interface ConcurrencyScopeOptions {
+    // (undocumented)
+    timeout: number;
+}
+
 // @public
 export interface ConflictError extends InfinisheetError {
     nextSequenceId: SequenceId;
@@ -186,6 +221,21 @@ export type GetRootDirError = StorageError;
 
 // @public
 export function indexToColRef(index: number): ColRef;
+
+// @public (undocumented)
+export type InferErrTypes<R> = [R] extends [Result<unknown, infer E>] ? E : never;
+
+// @public (undocumented)
+export type InferOkTypes<R> = R extends Result<infer T, unknown> ? T : never;
+
+// @public (undocumented)
+export type InferPromiseErrTypes<R> = R extends Promise<Result<unknown, infer E>> ? E : never;
+
+// @public (undocumented)
+export type InferPromiseLikeType<R> = R extends PromiseLike<infer T> ? T : never;
+
+// @public (undocumented)
+export type InferPromiseOkTypes<R> = R extends Promise<Result<infer T, unknown>> ? T : never;
 
 // @public
 export interface InfinisheetError {
@@ -379,6 +429,9 @@ export interface StorageError extends InfinisheetError {
 // @public
 export function storageError(message: string, statusCode?: number): StorageError;
 
+// @public (undocumented)
+export type Task<T, E> = (scope: ConcurrencyScope) => Promise<Result<T, E>> | ResultAsync<T, E>;
+
 // @public
 export type TruncateError = InfinisheetRangeError | StorageError;
 
@@ -406,6 +459,21 @@ export function viewport(rowMinOffset: number, columnMinOffset: number, width: n
 
 // @public
 export function viewportToCellRange<Snapshot>(data: SpreadsheetData<Snapshot>, snapshot: Snapshot, viewport: SpreadsheetViewport): CellRangeCoords | null;
+
+// @public (undocumented)
+export function withScope<R extends PromiseLike<unknown>>(parentScope: ConcurrencyScope | null, body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): Promise<InferPromiseLikeType<R>>;
+
+// @public (undocumented)
+export function withScope<R>(parentScope: ConcurrencyScope | null, body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): Promise<R>;
+
+// @public (undocumented)
+export function withScopeAsync<R extends ResultAsync<unknown, unknown>>(parentScope: ConcurrencyScope | null, body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): R;
+
+// @public (undocumented)
+export function withScopeAsync<R extends Promise<Result<unknown, unknown>>>(parentScope: ConcurrencyScope | null, body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): ResultAsync<InferPromiseOkTypes<R>, InferPromiseErrTypes<R>>;
+
+// @public (undocumented)
+export function withScopeAsync<R extends Result<unknown, unknown>>(parentScope: ConcurrencyScope | null, body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): ResultAsync<InferOkTypes<R>, InferErrTypes<R>>;
 
 // @public (undocumented)
 export interface WorkerHost<MessageT extends WorkerMessage> {

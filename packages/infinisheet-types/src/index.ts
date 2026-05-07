@@ -11,6 +11,7 @@
 export * from './Result'
 export * from './ResultAsync'
 export * from './Error'
+export * from './ConcurrencyScope'
 export * from './EventLog'
 export * from './BlobStore'
 export * from './Workers'
