@@ -12,11 +12,11 @@ export type InferPromiseErrTypes<R> = R extends Promise<infer T> ? InferErrTypes
 
 export interface ConcurrencyScopeOptions {
   timeout?: number | undefined;
-  noCancelOnExit?: boolean | undefined;
+  cancelOnExit?: boolean | undefined;
 }
 
 export class ConcurrencyScope {
-  constructor(parent: ConcurrencyScope | null, options?: ConcurrencyScopeOptions) {
+  constructor(parent: ConcurrencyScope | null, options: ConcurrencyScopeOptions = {}) {
     this.parent = parent;
     this.options = options;
     this.promises = [];
@@ -59,7 +59,7 @@ export class ConcurrencyScope {
   }
 
   readonly parent: ConcurrencyScope | null;
-  readonly options?: ConcurrencyScopeOptions | undefined;
+  readonly options: ConcurrencyScopeOptions;
   private promises: PromiseLike<Result<unknown,InfinisheetError>>[];
 }
 
@@ -71,8 +71,10 @@ export async function withScope<R>(parentScope: ConcurrencyScope | null,
   body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): Promise<R>
 {
   const scope = new ConcurrencyScope(parentScope, options);
+  const { cancelOnExit = true } = scope.options;
+
   const ret = await body(scope);
-  if (!options?.noCancelOnExit)
+  if (cancelOnExit)
     scope.cancel();
   await scope.allSettled();
   return ret;
@@ -88,10 +90,11 @@ export function withScopeAsync<R extends PromiseLike<Result<unknown, unknown>> |
   body: (scope: ConcurrencyScope) => R, options?: ConcurrencyScopeOptions): ResultAsync<unknown,unknown>
 {
   const scope = new ConcurrencyScope(parentScope, options);
+  const { cancelOnExit = true } = scope.options;
 
   return new ResultAsync((async () => {
     const ret = await body(scope);
-    if (!options?.noCancelOnExit)
+    if (cancelOnExit)
       scope.cancel();
     await scope.allSettled();
     return ret;

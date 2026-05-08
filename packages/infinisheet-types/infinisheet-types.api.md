@@ -97,7 +97,7 @@ export class ConcurrencyScope {
     // (undocumented)
     cancel(): void;
     // (undocumented)
-    readonly options?: ConcurrencyScopeOptions | undefined;
+    readonly options: ConcurrencyScopeOptions;
     // (undocumented)
     readonly parent: ConcurrencyScope | null;
     // (undocumented)
@@ -117,7 +117,7 @@ export class ConcurrencyScope {
 // @public (undocumented)
 export interface ConcurrencyScopeOptions {
     // (undocumented)
-    noCancelOnExit?: boolean | undefined;
+    cancelOnExit?: boolean | undefined;
     // (undocumented)
     timeout?: number | undefined;
 }
