@@ -6,9 +6,9 @@ export type Task<T,E> = (scope: ConcurrencyScope) => Promise<Result<T,E>> | Resu
 
 export type InferPromiseLikeType<R> = R extends PromiseLike<infer T> ? T : never;
 export type InferOkTypes<R> = R extends Result<infer T, unknown> ? T : never;
-export type InferErrTypes<R> = [R] extends [Result<unknown, infer E>] ? E : never;
-export type InferPromiseOkTypes<R> = R extends Promise<Result<infer T, unknown>> ? T : never;
-export type InferPromiseErrTypes<R> = R extends Promise<Result<unknown, infer E>> ? E : never;
+export type InferErrTypes<R> = R extends Result<unknown, infer E> ? E : never;
+export type InferPromiseOkTypes<R> = R extends Promise<infer T> ? InferOkTypes<T> : never;
+export type InferPromiseErrTypes<R> = R extends Promise<infer T> ? InferErrTypes<T> : never;
 
 export interface ConcurrencyScopeOptions {
   timeout?: number | undefined;

@@ -225,19 +225,19 @@ export type GetRootDirError = StorageError;
 export function indexToColRef(index: number): ColRef;
 
 // @public (undocumented)
-export type InferErrTypes<R> = [R] extends [Result<unknown, infer E>] ? E : never;
+export type InferErrTypes<R> = R extends Result<unknown, infer E> ? E : never;
 
 // @public (undocumented)
 export type InferOkTypes<R> = R extends Result<infer T, unknown> ? T : never;
 
 // @public (undocumented)
-export type InferPromiseErrTypes<R> = R extends Promise<Result<unknown, infer E>> ? E : never;
+export type InferPromiseErrTypes<R> = R extends Promise<infer T> ? InferErrTypes<T> : never;
 
 // @public (undocumented)
 export type InferPromiseLikeType<R> = R extends PromiseLike<infer T> ? T : never;
 
 // @public (undocumented)
-export type InferPromiseOkTypes<R> = R extends Promise<Result<infer T, unknown>> ? T : never;
+export type InferPromiseOkTypes<R> = R extends Promise<infer T> ? InferOkTypes<T> : never;
 
 // @public
 export interface InfinisheetError {
