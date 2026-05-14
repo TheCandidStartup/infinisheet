@@ -1,4 +1,4 @@
-import { InfinisheetError } from "./Error";
+import { InfinisheetError, CancelError, TimeoutError, cancelError, timeoutError } from "./Error";
 import { Result, ok, err } from "./Result"
 import { ResultAsync } from "./ResultAsync"
 
@@ -13,13 +13,51 @@ export type InferPromiseErrTypes<R> = R extends Promise<infer T> ? InferErrTypes
 export interface ConcurrencyScopeOptions {
   timeout?: number | undefined;
   cancelOnExit?: boolean | undefined;
+  newCancelScope?: boolean | undefined;
+  newConcurrencyScope?: boolean | undefined;
+}
+
+function reasonToError(signal: AbortSignal): CancelError | TimeoutError {
+  return (signal.reason?.name === 'TimeoutError') ? timeoutError() : cancelError();
+}
+
+// Not using AbortSignal.timeout because it isn't supported by fake-timers in unit tests
+// As this is a tracer bullet doing the most expedient thing. Using my own functionally equivalent
+// implementation based on setTimeout which fake timers does support.
+// Long term switch back to AbortSignal.timeout for production use or enhance this to use
+// a WeakRef so signal/controller can be GCed if nobody cares about timeout anymore, plus a
+// finalization registry to clearTimeout if signal/controller GCed.
+function abortSignalTimeout(delay: number) {
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(new DOMException("Timed out!", "TimeoutError")), delay);
+  return controller.signal;
 }
 
 export class ConcurrencyScope {
   constructor(parent: ConcurrencyScope | null, options: ConcurrencyScopeOptions = {}) {
+    const { newCancelScope = true, newConcurrencyScope = true } = options;
     this.parent = parent;
     this.options = options;
-    this.promises = [];
+
+    if (newConcurrencyScope || !parent) {
+      this.ownPromises = true;
+      this.promises = [];
+    } else {
+      this.ownPromises = false;
+      this.promises = parent.promises;
+    }
+
+    if (newCancelScope || !parent) {
+      this.abortController =  new AbortController();
+      this.abortSignal = parent ? AbortSignal.any([this.abortController.signal, parent.abortController.signal]) : this.abortController.signal;
+    } else {
+      this.abortController = parent.abortController;
+      this.abortSignal = parent.abortSignal;
+    }
+
+    if (options.timeout) {
+      this.abortSignal = AbortSignal.any([this.abortSignal, abortSignalTimeout(options.timeout)]);
+    }
   }
 
   started<R extends ResultAsync<unknown,InfinisheetError>>(promise: R): R;
@@ -39,28 +77,54 @@ export class ConcurrencyScope {
   }
 
   cancel(): void {
+    this.abortController.abort();
   }
 
   async all(): Promise<void> {
-    await Promise.all(this.promises);
+    if (this.ownPromises)
+      await Promise.all(this.promises);
   }
   
   async allSettled(): Promise<void> {
-    await Promise.allSettled(this.promises);
+    if (this.ownPromises)
+      await Promise.allSettled(this.promises);
   }
 
   async anyError(): Promise<Result<void,InfinisheetError>> {
-    const results = await Promise.all(this.promises);
-    for (const result of results) {
-      if (result.isErr())
-        return err(result.error);
+    if (this.ownPromises) {
+      const results = await Promise.all(this.promises);
+      for (const result of results) {
+        if (result.isErr())
+          return err(result.error);
+      }
     }
     return ok();
   }
 
+  sleep(delay: number): Promise<Result<void,CancelError|TimeoutError>> {
+    const signal = this.abortSignal;
+
+    return this.started(new Promise<Result<void,CancelError|TimeoutError>>((resolve) => {
+      function onAbort() {
+        clearTimeout(timerId);
+        resolve(err(reasonToError(signal)));
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true });
+
+      const timerId = setTimeout(() => {
+        signal.removeEventListener("abort", onAbort );
+        resolve(ok());
+      }, delay);
+    }));
+  }
+
   readonly parent: ConcurrencyScope | null;
   readonly options: ConcurrencyScopeOptions;
+  private ownPromises: boolean;
   private promises: PromiseLike<Result<unknown,InfinisheetError>>[];
+  private abortController: AbortController;
+  private abortSignal: AbortSignal;
 }
 
 export function withScope<R extends PromiseLike<unknown>>(parentScope: ConcurrencyScope | null, 
@@ -73,11 +137,16 @@ export async function withScope<R>(parentScope: ConcurrencyScope | null,
   const scope = new ConcurrencyScope(parentScope, options);
   const { cancelOnExit = true } = scope.options;
 
-  const ret = await body(scope);
-  if (cancelOnExit)
-    scope.cancel();
-  await scope.allSettled();
-  return ret;
+  let completed = false;
+  try {
+    const ret = await body(scope);
+    completed = true;
+    return ret;
+  } finally {
+    if (cancelOnExit || !completed)
+      scope.cancel();
+    await scope.allSettled();
+  }
 }
 
 export function withScopeAsync<R extends ResultAsync<unknown, unknown>>(parentScope: ConcurrencyScope | null, 

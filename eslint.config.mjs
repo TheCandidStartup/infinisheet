@@ -49,6 +49,10 @@ export default defineConfig(
           allowInterfaces: 'with-single-extends'
       }],
 
+      "@typescript-eslint/no-unsafe-member-access": ["error", {
+          allowOptionalChaining: true
+      }],
+
       "react-hooks/exhaustive-deps": "error"
     } 
   },

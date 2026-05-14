@@ -33,6 +33,28 @@ export function validationError(message: string): ValidationError {
   return { type: 'ValidationError', message };
 }
 
+/** Type that represents an error when validating data passed to an API */
+export interface CancelError extends InfinisheetError {
+  /** Discriminated union tag */
+  type: 'CancelError'
+};
+
+/** Convenience method that creates a {@link CancelError} */
+export function cancelError(): CancelError {
+  return { type: 'CancelError', message: "canceled" };
+}
+
+/** Type that represents an error when validating data passed to an API */
+export interface TimeoutError extends InfinisheetError {
+  /** Discriminated union tag */
+  type: 'TimeoutError'
+};
+
+/** Convenience method that creates a {@link TimeoutError} */
+export function timeoutError(): TimeoutError {
+  return { type: 'TimeoutError', message: "timed out" };
+}
+
 /** Type that represents an error when accessing data in persistent storage */
 export interface StorageError extends InfinisheetError {
   /** Discriminated union tag */

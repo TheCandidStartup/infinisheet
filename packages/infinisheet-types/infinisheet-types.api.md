@@ -50,6 +50,14 @@ export interface BlobWrongKindError extends InfinisheetError {
 }
 
 // @public
+export interface CancelError extends InfinisheetError {
+    type: 'CancelError';
+}
+
+// @public
+export function cancelError(): CancelError;
+
+// @public
 export interface CellData {
     format?: CellFormat;
     value: CellValue;
@@ -101,6 +109,8 @@ export class ConcurrencyScope {
     // (undocumented)
     readonly parent: ConcurrencyScope | null;
     // (undocumented)
+    sleep(delay: number): Promise<Result<void, CancelError | TimeoutError>>;
+    // (undocumented)
     started<R extends ResultAsync<unknown, InfinisheetError>>(promise: R): R;
     // (undocumented)
     started<R extends Promise<Result<unknown, InfinisheetError>>>(promise: R): R;
@@ -118,6 +128,10 @@ export class ConcurrencyScope {
 export interface ConcurrencyScopeOptions {
     // (undocumented)
     cancelOnExit?: boolean | undefined;
+    // (undocumented)
+    newCancelScope?: boolean | undefined;
+    // (undocumented)
+    newConcurrencyScope?: boolean | undefined;
     // (undocumented)
     timeout?: number | undefined;
 }
@@ -433,6 +447,14 @@ export function storageError(message: string, statusCode?: number): StorageError
 
 // @public (undocumented)
 export type Task<T, E> = (scope: ConcurrencyScope) => Promise<Result<T, E>> | ResultAsync<T, E>;
+
+// @public
+export interface TimeoutError extends InfinisheetError {
+    type: 'TimeoutError';
+}
+
+// @public
+export function timeoutError(): TimeoutError;
 
 // @public
 export type TruncateError = InfinisheetRangeError | StorageError;
