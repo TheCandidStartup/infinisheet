@@ -6,10 +6,9 @@
 
 import { ItemOffsetMapping } from '@candidstartup/infinisheet-types';
 import React$1 from 'react';
-import * as react_jsx_runtime from 'react/jsx-runtime';
 
 // @public
-export function AutoSizer(props: AutoSizerProps): react_jsx_runtime.JSX.Element;
+export function AutoSizer(props: AutoSizerProps): React$1.JSX.Element;
 
 // @public
 export interface AutoSizerProps {
@@ -51,7 +50,7 @@ export interface DisplayBaseProps extends ComponentProps {
 }
 
 // @public
-export function DisplayGrid(props: DisplayGridProps): react_jsx_runtime.JSX.Element;
+export function DisplayGrid(props: DisplayGridProps): React$1.JSX.Element;
 
 // @public
 export type DisplayGridItem = React$1.ComponentType<DisplayGridItemProps>;
@@ -75,7 +74,7 @@ export interface DisplayGridProps extends DisplayBaseProps {
 }
 
 // @public
-export function DisplayList(props: DisplayListProps): react_jsx_runtime.JSX.Element;
+export function DisplayList(props: DisplayListProps): React$1.JSX.Element;
 
 // @public
 export type DisplayListItem = React$1.ComponentType<DisplayListItemProps>;

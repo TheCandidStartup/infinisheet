@@ -2,15 +2,18 @@ packages:
   - packages/*
   - apps/*
 
+blockExoticSubdeps: true
+
+catalog:
+  react: ^18.3.1
+  react-dom: ^18.3.1
+
+minimumReleaseAge: 10080
+
 onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
 
-blockExoticSubdeps: true
-minimumReleaseAge: 10080
 trustPolicy: no-downgrade
-trustPolicyIgnoreAfter: 43200
 
-catalog:
-  react: ^18.2.0
-  react-dom: ^18.2.0
+trustPolicyIgnoreAfter: 43200

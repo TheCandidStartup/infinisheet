@@ -4,7 +4,7 @@
 
 ```ts
 
-import * as react_jsx_runtime from 'react/jsx-runtime';
+import { default as React_2 } from 'react';
 import { SpreadsheetData } from '@candidstartup/infinisheet-types';
 
 // @public
@@ -13,13 +13,13 @@ export interface ReactSpreadsheetData<Snapshot> extends SpreadsheetData<Snapshot
 }
 
 // @public
-export function VirtualSpreadsheet(props: VirtualSpreadsheetProps): react_jsx_runtime.JSX.Element;
+export function VirtualSpreadsheet(props: VirtualSpreadsheetProps): React_2.JSX.Element;
 
 // @public
 export const VirtualSpreadsheetDefaultTheme: VirtualSpreadsheetTheme;
 
 // @public
-export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGenericProps<Snapshot>): react_jsx_runtime.JSX.Element;
+export function VirtualSpreadsheetGeneric<Snapshot>(props: VirtualSpreadsheetGenericProps<Snapshot>): React_2.JSX.Element;
 
 // @public
 export interface VirtualSpreadsheetGenericProps<Snapshot> {
