@@ -10,10 +10,10 @@ catalog:
 
 minimumReleaseAge: 10080
 
-onlyBuiltDependencies:
-  - '@swc/core'
-  - esbuild
-
 trustPolicy: no-downgrade
 
 trustPolicyIgnoreAfter: 43200
+engineStrict: true
+allowBuilds:
+  '@swc/core': true
+  esbuild: true
