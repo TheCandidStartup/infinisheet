@@ -14,7 +14,7 @@ export default defineConfig({
     rollupOptions:  {
       plugins: [sourcemaps()],
       input: {
-        main: resolve(__dirname, 'index.html'),
+        main: resolve(import.meta.dirname, 'index.html'),
       },
       output: {
         manualChunks: (id) => {
