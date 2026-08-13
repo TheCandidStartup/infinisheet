@@ -1,5 +1,4 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import tsconfigPaths from 'vite-tsconfig-paths';
 
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,7 +27,7 @@ const config: StorybookConfig = {
   async viteFinal(config, options) { 
     const { mergeConfig } = await import("vite");
 
-    // Production build for testing doesn't use tsconfigPaths plugin
+    // Production build for testing doesn't use tsconfigPaths resolution
     // to ensure that it builds against dependent packages
     // from the monorepo rather than pulling in src directly.
     // Want to make sure that I'm eating my own dog food.
@@ -39,11 +38,13 @@ const config: StorybookConfig = {
       return config;
     }
 
-    // Add tsconfigPaths plugin for other builds for Autodocs support and
+    // Enable tsconfigPaths resolution for other builds for Autodocs support and
     // nice development experience where I can edit src files
     // in dependent packages and have storybook immediately update.
     return mergeConfig(config, {
-      plugins: [ tsconfigPaths() ]
+      resolve: {
+        tsconfigPaths: true
+      },
     })
   }
 };
