@@ -13,17 +13,20 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
-    rollupOptions:  {
+    rolldownOptions:  {
       plugins: [sourcemaps()],
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
       },
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        }
+        codeSplitting: {
+          groups: [
+            {
+              test: /node_modules/,
+              name: 'vendor',
+            },
+          ],
+        },
       }
     }
   }
