@@ -50,6 +50,7 @@
     "prebuild": "pnpm run clean",
     "typecheck": "tsc -p tsconfig.json",
     "build-tsc": "tsc -p tsconfig.build.json",
+    "build-rolldown": "rolldown -c ../rolldown.config.mjs",
     "build-rollup": "rollup -c ../rollup.config.mjs",
     "build": "pnpm run build-rollup",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
