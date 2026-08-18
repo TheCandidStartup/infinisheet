@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "rootDir": "./",
     "paths": {
-      "@candidstartup/*": ["packages/*/src"]
+      "@candidstartup/*": ["./packages/*/src"]
     }
   },
 }

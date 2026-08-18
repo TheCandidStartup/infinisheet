@@ -71,7 +71,7 @@
     "typedoc": "^0.28.20",
     "typedoc-plugin-coverage": "^4.0.3",
     "typedoc-plugin-extras": "^4.0.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.66.0",
     "vite": "^8.2.0",
     "vitest": "^4.1.10"
