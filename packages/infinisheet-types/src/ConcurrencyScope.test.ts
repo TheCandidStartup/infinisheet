@@ -82,10 +82,10 @@ describe('withScope', () => {
   })
 
   it('void', async () => {
-    await withScope(null, (scope) => {
+    await expect(withScope(null, (scope) => {
       void scope.started(myFunc(scope));
       void scope.started(myOtherFunc(scope));
-    }, { cancelOnExit: false })
+    }, { cancelOnExit: false })).resolves.toBe(undefined);
   })
 
   it('rejected', async () => {
@@ -102,6 +102,42 @@ describe('withScope', () => {
     await vi.runAllTimersAsync();
     const elapsed = Date.now() - now;
     expect(elapsed).toEqual(0);
+  })
+
+  it('cancelOnExit', async () => {
+    vi.useFakeTimers();
+    const now = Date.now();
+
+    const ret = withScope(null, (scope) => {
+      void scope.sleep(100);
+      return myFunc(scope);
+    }, { cancelOnExit: true });
+
+    // If unexpected error everything else should be canceled regardless of options
+    await vi.runAllTimersAsync();
+    const elapsed = Date.now() - now;
+    expect(elapsed).toEqual(0);
+
+    const result = await ret;
+    expect(result).toBeOk();
+  })
+
+  it('no cancelOnExit', async () => {
+    vi.useFakeTimers();
+    const now = Date.now();
+
+    const ret = withScope(null, (scope) => {
+      void scope.sleep(100);
+      return myFunc(scope);
+    }, { cancelOnExit: false });
+
+    // If unexpected error everything else should be canceled regardless of options
+    await vi.runAllTimersAsync();
+    const elapsed = Date.now() - now;
+    expect(elapsed).toEqual(100);
+
+    const result = await ret;
+    expect(result).toBeOk();
   })
 
   it('promise', async () => {
@@ -128,12 +164,56 @@ describe('withScope', () => {
     })
     expect(result._unsafeUnwrap()).toEqual(true);
   })
+
+  it('new scope if no parent', async () => {
+    const ret: Result<boolean, ValidationError> = await withScope(null, (scope) => {
+      return scope.started(myFunc(scope));
+    }, { newCancelScope: false, newConcurrencyScope: false })
+    expect(ret._unsafeUnwrap()).toEqual(true);
+  })
 })
 
 describe('withScopeAsync', () => {
   afterEach(() => {
     vi.useRealTimers();
   })
+
+  it('cancelOnExit', async () => {
+    vi.useFakeTimers();
+    const now = Date.now();
+
+    const ret = withScopeAsync(null, (scope) => {
+      void scope.sleep(100);
+      return myFunc(scope);
+    }, { cancelOnExit: true });
+
+    // If unexpected error everything else should be canceled regardless of options
+    await vi.runAllTimersAsync();
+    const elapsed = Date.now() - now;
+    expect(elapsed).toEqual(0);
+
+    const result = await ret;
+    expect(result).toBeOk();
+  })
+
+  it('no cancelOnExit', async () => {
+    vi.useFakeTimers();
+    const now = Date.now();
+
+    const ret = withScopeAsync(null, (scope) => {
+      void scope.sleep(100);
+      return myFunc(scope);
+    }, { cancelOnExit: false });
+
+    // If unexpected error everything else should be canceled regardless of options
+    await vi.runAllTimersAsync();
+    const elapsed = Date.now() - now;
+    expect(elapsed).toEqual(100);
+
+    const result = await ret;
+    expect(result).toBeOk();
+  })
+
   it('promise', async () => {
     const ret: Result<boolean, ValidationError> = await withScopeAsync(null, (scope) => {
       return scope.started(myFunc(scope));
